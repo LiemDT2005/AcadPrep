@@ -1,0 +1,68 @@
+version: "3.9"
+
+services:
+  db:
+    image: mcr.microsoft.com/mssql/server:2022-latest
+    container_name: acadprep_db
+    restart: always
+    environment:
+      ACCEPT_EULA: "Y"
+      MSSQL_SA_PASSWORD: ${DB_PASSWORD:-YourStrong@Pass123}
+    ports:
+      - "${DB_PORT:-1433}:1433"
+    volumes:
+      - mssql_data:/var/opt/mssql
+    healthcheck:
+      test: ["CMD-SHELL", "/opt/mssql-tools18/bin/sqlcmd -S localhost -U sa -P \"$${MSSQL_SA_PASSWORD}\" -Q \"SELECT 1\" -C"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - acadprep-network
+
+  redis:
+    image: redis:alpine
+    container_name: acadprep_redis
+    restart: always
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    networks:
+      - acadprep-network
+    command: redis-server --appendonly yes
+
+  backend:
+    build:
+      context: ../../../backend
+      dockerfile: Dockerfile
+    container_name: acadprep_backend
+    restart: always
+    depends_on:
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_started
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ASPNETCORE_HTTP_PORTS=${BACKEND_PORT:-5000}
+      - ConnectionStrings__DefaultConnection=Server=db,1433;Database=${DB_NAME:-AcadPrepDb};User Id=sa;Password=${DB_PASSWORD:-YourStrong@Pass123};TrustServerCertificate=True;
+      - Jwt__Secret=${JWT_SECRET}
+      - Jwt__Issuer=${JWT_ISSUER}
+      - Jwt__Audience=${JWT_AUDIENCE}
+      - ConnectionStrings__Redis=redis:6379
+      - AdminSeed__UserName=${ADMIN_USERNAME}
+      - AdminSeed__Email=${ADMIN_EMAIL}
+      - AdminSeed__Password=${ADMIN_PASSWORD}
+    ports:
+      - "${BACKEND_PORT:-5000}:${BACKEND_PORT:-5000}"
+    networks:
+      - acadprep-network  
+
+volumes:
+  mssql_data:
+  redis_data:
+
+networks:
+  acadprep-network:
+    driver: bridge
