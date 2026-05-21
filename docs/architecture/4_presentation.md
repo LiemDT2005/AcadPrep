@@ -194,3 +194,54 @@ app.MapEndpoints(); // Automatically maps all IEndpointGroup implementations!
 
 app.Run();
 ```
+
+---
+
+## Razor Pages (Hybrid API + Server-Side UI)
+
+For projects that require a traditional Server-Side Rendered (SSR) web interface alongside an API (for external Frontends like React/Next.js or Mobile Apps), Razor Pages can be integrated directly into the `WebUI` project.
+
+### The CQRS Advantage in Views
+A common anti-pattern is for Server-Side rendered views (Razor/Blazor) to use `HttpClient` to call their own API endpoints. This introduces unnecessary network serialization overhead.
+
+In Clean Architecture with MediatR, **Razor Pages should inject `ISender` and call the Application Layer directly**, exactly like API Controllers do.
+
+```csharp
+// WebUI/Pages/Products/Index.cshtml.cs
+using Application.Features.Products.Queries.GetProductList;
+using MediatR;
+using Microsoft.AspNetCore.Mvc.RazorPages;
+using System.Collections.Generic;
+using System.Threading.Tasks;
+
+namespace WebUI.Pages.Products;
+
+public class IndexModel : PageModel
+{
+    private readonly ISender _mediator;
+
+    public IndexModel(ISender mediator)
+    {
+        _mediator = mediator;
+    }
+
+    public List<GetProductDto> Products { get; set; } = new();
+
+    public async Task OnGetAsync()
+    {
+        // Direct call to Application Layer (No HTTP/API overhead)
+        var response = await _mediator.Send(new GetProductListQuery());
+        
+        if (response.IsSuccess && response.Value != null)
+        {
+            Products = response.Value;
+        }
+    }
+}
+```
+
+### Migration Path to External Frontend
+By keeping both `Controllers/` (for JSON API) and `Pages/` (for HTML UI) in the same project:
+1. You can develop features rapidly using Razor Pages today.
+2. The REST APIs are simultaneously available (and testable via Swagger) for future external consumers.
+3. When transitioning to a standalone frontend (React/Angular), the frontend simply consumes the existing `Controllers/`, and the `Pages/` can be safely removed or kept as an internal Admin dashboard.

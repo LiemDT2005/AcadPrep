@@ -11,7 +11,7 @@ graph TD
     Domain[Domain Layer - Core Business Rules]
     Application[Application Layer - Use Cases & Orchestration]
     Infrastructure[Infrastructure Layer - Persistence, Services, APIs]
-    Presentation[Presentation Layer - Controllers, Endpoints, Web UI]
+    Presentation[Presentation Layer - Controllers, Endpoints, Razor Pages/Web UI]
 
     Application --> Domain
     Infrastructure --> Application
@@ -25,7 +25,7 @@ graph TD
    - The **Domain** layer has zero project references and depends only on pure C# primitives.
    - The **Application** layer references only the Domain layer.
    - The **Infrastructure** layer implements interfaces defined in Application or Domain.
-   - The **Presentation/API** layer maps HTTP requests to Use Cases (MediatR commands/queries) and relies on dependency injection to wire up implementations at runtime.
+   - The **Presentation/API** layer maps HTTP requests (via API Controllers) or UI interactions (via Razor Pages) to Use Cases (MediatR commands/queries) and relies on dependency injection to wire up implementations at runtime.
    - The compiler strictly enforces these rules through project reference constraints.
 
 2. **Domain Owns the Business Rules**
@@ -79,7 +79,8 @@ src/
   │    └── DependencyInjection.cs# DI Registration extension method
   │
   └── MyProject.WebUI/ (or MyProject.Api)
-       ├── Controllers/          # API Controllers inheriting ApiControllerBase
+       ├── Controllers/          # API Controllers inheriting ApiControllerBase (JSON responses)
+       ├── Pages/                # Razor Pages views (.cshtml) and code-behind (.cshtml.cs) calling MediatR directly
        ├── Endpoints/            # Minimal API Endpoints implementing IEndpointGroup
        ├── Middlewares/          # ExceptionHandlingMiddleware
        ├── Program.cs            # Entry point and DI wiring
