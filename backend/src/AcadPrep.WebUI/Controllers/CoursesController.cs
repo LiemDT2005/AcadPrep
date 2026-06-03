@@ -37,7 +37,7 @@ public class CoursesController : ApiControllerBase
             return BadRequest(result);
         }
 
-        return CreatedAtAction(nameof(GetList), new { id = result.Value }, result);
+        return CreatedAtAction(nameof(GetList), new { id = result.Data }, result);
     }
 
     /// <summary>

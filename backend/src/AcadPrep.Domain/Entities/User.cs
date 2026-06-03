@@ -1,17 +1,17 @@
-using System;
-using System.Collections.Generic;
+using Domain.Common;
+using Domain.Enums;
 
 namespace Domain.Entities;
 
-public class User
+public class User : BaseEntity<int>, IAuditable
 {
-    public int UserId { get; set; }
     public string Email { get; set; } = null!;
     public string PasswordHash { get; set; } = null!;
     public string FullName { get; set; } = null!;
-    public string Status { get; set; } = "Active";
+    public UserStatus Status { get; set; } = UserStatus.Active;
     public int RoleId { get; set; }
     public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
+    public DateTime? LastModifiedAt { get; set; }
 
     // Navigation properties
     public virtual Role Role { get; set; } = null!;

@@ -3,8 +3,8 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Application.Common.Interfaces;
+using Application.Common.Models;
 using Application.Features.Courses.Queries.Common.DTOs;
-using Domain.Common;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 
@@ -22,7 +22,7 @@ internal sealed class GetCourseListQueryHandler(IAppDbContext context, ICacheSer
         var cached = await cache.GetAsync<List<GetCourseDto>>(CacheKey, cancellationToken);
         if (cached is not null)
         {
-            return Result<List<GetCourseDto>>.Success("Lấy danh sách khóa học thành công", cached);
+            return Result<List<GetCourseDto>>.Success(cached);
         }
 
         // Cache miss → query DB
@@ -35,13 +35,13 @@ internal sealed class GetCourseListQueryHandler(IAppDbContext context, ICacheSer
                 Description = x.Description,
                 Level = x.Level,
                 Price = x.Price,
-                CreatedDate = x.CreatedDate
+                CreatedAt = x.CreatedAt
             })
             .ToListAsync(cancellationToken);
 
         // Lưu vào cache (sliding 5 phút)
         await cache.SetAsync(CacheKey, items, TimeSpan.FromMinutes(5), cancellationToken);
 
-        return Result<List<GetCourseDto>>.Success("Lấy danh sách khóa học thành công", items);
+        return Result<List<GetCourseDto>>.Success(items);
     }
 }

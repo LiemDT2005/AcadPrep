@@ -10,9 +10,10 @@ public class ExamConfiguration : IEntityTypeConfiguration<Exam>
     {
         builder.ToTable("EXAMS");
 
-        builder.HasKey(x => x.ExamId);
+        builder.HasKey(x => x.Id);
 
-        builder.Property(x => x.ExamId)
+        builder.Property(x => x.Id)
+            .HasColumnName("ExamId")
             .ValueGeneratedOnAdd();
 
         builder.Property(x => x.Title)
@@ -30,6 +31,9 @@ public class ExamConfiguration : IEntityTypeConfiguration<Exam>
 
         builder.Property(x => x.CreatedAt)
             .HasDefaultValueSql("GETDATE()");
+
+        builder.Property(x => x.LastModifiedAt)
+            .IsRequired(false);
 
         // Global query filter for soft delete
         builder.HasQueryFilter(x => !x.IsDeleted);

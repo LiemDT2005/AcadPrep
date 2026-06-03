@@ -10,9 +10,10 @@ public class AuditLogConfiguration : IEntityTypeConfiguration<AuditLog>
     {
         builder.ToTable("AUDITLOGS");
 
-        builder.HasKey(x => x.LogId);
+        builder.HasKey(x => x.Id);
 
-        builder.Property(x => x.LogId)
+        builder.Property(x => x.Id)
+            .HasColumnName("LogId")
             .ValueGeneratedOnAdd();
 
         builder.Property(x => x.UserId)

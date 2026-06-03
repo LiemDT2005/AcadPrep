@@ -1,6 +1,6 @@
 using System.Collections.Generic;
+using Application.Common.Models;
 using Application.Features.Courses.Queries.Common.DTOs;
-using Domain.Common;
 using MediatR;
 
 namespace Application.Features.Courses.Queries.GetCourseList;

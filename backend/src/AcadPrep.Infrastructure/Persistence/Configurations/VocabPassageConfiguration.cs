@@ -10,9 +10,10 @@ public class VocabPassageConfiguration : IEntityTypeConfiguration<VocabPassage>
     {
         builder.ToTable("VOCAB_PASSAGES");
 
-        builder.HasKey(x => x.VocabPassageId);
+        builder.HasKey(x => x.Id);
 
-        builder.Property(x => x.VocabPassageId)
+        builder.Property(x => x.Id)
+            .HasColumnName("VocabPassageId")
             .ValueGeneratedOnAdd();
 
         builder.Property(x => x.Content)

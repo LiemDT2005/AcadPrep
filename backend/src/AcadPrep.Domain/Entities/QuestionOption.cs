@@ -1,10 +1,12 @@
+using Domain.Common;
+using Domain.Enums;
+
 namespace Domain.Entities;
 
-public class QuestionOption
+public class QuestionOption : BaseEntity<int>
 {
-    public int OptionId { get; set; }
     public int QuestionId { get; set; }
-    public string OptionLetter { get; set; } = null!;
+    public OptionLetter OptionLetter { get; set; }
     public string OptionText { get; set; } = null!;
 
     // Navigation properties

@@ -1,15 +1,15 @@
-using System.Collections.Generic;
+using Domain.Common;
+using Domain.Enums;
 
 namespace Domain.Entities;
 
-public class Question
+public class Question : BaseEntity<int>
 {
-    public int QuestionId { get; set; }
     public int QuestionNumber { get; set; }
     public int Part { get; set; }
     public string? QuestionText { get; set; }
     public string? AudioUrl { get; set; }
-    public string CorrectOption { get; set; } = null!;
+    public OptionLetter CorrectOption { get; set; }
     public int ExamId { get; set; }
     public int? PassageId { get; set; }
 

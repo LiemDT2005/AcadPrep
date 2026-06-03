@@ -23,9 +23,9 @@ namespace AcadPrep.WebUI.Pages.Courses
         {
             var response = await _mediator.Send(new GetCourseListQuery());
             
-            if (response.IsSuccess && response.Value != null)
+            if (response.IsSuccess && response.Data != null)
             {
-                Courses = response.Value;
+                Courses = response.Data;
             }
         }
     }

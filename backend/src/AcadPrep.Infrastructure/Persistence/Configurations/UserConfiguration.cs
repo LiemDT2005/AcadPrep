@@ -1,4 +1,5 @@
 using Domain.Entities;
+using Domain.Enums;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
@@ -13,9 +14,10 @@ public class UserConfiguration : IEntityTypeConfiguration<User>
             t.HasCheckConstraint("CHK_UserStatus", "[Status] IN ('Active', 'Inactive')");
         });
 
-        builder.HasKey(x => x.UserId);
+        builder.HasKey(x => x.Id);
 
-        builder.Property(x => x.UserId)
+        builder.Property(x => x.Id)
+            .HasColumnName("UserId")
             .ValueGeneratedOnAdd();
 
         builder.Property(x => x.Email)
@@ -38,7 +40,8 @@ public class UserConfiguration : IEntityTypeConfiguration<User>
         builder.Property(x => x.Status)
             .HasMaxLength(50)
             .IsUnicode(false)
-            .HasDefaultValue("Active")
+            .HasDefaultValue(UserStatus.Active)
+            .HasConversion<string>()
             .IsRequired();
 
         builder.Property(x => x.RoleId)
@@ -46,6 +49,9 @@ public class UserConfiguration : IEntityTypeConfiguration<User>
 
         builder.Property(x => x.CreatedAt)
             .HasDefaultValueSql("GETDATE()");
+
+        builder.Property(x => x.LastModifiedAt)
+            .IsRequired(false);
 
         // Relationships
         builder.HasOne(x => x.Role)

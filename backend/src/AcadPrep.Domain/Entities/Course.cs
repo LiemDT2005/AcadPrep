@@ -1,27 +1,31 @@
-using System;
 using Domain.Common;
 
 namespace Domain.Entities;
 
-public class Course : BaseEntity
+public class Course : BaseEntity<int>, IAuditable, ISoftDeletable
 {
     public string Title { get; private set; } = null!;
     public string Description { get; private set; } = null!;
     public string Level { get; private set; } = null!; // E.g., IELTS, TOEIC, B1, B2, General
     public decimal Price { get; private set; }
+    public string CreatedBy { get; private set; } = "System";
+    public DateTime CreatedAt { get; private set; } = DateTime.UtcNow;
+    public DateTime? LastModifiedAt { get; private set; }
+    public string? LastModifiedBy { get; private set; }
+    public bool IsDeleted { get; private set; }
+    public bool IsActive { get; private set; } = true;
 
     // Parameterless constructor for EF Core
     private Course() { }
 
     private Course(string title, string description, string level, decimal price, string createdBy, DateTimeOffset utcNow)
     {
-        Id = Guid.NewGuid().ToString();
         Title = title;
         Description = description;
         Level = level;
         Price = price;
         CreatedBy = createdBy;
-        CreatedDate = utcNow.UtcDateTime;
+        CreatedAt = utcNow.UtcDateTime;
         IsActive = true;
         IsDeleted = false;
     }
@@ -52,6 +56,12 @@ public class Course : BaseEntity
         Level = level;
         Price = price;
         LastModifiedBy = modifiedBy;
-        LastModifiedDate = utcNow.UtcDateTime;
+        LastModifiedAt = utcNow.UtcDateTime;
+    }
+
+    public void SoftDelete()
+    {
+        IsDeleted = true;
+        IsActive = false;
     }
 }
