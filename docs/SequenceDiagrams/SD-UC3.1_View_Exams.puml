@@ -1,0 +1,102 @@
+@startuml
+
+
+hide footbox
+
+actor Guest
+participant ":Index.cshtml" as View
+participant ":IndexModel" as PageModel
+participant ":ValidationBehavior" as Pipeline
+participant ":GetExamListQueryHandler" as Handler
+participant ":ICacheService" as CacheService
+database "Redis" as Redis
+participant ":IAppDbContext" as DbContext
+database "SQL Server" as DB
+
+Guest -> View : (1) Access /Exams
+activate Guest
+activate View
+
+View -> PageModel : (2) Request page data
+activate PageModel
+
+PageModel -> Pipeline : (3) Send exam list query
+activate Pipeline
+
+Pipeline -> Pipeline : (4) Validate query
+Pipeline -> Handler : (5) Forward to handler
+activate Handler
+
+Handler -> CacheService : (6) Check cache
+activate CacheService
+
+CacheService -> Redis : (7) Get exam list
+activate Redis
+Redis --> CacheService : (8) Return data or null
+deactivate Redis
+
+CacheService --> Handler : (9) Return cache result
+deactivate CacheService
+
+alt Cache HIT
+    Handler --> Pipeline : (10.1) Return cached list
+    
+    Pipeline --> PageModel : (11.1) Return cached list
+    
+    PageModel --> View : (12.1) Pass exams to view
+    View --> Guest : (13.1) Render exam list (BR-15)
+else Cache MISS
+    Handler -> DbContext : (10.2) Query active exams
+    activate DbContext
+
+    DbContext -> DB : (11.2) Execute query
+    activate DB
+
+    alt Success
+        DB --> DbContext : (12.2a) Return rows
+        DbContext --> Handler : (13.2a) Return exam list
+        deactivate DbContext
+
+        Handler -> CacheService : (14.2a) Cache exams (TTL 30m)
+        activate CacheService
+        CacheService -> Redis : (15.2a) Write to cache
+        activate Redis
+        Redis --> CacheService : (16.2a) Write confirmed
+        deactivate Redis
+        deactivate CacheService
+
+        Handler --> Pipeline : (17.2a) Return exam list
+        
+        Pipeline --> PageModel : (18.2a) Return exam list
+
+        PageModel --> View : (19.2a) Pass exams to view
+        
+        alt List is empty (A1)
+            View --> Guest : (20.2a_1) Show empty message
+        else List has items
+            View --> Guest : (20.2a_2) Show exam cards
+        end
+    else Database connection error (E1)
+        DB --> DbContext : (12.2b) Throw exception
+        deactivate DB
+        activate DbContext
+        DbContext --> Handler : (13.2b) Propagate exception
+        deactivate DbContext
+        
+        Handler --> Pipeline : (14.2b) Propagate exception
+        deactivate Handler
+        
+        Pipeline --> PageModel : (15.2b) Propagate exception
+        deactivate Pipeline
+        
+        PageModel --> View : (16.2b) Redirect to error page
+        deactivate PageModel
+        View --> Guest : (17.2b) Show error page
+        deactivate View
+        deactivate Guest
+    end
+end
+
+deactivate View
+deactivate Guest
+@enduml
