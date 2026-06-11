@@ -40,7 +40,7 @@ internal sealed class GetCourseListQueryHandler(IAppDbContext context, ICacheSer
             .ToListAsync(cancellationToken);
 
         // Lưu vào cache (sliding 5 phút)
-        await cache.SetAsync(CacheKey, items, TimeSpan.FromMinutes(5), cancellationToken);
+        await cache.SetAsync(CacheKey, items, TimeSpan.FromMinutes(5), cancellationToken);  
 
         return Result<List<GetCourseDto>>.Success(items);
     }
