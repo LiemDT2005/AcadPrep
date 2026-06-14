@@ -1,0 +1,238 @@
+@page
+@model AcadPrep.WebUI.Pages.Exams.DetailModel
+@{
+    Layout = "_ModeratorLayout";
+    ViewData["Title"] = "Exam Details";
+    
+    var exam = Model.Exam;
+    var totalQuestions = exam.Questions.Count;
+}
+
+<div class="w-full flex flex-col gap-lg pb-12">
+    <!-- Top actions -->
+    <div class="flex justify-between items-center">
+        <a href="/Exams" class="flex items-center gap-xs text-on-surface-variant hover:text-primary transition-colors">
+            <span class="material-symbols-outlined">arrow_back</span>
+            <span class="font-label-md text-label-md">Back to list</span>
+        </a>
+        <div class="flex gap-sm">
+            @if (!exam.IsDeleted)
+            {
+                <button onclick="confirmSoftDelete(@exam.Id, '@exam.Title')" class="bg-error-container hover:bg-error-container/80 text-on-error-container font-label-md text-label-md py-2 px-4 rounded-lg flex items-center gap-xs transition-colors cursor-pointer">
+                    <span class="material-symbols-outlined text-sm">visibility_off</span>
+                    Hide Exam
+                </button>
+            }
+        </div>
+    </div>
+
+    <!-- 1. TECHNICAL SUMMARY CARD -->
+    <section class="bg-surface-container-lowest rounded-xl p-lg border border-outline-variant/30 shadow-sm relative overflow-hidden group">
+        <div class="absolute top-0 right-0 -mr-4 -mt-4 w-32 h-32 bg-primary-fixed rounded-full opacity-10 group-hover:scale-110 transition-transform duration-500"></div>
+        
+        <div class="flex flex-col md:flex-row md:justify-between md:items-start gap-md relative z-10">
+            <div>
+                <div class="flex items-center gap-sm mb-xs">
+                    <span class="font-label-sm text-label-sm text-outline-variant font-semibold">EXAM ID: #@exam.Id</span>
+                    @if (exam.IsDeleted)
+                    {
+                        <span class="bg-error-container text-on-error-container px-2 py-0.5 rounded-full font-label-sm text-label-sm flex items-center gap-xs">
+                            <span class="material-symbols-outlined text-xs">visibility_off</span>
+                            Hidden
+                        </span>
+                    }
+                    else
+                    {
+                        <span class="bg-tertiary-fixed text-on-tertiary-fixed-variant px-2 py-0.5 rounded-full font-label-sm text-label-sm flex items-center gap-xs">
+                            <span class="material-symbols-outlined text-xs">visibility</span>
+                            Public
+                        </span>
+                    }
+                </div>
+                <h2 class="font-headline-lg text-headline-lg font-bold text-on-surface mb-sm">@exam.Title</h2>
+                @if (!string.IsNullOrEmpty(exam.Description))
+                {
+                    <p class="font-body-md text-body-md text-on-surface-variant max-w-xl">@exam.Description</p>
+                }
+                else
+                {
+                    <p class="font-body-sm text-body-sm text-on-surface-variant/70 italic">No description available for this exam.</p>
+                }
+            </div>
+
+            <!-- Stats grid -->
+            <div class="grid grid-cols-2 md:flex md:flex-col gap-sm shrink-0 bg-surface-container/30 p-md rounded-xl border border-outline-variant/20">
+                <div>
+                    <span class="font-label-sm text-label-sm text-on-surface-variant block">Duration</span>
+                    <span class="font-headline-sm text-headline-sm text-primary font-bold">@exam.Duration mins</span>
+                </div>
+                <div>
+                    <span class="font-label-sm text-label-sm text-on-surface-variant block">Total Questions</span>
+                    <span class="font-headline-sm text-headline-sm text-primary font-bold">@totalQuestions qs</span>
+                </div>
+                <div>
+                    <span class="font-label-sm text-label-sm text-on-surface-variant block">Attempts</span>
+                    <span class="font-headline-sm text-headline-sm text-primary font-bold">@exam.AttemptCount attempts</span>
+                </div>
+                <div>
+                    <span class="font-label-sm text-label-sm text-on-surface-variant block">Created Date</span>
+                    <span class="font-label-md text-label-md text-on-surface font-semibold">@exam.CreatedAt.ToString("dd/MM/yyyy")</span>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 2. QUESTIONS LIST GROUPED BY PARTS -->
+    <section class="flex flex-col gap-xl">
+        <h3 class="font-headline-sm text-headline-sm text-on-surface font-semibold border-b border-outline-variant/30 pb-xs flex items-center gap-xs">
+            <span class="material-symbols-outlined text-primary">format_list_bulleted</span>
+            Detailed Questions Structure
+        </h3>
+
+        @if (totalQuestions > 0)
+        {
+            @for (int part = 1; part <= 7; part++)
+            {
+                var partQuestions = exam.Questions.Where(q => q.Part == part).OrderBy(q => q.QuestionNumber).ToList();
+                if (partQuestions.Any())
+                {
+                    <div class="flex flex-col gap-md">
+                        <!-- Part Header -->
+                        <div class="bg-surface-container p-sm rounded-lg border-l-4 border-primary flex justify-between items-center">
+                            <span class="font-label-md text-label-md font-bold text-on-surface">
+                                Part @part - @GetPartName(part)
+                            </span>
+                            <span class="bg-primary-fixed text-on-primary-fixed-variant px-2.5 py-0.5 rounded-full font-label-sm text-label-sm">
+                                @partQuestions.Count questions
+                            </span>
+                        </div>
+
+                        <!-- Questions inside Part -->
+                        <div class="flex flex-col gap-md pl-xs md:pl-md">
+                            @{
+                                int? lastPassageId = null;
+                            }
+                            @foreach (var question in partQuestions)
+                            {
+                                <!-- Render Reading Passage for Part 6, 7 (Avoid duplicates) -->
+                                @if ((part == 6 || part == 7) && question.PassageId != null && question.PassageId != lastPassageId)
+                                {
+                                    lastPassageId = question.PassageId;
+                                    <div class="bg-secondary-fixed/10 border-l-4 border-secondary-container p-md rounded-r-xl flex flex-col gap-xs my-sm">
+                                        <div class="flex items-center gap-xs font-semibold text-secondary text-sm">
+                                            <span class="material-symbols-outlined text-base">menu_book</span>
+                                            Reading Passage (Passage ID: #@question.PassageId)
+                                        </div>
+                                        <div class="font-body-sm text-body-sm text-on-surface leading-relaxed whitespace-pre-wrap">@question.PassageContent</div>
+                                    </div>
+                                }
+
+                                <!-- Question Card -->
+                                <div class="bg-surface-container-lowest rounded-xl p-md border border-outline-variant/30 shadow-sm flex flex-col gap-sm hover:border-primary/20 transition-colors">
+                                    <div class="flex justify-between items-start">
+                                        <span class="font-label-md text-label-md font-semibold text-primary">Question @question.QuestionNumber:</span>
+                                    </div>
+
+                                    <!-- Audio Player (Parts 1-4) -->
+                                    @if (!string.IsNullOrEmpty(question.AudioUrl))
+                                    {
+                                        <div class="flex items-center gap-sm bg-surface-container/20 p-2 rounded-lg border border-outline-variant/20 max-w-md">
+                                            <span class="material-symbols-outlined text-primary">volume_up</span>
+                                            <audio controls class="w-full h-8">
+                                                <source src="@question.AudioUrl" type="audio/mpeg">
+                                                Your browser does not support the audio player.
+                                            </audio>
+                                        </div>
+                                    }
+
+                                    <!-- Question Text -->
+                                    @if (!string.IsNullOrEmpty(question.QuestionText))
+                                    {
+                                        <p class="font-body-sm text-body-sm text-on-surface font-medium">@question.QuestionText</p>
+                                    }
+
+                                    <!-- Options Grid -->
+                                    <div class="grid grid-cols-1 md:grid-cols-2 gap-sm mt-xs">
+                                        @foreach (var opt in question.Options)
+                                        {
+                                            var isCorrect = opt.OptionLetter == question.CorrectOption;
+                                            <div class="flex items-center gap-sm p-2 rounded-lg border @(isCorrect ? "bg-tertiary-fixed/20 border-tertiary text-on-tertiary-fixed-variant font-semibold" : "border-outline-variant/20 bg-surface/30")">
+                                                <span class="w-6 h-6 rounded-full flex justify-center items-center font-label-sm text-label-sm @(isCorrect ? "bg-tertiary text-on-tertiary" : "bg-surface-container text-on-surface-variant")">
+                                                    @opt.OptionLetter
+                                                </span>
+                                                <span class="font-body-sm text-body-sm">@opt.OptionText</span>
+                                                @if (isCorrect)
+                                                {
+                                                    <span class="material-symbols-outlined text-tertiary text-sm ml-auto">check_circle</span>
+                                                }
+                                            </div>
+                                        }
+                                    </div>
+                                </div>
+                            }
+                        </div>
+                    </div>
+                }
+            }
+        }
+        else
+        {
+            <div class="text-center py-12 bg-surface-container-lowest rounded-xl border border-outline-variant/30">
+                <span class="material-symbols-outlined text-display-lg text-outline-variant block mb-sm">help_outline</span>
+                <p class="font-headline-sm text-headline-sm mb-xs">This exam does not have any questions yet</p>
+                <p class="font-body-sm text-body-sm text-on-surface-variant">The moderator has not set up any questions for this exam.</p>
+            </div>
+        }
+    </section>
+</div>
+
+@functions {
+    public string GetPartName(int part)
+    {
+        return part switch
+        {
+            1 => "Photographs",
+            2 => "Question-Response",
+            3 => "Conversations",
+            4 => "Talks",
+            5 => "Incomplete Sentences",
+            6 => "Text Completion",
+            7 => "Reading Comprehension",
+            _ => "Unknown Part"
+        };
+    }
+}
+
+@section Scripts {
+<script>
+
+    function confirmSoftDelete(id, title) {
+        showConfirm({
+            title: 'Hide Exam',
+            message: `Are you sure you want to hide the exam "${title}"? Students will no longer be able to take it, but their past attempt history will remain intact.`,
+            confirmText: 'Hide Exam',
+            isDestructive: true,
+            onConfirm: async () => {
+                try {
+                    const response = await fetch(`/api/Exams/${id}`, {
+                        method: 'DELETE'
+                    });
+                    
+                    if (response.ok) {
+                        showToast('Exam hidden successfully!', 'success');
+                        setTimeout(() => {
+                            window.location.href = '/Exams';
+                        }, 1000);
+                    } else {
+                        const errorData = await response.json();
+                        showToast(errorData.error || 'Failed to hide the exam.', 'error');
+                    }
+                } catch (err) {
+                    console.error(err);
+                    showToast('Could not connect to the server.', 'error');
+                }
+            }
+        });
+    }
+</script>
+}

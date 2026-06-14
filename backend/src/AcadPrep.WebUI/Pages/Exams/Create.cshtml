@@ -1,0 +1,333 @@
+@page
+@model AcadPrep.WebUI.Pages.Exams.CreateModel
+@{
+    Layout = "_ModeratorLayout";
+    ViewData["Title"] = "Create New Exam";
+}
+
+<div class="w-full flex flex-col gap-lg pb-12">
+    <!-- Top breadcrumb and actions -->
+    <div class="flex justify-between items-center">
+        <a href="/Exams" class="flex items-center gap-xs text-on-surface-variant hover:text-primary transition-colors">
+            <span class="material-symbols-outlined">arrow_back</span>
+            <span class="font-label-md text-label-md">Back to list</span>
+        </a>
+        <button type="button" onclick="submitExam()" class="bg-primary hover:bg-primary/90 text-on-primary font-label-md text-label-md py-2 px-6 rounded-lg flex items-center gap-xs shadow transition-colors cursor-pointer">
+            <span class="material-symbols-outlined text-sm">save</span>
+            Save and Publish
+        </button>
+    </div>
+
+    <!-- Error container -->
+    <div id="error-alert" class="hidden bg-error-container text-on-error-container p-md rounded-xl border border-error/20 flex flex-col gap-xs">
+        <div class="flex items-center gap-xs font-semibold">
+            <span class="material-symbols-outlined text-error">error</span>
+            Validation errors found:
+        </div>
+        <ul id="error-list" class="list-disc pl-lg font-body-sm text-body-sm">
+            <!-- Dynamic validation errors will be inserted here -->
+        </ul>
+    </div>
+
+    <!-- 1. EXAM METADATA FORM -->
+    <section class="bg-surface-container-lowest rounded-xl p-lg border border-outline-variant/30 shadow-sm flex flex-col gap-md">
+        <h3 class="font-headline-sm text-headline-sm text-on-surface font-semibold border-b border-outline-variant/30 pb-xs">General Exam Information</h3>
+        
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-md">
+            <div class="md:col-span-2 flex flex-col gap-xs">
+                <label for="exam-title" class="font-label-md text-label-md text-on-surface font-medium">Exam Title <span class="text-error">*</span></label>
+                <input type="text" id="exam-title" placeholder="e.g. TOEIC Practice Test A1" class="border border-outline-variant rounded-lg p-2 bg-surface text-on-surface focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary">
+            </div>
+            <div class="flex flex-col gap-xs">
+                <label for="exam-duration" class="font-label-md text-label-md text-on-surface font-medium">Duration (minutes) <span class="text-error">*</span></label>
+                <input type="number" id="exam-duration" value="120" min="1" class="border border-outline-variant rounded-lg p-2 bg-surface text-on-surface focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary">
+            </div>
+        </div>
+
+        <div class="flex flex-col gap-xs">
+            <label for="exam-description" class="font-label-md text-label-md text-on-surface font-medium">Exam Description</label>
+            <textarea id="exam-description" placeholder="Enter details about the exam, target release year, difficulty level..." rows="3" class="border border-outline-variant rounded-lg p-2 bg-surface text-on-surface focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary"></textarea>
+        </div>
+    </section>
+
+    <!-- 2. QUESTIONS DYNAMIC CONFIGURATOR -->
+    <section class="flex flex-col gap-md">
+        <div class="flex justify-between items-center border-b border-outline-variant/30 pb-xs">
+            <h3 class="font-headline-sm text-headline-sm text-on-surface font-semibold">Question Configurator (TOEIC Questions)</h3>
+        </div>
+
+        <div id="questions-container" class="flex flex-col gap-md">
+            <!-- Dynamic questions will be rendered here -->
+        </div>
+
+        <div class="flex justify-center mt-sm">
+            <button type="button" onclick="addQuestion()" class="bg-surface-container-lowest border border-outline-variant hover:bg-surface-container text-primary font-label-md text-label-md py-2.5 px-6 rounded-lg flex items-center gap-xs transition-colors cursor-pointer">
+                <span class="material-symbols-outlined">add_circle</span>
+                Add New Question
+            </button>
+        </div>
+    </section>
+
+    <!-- Bottom Submit actions -->
+    <div class="flex justify-end gap-sm mt-md border-t border-outline-variant/30 pt-md">
+        <a href="/Exams" class="border border-outline-variant hover:bg-surface-container-high text-on-surface-variant font-label-md text-label-md py-2.5 px-6 rounded-lg transition-colors cursor-pointer">Cancel</a>
+        <button type="button" onclick="submitExam()" class="bg-primary hover:bg-primary/90 text-on-primary font-label-md text-label-md py-2.5 px-8 rounded-lg flex items-center gap-xs shadow transition-colors cursor-pointer">
+            <span class="material-symbols-outlined">save</span>
+            Save and Publish
+        </button>
+    </div>
+</div>
+
+@section Scripts {
+<script>
+    let questionIndex = 0;
+
+    function addQuestion() {
+        questionIndex++;
+        const container = document.getElementById('questions-container');
+        
+        const qCard = document.createElement('div');
+        qCard.id = `q-card-${questionIndex}`;
+        qCard.className = 'bg-surface-container-lowest rounded-xl p-md border border-outline-variant/30 shadow-sm flex flex-col gap-sm relative group hover:border-primary/40 transition-colors duration-200';
+        
+        qCard.innerHTML = `
+            <!-- Remove Button -->
+            <button type="button" onclick="removeQuestion(${questionIndex})" class="absolute top-3 right-3 text-on-surface-variant hover:text-error transition-colors p-1 rounded hover:bg-surface-container-high">
+                <span class="material-symbols-outlined text-sm block">close</span>
+            </button>
+            
+            <div class="flex items-center gap-sm pr-6 border-b border-outline-variant/30 pb-xs">
+                <span class="bg-primary-fixed text-on-primary-fixed-variant px-2.5 py-0.5 rounded text-xs font-semibold">Question #${questionIndex}</span>
+                <span class="text-xs text-on-surface-variant">Configure multiple-choice question properties</span>
+            </div>
+
+            <!-- Structure config -->
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-sm">
+                <div class="flex flex-col gap-xs">
+                    <label class="font-label-sm text-label-sm text-on-surface-variant font-medium">Question Number (TOEIC Number) <span class="text-error">*</span></label>
+                    <input type="number" class="q-number border border-outline-variant rounded-lg p-1.5 bg-surface text-on-surface text-sm focus:outline-none" value="${questionIndex}">
+                </div>
+                <div class="flex flex-col gap-xs">
+                    <label class="font-label-sm text-label-sm text-on-surface-variant font-medium">Test Part (Part 1 - 7) <span class="text-error">*</span></label>
+                    <select onchange="onPartChange(${questionIndex}, this.value)" class="q-part border border-outline-variant rounded-lg p-1.5 bg-surface text-on-surface text-sm focus:outline-none">
+                        <option value="1">Part 1 - Photographs</option>
+                        <option value="2">Part 2 - Question-Response</option>
+                        <option value="3">Part 3 - Conversations</option>
+                        <option value="4">Part 4 - Talks</option>
+                        <option value="5">Part 5 - Incomplete Sentences</option>
+                        <option value="6">Part 6 - Text Completion</option>
+                        <option value="7">Part 7 - Reading Comprehension</option>
+                    </select>
+                </div>
+                <div class="flex flex-col gap-xs">
+                    <label class="font-label-sm text-label-sm text-on-surface-variant font-medium">Correct Option <span class="text-error">*</span></label>
+                    <select class="q-correct border border-outline-variant rounded-lg p-1.5 bg-surface text-on-surface text-sm focus:outline-none">
+                        <option value="A">A</option>
+                        <option value="B">B</option>
+                        <option value="C">C</option>
+                        <option value="D">D</option>
+                    </select>
+                </div>
+            </div>
+
+            <!-- Reading Passage (Part 6, 7 only - Hidden by default) -->
+            <div id="passage-container-${questionIndex}" class="hidden flex flex-col gap-xs">
+                <label class="font-label-sm text-label-sm text-on-surface font-semibold text-secondary flex items-center gap-xs">
+                    <span class="material-symbols-outlined text-sm">menu_book</span> Reading Passage Content <span class="text-error">*</span>
+                </label>
+                <textarea class="q-passage border border-secondary-container/30 rounded-lg p-2 bg-surface text-on-surface text-sm focus:outline-none" placeholder="Enter passage text shared across questions..." rows="3"></textarea>
+                <span class="text-xs text-on-surface-variant">Note: If multiple consecutive questions share the same reading passage, enter the exact same passage text. The system will automatically deduplicate them.</span>
+            </div>
+
+            <!-- Listening Audio URL (Part 1-4 only) -->
+            <div id="audio-container-${questionIndex}" class="flex flex-col gap-xs">
+                <label class="font-label-sm text-label-sm text-on-surface-variant font-medium">Audio File URL (Audio URL)</label>
+                <input type="text" class="q-audio border border-outline-variant rounded-lg p-1.5 bg-surface text-on-surface text-sm focus:outline-none" placeholder="e.g. /audio/part1_q1.mp3 or web link">
+            </div>
+
+            <!-- Question text -->
+            <div class="flex flex-col gap-xs">
+                <label class="font-label-sm text-label-sm text-on-surface-variant font-medium">Question Content (Question Text)</label>
+                <textarea class="q-text border border-outline-variant rounded-lg p-1.5 bg-surface text-on-surface text-sm focus:outline-none" placeholder="Enter question text here..." rows="2"></textarea>
+            </div>
+
+            <!-- Options grid -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-sm border-t border-outline-variant/20 pt-sm">
+                <div class="flex flex-col gap-xs">
+                    <label class="font-label-sm text-label-sm text-on-surface-variant font-medium">Option A <span class="text-error">*</span></label>
+                    <input type="text" class="q-opt-a border border-outline-variant rounded-lg p-1.5 bg-surface text-on-surface text-sm focus:outline-none" placeholder="Text for option A">
+                </div>
+                <div class="flex flex-col gap-xs">
+                    <label class="font-label-sm text-label-sm text-on-surface-variant font-medium">Option B <span class="text-error">*</span></label>
+                    <input type="text" class="q-opt-b border border-outline-variant rounded-lg p-1.5 bg-surface text-on-surface text-sm focus:outline-none" placeholder="Text for option B">
+                </div>
+                <div class="flex flex-col gap-xs">
+                    <label class="font-label-sm text-label-sm text-on-surface-variant font-medium">Option C <span class="text-error">*</span></label>
+                    <input type="text" class="q-opt-c border border-outline-variant rounded-lg p-1.5 bg-surface text-on-surface text-sm focus:outline-none" placeholder="Text for option C">
+                </div>
+                <div class="flex flex-col gap-xs">
+                    <label class="font-label-sm text-label-sm text-on-surface-variant font-medium">Option D <span class="text-error">*</span></label>
+                    <input type="text" class="q-opt-d border border-outline-variant rounded-lg p-1.5 bg-surface text-on-surface text-sm focus:outline-none" placeholder="Text for option D">
+                </div>
+            </div>
+        `;
+        
+        container.appendChild(qCard);
+    }
+
+    function removeQuestion(index) {
+        const qCard = document.getElementById(`q-card-${index}`);
+        if (qCard) {
+            qCard.remove();
+        }
+    }
+
+    function onPartChange(index, part) {
+        const passageContainer = document.getElementById(`passage-container-${index}`);
+        const audioContainer = document.getElementById(`audio-container-${index}`);
+        
+        if (part == '6' || part == '7') {
+            passageContainer.classList.remove('hidden');
+            audioContainer.classList.add('hidden');
+        } else {
+            passageContainer.classList.add('hidden');
+            audioContainer.classList.remove('hidden');
+        }
+    }
+
+    async function submitExam() {
+        const titleInput = document.getElementById('exam-title');
+        const durationInput = document.getElementById('exam-duration');
+        const descriptionInput = document.getElementById('exam-description');
+        const errorAlert = document.getElementById('error-alert');
+        const errorList = document.getElementById('error-list');
+
+        // Reset highlights
+        errorAlert.classList.add('hidden');
+        errorList.innerHTML = '';
+        titleInput.classList.remove('border-error');
+        durationInput.classList.remove('border-error');
+        document.querySelectorAll('.border-error').forEach(el => el.classList.remove('border-error'));
+
+        // Client validation
+        let clientErrors = [];
+        if (!titleInput.value.trim()) {
+            clientErrors.push('Exam title cannot be empty.');
+            titleInput.classList.add('border-error');
+        }
+        if (!durationInput.value || parseInt(durationInput.value) <= 0) {
+            clientErrors.push('Exam duration must be greater than 0 minutes.');
+            durationInput.classList.add('border-error');
+        }
+
+        const qCards = document.querySelectorAll('#questions-container > div');
+        const questionsData = [];
+
+        qCards.forEach((card, idx) => {
+            const numInput = card.querySelector('.q-number');
+            const partSelect = card.querySelector('.q-part');
+            const correctSelect = card.querySelector('.q-correct');
+            const passageText = card.querySelector('.q-passage');
+            const audioInput = card.querySelector('.q-audio');
+            const textInput = card.querySelector('.q-text');
+            const optA = card.querySelector('.q-opt-a');
+            const optB = card.querySelector('.q-opt-b');
+            const optC = card.querySelector('.q-opt-c');
+            const optD = card.querySelector('.q-opt-d');
+
+            const part = parseInt(partSelect.value);
+
+            // Highlight empty fields inside questions
+            if (!numInput.value || parseInt(numInput.value) <= 0) {
+                numInput.classList.add('border-error');
+                clientErrors.push(`Question #${idx + 1}: Question number must be greater than 0.`);
+            }
+            if ((part === 6 || part === 7) && !passageText.value.trim()) {
+                passageText.classList.add('border-error');
+                clientErrors.push(`Question #${idx + 1} (Part ${part}): Reading passage content cannot be empty.`);
+            }
+            if (!optA.value.trim()) { optA.classList.add('border-error'); clientErrors.push(`Question #${idx + 1}: Option A cannot be empty.`); }
+            if (!optB.value.trim()) { optB.classList.add('border-error'); clientErrors.push(`Question #${idx + 1}: Option B cannot be empty.`); }
+            if (!optC.value.trim()) { optC.classList.add('border-error'); clientErrors.push(`Question #${idx + 1}: Option C cannot be empty.`); }
+            if (!optD.value.trim()) { optD.classList.add('border-error'); clientErrors.push(`Question #${idx + 1}: Option D cannot be empty.`); }
+
+            questionsData.push({
+                questionNumber: parseInt(numInput.value),
+                part: part,
+                questionText: textInput.value.trim() || null,
+                audioUrl: audioInput.value.trim() || null,
+                correctOption: correctSelect.value,
+                passageContent: (part === 6 || part === 7) ? passageText.value.trim() : null,
+                optionA: optA.value.trim(),
+                optionB: optB.value.trim(),
+                optionC: optC.value.trim(),
+                optionD: optD.value.trim()
+            });
+        });
+
+        if (clientErrors.length > 0) {
+            clientErrors.forEach(err => {
+                const li = document.createElement('li');
+                li.innerText = err;
+                errorList.appendChild(li);
+            });
+            errorAlert.classList.remove('hidden');
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+            showToast('Save failed. Please check form validation errors.', 'error');
+            return;
+        }
+
+        const payload = {
+            title: titleInput.value.trim(),
+            description: descriptionInput.value.trim() || null,
+            duration: parseInt(durationInput.value),
+            questions: questionsData
+        };
+
+        try {
+            showToast('Saving exam data...');
+            const response = await fetch('/api/Exams', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(payload)
+            });
+
+            if (response.ok) {
+                showToast('Exam created successfully!', 'success');
+                setTimeout(() => {
+                    window.location.href = '/Exams';
+                }, 1200);
+            } else if (response.status === 400) {
+                const errorData = await response.json();
+                
+                // Display validation errors from backend (FluentValidation)
+                if (errorData.validationErrors && errorData.validationErrors.length > 0) {
+                    errorData.validationErrors.forEach(err => {
+                        const li = document.createElement('li');
+                        li.innerText = `${err.field}: ${err.message}`;
+                        errorList.appendChild(li);
+                    });
+                } else {
+                    const li = document.createElement('li');
+                    li.innerText = errorData.error || 'Invalid input data.';
+                    errorList.appendChild(li);
+                }
+                
+                errorAlert.classList.remove('hidden');
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+                showToast('Save failed. Please check backend validation rules.', 'error');
+            } else {
+                showToast('Internal server error.', 'error');
+            }
+        } catch (err) {
+            console.error(err);
+            showToast('Could not connect to the server.', 'error');
+        }
+    }
+
+    // Initialize with 1 default question
+    addQuestion();
+</script>
+}

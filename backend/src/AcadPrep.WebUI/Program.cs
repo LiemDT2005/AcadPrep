@@ -62,4 +62,7 @@ app.UseAuthorization();
 app.MapControllers();
 app.MapRazorPages();
 
+// Redirect root to /Exams
+app.MapGet("/", () => Results.Redirect("/Exams"));
+
 app.Run();
