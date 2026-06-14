@@ -38,6 +38,21 @@ builder.Services.AddSwaggerGen(options =>
 
 var app = builder.Build();
 
+// Seed Database
+using (var scope = app.Services.CreateScope())
+{
+    var services = scope.ServiceProvider;
+    try
+    {
+        await Infrastructure.Persistence.AppDbContextSeed.SeedAsync(services);
+    }
+    catch (Exception ex)
+    {
+        var logger = services.GetRequiredService<ILogger<Program>>();
+        logger.LogError(ex, "An error occurred seeding the DB.");
+    }
+}
+
 // 4. Configure HTTP request pipeline & Custom Exception Middleware
 app.UseMiddleware<ExceptionHandlingMiddleware>();
 

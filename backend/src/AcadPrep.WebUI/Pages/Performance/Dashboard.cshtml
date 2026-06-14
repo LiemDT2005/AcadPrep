@@ -1,0 +1,304 @@
+@page
+@model AcadPrep.WebUI.Pages.Performance.DashboardModel
+@{
+    ViewData["Title"] = "Dashboard";
+}
+
+<!-- Focus Area (Hero Section) -->
+<section class="bg-surface-container py-2xl px-margin-mobile md:px-margin-desktop overflow-hidden border-b border-outline-variant">
+<div class="max-w-7xl mx-auto flex flex-col gap-xl">
+<div class="flex flex-col gap-sm">
+<h1 class="font-display-lg text-display-lg text-on-surface">Welcome back, Alex!</h1>
+</div>
+<!-- Active Exam Banner (Updated for multiple paused exams) -->
+<div>
+<div class="flex justify-between items-center mb-md"><h2 class="font-headline-sm text-headline-sm text-on-surface">Continue Exam</h2></div>
+<div class="grid grid-cols-1 md:grid-cols-2 gap-md">
+    @if (Model.DashboardData.ActiveExams.Any())
+    {
+        @foreach (var activeExam in Model.DashboardData.ActiveExams)
+        {
+            <div class="bg-surface-container-lowest border border-outline-variant rounded-xl p-md shadow-sm flex flex-col justify-between">
+            <div>
+            <h3 class="font-headline-sm text-headline-sm text-on-surface mb-xs">@activeExam.ExamTitle</h3>
+            <p class="font-label-sm text-label-sm text-on-surface-variant">@activeExam.StatusText</p>
+            </div>
+            <div class="mt-md">
+            <div class="w-full bg-surface-variant rounded-full h-2 mb-sm">
+            <div class="bg-primary h-2 rounded-full" style="width: @(activeExam.ProgressPercentage)%"></div>
+            </div>
+            <button class="w-full bg-primary-container text-on-primary font-label-md text-label-md px-md py-sm rounded-lg flex items-center justify-center gap-sm hover:opacity-90 transition-opacity">
+                                                Resume <span class="material-symbols-outlined text-[18px]">arrow_forward</span>
+            </button>
+            </div>
+            </div>
+        }
+    }
+    else
+    {
+        <div class="col-span-1 md:col-span-2 bg-surface-container-lowest border border-outline-variant rounded-xl p-md shadow-sm text-center">
+            <p class="text-on-surface-variant font-body-md text-body-md py-md">No active exams found.</p>
+            <a href="/Exams" class="inline-flex items-center justify-center px-md py-sm rounded-lg bg-primary text-white font-medium hover:opacity-90">Start a New Exam</a>
+        </div>
+    }
+</div>
+</div>
+<!-- Streak Counter -->
+<div class="flex flex-col sm:flex-row items-start sm:items-center gap-md">
+<div class="flex items-center gap-sm bg-secondary-container/10 px-md py-sm rounded-lg border border-secondary-container/30">
+<span class="text-3xl">🔥</span>
+<span class="font-headline-sm text-headline-sm text-secondary-container">12 Days</span>
+</div>
+<div class="flex items-center gap-sm flex-wrap">
+<div class="w-10 h-10 rounded bg-[#3525CD] text-white flex items-center justify-center font-label-sm font-bold shadow-sm">M</div>
+<div class="w-10 h-10 rounded bg-[#3525CD] text-white flex items-center justify-center font-label-sm font-bold shadow-sm">T</div>
+<div class="w-10 h-10 rounded bg-[#3525CD] text-white flex items-center justify-center font-label-sm font-bold shadow-sm">W</div>
+<div class="w-10 h-10 rounded bg-[#3525CD] text-white flex items-center justify-center font-label-sm font-bold shadow-sm border-2 border-primary-container shadow-[0_0_10px_rgba(53,37,205,0.5)]">T</div>
+<div class="w-10 h-10 rounded bg-surface-variant text-on-surface-variant flex items-center justify-center font-label-sm font-bold border border-outline-variant">F</div>
+<div class="w-10 h-10 rounded bg-surface-variant text-on-surface-variant flex items-center justify-center font-label-sm font-bold border border-outline-variant">S</div>
+<div class="w-10 h-10 rounded bg-surface-variant text-on-surface-variant flex items-center justify-center font-label-sm font-bold border border-outline-variant">S</div>
+</div>
+</div>
+</div>
+</section>
+<!-- Recent Activity -->
+<section class="py-xl px-margin-mobile md:px-margin-desktop max-w-7xl mx-auto">
+<div class="bg-surface-container-lowest rounded-xl border border-outline-variant p-lg shadow-sm">
+<h2 class="font-headline-sm text-headline-sm text-on-surface mb-md flex items-center gap-sm">
+<span class="material-symbols-outlined text-primary">history</span> Recent Activity
+                </h2>
+<ul class="flex flex-col gap-md">
+    @if (Model.DashboardData.RecentActivities.Any())
+    {
+        @foreach (var activity in Model.DashboardData.RecentActivities)
+        {
+            <li class="flex items-start gap-md pb-md border-b border-outline-variant/50 last:border-0 last:pb-0">
+            <div class="w-2 h-2 rounded-full bg-@activity.ColorType mt-2"></div>
+            <div>
+            <p class="font-body-md text-body-md text-on-surface">@activity.Description</p>
+            <p class="font-label-sm text-label-sm text-on-surface-variant mt-1">@activity.TimeAgo</p>
+            </div>
+            </li>
+        }
+    }
+    else
+    {
+        <li class="text-on-surface-variant text-body-md">No recent activity.</li>
+    }
+</ul>
+</div>
+</section>
+<!-- Analytics Hub Section -->
+<section class="py-2xl px-margin-mobile md:px-margin-desktop max-w-7xl mx-auto">
+<div class="text-center mb-xl">
+<h2 class="font-headline-md text-headline-md text-on-surface mb-sm">Analytics Hub</h2>
+<p class="font-body-lg text-body-lg text-on-surface-variant max-w-3xl mx-auto">Track your performance and identify areas for improvement.</p>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-2 gap-xl">
+<!-- Score Progress Chart -->
+<div class="bg-surface-container-lowest border border-outline-variant rounded-xl p-lg shadow-sm">
+<h3 class="font-headline-sm text-headline-sm text-on-surface mb-md flex items-center gap-sm">
+<span class="material-symbols-outlined text-primary">trending_up</span> Score Progress
+                    </h3>
+<div class="w-full h-64 bg-surface-variant/30 rounded-lg flex items-end relative overflow-hidden px-sm pb-sm pt-lg">
+<!-- Y-axis labels -->
+<div class="absolute inset-0 pl-10 pb-6 pr-4 pt-4">
+    <canvas id="dashboardScoreChart"></canvas>
+</div>
+</div>
+</div>
+<!-- Skill Analytics -->
+<div class="bg-surface-container-lowest border border-outline-variant rounded-xl p-lg shadow-sm">
+<h3 class="font-headline-sm text-headline-sm text-on-surface mb-md flex items-center gap-sm">
+<span class="material-symbols-outlined text-primary">pie_chart</span> Skill Analytics
+                    </h3>
+<div class="space-y-sm">
+    @{
+        var partsInfo = new Dictionary<int, string>
+        {
+            {1, "Photographs"}, {2, "Question-Response"}, {3, "Conversations"},
+            {4, "Talks"}, {5, "Incomplete Sentences"}, {6, "Text Completion"}, {7, "Reading Comprehension"}
+        };
+    }
+    @for (int p = 1; p <= 7; p++)
+    {
+        int pct = Model.DashboardData.SkillAnalytics.PartMastery.GetValueOrDefault(p, 0);
+        bool needsImprovement = pct < 50;
+        
+        <div>
+        <div class="flex justify-between font-label-sm text-label-sm mb-xs">
+            @if (needsImprovement && pct > 0)
+            {
+                <span class="text-error font-semibold">Part @p: @partsInfo[p] (Needs Improvement)</span>
+                <span class="text-error font-bold">@pct%</span>
+            }
+            else
+            {
+                <span class="text-on-surface-variant">Part @p: @partsInfo[p]</span>
+                <span class="text-on-surface font-semibold">@(pct > 0 ? $"{pct}%" : "N/A")</span>
+            }
+        </div>
+        <div class="w-full @(needsImprovement && pct > 0 ? "bg-error-container" : "bg-surface-variant") rounded-full h-2">
+            <div class="@(needsImprovement && pct > 0 ? "bg-error" : "bg-primary") h-2 rounded-full" style="width: @pct%"></div>
+        </div>
+        </div>
+    }
+</div>
+</div>
+</div>
+</section>
+<!-- Leaderboard Preview -->
+<section class="py-2xl px-margin-mobile md:px-margin-desktop max-w-4xl mx-auto">
+<div class="flex justify-between items-end mb-lg">
+<h2 class="font-headline-md text-headline-md text-on-surface">See Where You Stand</h2>
+<span class="text-on-surface-variant font-body-sm text-body-sm">Updated hourly</span>
+</div>
+<div class="bg-surface-container-lowest rounded-xl shadow-sm border border-surface-variant overflow-hidden mb-lg">
+<table class="w-full text-left border-collapse">
+<thead class="bg-surface-container-high border-b border-surface-variant text-on-surface-variant font-label-sm text-label-sm uppercase tracking-wider">
+<tr>
+<th class="p-md font-semibold w-16 text-center">Rank</th>
+<th class="p-md font-semibold">Learner</th>
+<th class="p-md font-semibold text-right">Score</th>
+<th class="p-md font-semibold text-right hidden sm:table-cell">Exams Done</th>
+<th class="p-md font-semibold text-right hidden md:table-cell">Streak</th>
+</tr>
+</thead>
+<tbody class="divide-y divide-surface-variant font-body-sm text-body-sm">
+    @foreach (var user in Model.DashboardData.Leaderboard.TopUsers)
+    {
+        var rankColor = user.Rank == 1 ? "text-yellow-500" : (user.Rank == 2 ? "text-gray-400" : (user.Rank == 3 ? "text-amber-700" : "text-on-surface-variant"));
+        var rankIcon = user.Rank <= 3 ? "military_tech" : "";
+        var initial = user.Name.Length > 0 ? user.Name.Substring(0, 1).ToUpper() : "U";
+        
+        <tr class="hover:bg-surface-container-lowest transition-colors group @(user.IsCurrentUser ? "bg-primary-container/10 border-l-4 border-l-primary" : "")">
+        <td class="p-md text-center font-bold @rankColor">
+            @if (user.Rank <= 3)
+            {
+                <span class="material-symbols-outlined text-[24px] fill-1 @rankColor">@rankIcon</span>
+            }
+            else
+            {
+                @user.Rank
+            }
+        </td>
+        <td class="p-md font-medium text-on-surface flex items-center gap-sm">
+            <div class="w-8 h-8 rounded-full bg-surface-variant flex items-center justify-center text-on-surface-variant font-bold">@initial</div>
+            <span>@user.Name @(user.IsCurrentUser ? "(You)" : "")</span>
+        </td>
+        <td class="p-md text-right font-bold text-primary">@user.TotalScore.ToString("N0")</td>
+        <td class="p-md text-right hidden sm:table-cell text-on-surface-variant">@user.ExamsDone</td>
+        <td class="p-md text-right hidden md:table-cell text-secondary-container font-medium flex items-center justify-end gap-1">
+            <span class="material-symbols-outlined text-[16px] fill-1 text-secondary-container">local_fire_department</span> @(user.StreakDays)d
+        </td>
+        </tr>
+    }
+    
+    @if (Model.DashboardData.Leaderboard.CurrentUser != null && Model.DashboardData.Leaderboard.CurrentUser.Rank > 5)
+    {
+        var cu = Model.DashboardData.Leaderboard.CurrentUser;
+        <tr class="bg-primary-container/10 border-l-4 border-l-primary transition-colors group">
+        <td class="p-md text-center font-bold text-primary text-lg">@cu.Rank</td>
+        <td class="p-md font-bold text-primary flex items-center gap-sm">
+            <div class="w-8 h-8 rounded-full bg-primary text-on-primary flex items-center justify-center font-bold text-xs">YOU</div>
+            <span>@cu.Name</span>
+        </td>
+        <td class="p-md text-right font-bold text-primary text-lg">@cu.TotalScore.ToString("N0")</td>
+        <td class="p-md text-right hidden sm:table-cell text-primary font-medium">@cu.ExamsDone</td>
+        <td class="p-md text-right hidden md:table-cell text-secondary-container font-medium flex items-center justify-end gap-1">
+            <span class="material-symbols-outlined text-[16px] fill-1 text-secondary-container">local_fire_department</span> @(cu.StreakDays)d
+        </td>
+        </tr>
+    }
+</tbody>
+</table>
+@if (Model.DashboardData.Leaderboard.CurrentUser != null)
+{
+    var cu = Model.DashboardData.Leaderboard.CurrentUser;
+    if (cu.Rank > 1)
+    {
+        <div class="bg-primary-container text-on-primary text-center py-sm font-label-md text-label-md">Keep it up, you are ranked #@cu.Rank!</div>
+    }
+    else
+    {
+        <div class="bg-primary-container text-on-primary text-center py-sm font-label-md text-label-md">You are leading! Keep up the good work!</div>
+    }
+}
+else
+{
+    <div class="bg-primary-container text-on-primary text-center py-sm font-label-md text-label-md">Take an exam to appear on the leaderboard!</div>
+}
+</div>
+<div class="text-center">
+<button class="bg-primary text-on-primary px-lg py-sm rounded-lg font-label-md text-label-md hover:bg-primary/90 transition-colors shadow-sm inline-flex items-center gap-sm">
+                    View Full Leaderboard <span class="material-symbols-outlined text-[18px]">arrow_forward</span>
+</button>
+</div>
+</section>
+
+@section Scripts {
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4"></script>
+    <script>
+        var scoreData = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.ScoreProgressData.Scores.OrderBy(s => s.AttemptDate).Select(s => new {
+            label = s.AttemptDate.ToString("dd/MM"),
+            score = s.Score
+        })));
+        
+        var labels = scoreData.map(function(e) { return e.label; });
+        var data = scoreData.map(function(e) { return e.score; });
+
+        if(labels.length === 0) {
+            labels = ['Test 1', 'Test 2', 'Test 3', 'Test 4', 'Test 5'];
+            data = [0, 0, 0, 0, 0];
+        }
+
+        var ctx = document.getElementById('dashboardScoreChart').getContext('2d');
+        new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: labels,
+                datasets: [{
+                    label: 'Total Score',
+                    data: data,
+                    borderColor: '#6750A4',
+                    backgroundColor: 'rgba(103, 80, 164, 0.1)',
+                    borderWidth: 2,
+                    pointBackgroundColor: '#6750A4',
+                    pointBorderColor: '#fff',
+                    pointBorderWidth: 2,
+                    pointRadius: 4,
+                    fill: true,
+                    tension: 0.4
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { display: false },
+                    tooltip: {
+                        backgroundColor: '#1C1B1F',
+                        titleFont: { family: 'Inter', size: 12 },
+                        bodyFont:  { family: 'Inter', size: 14, weight: 'bold' },
+                        padding: 12,
+                        cornerRadius: 8
+                    }
+                },
+                scales: {
+                    y: {
+                        min: 0,
+                        max: 990,
+                        ticks: { stepSize: 200, color: '#79747E', font: { family: 'Inter', size: 10 } },
+                        grid:  { color: 'rgba(0,0,0,0.06)' },
+                        border: { display: false }
+                    },
+                    x: {
+                        ticks: { color: '#79747E', font: { family: 'Inter', size: 10 } },
+                        grid: { display: false },
+                        border: { display: false }
+                    }
+                }
+            }
+        });
+    </script>
+}
