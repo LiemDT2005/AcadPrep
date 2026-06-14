@@ -1,10 +1,9 @@
-using System;
+using Domain.Common;
 
 namespace Domain.Entities;
 
-public class AuditLog
+public class AuditLog : BaseEntity<int>
 {
-    public int LogId { get; set; }
     public int? UserId { get; set; }
     public string Action { get; set; } = null!;
     public string? TableAffected { get; set; }

@@ -10,9 +10,10 @@ public class VocabularyConfiguration : IEntityTypeConfiguration<Vocabulary>
     {
         builder.ToTable("VOCABULARIES");
 
-        builder.HasKey(x => x.VocabularyId);
+        builder.HasKey(x => x.Id);
 
-        builder.Property(x => x.VocabularyId)
+        builder.Property(x => x.Id)
+            .HasColumnName("VocabularyId")
             .ValueGeneratedOnAdd();
 
         builder.Property(x => x.Word)
@@ -36,5 +37,8 @@ public class VocabularyConfiguration : IEntityTypeConfiguration<Vocabulary>
 
         builder.Property(x => x.CreatedAt)
             .HasDefaultValueSql("GETDATE()");
+
+        builder.Property(x => x.LastModifiedAt)
+            .IsRequired(false);
     }
 }

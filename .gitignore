@@ -56,5 +56,15 @@ CodeCoverage/
 TestResult.xml
 nunit-*.xml
 
+# Visual Studio
+.vs/
+*.user
+*.suo
+
+# Rider
+.idea/
+
+# VS Code
+.vscode/
 #Rider
 *.DotSettings.user

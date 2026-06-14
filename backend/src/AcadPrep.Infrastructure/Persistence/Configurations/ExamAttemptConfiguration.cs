@@ -10,9 +10,10 @@ public class ExamAttemptConfiguration : IEntityTypeConfiguration<ExamAttempt>
     {
         builder.ToTable("EXAM_ATTEMPTS");
 
-        builder.HasKey(x => x.AttemptId);
+        builder.HasKey(x => x.Id);
 
-        builder.Property(x => x.AttemptId)
+        builder.Property(x => x.Id)
+            .HasColumnName("AttemptId")
             .ValueGeneratedOnAdd();
 
         builder.Property(x => x.UserId)

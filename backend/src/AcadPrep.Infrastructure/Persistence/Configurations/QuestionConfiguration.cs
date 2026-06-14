@@ -14,9 +14,10 @@ public class QuestionConfiguration : IEntityTypeConfiguration<Question>
             t.HasCheckConstraint("CHK_CorrectOption", "[CorrectOption] IN ('A', 'B', 'C', 'D')");
         });
 
-        builder.HasKey(x => x.QuestionId);
+        builder.HasKey(x => x.Id);
 
-        builder.Property(x => x.QuestionId)
+        builder.Property(x => x.Id)
+            .HasColumnName("QuestionId")
             .ValueGeneratedOnAdd();
 
         builder.Property(x => x.QuestionNumber)
@@ -36,6 +37,7 @@ public class QuestionConfiguration : IEntityTypeConfiguration<Question>
         builder.Property(x => x.CorrectOption)
             .HasMaxLength(1)
             .IsUnicode(false)
+            .HasConversion<string>()
             .IsRequired();
 
         builder.Property(x => x.ExamId)
