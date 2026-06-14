@@ -1,0 +1,326 @@
+@page
+@model AcadPrep.WebUI.Pages.Exams.IndexModel
+@{
+    ViewData["Title"] = "Thư viện đề thi TOEIC";
+}
+
+<style>
+    :root {
+        --primary-indigo: #3525cd;
+        --secondary-orange: #9d4300;
+        --bg-gray: #f9f9ff;
+        --text-dark: #151c27;
+        --text-muted: #464555;
+    }
+
+    body {
+        background-color: var(--bg-gray);
+        color: var(--text-dark);
+        font-family: 'Inter', sans-serif;
+    }
+
+    /* Override colors */
+    .bg-indigo {
+        background-color: var(--primary-indigo) !important;
+    }
+    .text-indigo {
+        color: var(--primary-indigo) !important;
+    }
+    .btn-indigo {
+        background-color: var(--primary-indigo) !important;
+        color: #fff !important;
+    }
+    .btn-indigo:hover {
+        background-color: #2719a2 !important;
+    }
+    .btn-outline-indigo {
+        border: 1px solid var(--primary-indigo) !important;
+        color: var(--primary-indigo) !important;
+    }
+    .btn-outline-indigo:hover {
+        background-color: rgba(53, 37, 205, 0.05) !important;
+    }
+
+    /* Hero section */
+    .hero-banner {
+        padding: 40px 0;
+        background: linear-gradient(135deg, rgba(53, 37, 205, 0.03) 0%, rgba(157, 67, 0, 0.02) 100%);
+        border-radius: 20px;
+        margin-bottom: 30px;
+    }
+
+    /* Filters style */
+    .filter-section {
+        background-color: #ffffff;
+        border-radius: 16px;
+        padding: 24px;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.02);
+    }
+    .filter-title {
+        font-size: 14px;
+        font-weight: 600;
+        text-transform: uppercase;
+        color: var(--text-muted);
+        letter-spacing: 0.05em;
+        margin-bottom: 12px;
+    }
+    .filter-chip {
+        cursor: pointer;
+        display: inline-block;
+        padding: 8px 16px;
+        border-radius: 20px;
+        font-size: 14px;
+        font-weight: 500;
+        background-color: #f0f3ff;
+        color: var(--text-muted);
+        border: 1px solid transparent;
+        margin-right: 8px;
+        margin-bottom: 8px;
+        transition: all 0.2s ease-in-out;
+    }
+    .filter-chip:hover {
+        background-color: #e2e8f8;
+        color: var(--primary-indigo);
+    }
+    .filter-chip.active {
+        background-color: var(--primary-indigo);
+        color: #ffffff;
+        box-shadow: 0 4px 8px rgba(53, 37, 205, 0.2);
+    }
+
+    /* Exam cards */
+    .exam-card {
+        background-color: #ffffff;
+        border-radius: 16px !important;
+        border: none !important;
+        box-shadow: 0 4px 16px rgba(0, 0, 0, 0.02) !important;
+        transition: all 0.3s ease;
+        overflow: hidden;
+        height: 100%;
+        display: flex;
+        flex-direction: column;
+    }
+    .exam-card:hover {
+        transform: translateY(-6px);
+        box-shadow: 0 12px 24px rgba(53, 37, 205, 0.08) !important;
+    }
+    .exam-cover-wrapper {
+        position: relative;
+        background-color: #f3f5fa;
+        height: 180px;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        overflow: hidden;
+    }
+    .exam-cover-img {
+        max-height: 140px;
+        object-fit: contain;
+        transition: all 0.3s ease;
+        filter: drop-shadow(0 8px 12px rgba(0,0,0,0.1));
+    }
+    .exam-card:hover .exam-cover-img {
+        transform: scale(1.05);
+    }
+    .badge-year {
+        background-color: rgba(53, 37, 205, 0.1) !important;
+        color: var(--primary-indigo) !important;
+        font-weight: 600;
+        font-size: 11px;
+        padding: 4px 8px;
+        border-radius: 4px;
+    }
+    .badge-difficulty {
+        background-color: rgba(157, 67, 0, 0.1) !important;
+        color: var(--secondary-orange) !important;
+        font-weight: 600;
+        font-size: 11px;
+        padding: 4px 8px;
+        border-radius: 4px;
+    }
+    .exam-meta-item {
+        font-size: 13px;
+        color: var(--text-muted);
+        margin-bottom: 6px;
+        display: flex;
+        align-items: center;
+    }
+    .exam-meta-item i {
+        width: 18px;
+        margin-right: 6px;
+        color: var(--primary-indigo);
+    }
+
+    /* Pagination */
+    .pagination .page-item .page-link {
+        color: var(--primary-indigo);
+        border: none;
+        margin: 0 3px;
+        border-radius: 8px;
+        font-weight: 500;
+    }
+    .pagination .page-item.active .page-link {
+        background-color: var(--primary-indigo) !important;
+        color: white !important;
+        box-shadow: 0 4px 8px rgba(53, 37, 205, 0.2);
+    }
+</style>
+
+<div class="container my-3">
+    <!-- Hero Banner -->
+    <div class="hero-banner text-center">
+        <div class="px-4 py-2">
+            <h1 class="display-6 fw-bold text-dark mb-2">Thư viện đề thi TOEIC</h1>
+            <p class="lead text-muted mb-0">Tổng hợp đề thi thử TOEIC chuẩn cấu trúc mới nhất có giải thích chi tiết</p>
+        </div>
+    </div>
+
+    <!-- Search and Filters Section -->
+    <div class="filter-section mb-4">
+        <!-- Search bar -->
+        <form method="get" class="row g-3 mb-4">
+            <div class="col-md-9 col-sm-8">
+                <div class="input-group">
+                    <span class="input-group-text border-0 bg-light"><i class="fas fa-search text-muted"></i></span>
+                    <input type="text" asp-for="Search" class="form-control border-0 bg-light py-2.5" placeholder="Tìm kiếm tên đề thi, bộ đề..." style="border-radius: 0 8px 8px 0 !important;" />
+                </div>
+            </div>
+            
+            <input type="hidden" asp-for="SelectedSeries" id="selectedSeries" />
+            <input type="hidden" asp-for="SelectedYear" id="selectedYear" />
+            <input type="hidden" asp-for="SelectedDifficulty" id="selectedDifficulty" />
+        </form>
+
+        <!-- Filters group -->
+        <div class="row">
+            <!-- Filter by Series -->
+            <div class="col-12 mb-3">
+                <div class="filter-title">Bộ đề thi</div>
+                <div class="d-flex flex-wrap gap-1">
+                    @foreach (var series in Model.SeriesFilters)
+                    {
+                        <span class="filter-chip @(Model.SelectedSeries == series ? "active" : "")" onclick="setFilter('Series', '@series')">
+                            @series
+                        </span>
+                    }
+                </div>
+            </div>
+
+            <!-- Filter by Year -->
+            <div class="col-12 mb-3">
+                <div class="filter-title">Năm sản xuất</div>
+                <div class="d-flex flex-wrap gap-1">
+                    @foreach (var year in Model.YearFilters)
+                    {
+                        <span class="filter-chip @(Model.SelectedYear == year ? "active" : "")" onclick="setFilter('Year', '@year')">
+                            @year
+                        </span>
+                    }
+                </div>
+            </div>
+
+            <!-- Filter by Difficulty -->
+            <div class="col-12">
+                <div class="filter-title">Độ khó / Mục tiêu</div>
+                <div class="d-flex flex-wrap gap-1">
+                    @foreach (var difficulty in Model.DifficultyFilters)
+                    {
+                        <span class="filter-chip @(Model.SelectedDifficulty == difficulty ? "active" : "")" onclick="setFilter('Difficulty', '@difficulty')">
+                            @difficulty
+                        </span>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Exam Cards Grid -->
+    <div class="row g-4 mb-5">
+        @if (Model.Exams.Any())
+        {
+            @foreach (var exam in Model.Exams)
+            {
+                <div class="col-xl-4 col-md-6 col-sm-12">
+                    <div class="card exam-card">
+                        <!-- Book Cover -->
+                        <div class="exam-cover-wrapper">
+                            <img src="@exam.CoverImageUrl" class="exam-cover-img" alt="Book Cover" />
+                        </div>
+                        
+                        <!-- Card Body -->
+                        <div class="card-body p-4 d-flex flex-column justify-content-between" style="flex: 1;">
+                            <div>
+                                <!-- Badges -->
+                                <div class="d-flex gap-2 mb-3">
+                                    <span class="badge-year"><i class="far fa-calendar me-1"></i> Năm @exam.Year</span>
+                                    <span class="badge-difficulty"><i class="fas fa-fire me-1"></i> @exam.Difficulty</span>
+                                </div>
+                                
+                                <!-- Title -->
+                                <h5 class="fw-bold text-dark mb-3">@exam.Title</h5>
+                                
+                                <!-- Meta Metadata -->
+                                <div class="exam-meta mb-4">
+                                    <div class="exam-meta-item">
+                                        <i class="far fa-clock"></i>
+                                        <span>Thời gian: @exam.Duration phút</span>
+                                    </div>
+                                    <div class="exam-meta-item">
+                                        <i class="far fa-question-circle"></i>
+                                        <span>Số lượng: @exam.QuestionCount câu hỏi</span>
+                                    </div>
+                                    <div class="exam-meta-item">
+                                        <i class="fas fa-user-edit"></i>
+                                        <span>Lượt làm bài: @exam.AttemptCount.ToString("N0")</span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Action button -->
+                            <div class="d-grid mt-auto">
+                                <a href="#" class="btn btn-outline-indigo py-2 fw-bold" style="border-radius: 8px;">
+                                    Chi tiết đề thi
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            }
+        }
+        else
+        {
+            <div class="col-12 text-center py-5">
+                <i class="fas fa-search-minus fa-3x mb-3 text-muted"></i>
+                <h5>Không tìm thấy đề thi phù hợp</h5>
+                <p class="text-muted">Vui lòng điều chỉnh lại bộ lọc hoặc từ khóa tìm kiếm.</p>
+            </div>
+        }
+    </div>
+
+    <!-- Pagination -->
+    <nav class="d-flex justify-content-center" aria-label="Page navigation">
+        <ul class="pagination">
+            <li class="page-item disabled">
+                <a class="page-link" href="#" aria-label="Previous">
+                    <span aria-hidden="true">&laquo;</span>
+                </a>
+            </li>
+            <li class="page-item active"><a class="page-link" href="#">1</a></li>
+            <li class="page-item"><a class="page-link" href="#">2</a></li>
+            <li class="page-item"><a class="page-link" href="#">3</a></li>
+            <li class="page-item">
+                <a class="page-link" href="#" aria-label="Next">
+                    <span aria-hidden="true">&raquo;</span>
+                </a>
+            </li>
+        </ul>
+    </nav>
+</div>
+
+<script>
+    function setFilter(type, value) {
+        document.getElementById('selected' + type).value = value;
+        // Submit the form to reload with filters
+        document.querySelector('form').submit();
+    }
+</script>
