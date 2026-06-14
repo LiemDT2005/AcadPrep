@@ -23,7 +23,7 @@ public class GetDashboardDataQueryHandler : IRequestHandler<GetDashboardDataQuer
 
     public async Task<DashboardDataDto> Handle(GetDashboardDataQuery request, CancellationToken cancellationToken)
     {
-        var result = new DashboardDataDto();
+        var result = new DashboardDataDto();    
 
         // 1. Active Exams
         var activeAttempts = await _context.ExamAttempts
