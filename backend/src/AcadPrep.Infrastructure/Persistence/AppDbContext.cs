@@ -9,7 +9,6 @@ namespace Infrastructure.Persistence;
 public class AppDbContext(DbContextOptions<AppDbContext> options) 
     : DbContext(options), IAppDbContext
 {
-    public DbSet<Course> Courses => Set<Course>();
     public DbSet<Role> Roles => Set<Role>();
     public DbSet<Exam> Exams => Set<Exam>();
     public DbSet<Vocabulary> Vocabularies => Set<Vocabulary>();
@@ -23,6 +22,8 @@ public class AppDbContext(DbContextOptions<AppDbContext> options)
     public DbSet<SavedVocabulary> SavedVocabularies => Set<SavedVocabulary>();
     public DbSet<StudyStreak> StudyStreaks => Set<StudyStreak>();
     public DbSet<AuditLog> AuditLogs => Set<AuditLog>();
+    public DbSet<Achievement> Achievements => Set<Achievement>();
+    public DbSet<UserAchievement> UserAchievements => Set<UserAchievement>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {

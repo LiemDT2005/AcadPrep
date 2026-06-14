@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html class="light" lang="en">
+<head>
+<meta charset="utf-8">
+<meta content="width=device-width, initial-scale=1.0" name="viewport">
+<title>@ViewData["Title"] - AcadPrep Admin</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet">
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+    tailwind.config = {
+      darkMode: "class",
+      theme: {
+        extend: {
+          colors: {
+                  "surface-variant": "#e4e1ee",
+                  "secondary-fixed": "#ffdbca",
+                  "error-container": "#ffdad6",
+                  "inverse-surface": "#302f39",
+                  "inverse-on-surface": "#f3effc",
+                  "surface-container-low": "#f5f2ff",
+                  "on-background": "#1b1b24",
+                  "primary-container": "#3525cd",
+                  "outline-variant": "#c7c4d8",
+                  "on-error-container": "#93000a",
+                  "tertiary-container": "#005338",
+                  "tertiary": "#005338",
+                  "outline": "#777587",
+                  "on-tertiary-fixed": "#002114",
+                  "on-primary-container": "#b1afff",
+                  "primary": "#1e00a9",
+                  "surface-container-high": "#eae6f4",
+                  "on-tertiary": "#ffffff",
+                  "surface-container": "#e7eefe",
+                  "on-surface-variant": "#464555",
+                  "background": "#fcf8ff",
+                  "surface-dim": "#dcd8e5",
+                  "surface-bright": "#fcf8ff",
+                  "surface-container-lowest": "#ffffff",
+                  "on-secondary": "#ffffff",
+                  "primary-fixed-dim": "#c3c0ff",
+                  "on-secondary-container": "#6c2c00",
+                  "on-surface": "#1b1b24",
+                  "inverse-primary": "#c3c0ff",
+                  "secondary-container": "#ff8d4b",
+                  "primary-fixed": "#e2dfff",
+                  "on-tertiary-fixed-variant": "#005237",
+                  "secondary": "#9d4300",
+                  "on-secondary-fixed-variant": "#783200",
+                  "surface-tint": "#4d44e3",
+                  "surface": "#f9f9ff",
+                  "on-secondary-fixed": "#341100",
+                  "tertiary-fixed": "#abf2cd",
+                  "on-primary-fixed": "#0f0069",
+                  "secondary-fixed-dim": "#ffb690",
+                  "on-primary": "#ffffff",
+                  "tertiary-fixed-dim": "#8fd5b2",
+                  "surface-container-highest": "#e4e1ee",
+                  "on-error": "#ffffff",
+                  "error": "#ba1a1a",
+                  "on-tertiary-container": "#80c5a3",
+                  "on-primary-fixed-variant": "#3323cc"
+          },
+          spacing: {
+                  "base_unit": "4px",
+                  "3xl": "64px",
+                  "xs": "4px",
+                  "2xl": "48px",
+                  "xl": "32px",
+                  "unit": "4px",
+                  "sm": "8px",
+                  "md": "16px",
+                  "margin-desktop": "40px",
+                  "lg": "24px",
+                  "margin-mobile": "16px",
+                  "gutter": "24px"
+          },
+          fontFamily: {
+                  "body-sm": ["Inter"],
+                  "headline-sm": ["Inter"],
+                  "display-lg": ["Inter"],
+                  "headline-lg": ["Inter"],
+                  "body-lg": ["Inter"],
+                  "label-md": ["Inter"],
+                  "body-md": ["Inter"],
+                  "headline-md": ["Inter"],
+                  "label-sm": ["Inter"],
+                  "headline-lg-mobile": ["Inter"]
+          }
+        }
+      }
+    }
+  </script>
+</head>
+<body class="bg-surface text-on-surface font-[Inter] antialiased h-screen overflow-hidden flex">
+<!-- SideNavBar Component -->
+<nav class="bg-inverse-surface dark:bg-inverse-surface fixed left-0 top-0 h-full w-[260px] flex flex-col overflow-y-auto z-50">
+<div class="px-md py-xl">
+<div class="flex items-center gap-sm">
+<span class="material-symbols-outlined text-inverse-on-surface text-[32px]">school</span>
+<div class="flex flex-col">
+<span class="text-[24px] font-bold text-inverse-on-surface leading-[32px]">AcadPrep</span>
+<span class="text-[12px] text-surface-variant font-semibold">Admin Dashboard</span>
+</div>
+</div>
+</div>
+<ul class="flex flex-col flex-1 px-sm py-sm gap-xs">
+<!-- Menu Items -->
+<li>
+<a class="flex items-center gap-md px-md py-sm rounded-lg hover:bg-surface-variant hover:text-on-surface-variant text-surface-variant transition-colors duration-200 text-[14px] font-medium" href="/Admin/Dashboard">
+<span class="material-symbols-outlined text-[20px]" style="font-variation-settings: 'FILL' 1;">dashboard</span>
+          Overview
+        </a>
+</li>
+<li>
+<a class="flex items-center gap-md px-md py-sm rounded-lg text-surface-variant hover:bg-surface-variant hover:text-on-surface-variant transition-colors duration-200 text-[14px] font-medium" href="/Admin/Report">
+<span class="material-symbols-outlined text-[20px]">analytics</span>
+          Reports &amp; Analytics
+        </a>
+</li>
+<li>
+<a class="flex items-center gap-md px-md py-sm rounded-lg text-surface-variant hover:bg-surface-variant hover:text-on-surface-variant transition-colors duration-200 text-[14px] font-medium" href="/Admin/ExamStats">
+<span class="material-symbols-outlined text-[20px]">assignment</span>
+          Exam Stats
+        </a>
+</li>
+<li>
+<a class="flex items-center gap-md px-md py-sm rounded-lg text-surface-variant hover:bg-surface-variant hover:text-on-surface-variant transition-colors duration-200 text-[14px] font-medium" href="/">
+<span class="material-symbols-outlined text-[20px]">exit_to_app</span>
+          Back to App
+        </a>
+</li>
+</ul>
+</nav>
+<!-- Main Content Wrapper -->
+<div class="flex-1 ml-[260px] flex flex-col h-screen overflow-hidden">
+<!-- TopAppBar Component -->
+<header class="bg-surface-container-lowest border-b border-outline-variant flex justify-between items-center px-lg h-16 z-40 shrink-0">
+<div class="flex items-center gap-md">
+<h1 class="text-[20px] font-bold text-on-surface">@ViewData["Title"]</h1>
+</div>
+<div class="flex items-center gap-md">
+<span class="bg-secondary-container text-on-secondary px-sm py-xs rounded-full text-[12px] font-semibold">Admin Role</span>
+<button class="w-10 h-10 rounded-full hover:bg-surface-container-low transition-colors flex items-center justify-center text-on-surface-variant cursor-pointer relative">
+<span class="material-symbols-outlined">notifications</span>
+</button>
+<span class="material-symbols-outlined text-primary text-[32px]">account_circle</span>
+</div>
+</header>
+<!-- Scrollable Canvas -->
+<main class="flex-1 overflow-y-auto p-margin-desktop bg-surface">
+    @RenderBody()
+</main>
+</div>
+</body></html>

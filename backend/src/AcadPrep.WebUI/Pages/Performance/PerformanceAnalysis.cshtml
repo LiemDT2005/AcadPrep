@@ -1,0 +1,153 @@
+@page "/performance/analysis"
+@model AcadPrep.WebUI.Pages.Performance.PerformanceAnalysisModel
+@{
+    ViewData["Title"] = "Performance Analysis";
+}
+
+<div class="max-w-5xl mx-auto py-2xl px-margin-mobile md:px-margin-desktop">
+    <div class="mb-xl">
+        <h2 class="font-headline-md text-headline-md text-on-surface mb-sm">Performance Analysis</h2>
+        <p class="font-body-md text-body-md text-on-surface-variant">Evaluate your strengths and weaknesses by skill.</p>
+    </div>
+
+    @if (!Model.AnalysisData.HasData)
+    {
+        <div class="bg-secondary-container/30 border border-secondary-container rounded-xl p-xl text-center">
+            <span class="material-symbols-outlined text-[48px] text-secondary mb-md">analytics</span>
+            <h3 class="font-headline-sm text-headline-sm text-on-surface mb-sm">No Data Available</h3>
+            <p class="font-body-md text-body-md text-on-surface-variant mb-lg">@Model.AnalysisData.Message</p>
+            <a href="/" class="inline-flex items-center gap-sm bg-primary text-on-primary px-lg py-sm rounded-lg font-label-md text-label-md hover:bg-primary/90 transition-colors shadow-sm">
+                <span class="material-symbols-outlined text-[18px]">quiz</span> Start an Exam
+            </a>
+        </div>
+    }
+    else
+    {
+        <!-- Overview Cards -->
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-md mb-lg">
+            <div class="bg-surface-container-lowest border border-surface-variant rounded-xl p-lg text-center">
+                <span class="material-symbols-outlined text-primary text-[28px] mb-sm">headphones</span>
+                <p class="font-display-sm text-[32px] text-primary font-bold">@Model.AnalysisData.AverageListeningScore.ToString("F0")</p>
+                <p class="font-label-md text-label-md text-on-surface-variant">Avg. Listening</p>
+                <div class="w-full bg-surface-container-high rounded-full h-[6px] mt-sm">
+                    <div class="bg-primary h-full rounded-full transition-all" style="width: @((Model.AnalysisData.AverageListeningScore / 495 * 100).ToString("F0"))%"></div>
+                </div>
+                <p class="font-body-sm text-[11px] text-on-surface-variant mt-xs">/ 495</p>
+            </div>
+
+            <div class="bg-surface-container-lowest border border-surface-variant rounded-xl p-lg text-center">
+                <span class="material-symbols-outlined text-secondary text-[28px] mb-sm">menu_book</span>
+                <p class="font-display-sm text-[32px] text-secondary font-bold">@Model.AnalysisData.AverageReadingScore.ToString("F0")</p>
+                <p class="font-label-md text-label-md text-on-surface-variant">Avg. Reading</p>
+                <div class="w-full bg-surface-container-high rounded-full h-[6px] mt-sm">
+                    <div class="bg-secondary h-full rounded-full transition-all" style="width: @((Model.AnalysisData.AverageReadingScore / 495 * 100).ToString("F0"))%"></div>
+                </div>
+                <p class="font-body-sm text-[11px] text-on-surface-variant mt-xs">/ 495</p>
+            </div>
+
+            <div class="bg-surface-container-lowest border border-surface-variant rounded-xl p-lg text-center">
+                <span class="material-symbols-outlined text-tertiary text-[28px] mb-sm">assignment</span>
+                <p class="font-display-sm text-[32px] text-tertiary font-bold">@Model.AnalysisData.TotalTestsTaken</p>
+                <p class="font-label-md text-label-md text-on-surface-variant">Exams Completed</p>
+            </div>
+        </div>
+
+        <!-- Radar Chart -->
+        <div class="bg-surface-container-lowest border border-surface-variant rounded-xl shadow-sm p-lg mb-lg">
+            <div class="flex justify-between items-center mb-md">
+                <h3 class="font-headline-sm text-headline-sm text-on-surface">Skill Chart</h3>
+            </div>
+            <div class="w-full flex justify-center" style="height: 350px;">
+                <canvas id="radarChart"></canvas>
+            </div>
+        </div>
+
+        <!-- Tips Section -->
+        <div class="bg-primary-container/20 border border-primary-container rounded-xl p-lg">
+            <div class="flex items-center gap-sm mb-md">
+                <span class="material-symbols-outlined text-primary">lightbulb</span>
+                <h3 class="font-headline-sm text-headline-sm text-on-surface">Improvement Suggestions</h3>
+            </div>
+            @{
+                var listening = Model.AnalysisData.AverageListeningScore;
+                var reading = Model.AnalysisData.AverageReadingScore;
+                var weaker = listening < reading ? "Listening" : "Reading";
+            }
+            <div class="space-y-sm">
+                <div class="flex items-start gap-sm">
+                    <span class="material-symbols-outlined text-primary text-[18px] mt-[2px]">check_circle</span>
+                    <p class="font-body-md text-body-md text-on-surface">Weaker skill: <strong class="text-primary">@weaker</strong> – Focus on practicing this more.</p>
+                </div>
+                <div class="flex items-start gap-sm">
+                    <span class="material-symbols-outlined text-primary text-[18px] mt-[2px]">check_circle</span>
+                    <p class="font-body-md text-body-md text-on-surface">Completed <strong>@Model.AnalysisData.TotalTestsTaken exams</strong>. Practice more for accurate analytics.</p>
+                </div>
+                <div class="flex items-start gap-sm">
+                    <span class="material-symbols-outlined text-primary text-[18px] mt-[2px]">check_circle</span>
+                    <p class="font-body-md text-body-md text-on-surface">Daily vocabulary review improves both Listening and Reading.</p>
+                </div>
+            </div>
+        </div>
+
+        @section Scripts {
+            <script src="https://cdn.jsdelivr.net/npm/chart.js@4"></script>
+            <script>
+                const ctx = document.getElementById('radarChart').getContext('2d');
+                new Chart(ctx, {
+                    type: 'radar',
+                    data: {
+                        labels: ['Part 1', 'Part 2', 'Part 3', 'Part 4', 'Part 5', 'Part 6', 'Part 7'],
+                        datasets: [{
+                            label: 'Your Skills (%)',
+                            data: [
+                                @(Model.AnalysisData.PartMastery.GetValueOrDefault(1, 0)),
+                                @(Model.AnalysisData.PartMastery.GetValueOrDefault(2, 0)),
+                                @(Model.AnalysisData.PartMastery.GetValueOrDefault(3, 0)),
+                                @(Model.AnalysisData.PartMastery.GetValueOrDefault(4, 0)),
+                                @(Model.AnalysisData.PartMastery.GetValueOrDefault(5, 0)),
+                                @(Model.AnalysisData.PartMastery.GetValueOrDefault(6, 0)),
+                                @(Model.AnalysisData.PartMastery.GetValueOrDefault(7, 0))
+                            ],
+                            borderColor: '#6750A4',
+                            backgroundColor: 'rgba(103, 80, 164, 0.15)',
+                            borderWidth: 2,
+                            pointBackgroundColor: '#6750A4',
+                            pointBorderColor: '#fff',
+                            pointBorderWidth: 2,
+                            pointRadius: 5
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: { display: false },
+                            tooltip: {
+                                backgroundColor: '#1C1B1F',
+                                titleFont: { family: 'Inter', size: 12 },
+                                bodyFont:  { family: 'Inter', size: 14, weight: 'bold' },
+                                padding: 12,
+                                cornerRadius: 8,
+                                callbacks: {
+                                    label: function(context) {
+                                        return `${context.label}: ${context.parsed.r}%`;
+                                    }
+                                }
+                            }
+                        },
+                        scales: {
+                            r: {
+                                min: 0,
+                                max: 100,
+                                ticks: { stepSize: 20, font: { family: 'Inter', size: 10 }, backdropColor: 'transparent', color: '#79747E' },
+                                grid:  { color: 'rgba(0,0,0,0.06)' },
+                                pointLabels: { font: { family: 'Inter', size: 13, weight: '500' }, color: '#1C1B1F' },
+                                angleLines: { color: 'rgba(0,0,0,0.06)' }
+                            }
+                        }
+                    }
+                });
+            </script>
+        }
+    }
+</div>

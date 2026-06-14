@@ -1,0 +1,61 @@
+@page
+@model AcadPrep.WebUI.Pages.Admin.DashboardModel
+@{
+    ViewData["Title"] = "Admin Dashboard";
+}
+
+<div class="max-w-[1400px] mx-auto flex flex-col gap-xl">
+    <!-- KPI Row -->
+    <section class="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-5 gap-md">
+        <!-- KPI 1 -->
+        <div class="bg-surface-container-lowest rounded-lg border-t-4 border-t-primary p-md flex flex-col gap-xs shadow-sm">
+            <span class="text-[14px] font-medium text-on-surface-variant">Total Users</span>
+            <div class="flex items-baseline gap-sm">
+                <span class="text-[32px] font-bold text-on-surface">@Model.Stats.TotalUsers</span>
+            </div>
+        </div>
+        <!-- KPI 2 -->
+        <div class="bg-surface-container-lowest rounded-lg border-t-4 border-t-primary p-md flex flex-col gap-xs shadow-sm">
+            <span class="text-[14px] font-medium text-on-surface-variant">Active Users (7 Days)</span>
+            <div class="flex items-baseline gap-sm">
+                <span class="text-[32px] font-bold text-on-surface">@Model.Stats.ActiveUsers</span>
+            </div>
+        </div>
+        <!-- KPI 3 -->
+        <div class="bg-surface-container-lowest rounded-lg border-t-4 border-t-primary p-md flex flex-col gap-xs shadow-sm">
+            <span class="text-[14px] font-medium text-on-surface-variant">New Registrations (30d)</span>
+            <div class="flex items-baseline gap-sm">
+                <span class="text-[32px] font-bold text-on-surface">@Model.Stats.NewRegistrations</span>
+            </div>
+        </div>
+        <!-- KPI 4 -->
+        <div class="bg-surface-container-lowest rounded-lg border-t-4 border-t-primary p-md flex flex-col gap-xs shadow-sm">
+            <span class="text-[14px] font-medium text-on-surface-variant">Total Exams Completed</span>
+            <div class="flex items-baseline gap-sm">
+                <span class="text-[32px] font-bold text-on-surface">@Model.Stats.TotalExamsTaken</span>
+            </div>
+        </div>
+        <!-- KPI 5 -->
+        <div class="bg-surface-container-lowest rounded-lg border-t-4 border-t-primary p-md flex flex-col gap-xs shadow-sm">
+            <span class="text-[14px] font-medium text-on-surface-variant">Avg TOEIC Score</span>
+            <div class="flex items-baseline gap-sm">
+                <span class="text-[32px] font-bold text-on-surface">@Model.Stats.AverageToeicScore.ToString("F0")</span>
+            </div>
+        </div>
+    </section>
+
+    <!-- Content Row -->
+    <section class="grid grid-cols-1 lg:grid-cols-2 gap-md mt-4">
+        <div class="bg-surface-container-lowest rounded-lg p-md shadow-sm min-h-[200px] flex flex-col">
+            <h3 class="text-[20px] font-semibold text-on-surface mb-md">Quick Actions</h3>
+            <div class="flex gap-md">
+                <a href="/Admin/Report" class="inline-flex items-center justify-center px-md py-sm rounded-lg border border-outline-variant text-on-surface text-[14px] font-medium hover:bg-surface-container-low transition-colors duration-100">
+                    View Progress Reports
+                </a>
+                <a href="/Admin/ExamStats" class="inline-flex items-center justify-center px-md py-sm rounded-lg bg-primary-container text-white text-[14px] font-medium hover:opacity-90 transition-all duration-100 shadow-sm">
+                    View Exam Statistics
+                </a>
+            </div>
+        </div>
+    </section>
+</div>

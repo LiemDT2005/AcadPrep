@@ -7,7 +7,6 @@ namespace Application.Common.Interfaces;
 
 public interface IAppDbContext
 {
-    DbSet<Course> Courses { get; }
     DbSet<Role> Roles { get; }
     DbSet<Exam> Exams { get; }
     DbSet<Vocabulary> Vocabularies { get; }
@@ -21,6 +20,8 @@ public interface IAppDbContext
     DbSet<SavedVocabulary> SavedVocabularies { get; }
     DbSet<StudyStreak> StudyStreaks { get; }
     DbSet<AuditLog> AuditLogs { get; }
+    DbSet<Achievement> Achievements { get; }
+    DbSet<UserAchievement> UserAchievements { get; }
 
     Task<int> SaveChangesAsync(CancellationToken cancellationToken = default);
 }
