@@ -26,6 +26,9 @@ public static class DependencyInjection
         // Bind IAppDbContext to DbContext implementation
         services.AddScoped<IAppDbContext>(provider => provider.GetRequiredService<AppDbContext>());
 
+        // Register Database Initializer
+        services.AddScoped<AppDbContextInitializer>();
+
         // Register HttpContextAccessor
         services.AddHttpContextAccessor();
 
