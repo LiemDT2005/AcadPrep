@@ -1,7 +1,7 @@
 using System;
 using System.Threading.Tasks;
 using AcadPrep.Application.Features.Performance.DTOs;
-using AcadPrep.Application.Features.Performance.Queries.GetStudyStreak;
+using AcadPrep.Application.Features.Performance.Query.GetStudyStreak;
 using Application.Common.Interfaces;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
@@ -31,10 +31,15 @@ public class DashboardModel : PageModel
             parsedUserId = 2; // Fallback to Test User
         }
 
-        StreakData = await _mediator.Send(new GetStudyStreakQuery(parsedUserId));
-        DashboardData = await _mediator.Send(new AcadPrep.Application.Features.Performance.Queries.GetDashboardData.GetDashboardDataQuery(parsedUserId));
-        ScoreProgressData = await _mediator.Send(new AcadPrep.Application.Features.Performance.Queries.GetScoreProgress.GetScoreProgressQuery(parsedUserId));
+        // Reset streak if needed before querying
+        await _mediator.Send(new AcadPrep.Application.Features.Performance.Command.ResetStudyStreak.ResetStudyStreakCommand(parsedUserId));
+
+        StreakData = (await _mediator.Send(new GetStudyStreakQuery(parsedUserId))).Data!;
+        DashboardData = (await _mediator.Send(new AcadPrep.Application.Features.Performance.Queries.GetDashboardData.GetDashboardDataQuery(parsedUserId))).Data!;
+        ScoreProgressData = (await _mediator.Send(new AcadPrep.Application.Features.Performance.Queries.GetScoreProgress.GetScoreProgressQuery(parsedUserId))).Data!;
 
         return Page();
     }
 }
+
+

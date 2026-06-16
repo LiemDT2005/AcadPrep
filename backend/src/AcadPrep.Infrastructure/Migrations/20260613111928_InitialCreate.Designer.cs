@@ -4,6 +4,7 @@ using Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace AcadPrep.Infrastructure.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260613111928_InitialCreate")]
+    partial class InitialCreate
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -79,12 +82,11 @@ namespace AcadPrep.Infrastructure.Migrations
 
             modelBuilder.Entity("Domain.Entities.AuditLog", b =>
                 {
-                    b.Property<int>("Id")
+                    b.Property<int>("LogId")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("int")
-                        .HasColumnName("LogId");
+                        .HasColumnType("int");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("LogId"));
 
                     b.Property<string>("Action")
                         .IsRequired()
@@ -104,7 +106,7 @@ namespace AcadPrep.Infrastructure.Migrations
                     b.Property<int?>("UserId")
                         .HasColumnType("int");
 
-                    b.HasKey("Id");
+                    b.HasKey("LogId");
 
                     b.HasIndex("UserId");
 
@@ -113,12 +115,11 @@ namespace AcadPrep.Infrastructure.Migrations
 
             modelBuilder.Entity("Domain.Entities.Exam", b =>
                 {
-                    b.Property<int>("Id")
+                    b.Property<int>("ExamId")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("int")
-                        .HasColumnName("ExamId");
+                        .HasColumnType("int");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("ExamId"));
 
                     b.Property<DateTime>("CreatedAt")
                         .ValueGeneratedOnAdd()
@@ -136,27 +137,23 @@ namespace AcadPrep.Infrastructure.Migrations
                         .HasColumnType("bit")
                         .HasDefaultValue(false);
 
-                    b.Property<DateTime?>("LastModifiedAt")
-                        .HasColumnType("datetime2");
-
                     b.Property<string>("Title")
                         .IsRequired()
                         .HasMaxLength(255)
                         .HasColumnType("nvarchar(255)");
 
-                    b.HasKey("Id");
+                    b.HasKey("ExamId");
 
                     b.ToTable("EXAMS", (string)null);
                 });
 
             modelBuilder.Entity("Domain.Entities.ExamAttempt", b =>
                 {
-                    b.Property<int>("Id")
+                    b.Property<int>("AttemptId")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("int")
-                        .HasColumnName("AttemptId");
+                        .HasColumnType("int");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("AttemptId"));
 
                     b.Property<DateTime?>("CompletedAt")
                         .HasColumnType("datetime2");
@@ -195,7 +192,7 @@ namespace AcadPrep.Infrastructure.Migrations
                     b.Property<int>("UserId")
                         .HasColumnType("int");
 
-                    b.HasKey("Id");
+                    b.HasKey("AttemptId");
 
                     b.HasIndex("ExamId");
 
@@ -206,12 +203,11 @@ namespace AcadPrep.Infrastructure.Migrations
 
             modelBuilder.Entity("Domain.Entities.Passage", b =>
                 {
-                    b.Property<int>("Id")
+                    b.Property<int>("PassageId")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("int")
-                        .HasColumnName("PassageId");
+                        .HasColumnType("int");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("PassageId"));
 
                     b.Property<string>("Content")
                         .IsRequired()
@@ -220,7 +216,7 @@ namespace AcadPrep.Infrastructure.Migrations
                     b.Property<int>("ExamId")
                         .HasColumnType("int");
 
-                    b.HasKey("Id");
+                    b.HasKey("PassageId");
 
                     b.HasIndex("ExamId");
 
@@ -229,12 +225,11 @@ namespace AcadPrep.Infrastructure.Migrations
 
             modelBuilder.Entity("Domain.Entities.Question", b =>
                 {
-                    b.Property<int>("Id")
+                    b.Property<int>("QuestionId")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("int")
-                        .HasColumnName("QuestionId");
+                        .HasColumnType("int");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("QuestionId"));
 
                     b.Property<string>("AudioUrl")
                         .HasMaxLength(500)
@@ -262,7 +257,7 @@ namespace AcadPrep.Infrastructure.Migrations
                     b.Property<string>("QuestionText")
                         .HasColumnType("nvarchar(max)");
 
-                    b.HasKey("Id");
+                    b.HasKey("QuestionId");
 
                     b.HasIndex("ExamId");
 
@@ -278,12 +273,11 @@ namespace AcadPrep.Infrastructure.Migrations
 
             modelBuilder.Entity("Domain.Entities.QuestionOption", b =>
                 {
-                    b.Property<int>("Id")
+                    b.Property<int>("OptionId")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("int")
-                        .HasColumnName("OptionId");
+                        .HasColumnType("int");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("OptionId"));
 
                     b.Property<string>("OptionLetter")
                         .IsRequired()
@@ -298,7 +292,7 @@ namespace AcadPrep.Infrastructure.Migrations
                     b.Property<int>("QuestionId")
                         .HasColumnType("int");
 
-                    b.HasKey("Id");
+                    b.HasKey("OptionId");
 
                     b.HasIndex("QuestionId");
 
@@ -388,12 +382,11 @@ namespace AcadPrep.Infrastructure.Migrations
 
             modelBuilder.Entity("Domain.Entities.User", b =>
                 {
-                    b.Property<int>("Id")
+                    b.Property<int>("UserId")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("int")
-                        .HasColumnName("UserId");
+                        .HasColumnType("int");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("UserId"));
 
                     b.Property<DateTime>("CreatedAt")
                         .ValueGeneratedOnAdd()
@@ -410,9 +403,6 @@ namespace AcadPrep.Infrastructure.Migrations
                         .IsRequired()
                         .HasMaxLength(150)
                         .HasColumnType("nvarchar(150)");
-
-                    b.Property<DateTime?>("LastModifiedAt")
-                        .HasColumnType("datetime2");
 
                     b.Property<string>("PasswordHash")
                         .IsRequired()
@@ -431,7 +421,7 @@ namespace AcadPrep.Infrastructure.Migrations
                         .HasColumnType("varchar(50)")
                         .HasDefaultValue("Active");
 
-                    b.HasKey("Id");
+                    b.HasKey("UserId");
 
                     b.HasIndex("Email")
                         .IsUnique();
@@ -464,12 +454,11 @@ namespace AcadPrep.Infrastructure.Migrations
 
             modelBuilder.Entity("Domain.Entities.VocabPassage", b =>
                 {
-                    b.Property<int>("Id")
+                    b.Property<int>("VocabPassageId")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("int")
-                        .HasColumnName("VocabPassageId");
+                        .HasColumnType("int");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("VocabPassageId"));
 
                     b.Property<string>("Content")
                         .IsRequired()
@@ -478,7 +467,7 @@ namespace AcadPrep.Infrastructure.Migrations
                     b.Property<int>("VocabularyId")
                         .HasColumnType("int");
 
-                    b.HasKey("Id");
+                    b.HasKey("VocabPassageId");
 
                     b.HasIndex("VocabularyId");
 
@@ -487,12 +476,11 @@ namespace AcadPrep.Infrastructure.Migrations
 
             modelBuilder.Entity("Domain.Entities.Vocabulary", b =>
                 {
-                    b.Property<int>("Id")
+                    b.Property<int>("VocabularyId")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("int")
-                        .HasColumnName("VocabularyId");
+                        .HasColumnType("int");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("VocabularyId"));
 
                     b.Property<DateTime>("CreatedAt")
                         .ValueGeneratedOnAdd()
@@ -501,9 +489,6 @@ namespace AcadPrep.Infrastructure.Migrations
 
                     b.Property<string>("Example")
                         .HasColumnType("nvarchar(max)");
-
-                    b.Property<DateTime?>("LastModifiedAt")
-                        .HasColumnType("datetime2");
 
                     b.Property<string>("Meaning")
                         .IsRequired()
@@ -520,7 +505,7 @@ namespace AcadPrep.Infrastructure.Migrations
                         .HasMaxLength(100)
                         .HasColumnType("nvarchar(100)");
 
-                    b.HasKey("Id");
+                    b.HasKey("VocabularyId");
 
                     b.HasIndex("Word")
                         .IsUnique();

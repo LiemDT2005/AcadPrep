@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Threading.Tasks;
 using AcadPrep.Application.Features.Performance.Queries.GetPerformanceAnalysis;
 using Application.Common.Interfaces;
@@ -28,8 +28,10 @@ public class PerformanceAnalysisModel : PageModel
             parsedUserId = 2;
         }
 
-        AnalysisData = await _mediator.Send(new GetPerformanceAnalysisQuery(parsedUserId));
+        AnalysisData = (await _mediator.Send(new GetPerformanceAnalysisQuery(parsedUserId))).Data!;
 
         return Page();
     }
 }
+
+

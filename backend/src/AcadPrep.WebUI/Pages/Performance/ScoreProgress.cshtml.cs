@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Threading.Tasks;
 using AcadPrep.Application.Features.Performance.Queries.GetScoreProgress;
 using Application.Common.Interfaces;
@@ -28,8 +28,10 @@ public class ScoreProgressModel : PageModel
             parsedUserId = 2;
         }
 
-        ProgressData = await _mediator.Send(new GetScoreProgressQuery(parsedUserId));
+        ProgressData = (await _mediator.Send(new GetScoreProgressQuery(parsedUserId))).Data!;
 
         return Page();
     }
 }
+
+
