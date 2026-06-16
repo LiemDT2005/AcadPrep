@@ -20,6 +20,8 @@ internal sealed class GetAdminExamListQueryHandler(IAppDbContext context)
         var items = await context.Exams
             .IgnoreQueryFilters()
             .OrderByDescending(x => x.CreatedAt)
+            .Skip((request.PageNumber - 1) * request.PageSize)
+            .Take(request.PageSize)
             .Select(x => new AdminExamDto
             {
                 Id = x.Id,

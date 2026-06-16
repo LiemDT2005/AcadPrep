@@ -5,4 +5,4 @@ using MediatR;
 
 namespace Application.Features.Exams.Queries.GetAdminExamList;
 
-public record GetAdminExamListQuery : IRequest<Result<List<AdminExamDto>>>;
+public record GetAdminExamListQuery(int PageNumber = 1, int PageSize = 100) : IRequest<Result<List<AdminExamDto>>>;

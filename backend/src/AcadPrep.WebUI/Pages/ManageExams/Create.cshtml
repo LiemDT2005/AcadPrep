@@ -1,4 +1,4 @@
-@page
+@page "/Admin/Exams/Create"
 @model AcadPrep.WebUI.Pages.Exams.CreateModel
 @{
     Layout = "_ModeratorLayout";
@@ -8,7 +8,7 @@
 <div class="w-full flex flex-col gap-lg pb-12">
     <!-- Top breadcrumb and actions -->
     <div class="flex justify-between items-center">
-        <a href="/Exams" class="flex items-center gap-xs text-on-surface-variant hover:text-primary transition-colors">
+        <a href="/Admin/Exams" class="flex items-center gap-xs text-on-surface-variant hover:text-primary transition-colors">
             <span class="material-symbols-outlined">arrow_back</span>
             <span class="font-label-md text-label-md">Back to list</span>
         </a>
@@ -70,7 +70,7 @@
 
     <!-- Bottom Submit actions -->
     <div class="flex justify-end gap-sm mt-md border-t border-outline-variant/30 pt-md">
-        <a href="/Exams" class="border border-outline-variant hover:bg-surface-container-high text-on-surface-variant font-label-md text-label-md py-2.5 px-6 rounded-lg transition-colors cursor-pointer">Cancel</a>
+        <a href="/Admin/Exams" class="border border-outline-variant hover:bg-surface-container-high text-on-surface-variant font-label-md text-label-md py-2.5 px-6 rounded-lg transition-colors cursor-pointer">Cancel</a>
         <button type="button" onclick="submitExam()" class="bg-primary hover:bg-primary/90 text-on-primary font-label-md text-label-md py-2.5 px-8 rounded-lg flex items-center gap-xs shadow transition-colors cursor-pointer">
             <span class="material-symbols-outlined">save</span>
             Save and Publish
@@ -297,7 +297,7 @@
             if (response.ok) {
                 showToast('Exam created successfully!', 'success');
                 setTimeout(() => {
-                    window.location.href = '/Exams';
+                    window.location.href = '/Admin/Exams';
                 }, 1200);
             } else if (response.status === 400) {
                 const errorData = await response.json();

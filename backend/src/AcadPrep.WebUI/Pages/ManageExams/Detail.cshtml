@@ -1,4 +1,4 @@
-@page
+@page "/Admin/Exams/Detail"
 @model AcadPrep.WebUI.Pages.Exams.DetailModel
 @{
     Layout = "_ModeratorLayout";
@@ -11,7 +11,7 @@
 <div class="w-full flex flex-col gap-lg pb-12">
     <!-- Top actions -->
     <div class="flex justify-between items-center">
-        <a href="/Exams" class="flex items-center gap-xs text-on-surface-variant hover:text-primary transition-colors">
+        <a href="/Admin/Exams" class="flex items-center gap-xs text-on-surface-variant hover:text-primary transition-colors">
             <span class="material-symbols-outlined">arrow_back</span>
             <span class="font-label-md text-label-md">Back to list</span>
         </a>
@@ -30,7 +30,7 @@
     <section class="bg-surface-container-lowest rounded-xl p-lg border border-outline-variant/30 shadow-sm relative overflow-hidden group">
         <div class="absolute top-0 right-0 -mr-4 -mt-4 w-32 h-32 bg-primary-fixed rounded-full opacity-10 group-hover:scale-110 transition-transform duration-500"></div>
         
-        <div class="flex flex-col md:flex-row md:justify-between md:items-start gap-md relative z-10">
+        <div class="relative z-10 flex flex-col gap-md">
             <div>
                 <div class="flex items-center gap-sm mb-xs">
                     <span class="font-label-sm text-label-sm text-outline-variant font-semibold">EXAM ID: #@exam.Id</span>
@@ -52,7 +52,7 @@
                 <h2 class="font-headline-lg text-headline-lg font-bold text-on-surface mb-sm">@exam.Title</h2>
                 @if (!string.IsNullOrEmpty(exam.Description))
                 {
-                    <p class="font-body-md text-body-md text-on-surface-variant max-w-xl">@exam.Description</p>
+                    <p class="font-body-md text-body-md text-on-surface-variant max-w-2xl">@exam.Description</p>
                 }
                 else
                 {
@@ -60,23 +60,23 @@
                 }
             </div>
 
-            <!-- Stats grid -->
-            <div class="grid grid-cols-2 md:flex md:flex-col gap-sm shrink-0 bg-surface-container/30 p-md rounded-xl border border-outline-variant/20">
-                <div>
-                    <span class="font-label-sm text-label-sm text-on-surface-variant block">Duration</span>
-                    <span class="font-headline-sm text-headline-sm text-primary font-bold">@exam.Duration mins</span>
+            <!-- Stats Inline Row -->
+            <div class="flex flex-wrap items-center gap-lg pt-md border-t border-outline-variant/20">
+                <div class="flex items-center gap-xs">
+                    <span class="material-symbols-outlined text-primary text-md">schedule</span>
+                    <span class="font-body-sm text-body-sm"><strong class="text-on-surface">Duration:</strong> @exam.Duration mins</span>
                 </div>
-                <div>
-                    <span class="font-label-sm text-label-sm text-on-surface-variant block">Total Questions</span>
-                    <span class="font-headline-sm text-headline-sm text-primary font-bold">@totalQuestions qs</span>
+                <div class="flex items-center gap-xs">
+                    <span class="material-symbols-outlined text-primary text-md">quiz</span>
+                    <span class="font-body-sm text-body-sm"><strong class="text-on-surface">Total Questions:</strong> @totalQuestions qs</span>
                 </div>
-                <div>
-                    <span class="font-label-sm text-label-sm text-on-surface-variant block">Attempts</span>
-                    <span class="font-headline-sm text-headline-sm text-primary font-bold">@exam.AttemptCount attempts</span>
+                <div class="flex items-center gap-xs">
+                    <span class="material-symbols-outlined text-primary text-md">trending_up</span>
+                    <span class="font-body-sm text-body-sm"><strong class="text-on-surface">Attempts:</strong> @exam.AttemptCount attempts</span>
                 </div>
-                <div>
-                    <span class="font-label-sm text-label-sm text-on-surface-variant block">Created Date</span>
-                    <span class="font-label-md text-label-md text-on-surface font-semibold">@exam.CreatedAt.ToString("dd/MM/yyyy")</span>
+                <div class="flex items-center gap-xs">
+                    <span class="material-symbols-outlined text-primary text-md">calendar_today</span>
+                    <span class="font-body-sm text-body-sm"><strong class="text-on-surface">Created Date:</strong> @exam.CreatedAt.ToString("dd/MM/yyyy")</span>
                 </div>
             </div>
         </div>
@@ -221,7 +221,7 @@
                     if (response.ok) {
                         showToast('Exam hidden successfully!', 'success');
                         setTimeout(() => {
-                            window.location.href = '/Exams';
+                            window.location.href = '/Admin/Exams';
                         }, 1000);
                     } else {
                         const errorData = await response.json();

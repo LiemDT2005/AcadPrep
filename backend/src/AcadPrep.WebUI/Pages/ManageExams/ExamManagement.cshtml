@@ -1,5 +1,5 @@
-@page
-@model AcadPrep.WebUI.Pages.Exams.IndexModel
+@page "/Admin/Exams"
+@model AcadPrep.WebUI.Pages.Exams.ExamManagementModel
 @{
     Layout = "_ModeratorLayout";
     ViewData["Title"] = "Exam Management";
@@ -50,11 +50,11 @@
         <div class="bg-secondary-fixed rounded-xl p-md border border-secondary-fixed-dim shadow-sm relative overflow-hidden group">
             <div class="absolute top-0 right-0 -mr-4 -mt-4 w-24 h-24 bg-secondary-container rounded-full opacity-20 group-hover:scale-110 transition-transform duration-500"></div>
             <div class="flex justify-between items-start mb-sm relative z-10">
-                <span class="font-label-md text-label-md text-on-secondary-fixed-variant">Hidden Exams</span>
+                <span class="font-label-md text-label-md text-on-surface-variant">Hidden Exams</span>
                 <span class="material-symbols-outlined text-secondary">visibility_off</span>
             </div>
             <div class="flex items-end gap-sm relative z-10">
-                <span class="font-display-lg text-display-lg text-on-secondary-fixed">@hiddenExams</span>
+                <span class="font-display-lg text-display-lg text-on-surface">@hiddenExams</span>
                 <span class="font-label-sm text-label-sm text-secondary pb-2">Hidden / Deleted</span>
             </div>
         </div>
@@ -63,7 +63,7 @@
     <!-- 2. QUICK ACTIONS -->
     <section class="flex justify-between items-center gap-sm">
         <div class="flex gap-sm">
-            <a href="/Exams/Create" class="bg-primary hover:bg-primary/90 text-on-primary font-label-md text-label-md py-2 px-4 rounded-lg flex items-center gap-xs transition-colors cursor-pointer">
+            <a href="/Admin/Exams/Create" class="bg-primary hover:bg-primary/90 text-on-primary font-label-md text-label-md py-2 px-4 rounded-lg flex items-center gap-xs transition-colors cursor-pointer">
                 <span class="material-symbols-outlined text-sm">add</span>
                 Create New Exam
             </a>
@@ -95,7 +95,7 @@
                             <tr class="hover:bg-surface-container-low transition-colors group">
                                 <td class="px-md py-sm font-body-sm text-body-sm text-on-surface-variant">#@exam.Id</td>
                                 <td class="px-md py-sm font-body-sm text-body-sm text-on-surface font-medium">
-                                    <a href="/Exams/Detail?id=@exam.Id" class="text-primary hover:underline font-semibold">
+                                    <a href="/Admin/Exams/Detail?id=@exam.Id" class="text-primary hover:underline font-semibold">
                                         @exam.Title
                                     </a>
                                     @if (!string.IsNullOrEmpty(exam.Description))
@@ -123,7 +123,7 @@
                                 </td>
                                 <td class="px-md py-sm text-right">
                                     <div class="flex items-center justify-end gap-sm">
-                                        <a href="/Exams/Detail?id=@exam.Id" class="text-on-surface-variant hover:text-primary p-1 rounded hover:bg-surface-container" title="View Details">
+                                        <a href="/Admin/Exams/Detail?id=@exam.Id" class="text-on-surface-variant hover:text-primary p-1 rounded hover:bg-surface-container" title="View Details">
                                             <span class="material-symbols-outlined text-sm block">info</span>
                                         </a>
                                         @if (!exam.IsDeleted)
@@ -161,7 +161,6 @@
 
 @section Scripts {
 <script>
-
     function confirmSoftDelete(id, title) {
         showConfirm({
             title: 'Hide Exam',

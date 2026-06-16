@@ -7,7 +7,7 @@ using Microsoft.AspNetCore.Mvc.RazorPages;
 
 namespace AcadPrep.WebUI.Pages.Exams;
 
-public class IndexModel(ISender mediator) : PageModel
+public class ExamManagementModel(ISender mediator) : PageModel
 {
     public List<AdminExamDto> Exams { get; set; } = new();
 
