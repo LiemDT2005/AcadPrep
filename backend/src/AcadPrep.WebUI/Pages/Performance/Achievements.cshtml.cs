@@ -1,4 +1,4 @@
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Threading.Tasks;
 using AcadPrep.Application.Features.Performance.DTOs;
 using AcadPrep.Application.Features.Performance.Queries.GetAchievements;
@@ -29,8 +29,10 @@ public class AchievementsModel : PageModel
             parsedUserId = 1; // Fallback
         }
 
-        Achievements = await _mediator.Send(new GetAchievementsQuery(parsedUserId));
+        Achievements = (await _mediator.Send(new GetAchievementsQuery(parsedUserId))).Data!;
 
         return Page();
     }
 }
+
+
