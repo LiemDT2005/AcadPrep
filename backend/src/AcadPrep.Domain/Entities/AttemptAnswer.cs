@@ -1,11 +1,13 @@
+using Domain.Enums;
+
 namespace Domain.Entities;
 
 public class AttemptAnswer
 {
     public int AttemptId { get; set; }
     public int QuestionId { get; set; }
-    public string? SelectedOption { get; set; }
-    public bool IsCorrect { get; set; } = false;
+    public OptionLetter? SelectedOption { get; set; }
+    public bool IsCorrect { get; set; }
 
     // Navigation properties
     public virtual ExamAttempt ExamAttempt { get; set; } = null!;

@@ -1,10 +1,9 @@
-using System.Collections.Generic;
+using Domain.Common;
 
 namespace Domain.Entities;
 
-public class Passage
+public class Passage : BaseEntity<int>
 {
-    public int PassageId { get; set; }
     public string Content { get; set; } = null!;
     public int ExamId { get; set; }
 
