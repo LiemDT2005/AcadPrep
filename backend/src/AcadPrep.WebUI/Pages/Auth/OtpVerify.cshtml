@@ -1,0 +1,131 @@
+@page
+@model AcadPrep.WebUI.Pages.Auth.OtpVerifyModel
+@using global::Application.Features.Auth.DTOs
+@{
+    ViewData["Title"] = "Verify OTP";
+    Layout = "~/Pages/Shared/_Layout.cshtml";
+}
+
+<div class="flex items-center justify-center min-h-[calc(100vh-200px)] px-4">
+    <div class="w-full max-w-md">
+        <div class="bg-surface-container-lowest rounded-2xl shadow-lg p-8 border border-outline-variant">
+            <div class="text-center mb-8">
+                <span class="material-symbols-outlined text-tertiary text-[48px]">mail</span>
+                <h1 class="text-headline-sm font-bold text-on-surface mt-4">Verify Your Email</h1>
+                <p class="text-body-md text-on-surface-variant mt-2">
+                    Enter the 6-digit code sent to<br />
+                    <span class="font-semibold text-on-surface">@Model.Email</span>
+                </p>
+            </div>
+
+            @if (!string.IsNullOrEmpty(Model.ErrorMessage))
+            {
+                <div class="mb-4 p-3 rounded-lg bg-error-container text-on-error-container text-body-sm">
+                    @Model.ErrorMessage
+                </div>
+            }
+
+            @if (Model.OtpStatus == OtpVerificationStatus.OtpMismatch)
+            {
+                <div class="mb-4 p-3 rounded-lg bg-error-container text-on-error-container text-body-sm">
+                    Invalid OTP code. @(Model.RemainingAttempts > 0 ? $"{Model.RemainingAttempts} attempt(s) remaining." : "")
+                </div>
+            }
+
+            @if (Model.ResendSuccess)
+            {
+                <div class="mb-4 p-3 rounded-lg bg-tertiary-container text-on-tertiary-container text-body-sm">
+                    A new OTP has been sent to your email.
+                </div>
+            }
+
+            @if (Model.ResendLocked)
+            {
+                <div class="mb-4 p-3 rounded-lg bg-error-container text-on-error-container text-body-sm">
+                    Too many failed attempts. Please wait 15 minutes before trying again.
+                </div>
+            }
+
+            <form method="post" asp-page-handler="Verify">
+                <input type="hidden" asp-for="Email" />
+                <div class="flex justify-center gap-2 mb-6">
+                    @for (int i = 0; i < 6; i++)
+                    {
+                        <input type="text"
+                               maxlength="1"
+                               class="w-12 h-14 text-center text-2xl font-bold rounded-lg border-2 border-outline-variant bg-surface-container-lowest text-on-surface focus:border-primary focus:ring-1 focus:ring-primary outline-none transition-colors otp-input"
+                               data-index="@i"
+                               autocomplete="off"
+                               inputmode="numeric"
+                               pattern="[0-9]" />
+                    }
+                </div>
+                <input type="hidden" asp-for="OtpCode" id="otpCodeHidden" />
+
+                <button type="submit" id="verifyBtn" disabled
+                        class="w-full py-3 px-4 bg-primary-container text-on-primary font-semibold rounded-lg hover:opacity-90 active:scale-[0.98] transition-all duration-100 shadow-sm disabled:opacity-50 disabled:cursor-not-allowed">
+                    Verify and Activate
+                </button>
+            </form>
+
+            <div class="mt-6 text-center">
+                <form method="post" asp-page-handler="Resend" class="inline">
+                    <input type="hidden" name="email" value="@Model.Email" />
+                    <button type="submit" class="text-primary font-medium hover:underline text-body-md">
+                        Resend OTP
+                    </button>
+                </form>
+            </div>
+
+            <div class="mt-4 text-center">
+                <a href="/Auth/Register" class="text-on-surface-variant text-body-sm hover:underline">
+                    Back to Register
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const inputs = document.querySelectorAll('.otp-input');
+            const hiddenInput = document.getElementById('otpCodeHidden');
+            const verifyBtn = document.getElementById('verifyBtn');
+
+            function updateHiddenInput() {
+                let code = '';
+                inputs.forEach(input => code += input.value);
+                hiddenInput.value = code;
+                verifyBtn.disabled = code.length !== 6;
+            }
+
+            inputs.forEach((input, index) => {
+                input.addEventListener('input', function(e) {
+                    this.value = this.value.replace(/[^0-9]/g, '');
+                    if (this.value && index < inputs.length - 1) {
+                        inputs[index + 1].focus();
+                    }
+                    updateHiddenInput();
+                });
+
+                input.addEventListener('keydown', function(e) {
+                    if (e.key === 'Backspace' && !this.value && index > 0) {
+                        inputs[index - 1].focus();
+                    }
+                });
+
+                input.addEventListener('paste', function(e) {
+                    e.preventDefault();
+                    const paste = (e.clipboardData || window.clipboardData).getData('text');
+                    const digits = paste.replace(/[^0-9]/g, '').slice(0, 6);
+                    digits.split('').forEach((digit, i) => {
+                        if (inputs[i]) inputs[i].value = digit;
+                    });
+                    updateHiddenInput();
+                    if (digits.length === 6) inputs[5].focus();
+                });
+            });
+        });
+    </script>
+}

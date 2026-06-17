@@ -46,6 +46,8 @@ public static class DependencyInjection
         }
         services.AddSingleton<ICacheService, RedisCacheService>();
 
+        services.AddScoped<IEmailService, EmailService>();
+
         return services;
     }
 }

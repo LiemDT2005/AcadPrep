@@ -1,0 +1,75 @@
+@page
+@model AcadPrep.WebUI.Pages.Auth.RegisterModel
+@{
+    ViewData["Title"] = "Register";
+    Layout = "~/Pages/Shared/_Layout.cshtml";
+}
+
+<div class="flex items-center justify-center min-h-[calc(100vh-200px)] px-4">
+    <div class="w-full max-w-md">
+        <div class="bg-surface-container-lowest rounded-2xl shadow-lg p-8 border border-outline-variant">
+            <div class="text-center mb-8">
+                <span class="material-symbols-outlined text-primary text-[48px]" style="font-variation-settings: 'FILL' 1;">person_add</span>
+                <h1 class="text-headline-sm font-bold text-on-surface mt-4">Create Account</h1>
+                <p class="text-body-md text-on-surface-variant mt-2">Sign up to start your learning journey</p>
+            </div>
+
+            @if (!string.IsNullOrEmpty(Model.ErrorMessage))
+            {
+                <div class="mb-4 p-3 rounded-lg bg-error-container text-on-error-container text-body-sm">
+                    @Model.ErrorMessage
+                </div>
+            }
+
+            @if (Model.ShowOtpPanel)
+            {
+                <partial name="_OtpPanel" model="Model" />
+            }
+            else
+            {
+                <form method="post" asp-page-handler="Register">
+                    <div class="space-y-4">
+                        <div>
+                            <label asp-for="Input.FullName" class="block text-label-lg font-medium text-on-surface mb-1">Full Name</label>
+                            <input asp-for="Input.FullName" class="w-full px-4 py-3 rounded-lg border border-outline-variant bg-surface-container-lowest text-on-surface focus:border-primary focus:ring-1 focus:ring-primary outline-none transition-colors" placeholder="Enter your full name" />
+                            <span asp-validation-for="Input.FullName" class="text-error text-body-sm mt-1 block"></span>
+                        </div>
+
+                        <div>
+                            <label asp-for="Input.Email" class="block text-label-lg font-medium text-on-surface mb-1">Email</label>
+                            <input asp-for="Input.Email" type="email" class="w-full px-4 py-3 rounded-lg border border-outline-variant bg-surface-container-lowest text-on-surface focus:border-primary focus:ring-1 focus:ring-primary outline-none transition-colors" placeholder="you@example.com" />
+                            <span asp-validation-for="Input.Email" class="text-error text-body-sm mt-1 block"></span>
+                        </div>
+
+                        <div>
+                            <label asp-for="Input.Password" class="block text-label-lg font-medium text-on-surface mb-1">Password</label>
+                            <input asp-for="Input.Password" type="password" class="w-full px-4 py-3 rounded-lg border border-outline-variant bg-surface-container-lowest text-on-surface focus:border-primary focus:ring-1 focus:ring-primary outline-none transition-colors" placeholder="Min 8 chars, uppercase, lowercase, number, special" />
+                            <span asp-validation-for="Input.Password" class="text-error text-body-sm mt-1 block"></span>
+                        </div>
+
+                        <div>
+                            <label asp-for="Input.ConfirmPassword" class="block text-label-lg font-medium text-on-surface mb-1">Confirm Password</label>
+                            <input asp-for="Input.ConfirmPassword" type="password" class="w-full px-4 py-3 rounded-lg border border-outline-variant bg-surface-container-lowest text-on-surface focus:border-primary focus:ring-1 focus:ring-primary outline-none transition-colors" placeholder="Re-enter your password" />
+                            <span asp-validation-for="Input.ConfirmPassword" class="text-error text-body-sm mt-1 block"></span>
+                        </div>
+
+                        <button type="submit" class="w-full py-3 px-4 bg-primary-container text-on-primary font-semibold rounded-lg hover:opacity-90 active:scale-[0.98] transition-all duration-100 shadow-sm">
+                            Create Account
+                        </button>
+                    </div>
+                </form>
+            }
+
+            <div class="mt-6 text-center">
+                <p class="text-body-md text-on-surface-variant">
+                    Already have an account?
+                    <a href="/Auth/Login" class="text-primary font-medium hover:underline">Log in</a>
+                </p>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}
