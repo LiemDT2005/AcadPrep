@@ -4,7 +4,8 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Application.Common.Models
+namespace AcadPrep.Application.Common.Models
+
 {
     public class Result
     {
@@ -31,5 +32,7 @@ namespace Application.Common.Models
 
         public static Result<T> Success(T data) => new(true, data, null);
         public static new Result<T> Failure(string error) => new(false, default, error);
+
+        public static implicit operator Result<T>(T data) => Success(data);
     }
 }
