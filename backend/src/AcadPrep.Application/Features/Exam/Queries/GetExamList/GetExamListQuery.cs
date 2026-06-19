@@ -6,7 +6,7 @@ using MediatR;
 
 namespace Application.Features.Exam.Queries.GetExamList;
 
-public record GetExamListQuery : IRequest<Result<PaginatedList<GetExamDto>>>
+public record GetExamListQuery : IRequest<Result<GetExamListResponse>>
 {
     public string? Search { get; init; }
     public string? SeriesName { get; init; }

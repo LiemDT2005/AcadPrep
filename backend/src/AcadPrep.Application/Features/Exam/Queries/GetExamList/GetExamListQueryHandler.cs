@@ -8,21 +8,44 @@ using Microsoft.EntityFrameworkCore;
 namespace Application.Features.Exam.Queries.GetExamList;
 
 internal sealed class GetExamListQueryHandler(IAppDbContext context, ICacheService cache) 
-    : IRequestHandler<GetExamListQuery, Result<PaginatedList<GetExamDto>>>
+    : IRequestHandler<GetExamListQuery, Result<GetExamListResponse>>
 {
-    public async Task<Result<PaginatedList<GetExamDto>>> Handle(GetExamListQuery request,
+    public async Task<Result<GetExamListResponse>> Handle(GetExamListQuery request,
         CancellationToken cancellationToken)
     {
         var cacheKey = $"ExamList_S:{request.Search ?? ""}_Sr:{request.SeriesName ?? "All"}_Y:{request.Year?.ToString() ?? "All"}_P:{request.PageIndex}_Sz:{request.PageSize}";
 
-        var cached = await cache.GetAsync<PaginatedList<GetExamDto>>(cacheKey, cancellationToken);
+        var cached = await cache.GetAsync<GetExamListResponse>(cacheKey, cancellationToken);
         //Cache hit
         if (cached is not null)
         {
-            return Result<PaginatedList<GetExamDto>>.Success(cached);
+            return Result<GetExamListResponse>.Success(cached);
         }
         
         //Cache miss
+        
+        // Load dynamic filter options from ExamSeries entity
+        var seriesNames = await context.ExamSeries
+            .Where(s => !s.IsDeleted)
+            .Select(s => s.Name)
+            .Distinct()
+            .OrderBy(n => n)
+            .ToListAsync(cancellationToken);
+
+        var years = await context.ExamSeries
+            .Where(s => !s.IsDeleted)
+            .Select(s => s.Year)
+            .Distinct()
+            .OrderByDescending(y => y)
+            .Select(y => y.ToString())
+            .ToListAsync(cancellationToken);
+
+        var seriesFilters = new List<string> { "All" };
+        seriesFilters.AddRange(seriesNames);
+
+        var yearFilters = new List<string> { "All" };
+        yearFilters.AddRange(years);
+
         var query = context.Exams.AsNoTracking().Where(e => !e.IsDeleted);
         
         if (!string.IsNullOrWhiteSpace(request.Search))
@@ -62,8 +85,15 @@ internal sealed class GetExamListQueryHandler(IAppDbContext context, ICacheServi
             request.PageSize
         );
 
-        await cache.SetAsync(cacheKey, paginatedResult, TimeSpan.FromMinutes(5), cancellationToken);
+        var response = new GetExamListResponse
+        {
+            Exams = paginatedResult,
+            SeriesFilters = seriesFilters,
+            YearFilters = yearFilters
+        };
+
+        await cache.SetAsync(cacheKey, response, TimeSpan.FromMinutes(5), cancellationToken);
         
-        return Result<PaginatedList<GetExamDto>>.Success(paginatedResult);
+        return Result<GetExamListResponse>.Success(response);
     }
 }

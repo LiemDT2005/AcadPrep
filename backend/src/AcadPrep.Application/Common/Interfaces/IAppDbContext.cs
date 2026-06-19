@@ -15,6 +15,7 @@ public interface IAppDbContext
     DbSet<Passage> Passages { get; }
     DbSet<VocabPassage> VocabPassages { get; }
     DbSet<Question> Questions { get; }
+    DbSet<ExamSeries> ExamSeries { get; }
     DbSet<ExamAttempt> ExamAttempts { get; }
     DbSet<QuestionOption> QuestionOptions { get; }
     DbSet<AttemptAnswer> AttemptAnswers { get; }

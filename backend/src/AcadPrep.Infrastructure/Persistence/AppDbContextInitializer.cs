@@ -70,8 +70,10 @@ public class AppDbContextInitializer
         {
             _logger.LogInformation("Seeding ExamSeries...");
             _context.Set<ExamSeries>().AddRange(
-                new ExamSeries { Name = "ETS TOEIC", Year = 2024, Description = "Bộ đề ETS 2024 mới nhất", CoverImageUrl = "https://lh3.googleusercontent.com/aida/AP1WRLv6grMpZ4SmtmiRm69Pd3l6wFn75kkTWccmwDmxsjsiUBng94tZYszb_nwwv4mAIBpzLVEC0jSQS_ccEvPkIShBd0C7wd3-IMgP3Js0VoZiBRRI4N4RTOcUBJc8LnbqTO-XjvWqOx3xrP7xLBQ8aKfoJ4dHGScY5oX_UBpseU5Nyhbpr4oKbbYv5RrhmLfMXMleOkHBTXVSxy4OtNvTkq6GZhK-xkMrmoH5xpsrUX16VsIUqp586Io9CYah" },
-                new ExamSeries { Name = "Hacker TOEIC", Year = 2023, Description = "Bộ đề Hacker siêu khó", CoverImageUrl = "https://lh3.googleusercontent.com/aida/AP1WRLv6grMpZ4SmtmiRm69Pd3l6wFn75kkTWccmwDmxsjsiUBng94tZYszb_nwwv4mAIBpzLVEC0jSQS_ccEvPkIShBd0C7wd3-IMgP3Js0VoZiBRRI4N4RTOcUBJc8LnbqTO-XjvWqOx3xrP7xLBQ8aKfoJ4dHGScY5oX_UBpseU5Nyhbpr4oKbbYv5RrhmLfMXMleOkHBTXVSxy4OtNvTkq6GZhK-xkMrmoH5xpsrUX16VsIUqp586Io9CYah" }
+                new ExamSeries { Name = "ETS TOEIC", Year = 2024, Description = "The latest ETS 2024 practice test series", CoverImageUrl = "https://m.media-amazon.com/images/I/71wK8nN2nYL._AC_UF1000,1000_QL80_.jpg" },
+                new ExamSeries { Name = "Hacker TOEIC", Year = 2023, Description = "Extremely difficult Hacker practice test series", CoverImageUrl = "https://bizweb.dktcdn.net/100/413/851/products/22-ae9a0dc1-93db-4e78-9e6b-67a659cc60ff.jpg?v=1626245084930" },
+                new ExamSeries { Name = "New Economy TOEIC", Year = 2023, Description = "Economy series that closely matches the actual exam", CoverImageUrl = "https://bizweb.dktcdn.net/100/413/851/products/21-82d2719a-9e17-48f8-bba9-0f04e18cc8cf.jpg?v=1626245085443" },
+                new ExamSeries { Name = "YBM TOEIC", Year = 2025, Description = "The newly released YBM TOEIC Vol 3 practice series", CoverImageUrl = "https://bizweb.dktcdn.net/100/413/851/products/25-27a9cfd4-bc31-4171-8857-79774ccbe0c5.jpg?v=1626245086207" }
             );
             await _context.SaveChangesAsync();
         }
@@ -82,16 +84,116 @@ public class AppDbContextInitializer
             _logger.LogInformation("Seeding Exams...");
             var etsSeries = await _context.Set<ExamSeries>().FirstOrDefaultAsync(s => s.Name == "ETS TOEIC");
             var hackerSeries = await _context.Set<ExamSeries>().FirstOrDefaultAsync(s => s.Name == "Hacker TOEIC");
+            var ecoSeries = await _context.Set<ExamSeries>().FirstOrDefaultAsync(s => s.Name == "New Economy TOEIC");
+            var ybmSeries = await _context.Set<ExamSeries>().FirstOrDefaultAsync(s => s.Name == "YBM TOEIC");
 
-            if (etsSeries != null && hackerSeries != null)
-            {
-                _context.Exams.AddRange(
-                    new Exam { Title = "ETS TOEIC 2024 - Test 1", Description = "Đề thi thử số 1 của bộ ETS 2024", Duration = 120, ExamSeriesId = etsSeries.Id },
-                    new Exam { Title = "ETS TOEIC 2024 - Test 2", Description = "Đề thi thử số 2 của bộ ETS 2024", Duration = 120, ExamSeriesId = etsSeries.Id },
-                    new Exam { Title = "Hacker TOEIC 3 - Test 1", Description = "Đề thi Hacker khó mục tiêu 800+", Duration = 120, ExamSeriesId = hackerSeries.Id }
-                );
-                await _context.SaveChangesAsync();
-            }
+            if (etsSeries != null && hackerSeries != null && ecoSeries != null && ybmSeries != null)
+{
+    _context.Exams.AddRange(
+        new Exam
+        {
+            Title = "ETS TOEIC 2024 - Test 1",
+            Description = "Practice Test 1 from the ETS TOEIC 2024 series.",
+            Duration = 120,
+            ExamSeriesId = etsSeries.Id
+        },
+        new Exam
+        {
+            Title = "ETS TOEIC 2024 - Test 2",
+            Description = "Practice Test 2 from the ETS TOEIC 2024 series.",
+            Duration = 120,
+            ExamSeriesId = etsSeries.Id
+        },
+        new Exam
+        {
+            Title = "ETS TOEIC 2024 - Test 3",
+            Description = "Practice Test 3 from the ETS TOEIC 2024 series.",
+            Duration = 120,
+            ExamSeriesId = etsSeries.Id
+        },
+        new Exam
+        {
+            Title = "ETS TOEIC 2024 - Test 4",
+            Description = "Practice Test 4 from the ETS TOEIC 2024 series.",
+            Duration = 120,
+            ExamSeriesId = etsSeries.Id
+        },
+        new Exam
+        {
+            Title = "ETS TOEIC 2024 - Test 5",
+            Description = "Practice Test 5 from the ETS TOEIC 2024 series.",
+            Duration = 120,
+            ExamSeriesId = etsSeries.Id
+        },
+
+        new Exam
+        {
+            Title = "Hacker TOEIC 3 - Test 1",
+            Description = "A challenging practice test designed for learners aiming for a TOEIC score of 800+.",
+            Duration = 120,
+            ExamSeriesId = hackerSeries.Id
+        },
+        new Exam
+        {
+            Title = "Hacker TOEIC 3 - Test 2",
+            Description = "A challenging practice test designed for learners aiming for a TOEIC score of 800+.",
+            Duration = 120,
+            ExamSeriesId = hackerSeries.Id
+        },
+        new Exam
+        {
+            Title = "Hacker TOEIC 3 - Test 3",
+            Description = "A challenging practice test designed for learners aiming for a TOEIC score of 800+.",
+            Duration = 120,
+            ExamSeriesId = hackerSeries.Id
+        },
+
+        new Exam
+        {
+            Title = "New Economy TOEIC Vol. 1 - Test 1",
+            Description = "An easy-level practice test closely matching the actual TOEIC exam.",
+            Duration = 120,
+            ExamSeriesId = ecoSeries.Id
+        },
+        new Exam
+        {
+            Title = "New Economy TOEIC Vol. 1 - Test 2",
+            Description = "An intermediate-level practice test closely matching the actual TOEIC exam.",
+            Duration = 120,
+            ExamSeriesId = ecoSeries.Id
+        },
+        new Exam
+        {
+            Title = "New Economy TOEIC Vol. 1 - Test 3",
+            Description = "An advanced-level practice test closely matching the actual TOEIC exam.",
+            Duration = 120,
+            ExamSeriesId = ecoSeries.Id
+        },
+
+        new Exam
+        {
+            Title = "YBM TOEIC Vol. 3 - Mock Test 1",
+            Description = "A mock test based on the latest TOEIC exam format.",
+            Duration = 120,
+            ExamSeriesId = ybmSeries.Id
+        },
+        new Exam
+        {
+            Description = "A mock test based on the latest TOEIC exam format.",
+            Duration = 120,
+            ExamSeriesId = ybmSeries.Id
+        },
+        new Exam
+        {
+            Title = "YBM TOEIC Vol. 3 - Mock Test 3",
+            Description = "A mock test based on the latest TOEIC exam format.",
+            Duration = 120,
+            ExamSeriesId = ybmSeries.Id
+        }
+    );
+
+    await _context.SaveChangesAsync();
+}
         }
 
         // 5. Seed Questions for ETS 2024 - Test 1
