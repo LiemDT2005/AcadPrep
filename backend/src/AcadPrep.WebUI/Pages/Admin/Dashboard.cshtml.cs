@@ -1,4 +1,4 @@
-﻿using System.Threading.Tasks;
+using System.Threading.Tasks;
 using AcadPrep.Application.Features.Admin.DTOs;
 using AcadPrep.Application.Features.Admin.Queries.GetUserStats;
 using MediatR;
@@ -20,7 +20,7 @@ public class DashboardModel : PageModel
 
     public async Task<IActionResult> OnGetAsync()
     {
-        Stats = (await _mediator.Send(new GetUserStatsQuery())).Data!;
+        Stats = await _mediator.Send(new GetUserStatsQuery());
         return Page();
     }
 }
