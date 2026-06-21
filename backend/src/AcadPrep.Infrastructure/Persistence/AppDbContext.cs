@@ -17,6 +17,7 @@ public class AppDbContext(DbContextOptions<AppDbContext> options)
     public DbSet<VocabPassage> VocabPassages => Set<VocabPassage>();
     public DbSet<Question> Questions => Set<Question>();
     public DbSet<ExamAttempt> ExamAttempts => Set<ExamAttempt>();
+    public DbSet<ExamSeries> ExamSeries => Set<ExamSeries>();
     public DbSet<QuestionOption> QuestionOptions => Set<QuestionOption>();
     public DbSet<AttemptAnswer> AttemptAnswers => Set<AttemptAnswer>();
     public DbSet<SavedVocabulary> SavedVocabularies => Set<SavedVocabulary>();

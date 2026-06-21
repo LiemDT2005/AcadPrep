@@ -4,6 +4,7 @@ using Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace AcadPrep.Infrastructure.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260614160418_AddExamSeries")]
+    partial class AddExamSeries
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -21,40 +24,6 @@ namespace AcadPrep.Infrastructure.Migrations
                 .HasAnnotation("Relational:MaxIdentifierLength", 128);
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
-
-            modelBuilder.Entity("Domain.Entities.Achievement", b =>
-                {
-                    b.Property<int>("AchievementId")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("AchievementId"));
-
-                    b.Property<string>("ConditionType")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<int>("ConditionValue")
-                        .HasColumnType("int");
-
-                    b.Property<string>("Description")
-                        .IsRequired()
-                        .HasMaxLength(500)
-                        .HasColumnType("nvarchar(500)");
-
-                    b.Property<string>("IconUrl")
-                        .HasMaxLength(500)
-                        .HasColumnType("nvarchar(500)");
-
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)");
-
-                    b.HasKey("AchievementId");
-
-                    b.ToTable("Achievements");
-                });
 
             modelBuilder.Entity("Domain.Entities.AttemptAnswer", b =>
                 {
@@ -116,6 +85,58 @@ namespace AcadPrep.Infrastructure.Migrations
                     b.HasIndex("UserId");
 
                     b.ToTable("AUDITLOGS", (string)null);
+                });
+
+            modelBuilder.Entity("Domain.Entities.Course", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("CreatedBy")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<string>("Description")
+                        .IsRequired()
+                        .HasMaxLength(2000)
+                        .HasColumnType("nvarchar(2000)");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("bit");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("bit");
+
+                    b.Property<DateTime?>("LastModifiedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("LastModifiedBy")
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<string>("Level")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
+
+                    b.Property<decimal>("Price")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<string>("Title")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("nvarchar(200)");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Courses", (string)null);
                 });
 
             modelBuilder.Entity("Domain.Entities.Exam", b =>
@@ -401,9 +422,6 @@ namespace AcadPrep.Infrastructure.Migrations
                         .HasColumnType("int")
                         .HasDefaultValue(1);
 
-                    b.Property<DateTime>("NextReviewDate")
-                        .HasColumnType("datetime2");
-
                     b.HasKey("UserId", "VocabularyId");
 
                     b.HasIndex("VocabularyId");
@@ -429,12 +447,7 @@ namespace AcadPrep.Infrastructure.Migrations
                         .HasColumnType("int")
                         .HasDefaultValue(0);
 
-                    b.Property<int?>("UserId1")
-                        .HasColumnType("int");
-
                     b.HasKey("UserId");
-
-                    b.HasIndex("UserId1");
 
                     b.ToTable("STUDY_STREAKS", (string)null);
                 });
@@ -495,27 +508,6 @@ namespace AcadPrep.Infrastructure.Migrations
                         {
                             t.HasCheckConstraint("CHK_UserStatus", "[Status] IN ('Active', 'Inactive')");
                         });
-                });
-
-            modelBuilder.Entity("Domain.Entities.UserAchievement", b =>
-                {
-                    b.Property<int>("UserId")
-                        .HasColumnType("int");
-
-                    b.Property<int>("AchievementId")
-                        .HasColumnType("int");
-
-                    b.Property<bool>("IsNotified")
-                        .HasColumnType("bit");
-
-                    b.Property<DateTime>("UnlockedAt")
-                        .HasColumnType("datetime2");
-
-                    b.HasKey("UserId", "AchievementId");
-
-                    b.HasIndex("AchievementId");
-
-                    b.ToTable("UserAchievements");
                 });
 
             modelBuilder.Entity("Domain.Entities.VocabPassage", b =>
@@ -710,10 +702,6 @@ namespace AcadPrep.Infrastructure.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("Domain.Entities.User", null)
-                        .WithMany("StudyStreaks")
-                        .HasForeignKey("UserId1");
-
                     b.Navigation("User");
                 });
 
@@ -728,25 +716,6 @@ namespace AcadPrep.Infrastructure.Migrations
                     b.Navigation("Role");
                 });
 
-            modelBuilder.Entity("Domain.Entities.UserAchievement", b =>
-                {
-                    b.HasOne("Domain.Entities.Achievement", "Achievement")
-                        .WithMany("UserAchievements")
-                        .HasForeignKey("AchievementId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("Domain.Entities.User", "User")
-                        .WithMany("UserAchievements")
-                        .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Achievement");
-
-                    b.Navigation("User");
-                });
-
             modelBuilder.Entity("Domain.Entities.VocabPassage", b =>
                 {
                     b.HasOne("Domain.Entities.Vocabulary", "Vocabulary")
@@ -756,11 +725,6 @@ namespace AcadPrep.Infrastructure.Migrations
                         .IsRequired();
 
                     b.Navigation("Vocabulary");
-                });
-
-            modelBuilder.Entity("Domain.Entities.Achievement", b =>
-                {
-                    b.Navigation("UserAchievements");
                 });
 
             modelBuilder.Entity("Domain.Entities.Exam", b =>
@@ -808,10 +772,6 @@ namespace AcadPrep.Infrastructure.Migrations
                     b.Navigation("SavedVocabularies");
 
                     b.Navigation("StudyStreak");
-
-                    b.Navigation("StudyStreaks");
-
-                    b.Navigation("UserAchievements");
                 });
 
             modelBuilder.Entity("Domain.Entities.Vocabulary", b =>
