@@ -34,9 +34,9 @@ public class DashboardModel : PageModel
         // Reset streak if needed before querying
         await _mediator.Send(new AcadPrep.Application.Features.Performance.Commands.ResetStudyStreak.ResetStudyStreakCommand(parsedUserId));
 
-        StreakData = (await _mediator.Send(new GetStudyStreakQuery(parsedUserId))).Data!;
-        DashboardData = (await _mediator.Send(new AcadPrep.Application.Features.Performance.Queries.GetDashboardData.GetDashboardDataQuery(parsedUserId))).Data!;
-        ScoreProgressData = (await _mediator.Send(new AcadPrep.Application.Features.Performance.Queries.GetScoreProgress.GetScoreProgressQuery(parsedUserId))).Data!;
+        StreakData = await _mediator.Send(new GetStudyStreakQuery(parsedUserId));
+        DashboardData = await _mediator.Send(new AcadPrep.Application.Features.Performance.Queries.GetDashboardData.GetDashboardDataQuery(parsedUserId));
+        ScoreProgressData = await _mediator.Send(new AcadPrep.Application.Features.Performance.Queries.GetScoreProgress.GetScoreProgressQuery(parsedUserId));
 
         return Page();
     }

@@ -35,7 +35,7 @@ public class GetDashboardDataQueryHandler : IRequestHandler<GetDashboardDataQuer
             
             result.ActiveExams.Add(new ActiveExamDto
             {
-                AttemptId = attempt.AttemptId,
+                Id = attempt.Id,
                 ExamTitle = attempt.Exam.Title ?? "Unknown Exam",
                 StatusText = $"Còn {attempt.RemainingTime} phút, Đã làm {progress}%",
                 ProgressPercentage = progress
@@ -106,9 +106,9 @@ public class GetDashboardDataQueryHandler : IRequestHandler<GetDashboardDataQuer
             .Select(u => new
             {
                 User = u,
-                TotalSum = _context.ExamAttempts.Where(ea => ea.UserId == u.UserId && ea.IsSubmitted).Sum(ea => ea.TotalScore),
-                ExamsDone = _context.ExamAttempts.Count(ea => ea.UserId == u.UserId && ea.IsSubmitted),
-                Streak = _context.StudyStreaks.Where(s => s.UserId == u.UserId).Select(s => s.CurrentStreak).FirstOrDefault()
+                TotalSum = _context.ExamAttempts.Where(ea => ea.UserId == u.Id && ea.IsSubmitted).Sum(ea => ea.TotalScore),
+                ExamsDone = _context.ExamAttempts.Count(ea => ea.UserId == u.Id && ea.IsSubmitted),
+                Streak = _context.StudyStreaks.Where(s => s.UserId == u.Id).Select(s => s.CurrentStreak).FirstOrDefault()
             })
             .OrderByDescending(x => x.TotalSum)
             .ToListAsync(cancellationToken);
@@ -123,7 +123,7 @@ public class GetDashboardDataQueryHandler : IRequestHandler<GetDashboardDataQuer
                 TotalScore = stat.TotalSum,
                 ExamsDone = stat.ExamsDone,
                 StreakDays = stat.Streak,
-                IsCurrentUser = stat.User.UserId == request.UserId
+                IsCurrentUser = stat.User.Id == request.UserId
             };
 
             if (rank <= 5) result.Leaderboard.TopUsers.Add(entry);

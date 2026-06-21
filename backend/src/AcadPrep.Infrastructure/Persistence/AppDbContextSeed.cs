@@ -2,6 +2,7 @@ using System;
 using System.Linq;
 using System.Threading.Tasks;
 using Domain.Entities;
+using Domain.Enums;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -39,7 +40,7 @@ public static class AppDbContextSeed
                     PasswordHash = "hashed_password",
                     FullName = "Admin User",
                     RoleId = adminRole.RoleId,
-                    Status = "Active",
+                    Status = UserStatus.Active,
                     CreatedAt = DateTime.UtcNow.AddDays(-30)
                 },
                 new User
@@ -48,7 +49,7 @@ public static class AppDbContextSeed
                     PasswordHash = "hashed_password",
                     FullName = "Test User",
                     RoleId = userRole.RoleId,
-                    Status = "Active",
+                    Status = UserStatus.Active,
                     CreatedAt = DateTime.UtcNow.AddDays(-30)
                 },
                 new User
@@ -57,7 +58,7 @@ public static class AppDbContextSeed
                     PasswordHash = "hashed_password",
                     FullName = "Hana Nguyen",
                     RoleId = userRole.RoleId,
-                    Status = "Active",
+                    Status = UserStatus.Active,
                     CreatedAt = DateTime.UtcNow.AddDays(-20)
                 },
                 new User
@@ -66,7 +67,7 @@ public static class AppDbContextSeed
                     PasswordHash = "hashed_password",
                     FullName = "Minh Tran",
                     RoleId = userRole.RoleId,
-                    Status = "Active",
+                    Status = UserStatus.Active,
                     CreatedAt = DateTime.UtcNow.AddDays(-15)
                 },
                 new User
@@ -75,7 +76,7 @@ public static class AppDbContextSeed
                     PasswordHash = "hashed_password",
                     FullName = "Inactive User",
                     RoleId = userRole.RoleId,
-                    Status = "Inactive",
+                    Status = UserStatus.Inactive,
                     CreatedAt = DateTime.UtcNow.AddDays(-60)
                 }
             );
@@ -106,11 +107,11 @@ public static class AppDbContextSeed
                 {
                     context.Questions.Add(new Question
                     {
-                        ExamId = exam.ExamId,
+                        ExamId = exam.Id,
                         Part = p,
                         QuestionNumber = p,
                         QuestionText = $"Mock Question for Part {p} of {exam.Title}",
-                        CorrectOption = "A"
+                        CorrectOption = OptionLetter.A
                     });
                 }
             }
@@ -161,8 +162,8 @@ public static class AppDbContextSeed
                 {
                     context.SavedVocabularies.Add(new SavedVocabulary
                     {
-                        UserId = testUser.UserId,
-                        VocabularyId = allVocabs[i].VocabularyId,
+                        UserId = testUser.Id,
+                        VocabularyId = allVocabs[i].Id,
                         Interval = i < 3 ? 1 : (i < 6 ? 2 : 4),
                         DateSaved = DateTime.UtcNow.AddDays(-(10 - i)),
                         // First 5 words are due today or overdue → will show in Review
@@ -188,31 +189,31 @@ public static class AppDbContextSeed
                 context.ExamAttempts.AddRange(
                     new ExamAttempt
                     {
-                        UserId = testUser.UserId, ExamId = exams[0].ExamId,
+                        UserId = testUser.Id, ExamId = exams[0].Id,
                         StartedAt = DateTime.UtcNow.AddDays(-28), CompletedAt = DateTime.UtcNow.AddDays(-28).AddMinutes(115),
                         ListeningScore = 280, ReadingScore = 250, TotalScore = 530, IsSubmitted = true
                     },
                     new ExamAttempt
                     {
-                        UserId = testUser.UserId, ExamId = exams[1].ExamId,
+                        UserId = testUser.Id, ExamId = exams[1].Id,
                         StartedAt = DateTime.UtcNow.AddDays(-21), CompletedAt = DateTime.UtcNow.AddDays(-21).AddMinutes(110),
                         ListeningScore = 320, ReadingScore = 290, TotalScore = 610, IsSubmitted = true
                     },
                     new ExamAttempt
                     {
-                        UserId = testUser.UserId, ExamId = exams[2].ExamId,
+                        UserId = testUser.Id, ExamId = exams[2].Id,
                         StartedAt = DateTime.UtcNow.AddDays(-14), CompletedAt = DateTime.UtcNow.AddDays(-14).AddMinutes(105),
                         ListeningScore = 350, ReadingScore = 310, TotalScore = 660, IsSubmitted = true
                     },
                     new ExamAttempt
                     {
-                        UserId = testUser.UserId, ExamId = exams[3].ExamId,
+                        UserId = testUser.Id, ExamId = exams[3].Id,
                         StartedAt = DateTime.UtcNow.AddDays(-7), CompletedAt = DateTime.UtcNow.AddDays(-7).AddMinutes(100),
                         ListeningScore = 380, ReadingScore = 340, TotalScore = 720, IsSubmitted = true
                     },
                     new ExamAttempt
                     {
-                        UserId = testUser.UserId, ExamId = exams[4].ExamId,
+                        UserId = testUser.Id, ExamId = exams[4].Id,
                         StartedAt = DateTime.UtcNow.AddDays(-2), CompletedAt = DateTime.UtcNow.AddDays(-2).AddMinutes(95),
                         ListeningScore = 415, ReadingScore = 370, TotalScore = 785, IsSubmitted = true
                     }
@@ -224,19 +225,19 @@ public static class AppDbContextSeed
                     context.ExamAttempts.AddRange(
                         new ExamAttempt
                         {
-                            UserId = hana.UserId, ExamId = exams[0].ExamId,
+                            UserId = hana.Id, ExamId = exams[0].Id,
                             StartedAt = DateTime.UtcNow.AddDays(-18), CompletedAt = DateTime.UtcNow.AddDays(-18).AddMinutes(110),
                             ListeningScore = 300, ReadingScore = 270, TotalScore = 570, IsSubmitted = true
                         },
                         new ExamAttempt
                         {
-                            UserId = hana.UserId, ExamId = exams[1].ExamId,
+                            UserId = hana.Id, ExamId = exams[1].Id,
                             StartedAt = DateTime.UtcNow.AddDays(-10), CompletedAt = DateTime.UtcNow.AddDays(-10).AddMinutes(105),
                             ListeningScore = 340, ReadingScore = 310, TotalScore = 650, IsSubmitted = true
                         },
                         new ExamAttempt
                         {
-                            UserId = hana.UserId, ExamId = exams[2].ExamId,
+                            UserId = hana.Id, ExamId = exams[2].Id,
                             StartedAt = DateTime.UtcNow.AddDays(-3), CompletedAt = DateTime.UtcNow.AddDays(-3).AddMinutes(100),
                             ListeningScore = 370, ReadingScore = 340, TotalScore = 710, IsSubmitted = true
                         }
@@ -268,9 +269,9 @@ public static class AppDbContextSeed
                     bool isCorrect = random.NextDouble() > threshold;
                     context.AttemptAnswers.Add(new AttemptAnswer
                     {
-                        AttemptId = attempt.AttemptId,
-                        QuestionId = q.QuestionId,
-                        SelectedOption = isCorrect ? "A" : "B",
+                        AttemptId = attempt.Id,
+                        QuestionId = q.Id,
+                        SelectedOption = isCorrect ? OptionLetter.A : OptionLetter.B,
                         IsCorrect = isCorrect
                     });
                 }
@@ -288,7 +289,7 @@ public static class AppDbContextSeed
             {
                 context.StudyStreaks.Add(new StudyStreak
                 {
-                    UserId = testUser.UserId,
+                    UserId = testUser.Id,
                     CurrentStreak = 12,
                     MaxStreak = 15,
                     LastActiveDate = DateOnly.FromDateTime(DateTime.UtcNow)
@@ -298,7 +299,7 @@ public static class AppDbContextSeed
             {
                 context.StudyStreaks.Add(new StudyStreak
                 {
-                    UserId = hana.UserId,
+                    UserId = hana.Id,
                     CurrentStreak = 5,
                     MaxStreak = 8,
                     LastActiveDate = DateOnly.FromDateTime(DateTime.UtcNow.AddDays(-1))
@@ -319,13 +320,13 @@ public static class AppDbContextSeed
                 context.UserAchievements.AddRange(
                     new UserAchievement
                     {
-                        UserId = testUser.UserId,
+                        UserId = testUser.Id,
                         AchievementId = achievements[0].AchievementId, // First Blood
                         UnlockedAt = DateTime.UtcNow.AddDays(-28)
                     },
                     new UserAchievement
                     {
-                        UserId = testUser.UserId,
+                        UserId = testUser.Id,
                         AchievementId = achievements[2].AchievementId, // Streak Master
                         UnlockedAt = DateTime.UtcNow.AddDays(-5)
                     }
