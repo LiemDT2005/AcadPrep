@@ -1,3 +1,4 @@
+﻿using AcadPrep.Application.Common.Models;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -7,7 +8,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace AcadPrep.Application.Features.Performance.Queries.GetPerformanceAnalysis;
 
-public class GetPerformanceAnalysisQueryHandler : IRequestHandler<GetPerformanceAnalysisQuery, PerformanceAnalysisDto>
+public class GetPerformanceAnalysisQueryHandler : IRequestHandler<GetPerformanceAnalysisQuery, Result<PerformanceAnalysisDto>>
 {
     private readonly IAppDbContext _context;
 
@@ -16,7 +17,7 @@ public class GetPerformanceAnalysisQueryHandler : IRequestHandler<GetPerformance
         _context = context;
     }
 
-    public async Task<PerformanceAnalysisDto> Handle(GetPerformanceAnalysisQuery request, CancellationToken cancellationToken)
+    public async Task<Result<PerformanceAnalysisDto>> Handle(GetPerformanceAnalysisQuery request, CancellationToken cancellationToken)
     {
         var attempts = await _context.ExamAttempts
             .AsNoTracking()
@@ -28,7 +29,7 @@ public class GetPerformanceAnalysisQueryHandler : IRequestHandler<GetPerformance
             return new PerformanceAnalysisDto
             {
                 HasData = false,
-                Message = "Chưa có lịch sử làm bài"
+                Message = "ChÆ°a cÃ³ lá»‹ch sá»­ lÃ m bÃ i"
             };
         }
 
@@ -67,3 +68,4 @@ public class GetPerformanceAnalysisQueryHandler : IRequestHandler<GetPerformance
         return result;
     }
 }
+

@@ -1,0 +1,331 @@
+<!DOCTYPE html>
+
+<html lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>AcadPrep - Create New Badge</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+          darkMode: "class",
+          theme: {
+            extend: {
+              "colors": {
+                      "surface-container": "#e7eefe",
+                      "outline-variant": "#c7c4d8",
+                      "inverse-on-surface": "#f3effc",
+                      "outline": "#777587",
+                      "on-primary-fixed-variant": "#3323cc",
+                      "secondary-fixed-dim": "#ffb690",
+                      "surface-container-highest": "#e4e1ee",
+                      "on-tertiary-fixed": "#002114",
+                      "on-tertiary": "#ffffff",
+                      "secondary-container": "#ff8d4b",
+                      "primary-fixed": "#e2dfff",
+                      "error": "#ba1a1a",
+                      "tertiary": "#005338",
+                      "on-tertiary-fixed-variant": "#005237",
+                      "on-tertiary-container": "#80c5a3",
+                      "on-error-container": "#93000a",
+                      "tertiary-container": "#005338",
+                      "surface-variant": "#e4e1ee",
+                      "background": "#fcf8ff",
+                      "on-secondary-container": "#6c2c00",
+                      "primary-container": "#3525cd",
+                      "on-primary-fixed": "#0f0069",
+                      "secondary": "#9d4300",
+                      "surface-tint": "#4d44e3",
+                      "surface-dim": "#dcd8e5",
+                      "on-background": "#1b1b24",
+                      "surface-container-high": "#eae6f4",
+                      "on-primary-container": "#b1afff",
+                      "surface-container-low": "#f5f2ff",
+                      "surface": "#f9f9ff",
+                      "primary": "#1e00a9",
+                      "on-surface": "#1b1b24",
+                      "secondary-fixed": "#ffdbca",
+                      "on-surface-variant": "#464555",
+                      "on-primary": "#ffffff",
+                      "inverse-primary": "#c3c0ff",
+                      "primary-fixed-dim": "#c3c0ff",
+                      "on-secondary-fixed": "#341100",
+                      "on-secondary": "#ffffff",
+                      "on-secondary-fixed-variant": "#783200",
+                      "on-error": "#ffffff",
+                      "error-container": "#ffdad6",
+                      "tertiary-fixed-dim": "#8fd5b2",
+                      "tertiary-fixed": "#abf2cd",
+                      "inverse-surface": "#302f39",
+                      "surface-container-lowest": "#ffffff",
+                      "surface-bright": "#fcf8ff"
+              },
+              "borderRadius": {
+                      "DEFAULT": "0.25rem",
+                      "lg": "0.5rem",
+                      "xl": "0.75rem",
+                      "full": "9999px"
+              },
+              "spacing": {
+                      "unit": "4px",
+                      "2xl": "48px",
+                      "md": "16px",
+                      "3xl": "64px",
+                      "xl": "32px",
+                      "lg": "24px",
+                      "margin-desktop": "40px",
+                      "xs": "4px",
+                      "base_unit": "4px",
+                      "margin-mobile": "16px",
+                      "gutter": "24px",
+                      "sm": "8px"
+              },
+              "fontFamily": {
+                      "label-sm": ["Inter"],
+                      "headline-md": ["Inter"],
+                      "headline-lg": ["Inter"],
+                      "label-md": ["Inter"],
+                      "body-sm": ["Inter"],
+                      "display-lg": ["Inter"],
+                      "headline-lg-mobile": ["Inter"],
+                      "body-md": ["Inter"],
+                      "headline-sm": ["Inter"],
+                      "body-lg": ["Inter"]
+              },
+              "fontSize": {
+                      "label-sm": ["12px", {"lineHeight": "16px", "fontWeight": "600"}],
+                      "headline-md": ["24px", {"lineHeight": "32px", "fontWeight": "600"}],
+                      "headline-lg": ["32px", {"lineHeight": "40px", "letterSpacing": "-0.01em", "fontWeight": "700"}],
+                      "label-md": ["14px", {"lineHeight": "20px", "letterSpacing": "0.01em", "fontWeight": "500"}],
+                      "body-sm": ["14px", {"lineHeight": "20px", "fontWeight": "400"}],
+                      "display-lg": ["48px", {"lineHeight": "56px", "letterSpacing": "-0.02em", "fontWeight": "700"}],
+                      "headline-lg-mobile": ["28px", {"lineHeight": "36px", "letterSpacing": "-0.01em", "fontWeight": "700"}],
+                      "body-md": ["16px", {"lineHeight": "24px", "fontWeight": "400"}],
+                      "headline-sm": ["20px", {"lineHeight": "28px", "fontWeight": "600"}],
+                      "body-lg": ["18px", {"lineHeight": "28px", "fontWeight": "400"}]
+              }
+            }
+          }
+        }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+    </style>
+</head>
+<body class="bg-background text-on-background font-body-md text-body-md antialiased min-h-screen">
+<!-- SideNavBar -->
+<nav class="fixed left-0 top-0 h-full w-[260px] bg-inverse-surface flex flex-col h-screen overflow-y-auto z-50">
+<div class="p-lg flex items-center gap-md">
+<div class="w-10 h-10 rounded-full bg-primary-fixed flex items-center justify-center">
+<span class="material-symbols-outlined text-primary" style="font-variation-settings: 'FILL' 1;">school</span>
+</div>
+<div>
+<h1 class="font-headline-sm text-headline-sm font-bold text-inverse-on-surface">AcadPrep</h1>
+<p class="font-body-sm text-body-sm text-surface-variant">Admin Dashboard</p>
+</div>
+</div>
+<div class="px-md mt-sm mb-lg">
+<button class="w-full bg-primary-fixed text-on-primary-fixed-variant font-label-md text-label-md py-sm px-md rounded-lg flex items-center justify-center gap-sm hover:bg-primary-fixed-dim transition-colors duration-200 ease-in-out">
+<span class="material-symbols-outlined">add</span>
+                Add New Content
+            </button>
+</div>
+<ul class="flex-1 flex flex-col gap-xs px-sm">
+<li>
+<a class="flex items-center gap-md px-md py-sm rounded-lg text-surface-variant hover:bg-surface-variant hover:text-on-surface-variant transition-colors duration-200 ease-in-out" href="#">
+<span class="material-symbols-outlined">dashboard</span>
+<span class="font-label-md text-label-md">Overview</span>
+</a>
+</li>
+<li>
+<a class="flex items-center gap-md px-md py-sm rounded-lg text-surface-variant hover:bg-surface-variant hover:text-on-surface-variant transition-colors duration-200 ease-in-out" href="#">
+<span class="material-symbols-outlined">assignment</span>
+<span class="font-label-md text-label-md">Exams</span>
+</a>
+</li>
+<li>
+<a class="flex items-center gap-md px-md py-sm rounded-lg text-surface-variant hover:bg-surface-variant hover:text-on-surface-variant transition-colors duration-200 ease-in-out" href="#">
+<span class="material-symbols-outlined">quiz</span>
+<span class="font-label-md text-label-md">Question Bank</span>
+</a>
+</li>
+<li>
+<a class="flex items-center gap-md px-md py-sm rounded-lg text-surface-variant hover:bg-surface-variant hover:text-on-surface-variant transition-colors duration-200 ease-in-out" href="#">
+<span class="material-symbols-outlined">menu_book</span>
+<span class="font-label-md text-label-md">Reading Passages</span>
+</a>
+</li>
+<li>
+<a class="flex items-center gap-md px-md py-sm rounded-lg text-surface-variant hover:bg-surface-variant hover:text-on-surface-variant transition-colors duration-200 ease-in-out" href="#">
+<span class="material-symbols-outlined">group</span>
+<span class="font-label-md text-label-md">All Accounts</span>
+</a>
+</li>
+<li>
+<a class="flex items-center gap-md px-md py-sm rounded-lg text-surface-variant hover:bg-surface-variant hover:text-on-surface-variant transition-colors duration-200 ease-in-out" href="#">
+<span class="material-symbols-outlined">security</span>
+<span class="font-label-md text-label-md">Roles &amp; Permissions</span>
+</a>
+</li>
+<li>
+<a class="flex items-center gap-md px-md py-sm rounded-lg text-surface-variant hover:bg-surface-variant hover:text-on-surface-variant transition-colors duration-200 ease-in-out" href="#">
+<span class="material-symbols-outlined">analytics</span>
+<span class="font-label-md text-label-md">Reports &amp; Analytics</span>
+</a>
+</li>
+<li>
+<a class="flex items-center gap-md px-md py-sm rounded-lg text-surface-variant hover:bg-surface-variant hover:text-on-surface-variant transition-colors duration-200 ease-in-out" href="#">
+<span class="material-symbols-outlined">notifications</span>
+<span class="font-label-md text-label-md">Notifications</span>
+</a>
+</li>
+<!-- Active Tab -->
+<li>
+<a class="flex items-center gap-md px-md py-sm rounded-r-lg bg-primary-fixed text-on-primary-fixed-variant border-l-4 border-primary-fixed-dim transition-colors duration-200 ease-in-out" href="#">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">settings</span>
+<span class="font-label-md text-label-md">Settings</span>
+</a>
+</li>
+</ul>
+<div class="p-sm mt-auto border-t border-surface-variant/20">
+<a class="flex items-center gap-md px-md py-sm rounded-lg text-surface-variant hover:bg-surface-variant hover:text-on-surface-variant transition-colors duration-200 ease-in-out" href="#">
+<span class="material-symbols-outlined">logout</span>
+<span class="font-label-md text-label-md">Logout</span>
+</a>
+</div>
+</nav>
+<!-- TopAppBar -->
+<header class="fixed top-0 right-0 w-[calc(100%-260px)] h-16 bg-surface-container-lowest border-b border-outline-variant flex justify-between items-center px-lg z-40">
+<div class="flex items-center gap-md">
+<!-- Search placeholder could go here if needed -->
+</div>
+<div class="flex items-center gap-lg">
+<div class="flex items-center gap-sm">
+<button class="p-sm rounded-full text-on-surface-variant hover:bg-surface-container-low transition-colors cursor-pointer active:opacity-80">
+<span class="material-symbols-outlined">help</span>
+</button>
+<button class="p-sm rounded-full text-on-surface-variant hover:bg-surface-container-low transition-colors cursor-pointer active:opacity-80">
+<span class="material-symbols-outlined">apps</span>
+</button>
+</div>
+<div class="flex items-center gap-sm pl-md border-l border-outline-variant">
+<span class="font-label-md text-label-md text-on-surface-variant">Admin Role</span>
+<div class="w-8 h-8 rounded-full bg-primary-container overflow-hidden">
+<img alt="Administrator Profile" class="w-full h-full object-cover" data-alt="A professional headshot of a mature male administrator wearing a neat collared shirt. He has a warm, confident expression and is well-lit with soft, natural studio lighting against a clean, neutral gray background. The overall mood conveys trust, competence, and academic authority." src="https://lh3.googleusercontent.com/aida-public/AB6AXuC2oF09QFb_TS6AOK7-uJFZoyzAvxweJsF5RoSFfWJfrklIqZdd2KZtjYqTO8nnkC6ekzro7QpL7Mt2nE4rOPHzai5V9Drzp1ke2amsv_pNaarfK-kJKPsuOBKphTu8Hyn8KC3qAZwd62kSg2C9I5z2VbtjbpLprtHg0N8D1ChLe4iPlj3Otwyu9NwYuocOLV4O-hSrpL5DeYb5MqU7qcia_iQUGDjXoxcgofVIB-LTGcIkvPCSdRmk1F8KkSYJzY_8-_ydN3mzxSk"/>
+</div>
+</div>
+</div>
+</header>
+<!-- Main Canvas -->
+<main class="ml-[260px] pt-16 min-h-screen bg-surface p-xl">
+<div class="max-w-5xl mx-auto">
+<!-- Header Section -->
+<div class="mb-xl">
+<div class="flex items-center gap-sm text-on-surface-variant mb-xs">
+<span class="font-body-sm text-body-sm">Settings</span>
+<span class="material-symbols-outlined text-[16px]">chevron_right</span>
+<span class="font-body-sm text-body-sm">Gamification</span>
+<span class="material-symbols-outlined text-[16px]">chevron_right</span>
+<span class="font-body-sm text-body-sm text-primary">New Badge</span>
+</div>
+<h2 class="font-headline-lg text-headline-lg text-on-surface">Create New Achievement Badge</h2>
+<p class="font-body-md text-body-md text-on-surface-variant mt-sm max-w-2xl">Define the visual identity and unlock criteria for a new gamification badge to motivate students in their learning journey.</p>
+</div>
+<!-- Content Grid Layout -->
+<div class="grid grid-cols-1 lg:grid-cols-3 gap-xl">
+<!-- Form Area -->
+<div class="lg:col-span-2 space-y-lg">
+<!-- Basic Details Card -->
+<section class="bg-surface-container-lowest rounded-xl p-lg shadow-sm border border-outline-variant/30">
+<h3 class="font-headline-sm text-headline-sm text-on-surface mb-lg flex items-center gap-sm">
+<span class="material-symbols-outlined text-primary">info</span>
+                            Badge Details
+                        </h3>
+<div class="space-y-md">
+<div>
+<label class="font-label-md text-label-md text-on-surface block mb-xs" for="badgeName">Badge Name</label>
+<input class="w-full bg-surface text-on-surface border border-outline-variant rounded-lg px-md py-sm font-body-md text-body-md focus:border-primary focus:ring-1 focus:ring-primary outline-none transition-all" id="badgeName" placeholder="e.g., Vocabulary Master" type="text"/>
+</div>
+<div>
+<label class="font-label-md text-label-md text-on-surface block mb-xs" for="badgeDescription">Description</label>
+<textarea class="w-full bg-surface text-on-surface border border-outline-variant rounded-lg px-md py-sm font-body-md text-body-md focus:border-primary focus:ring-1 focus:ring-primary outline-none transition-all resize-none" id="badgeDescription" placeholder="Explain what the student achieved to earn this badge..." rows="3"></textarea>
+</div>
+<div>
+<label class="font-label-md text-label-md text-on-surface block mb-xs" for="badgeIcon">Icon Asset URL</label>
+<div class="flex gap-sm">
+<input class="flex-1 bg-surface text-on-surface border border-outline-variant rounded-lg px-md py-sm font-body-md text-body-md focus:border-primary focus:ring-1 focus:ring-primary outline-none transition-all" id="badgeIcon" placeholder="https://assets.acadprep.com/badges/icon.png" type="url"/>
+<button class="bg-surface-container hover:bg-surface-container-high text-on-surface font-label-md text-label-md px-md py-sm rounded-lg border border-outline-variant transition-colors" type="button">
+                                        Upload
+                                    </button>
+</div>
+</div>
+</div>
+</section>
+<!-- Unlock Conditions Card -->
+<section class="bg-surface-container-lowest rounded-xl p-lg shadow-sm border border-outline-variant/30">
+<h3 class="font-headline-sm text-headline-sm text-on-surface mb-lg flex items-center gap-sm">
+<span class="material-symbols-outlined text-primary">flag</span>
+                            Unlock Conditions
+                        </h3>
+<div class="grid grid-cols-1 md:grid-cols-2 gap-md">
+<div>
+<label class="font-label-md text-label-md text-on-surface block mb-xs" for="conditionType">Condition Type</label>
+<div class="relative">
+<select class="w-full appearance-none bg-surface text-on-surface border border-outline-variant rounded-lg pl-md pr-xl py-sm font-body-md text-body-md focus:border-primary focus:ring-1 focus:ring-primary outline-none transition-all" id="conditionType">
+<option disabled="" selected="" value="">Select a condition</option>
+<option value="modules">Modules Completed</option>
+<option value="exam">Exam Score (%)</option>
+<option value="streak">Study Streak (Days)</option>
+<option value="words">Words Saved</option>
+<option value="speed">Reading Speed (WPM)</option>
+</select>
+<div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-md text-outline">
+<span class="material-symbols-outlined">expand_more</span>
+</div>
+</div>
+</div>
+<div>
+<label class="font-label-md text-label-md text-on-surface block mb-xs" for="targetValue">Target Value</label>
+<input class="w-full bg-surface text-on-surface border border-outline-variant rounded-lg px-md py-sm font-body-md text-body-md focus:border-primary focus:ring-1 focus:ring-primary outline-none transition-all" id="targetValue" placeholder="e.g., 100" type="number"/>
+</div>
+</div>
+</section>
+</div>
+<!-- Preview & Actions Area -->
+<div class="space-y-lg">
+<!-- Live Preview Card -->
+<div class="bg-surface-container-lowest rounded-xl p-lg shadow-sm border border-outline-variant/30 sticky top-24">
+<h3 class="font-label-sm text-label-sm uppercase tracking-wider text-outline mb-md">Live Preview</h3>
+<div class="bg-surface-container rounded-lg p-xl flex flex-col items-center justify-center text-center relative overflow-hidden group">
+<!-- Background Pattern/Gradient for preview -->
+<div class="absolute inset-0 bg-gradient-to-br from-primary-fixed to-surface-container-lowest opacity-50"></div>
+<!-- Placeholder Icon -->
+<div class="relative w-24 h-24 bg-white rounded-full shadow-md flex items-center justify-center mb-md border-4 border-primary-fixed">
+<span class="material-symbols-outlined text-[48px] text-primary opacity-50 group-hover:opacity-100 transition-opacity">military_tech</span>
+</div>
+<h4 class="relative font-headline-sm text-headline-sm text-on-surface mb-xs">Badge Name</h4>
+<p class="relative font-body-sm text-body-sm text-on-surface-variant line-clamp-2">The description of how to earn this badge will appear here for the student.</p>
+<div class="relative mt-md inline-flex items-center gap-xs bg-surface-container-high px-sm py-xs rounded-full">
+<span class="material-symbols-outlined text-[14px] text-on-surface-variant">lock</span>
+<span class="font-label-sm text-label-sm text-on-surface-variant">0 / 100</span>
+</div>
+</div>
+<div class="mt-xl flex flex-col gap-sm">
+<button class="w-full bg-primary hover:bg-surface-tint text-on-primary font-label-md text-label-md py-md rounded-lg shadow-sm transition-colors flex items-center justify-center gap-sm">
+<span class="material-symbols-outlined text-[18px]">add_circle</span>
+                                Create Badge
+                            </button>
+<button class="w-full bg-transparent hover:bg-surface-container-high text-primary font-label-md text-label-md py-md rounded-lg transition-colors">
+                                Cancel
+                            </button>
+</div>
+</div>
+</div>
+</div>
+</div>
+</main>
+</body></html>

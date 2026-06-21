@@ -1,7 +1,7 @@
 using System;
 using System.Threading.Tasks;
 using AcadPrep.Application.Features.Performance.DTOs;
-using AcadPrep.Application.Features.Performance.Query.GetStudyStreak;
+using AcadPrep.Application.Features.Performance.Queries.GetStudyStreak;
 using Application.Common.Interfaces;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
@@ -32,7 +32,7 @@ public class DashboardModel : PageModel
         }
 
         // Reset streak if needed before querying
-        await _mediator.Send(new AcadPrep.Application.Features.Performance.Command.ResetStudyStreak.ResetStudyStreakCommand(parsedUserId));
+        await _mediator.Send(new AcadPrep.Application.Features.Performance.Commands.ResetStudyStreak.ResetStudyStreakCommand(parsedUserId));
 
         StreakData = (await _mediator.Send(new GetStudyStreakQuery(parsedUserId))).Data!;
         DashboardData = (await _mediator.Send(new AcadPrep.Application.Features.Performance.Queries.GetDashboardData.GetDashboardDataQuery(parsedUserId))).Data!;

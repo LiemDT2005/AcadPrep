@@ -1,0 +1,155 @@
+@page "{id:int}"
+@model AcadPrep.WebUI.Pages.Admin.Achievements.EditModel
+@{
+    ViewData["Title"] = "Edit Achievement Badge";
+    Layout = "_AdminLayout";
+}
+
+<div class="max-w-5xl mx-auto">
+    <!-- Header Section -->
+    <div class="mb-xl">
+        <div class="flex items-center gap-sm text-on-surface-variant mb-xs">
+            <a asp-page="./Index" class="font-body-sm text-body-sm hover:underline">Achievements</a>
+            <span class="material-symbols-outlined text-[16px]">chevron_right</span>
+            <span class="font-body-sm text-body-sm text-primary">Edit Badge</span>
+        </div>
+        <h2 class="font-headline-lg text-headline-lg text-on-surface">Edit Achievement Badge</h2>
+        <p class="font-body-md text-body-md text-on-surface-variant mt-sm max-w-2xl">Modify the visual identity and unlock criteria for this gamification badge.</p>
+    </div>
+
+    @if (!ViewData.ModelState.IsValid)
+    {
+        <div class="bg-error-container text-on-error-container p-sm rounded-lg mb-md">
+            <div asp-validation-summary="All" class="text-label-sm font-label-sm m-0"></div>
+        </div>
+    }
+
+    <!-- Content Grid Layout -->
+    <form method="post" class="grid grid-cols-1 lg:grid-cols-3 gap-xl">
+        <input type="hidden" asp-for="Command.AchievementId" />
+        <!-- Form Area -->
+        <div class="lg:col-span-2 space-y-lg">
+            <!-- Basic Details Card -->
+            <section class="bg-surface-container-lowest rounded-xl p-lg shadow-sm border border-outline-variant/30">
+                <h3 class="font-headline-sm text-headline-sm text-on-surface mb-lg flex items-center gap-sm">
+                    <span class="material-symbols-outlined text-primary">info</span>
+                    Badge Details
+                </h3>
+                <div class="space-y-md">
+                    <div>
+                        <label asp-for="Command.Name" class="font-label-md text-label-md text-on-surface block mb-xs">Badge Name</label>
+                        <input asp-for="Command.Name" class="w-full bg-surface text-on-surface border border-outline-variant rounded-lg px-md py-sm font-body-md text-body-md focus:border-primary focus:ring-1 focus:ring-primary outline-none transition-all" placeholder="e.g., Vocabulary Master" required />
+                        <span asp-validation-for="Command.Name" class="text-error text-[12px] mt-1"></span>
+                    </div>
+                    <div>
+                        <label asp-for="Command.Description" class="font-label-md text-label-md text-on-surface block mb-xs">Description</label>
+                        <textarea asp-for="Command.Description" class="w-full bg-surface text-on-surface border border-outline-variant rounded-lg px-md py-sm font-body-md text-body-md focus:border-primary focus:ring-1 focus:ring-primary outline-none transition-all resize-none" placeholder="Explain what the student achieved to earn this badge..." rows="3" required></textarea>
+                        <span asp-validation-for="Command.Description" class="text-error text-[12px] mt-1"></span>
+                    </div>
+                    <div>
+                        <label asp-for="Command.IconUrl" class="font-label-md text-label-md text-on-surface block mb-xs">Icon Asset URL</label>
+                        <input asp-for="Command.IconUrl" class="w-full bg-surface text-on-surface border border-outline-variant rounded-lg px-md py-sm font-body-md text-body-md focus:border-primary focus:ring-1 focus:ring-primary outline-none transition-all" placeholder="https://example.com/icon.png" />
+                        <span asp-validation-for="Command.IconUrl" class="text-error text-[12px] mt-1"></span>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Unlock Conditions Card -->
+            <section class="bg-surface-container-lowest rounded-xl p-lg shadow-sm border border-outline-variant/30">
+                <h3 class="font-headline-sm text-headline-sm text-on-surface mb-lg flex items-center gap-sm">
+                    <span class="material-symbols-outlined text-primary">flag</span>
+                    Unlock Conditions
+                </h3>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-md">
+                    <div>
+                        <label asp-for="Command.ConditionType" class="font-label-md text-label-md text-on-surface block mb-xs">Condition Type</label>
+                        <div class="relative">
+                            <select asp-for="Command.ConditionType" class="w-full appearance-none bg-surface text-on-surface border border-outline-variant rounded-lg pl-md pr-xl py-sm font-body-md text-body-md focus:border-primary focus:ring-1 focus:ring-primary outline-none transition-all" required>
+                                <option value="">-- Select Type --</option>
+                                <option value="Score">Score (e.g. 990)</option>
+                                <option value="Streak">Study Streak (e.g. 7)</option>
+                                <option value="ExamsCompleted">Exams Completed (e.g. 1)</option>
+                                <option value="VocabCount">Vocabularies Saved (e.g. 50)</option>
+                                <option value="Speed">Completion Speed (Minutes)</option>
+                            </select>
+                            <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-md text-outline">
+                                <span class="material-symbols-outlined">expand_more</span>
+                            </div>
+                        </div>
+                        <span asp-validation-for="Command.ConditionType" class="text-error text-[12px] mt-1"></span>
+                    </div>
+                    <div>
+                        <label asp-for="Command.ConditionValue" class="font-label-md text-label-md text-on-surface block mb-xs">Target Value</label>
+                        <input asp-for="Command.ConditionValue" type="number" class="w-full bg-surface text-on-surface border border-outline-variant rounded-lg px-md py-sm font-body-md text-body-md focus:border-primary focus:ring-1 focus:ring-primary outline-none transition-all" placeholder="e.g., 100" required />
+                        <span asp-validation-for="Command.ConditionValue" class="text-error text-[12px] mt-1"></span>
+                    </div>
+                </div>
+            </section>
+        </div>
+
+        <!-- Preview & Actions Area -->
+        <div class="space-y-lg">
+            <!-- Live Preview Card -->
+            <div class="bg-surface-container-lowest rounded-xl p-lg shadow-sm border border-outline-variant/30 sticky top-24">
+                <h3 class="font-label-sm text-label-sm uppercase tracking-wider text-outline mb-md">Live Preview</h3>
+                <div class="bg-surface-container rounded-lg p-xl flex flex-col items-center justify-center text-center relative overflow-hidden group">
+                    <div class="absolute inset-0 bg-gradient-to-br from-primary-fixed to-surface-container-lowest opacity-50"></div>
+                    <div class="relative w-24 h-24 bg-white rounded-full shadow-md flex items-center justify-center mb-md border-4 border-primary-fixed">
+                        @if (!string.IsNullOrEmpty(Model.Command.IconUrl))
+                        {
+                            <img src="@Model.Command.IconUrl" alt="Icon" class="w-full h-full object-cover rounded-full" id="previewIconImg" />
+                            <span class="material-symbols-outlined text-[48px] text-primary hidden" id="previewIconFallback">military_tech</span>
+                        }
+                        else
+                        {
+                            <img src="" alt="Icon" class="w-full h-full object-cover rounded-full hidden" id="previewIconImg" />
+                            <span class="material-symbols-outlined text-[48px] text-primary" id="previewIconFallback">military_tech</span>
+                        }
+                    </div>
+                    <h4 class="relative font-headline-sm text-headline-sm text-on-surface mb-xs" id="previewName">@(string.IsNullOrEmpty(Model.Command.Name) ? "Badge Name" : Model.Command.Name)</h4>
+                    <p class="relative font-body-sm text-body-sm text-on-surface-variant line-clamp-2" id="previewDesc">@(string.IsNullOrEmpty(Model.Command.Description) ? "The description of how to earn this badge will appear here for the student." : Model.Command.Description)</p>
+                </div>
+                <div class="mt-xl flex flex-col gap-sm">
+                    <button type="submit" class="w-full bg-primary hover:bg-surface-tint text-on-primary font-label-md text-label-md py-md rounded-lg shadow-sm transition-colors flex items-center justify-center gap-sm">
+                        <span class="material-symbols-outlined text-[18px]">save</span>
+                        Save Changes
+                    </button>
+                    <a asp-page="./Index" class="w-full bg-transparent hover:bg-surface-container-high text-primary font-label-md text-label-md py-md rounded-lg transition-colors text-center inline-block flex items-center justify-center">
+                        Cancel
+                    </a>
+                </div>
+            </div>
+        </div>
+    </form>
+</div>
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const nameInput = document.querySelector('input[name="Command.Name"]');
+        const descInput = document.querySelector('textarea[name="Command.Description"]');
+        const iconUrlInput = document.querySelector('input[name="Command.IconUrl"]');
+        
+        const previewName = document.getElementById('previewName');
+        const previewDesc = document.getElementById('previewDesc');
+        const previewIconImg = document.getElementById('previewIconImg');
+        const previewIconFallback = document.getElementById('previewIconFallback');
+
+        nameInput.addEventListener('input', (e) => {
+            previewName.textContent = e.target.value || 'Badge Name';
+        });
+
+        descInput.addEventListener('input', (e) => {
+            previewDesc.textContent = e.target.value || 'The description of how to earn this badge will appear here for the student.';
+        });
+
+        iconUrlInput.addEventListener('input', (e) => {
+            if (e.target.value) {
+                previewIconImg.src = e.target.value;
+                previewIconImg.classList.remove('hidden');
+                previewIconFallback.classList.add('hidden');
+            } else {
+                previewIconImg.classList.add('hidden');
+                previewIconFallback.classList.remove('hidden');
+            }
+        });
+    });
+</script>

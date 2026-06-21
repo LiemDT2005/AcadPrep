@@ -7,6 +7,7 @@ public class UserAchievement
     public int UserId { get; set; }
     public int AchievementId { get; set; }
     public DateTime UnlockedAt { get; set; } = DateTime.UtcNow;
+    public bool IsNotified { get; set; } = false;
 
     // Navigation properties
     public virtual User User { get; set; } = null!;

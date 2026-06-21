@@ -1,6 +1,7 @@
-using AcadPrep.Application.Features.Performance.DTOs;
+using AcadPrep.Application.Common.Models;
 using MediatR;
 
 namespace AcadPrep.Application.Features.Performance.Queries.GetStudyStreak;
 
-public record GetStudyStreakQuery(int UserId) : IRequest<StudyStreakDto>;
+public record GetStudyStreakQuery(int UserId) : IRequest<Result<StudyStreakDto>>;
+

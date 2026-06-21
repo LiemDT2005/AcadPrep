@@ -105,27 +105,37 @@
 </div>
 </div>
 <ul class="flex flex-col flex-1 px-sm py-sm gap-xs">
+@{
+    var currentPage = ViewContext.RouteData.Values["page"]?.ToString() ?? "";
+    string GetActiveClasses(string pagePrefix) => currentPage.StartsWith(pagePrefix) ? "bg-white text-inverse-surface" : "text-surface-variant hover:bg-surface-variant hover:text-on-surface-variant";
+}
 <!-- Menu Items -->
 <li>
-<a class="flex items-center gap-md px-md py-sm rounded-lg hover:bg-surface-variant hover:text-on-surface-variant text-surface-variant transition-colors duration-200 text-[14px] font-medium" href="/Admin/Dashboard">
+<a class="flex items-center gap-md px-md py-sm rounded-lg transition-colors duration-200 text-[14px] font-medium @GetActiveClasses("/Admin/Dashboard")" href="/Admin/Dashboard">
 <span class="material-symbols-outlined text-[20px]" style="font-variation-settings: 'FILL' 1;">dashboard</span>
           Overview
         </a>
 </li>
 <li>
-<a class="flex items-center gap-md px-md py-sm rounded-lg text-surface-variant hover:bg-surface-variant hover:text-on-surface-variant transition-colors duration-200 text-[14px] font-medium" href="/Admin/Report">
+<a class="flex items-center gap-md px-md py-sm rounded-lg transition-colors duration-200 text-[14px] font-medium @GetActiveClasses("/Admin/Achievements")" href="/Admin/Achievements/Index">
+<span class="material-symbols-outlined text-[20px]" style="font-variation-settings: 'FILL' 1;">military_tech</span>
+          Achievements
+        </a>
+</li>
+<li>
+<a class="flex items-center gap-md px-md py-sm rounded-lg transition-colors duration-200 text-[14px] font-medium @GetActiveClasses("/Admin/Report")" href="/Admin/Report">
 <span class="material-symbols-outlined text-[20px]">analytics</span>
           Reports &amp; Analytics
         </a>
 </li>
 <li>
-<a class="flex items-center gap-md px-md py-sm rounded-lg text-surface-variant hover:bg-surface-variant hover:text-on-surface-variant transition-colors duration-200 text-[14px] font-medium" href="/Admin/ExamStats">
+<a class="flex items-center gap-md px-md py-sm rounded-lg transition-colors duration-200 text-[14px] font-medium @GetActiveClasses("/Admin/ExamStats")" href="/Admin/ExamStats">
 <span class="material-symbols-outlined text-[20px]">assignment</span>
           Exam Stats
         </a>
 </li>
 <li>
-<a class="flex items-center gap-md px-md py-sm rounded-lg text-surface-variant hover:bg-surface-variant hover:text-on-surface-variant transition-colors duration-200 text-[14px] font-medium" href="/">
+<a class="flex items-center gap-md px-md py-sm rounded-lg transition-colors duration-200 text-[14px] font-medium text-surface-variant hover:bg-surface-variant hover:text-on-surface-variant" href="/">
 <span class="material-symbols-outlined text-[20px]">exit_to_app</span>
           Back to App
         </a>

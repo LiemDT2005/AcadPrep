@@ -30,6 +30,13 @@ namespace AcadPrep.Infrastructure.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("AchievementId"));
 
+                    b.Property<string>("ConditionType")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("ConditionValue")
+                        .HasColumnType("int");
+
                     b.Property<string>("Description")
                         .IsRequired()
                         .HasMaxLength(500)
@@ -438,6 +445,9 @@ namespace AcadPrep.Infrastructure.Migrations
 
                     b.Property<int>("AchievementId")
                         .HasColumnType("int");
+
+                    b.Property<bool>("IsNotified")
+                        .HasColumnType("bit");
 
                     b.Property<DateTime>("UnlockedAt")
                         .HasColumnType("datetime2");

@@ -45,6 +45,9 @@ public static class DependencyInjection
             });
         }
         services.AddSingleton<ICacheService, RedisCacheService>();
+        
+        // Register AI generation service
+        services.AddScoped<IAiGenerationService, MockAiGenerationService>();
 
         return services;
     }

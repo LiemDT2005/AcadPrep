@@ -113,6 +113,33 @@
     </div>
 
     <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mdb-ui-kit/7.1.0/mdb.umd.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            fetch('/api/achievements/unnotified')
+                .then(response => response.json())
+                .then(data => {
+                    if (data && data.length > 0) {
+                        data.forEach(achievement => {
+                            Swal.fire({
+                                title: 'Congratulations!',
+                                text: `You unlocked the badge: ${achievement.name}`,
+                                imageUrl: achievement.iconUrl || 'https://cdn-icons-png.flaticon.com/512/1000/1000185.png',
+                                imageWidth: 100,
+                                imageHeight: 100,
+                                confirmButtonText: 'Awesome!'
+                            }).then(() => {
+                                fetch('/api/achievements/mark-notified', {
+                                    method: 'POST',
+                                    headers: { 'Content-Type': 'application/json' },
+                                    body: JSON.stringify(achievement.achievementId)
+                                });
+                            });
+                        });
+                    }
+                });
+        });
+    </script>
     @await RenderSectionAsync("Scripts", required: false)
 </body>
 </html>
