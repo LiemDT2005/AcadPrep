@@ -18,6 +18,7 @@ public class AttemptAnswerConfiguration : IEntityTypeConfiguration<AttemptAnswer
         builder.Property(x => x.SelectedOption)
             .HasMaxLength(1)
             .IsUnicode(false)
+            .HasConversion<string>()
             .IsRequired(false);
 
         builder.Property(x => x.IsCorrect)

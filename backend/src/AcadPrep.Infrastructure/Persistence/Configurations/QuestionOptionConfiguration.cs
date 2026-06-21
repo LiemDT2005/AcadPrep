@@ -13,9 +13,10 @@ public class QuestionOptionConfiguration : IEntityTypeConfiguration<QuestionOpti
             t.HasCheckConstraint("CHK_OptionLetter", "[OptionLetter] IN ('A', 'B', 'C', 'D')");
         });
 
-        builder.HasKey(x => x.OptionId);
+        builder.HasKey(x => x.Id);
 
-        builder.Property(x => x.OptionId)
+        builder.Property(x => x.Id)
+            .HasColumnName("OptionId")
             .ValueGeneratedOnAdd();
 
         builder.Property(x => x.QuestionId)
@@ -24,6 +25,7 @@ public class QuestionOptionConfiguration : IEntityTypeConfiguration<QuestionOpti
         builder.Property(x => x.OptionLetter)
             .HasMaxLength(1)
             .IsUnicode(false)
+            .HasConversion<string>()
             .IsRequired();
 
         builder.Property(x => x.OptionText)

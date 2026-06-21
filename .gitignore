@@ -58,3 +58,15 @@ nunit-*.xml
 
 # Ignore mockups
 docs/
+# Visual Studio
+.vs/
+*.user
+*.suo
+
+# Rider
+.idea/
+
+# VS Code
+.vscode/
+#Rider
+*.DotSettings.user

@@ -10,9 +10,10 @@ public class PassageConfiguration : IEntityTypeConfiguration<Passage>
     {
         builder.ToTable("PASSAGES");
 
-        builder.HasKey(x => x.PassageId);
+        builder.HasKey(x => x.Id);
 
-        builder.Property(x => x.PassageId)
+        builder.Property(x => x.Id)
+            .HasColumnName("PassageId")
             .ValueGeneratedOnAdd();
 
         builder.Property(x => x.Content)

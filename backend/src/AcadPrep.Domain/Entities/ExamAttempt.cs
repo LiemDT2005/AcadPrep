@@ -1,18 +1,16 @@
-using System;
-using System.Collections.Generic;
+using Domain.Common;
 
 namespace Domain.Entities;
 
-public class ExamAttempt
+public class ExamAttempt : BaseEntity<int>
 {
-    public int AttemptId { get; set; }
     public int UserId { get; set; }
     public int ExamId { get; set; }
-    public int ListeningScore { get; set; } = 0;
-    public int ReadingScore { get; set; } = 0;
-    public int TotalScore { get; set; } = 0;
+    public int ListeningScore { get; set; }
+    public int ReadingScore { get; set; }
+    public int TotalScore { get; set; }
     public int RemainingTime { get; set; }
-    public bool IsSubmitted { get; set; } = false;
+    public bool IsSubmitted { get; set; }
     public DateTime StartedAt { get; set; } = DateTime.UtcNow;
     public DateTime? CompletedAt { get; set; }
 
