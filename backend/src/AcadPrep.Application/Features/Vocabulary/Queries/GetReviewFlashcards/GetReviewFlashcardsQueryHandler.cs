@@ -11,7 +11,7 @@ using AcadPrep.Application.Features.Vocabulary.Queries.GetSavedVocabularies;
 
 namespace AcadPrep.Application.Features.Vocabulary.Queries.GetReviewFlashcards;
 
-public class GetReviewFlashcardsQueryHandler : IRequestHandler<GetReviewFlashcardsQuery, Result<List<SavedVocabularyDto>>>
+public class GetReviewFlashcardsQueryHandler : IRequestHandler<GetReviewFlashcardsQuery, Result<PaginatedList<SavedVocabularyDto>>>
 {
     private readonly IAppDbContext _context;
 
@@ -20,9 +20,9 @@ public class GetReviewFlashcardsQueryHandler : IRequestHandler<GetReviewFlashcar
         _context = context;
     }
 
-    public async Task<Result<List<SavedVocabularyDto>>> Handle(GetReviewFlashcardsQuery request, CancellationToken cancellationToken)
+    public async Task<Result<PaginatedList<SavedVocabularyDto>>> Handle(GetReviewFlashcardsQuery request, CancellationToken cancellationToken)
     {
-        var dueFlashcards = await _context.SavedVocabularies
+        var dueFlashcardsQuery = _context.SavedVocabularies
             .Include(sv => sv.Vocabulary)
             .Where(sv => sv.UserId == request.UserId && sv.NextReviewDate <= DateTime.UtcNow)
             .Select(sv => new SavedVocabularyDto
@@ -35,9 +35,14 @@ public class GetReviewFlashcardsQueryHandler : IRequestHandler<GetReviewFlashcar
                 Interval = sv.Interval,
                 NextReviewDate = sv.NextReviewDate,
                 DateSaved = sv.DateSaved
-            })
-            .ToListAsync(cancellationToken);
+            });
 
-        return dueFlashcards;
+        var paginatedResult = await PaginatedList<SavedVocabularyDto>.CreateAsync(
+            dueFlashcardsQuery,
+            request.PageNumber,
+            request.PageSize
+        );
+
+        return Result<PaginatedList<SavedVocabularyDto>>.Success(paginatedResult);
     }
 }

@@ -1,6 +1,5 @@
 using AcadPrep.Application.Common.Models;
 using Application.Common.Interfaces;
-using Application.Common.Models;
 using Application.Features.Exam.Queries.Common.DTOs;
 using MediatR;
 using Microsoft.EntityFrameworkCore;

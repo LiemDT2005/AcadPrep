@@ -6,9 +6,11 @@ using Domain.Entities;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 
+using AcadPrep.Application.Features.Admin.DTOs;
+
 namespace AcadPrep.Application.Features.Admin.Queries.GetAchievementById;
 
-public class GetAchievementByIdQueryHandler : IRequestHandler<GetAchievementByIdQuery, Result<Achievement>>
+public class GetAchievementByIdQueryHandler : IRequestHandler<GetAchievementByIdQuery, Result<AchievementAdminDto>>
 {
     private readonly IAppDbContext _context;
 
@@ -17,7 +19,7 @@ public class GetAchievementByIdQueryHandler : IRequestHandler<GetAchievementById
         _context = context;
     }
 
-    public async Task<Result<Achievement>> Handle(GetAchievementByIdQuery request, CancellationToken cancellationToken)
+    public async Task<Result<AchievementAdminDto>> Handle(GetAchievementByIdQuery request, CancellationToken cancellationToken)
     {
         var achievement = await _context.Achievements
             .AsNoTracking()
@@ -25,9 +27,19 @@ public class GetAchievementByIdQueryHandler : IRequestHandler<GetAchievementById
         
         if (achievement == null)
         {
-            return Result<Achievement>.Failure("Achievement not found");
+            return Result<AchievementAdminDto>.Failure("Achievement not found");
         }
         
-        return Result<Achievement>.Success(achievement);
+        var dto = new AchievementAdminDto
+        {
+            AchievementId = achievement.AchievementId,
+            Name = achievement.Name,
+            Description = achievement.Description,
+            IconUrl = achievement.IconUrl,
+            ConditionType = achievement.ConditionType,
+            ConditionValue = achievement.ConditionValue
+        };
+
+        return Result<AchievementAdminDto>.Success(dto);
     }
 }

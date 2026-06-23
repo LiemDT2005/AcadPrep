@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace AcadPrep.Infrastructure.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20260614061850_UpdateDB")]
-    partial class UpdateDB
+    [Migration("20260621060046_InitialCreate")]
+    partial class InitialCreate
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -32,6 +32,13 @@ namespace AcadPrep.Infrastructure.Migrations
                         .HasColumnType("int");
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("AchievementId"));
+
+                    b.Property<string>("ConditionType")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("ConditionValue")
+                        .HasColumnType("int");
 
                     b.Property<string>("Description")
                         .IsRequired()
@@ -82,11 +89,12 @@ namespace AcadPrep.Infrastructure.Migrations
 
             modelBuilder.Entity("Domain.Entities.AuditLog", b =>
                 {
-                    b.Property<int>("LogId")
+                    b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
+                        .HasColumnType("int")
+                        .HasColumnName("LogId");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("LogId"));
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
                     b.Property<string>("Action")
                         .IsRequired()
@@ -106,7 +114,7 @@ namespace AcadPrep.Infrastructure.Migrations
                     b.Property<int?>("UserId")
                         .HasColumnType("int");
 
-                    b.HasKey("LogId");
+                    b.HasKey("Id");
 
                     b.HasIndex("UserId");
 
@@ -115,11 +123,12 @@ namespace AcadPrep.Infrastructure.Migrations
 
             modelBuilder.Entity("Domain.Entities.Exam", b =>
                 {
-                    b.Property<int>("ExamId")
+                    b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
+                        .HasColumnType("int")
+                        .HasColumnName("ExamId");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("ExamId"));
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
                     b.Property<DateTime>("CreatedAt")
                         .ValueGeneratedOnAdd()
@@ -132,28 +141,37 @@ namespace AcadPrep.Infrastructure.Migrations
                     b.Property<int>("Duration")
                         .HasColumnType("int");
 
+                    b.Property<int>("ExamSeriesId")
+                        .HasColumnType("int");
+
                     b.Property<bool>("IsDeleted")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("bit")
                         .HasDefaultValue(false);
+
+                    b.Property<DateTime?>("LastModifiedAt")
+                        .HasColumnType("datetime2");
 
                     b.Property<string>("Title")
                         .IsRequired()
                         .HasMaxLength(255)
                         .HasColumnType("nvarchar(255)");
 
-                    b.HasKey("ExamId");
+                    b.HasKey("Id");
+
+                    b.HasIndex("ExamSeriesId");
 
                     b.ToTable("EXAMS", (string)null);
                 });
 
             modelBuilder.Entity("Domain.Entities.ExamAttempt", b =>
                 {
-                    b.Property<int>("AttemptId")
+                    b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
+                        .HasColumnType("int")
+                        .HasColumnName("AttemptId");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("AttemptId"));
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
                     b.Property<DateTime?>("CompletedAt")
                         .HasColumnType("datetime2");
@@ -192,7 +210,7 @@ namespace AcadPrep.Infrastructure.Migrations
                     b.Property<int>("UserId")
                         .HasColumnType("int");
 
-                    b.HasKey("AttemptId");
+                    b.HasKey("Id");
 
                     b.HasIndex("ExamId");
 
@@ -201,13 +219,55 @@ namespace AcadPrep.Infrastructure.Migrations
                     b.ToTable("EXAM_ATTEMPTS", (string)null);
                 });
 
-            modelBuilder.Entity("Domain.Entities.Passage", b =>
+            modelBuilder.Entity("Domain.Entities.ExamSeries", b =>
                 {
-                    b.Property<int>("PassageId")
+                    b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
+                        .HasColumnType("int")
+                        .HasColumnName("ExamSeriesId");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("CoverImageUrl")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("datetime2")
+                        .HasDefaultValueSql("GETDATE()");
+
+                    b.Property<string>("Description")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<bool>("IsDeleted")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bit")
+                        .HasDefaultValue(false);
+
+                    b.Property<DateTime?>("LastModifiedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(255)
+                        .HasColumnType("nvarchar(255)");
+
+                    b.Property<int>("Year")
                         .HasColumnType("int");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("PassageId"));
+                    b.HasKey("Id");
+
+                    b.ToTable("EXAM_SERIES", (string)null);
+                });
+
+            modelBuilder.Entity("Domain.Entities.Passage", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int")
+                        .HasColumnName("PassageId");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
                     b.Property<string>("Content")
                         .IsRequired()
@@ -216,7 +276,7 @@ namespace AcadPrep.Infrastructure.Migrations
                     b.Property<int>("ExamId")
                         .HasColumnType("int");
 
-                    b.HasKey("PassageId");
+                    b.HasKey("Id");
 
                     b.HasIndex("ExamId");
 
@@ -225,11 +285,12 @@ namespace AcadPrep.Infrastructure.Migrations
 
             modelBuilder.Entity("Domain.Entities.Question", b =>
                 {
-                    b.Property<int>("QuestionId")
+                    b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
+                        .HasColumnType("int")
+                        .HasColumnName("QuestionId");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("QuestionId"));
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
                     b.Property<string>("AudioUrl")
                         .HasMaxLength(500)
@@ -257,7 +318,7 @@ namespace AcadPrep.Infrastructure.Migrations
                     b.Property<string>("QuestionText")
                         .HasColumnType("nvarchar(max)");
 
-                    b.HasKey("QuestionId");
+                    b.HasKey("Id");
 
                     b.HasIndex("ExamId");
 
@@ -273,11 +334,12 @@ namespace AcadPrep.Infrastructure.Migrations
 
             modelBuilder.Entity("Domain.Entities.QuestionOption", b =>
                 {
-                    b.Property<int>("OptionId")
+                    b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
+                        .HasColumnType("int")
+                        .HasColumnName("OptionId");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("OptionId"));
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
                     b.Property<string>("OptionLetter")
                         .IsRequired()
@@ -292,7 +354,7 @@ namespace AcadPrep.Infrastructure.Migrations
                     b.Property<int>("QuestionId")
                         .HasColumnType("int");
 
-                    b.HasKey("OptionId");
+                    b.HasKey("Id");
 
                     b.HasIndex("QuestionId");
 
@@ -382,11 +444,12 @@ namespace AcadPrep.Infrastructure.Migrations
 
             modelBuilder.Entity("Domain.Entities.User", b =>
                 {
-                    b.Property<int>("UserId")
+                    b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
+                        .HasColumnType("int")
+                        .HasColumnName("UserId");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("UserId"));
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
                     b.Property<DateTime>("CreatedAt")
                         .ValueGeneratedOnAdd()
@@ -403,6 +466,9 @@ namespace AcadPrep.Infrastructure.Migrations
                         .IsRequired()
                         .HasMaxLength(150)
                         .HasColumnType("nvarchar(150)");
+
+                    b.Property<DateTime?>("LastModifiedAt")
+                        .HasColumnType("datetime2");
 
                     b.Property<string>("PasswordHash")
                         .IsRequired()
@@ -421,7 +487,7 @@ namespace AcadPrep.Infrastructure.Migrations
                         .HasColumnType("varchar(50)")
                         .HasDefaultValue("Active");
 
-                    b.HasKey("UserId");
+                    b.HasKey("Id");
 
                     b.HasIndex("Email")
                         .IsUnique();
@@ -442,6 +508,9 @@ namespace AcadPrep.Infrastructure.Migrations
                     b.Property<int>("AchievementId")
                         .HasColumnType("int");
 
+                    b.Property<bool>("IsNotified")
+                        .HasColumnType("bit");
+
                     b.Property<DateTime>("UnlockedAt")
                         .HasColumnType("datetime2");
 
@@ -454,11 +523,12 @@ namespace AcadPrep.Infrastructure.Migrations
 
             modelBuilder.Entity("Domain.Entities.VocabPassage", b =>
                 {
-                    b.Property<int>("VocabPassageId")
+                    b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
+                        .HasColumnType("int")
+                        .HasColumnName("VocabPassageId");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("VocabPassageId"));
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
                     b.Property<string>("Content")
                         .IsRequired()
@@ -467,7 +537,7 @@ namespace AcadPrep.Infrastructure.Migrations
                     b.Property<int>("VocabularyId")
                         .HasColumnType("int");
 
-                    b.HasKey("VocabPassageId");
+                    b.HasKey("Id");
 
                     b.HasIndex("VocabularyId");
 
@@ -476,11 +546,12 @@ namespace AcadPrep.Infrastructure.Migrations
 
             modelBuilder.Entity("Domain.Entities.Vocabulary", b =>
                 {
-                    b.Property<int>("VocabularyId")
+                    b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
+                        .HasColumnType("int")
+                        .HasColumnName("VocabularyId");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("VocabularyId"));
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
                     b.Property<DateTime>("CreatedAt")
                         .ValueGeneratedOnAdd()
@@ -489,6 +560,9 @@ namespace AcadPrep.Infrastructure.Migrations
 
                     b.Property<string>("Example")
                         .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime?>("LastModifiedAt")
+                        .HasColumnType("datetime2");
 
                     b.Property<string>("Meaning")
                         .IsRequired()
@@ -505,7 +579,7 @@ namespace AcadPrep.Infrastructure.Migrations
                         .HasMaxLength(100)
                         .HasColumnType("nvarchar(100)");
 
-                    b.HasKey("VocabularyId");
+                    b.HasKey("Id");
 
                     b.HasIndex("Word")
                         .IsUnique();
@@ -540,6 +614,17 @@ namespace AcadPrep.Infrastructure.Migrations
                         .OnDelete(DeleteBehavior.SetNull);
 
                     b.Navigation("User");
+                });
+
+            modelBuilder.Entity("Domain.Entities.Exam", b =>
+                {
+                    b.HasOne("Domain.Entities.ExamSeries", "ExamSeries")
+                        .WithMany("Exams")
+                        .HasForeignKey("ExamSeriesId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("ExamSeries");
                 });
 
             modelBuilder.Entity("Domain.Entities.ExamAttempt", b =>
@@ -693,6 +778,11 @@ namespace AcadPrep.Infrastructure.Migrations
             modelBuilder.Entity("Domain.Entities.ExamAttempt", b =>
                 {
                     b.Navigation("AttemptAnswers");
+                });
+
+            modelBuilder.Entity("Domain.Entities.ExamSeries", b =>
+                {
+                    b.Navigation("Exams");
                 });
 
             modelBuilder.Entity("Domain.Entities.Passage", b =>

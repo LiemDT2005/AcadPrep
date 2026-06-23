@@ -34,7 +34,7 @@ public class CreateVocabularyCommandHandler : IRequestHandler<CreateVocabularyCo
 
         _context.Vocabularies.Add(vocabulary);
         
-        // Save first to get the VocabularyId generated
+        // Save first to get the Id generated
         await _context.SaveChangesAsync(cancellationToken);
 
         // 2. Automatically generate context passage using AI
@@ -42,7 +42,7 @@ public class CreateVocabularyCommandHandler : IRequestHandler<CreateVocabularyCo
 
         var vocabPassage = new VocabPassage
         {
-            VocabularyId = vocabulary.VocabularyId,
+            VocabularyId = vocabulary.Id,
             Content = aiPassage
         };
 
@@ -52,7 +52,7 @@ public class CreateVocabularyCommandHandler : IRequestHandler<CreateVocabularyCo
         var savedVocab = new SavedVocabulary
         {
             UserId = request.UserId,
-            VocabularyId = vocabulary.VocabularyId,
+            VocabularyId = vocabulary.Id,
             Interval = 1,
             NextReviewDate = DateTime.UtcNow.Date.AddDays(1),
             DateSaved = DateTime.UtcNow
@@ -64,6 +64,6 @@ public class CreateVocabularyCommandHandler : IRequestHandler<CreateVocabularyCo
         // 4. Check for vocabulary-related achievements
         await _mediator.Send(new AcadPrep.Application.Features.Performance.Commands.CheckAndGrantAchievements.CheckAndGrantAchievementsCommand(request.UserId), cancellationToken);
 
-        return Result<int>.Success(vocabulary.VocabularyId);
+        return Result<int>.Success(vocabulary.Id);
     }
 }

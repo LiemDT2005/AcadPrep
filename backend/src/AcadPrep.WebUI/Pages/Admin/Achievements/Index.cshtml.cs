@@ -2,7 +2,8 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using AcadPrep.Application.Features.Admin.Queries.GetAchievements;
 using AcadPrep.Application.Features.Admin.Commands.DeleteAchievement;
-using Domain.Entities;
+using AcadPrep.Application.Common.Models;
+using AcadPrep.Application.Features.Admin.DTOs;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
@@ -18,11 +19,11 @@ public class IndexModel : PageModel
         _mediator = mediator;
     }
 
-    public List<Achievement> Achievements { get; set; } = new();
+    public PaginatedList<AchievementAdminDto>? Achievements { get; set; }
 
-    public async Task<IActionResult> OnGetAsync()
+    public async Task<IActionResult> OnGetAsync(int pageNumber = 1)
     {
-        var result = await _mediator.Send(new GetAchievementsQuery());
+        var result = await _mediator.Send(new GetAchievementsQuery { PageNumber = pageNumber, PageSize = 10 });
         if (result.IsSuccess && result.Data != null)
         {
             Achievements = result.Data;

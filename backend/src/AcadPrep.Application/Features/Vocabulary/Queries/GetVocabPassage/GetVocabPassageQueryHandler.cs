@@ -25,7 +25,7 @@ public class GetVocabPassageQueryHandler : IRequestHandler<GetVocabPassageQuery,
             .Where(p => p.VocabularyId == request.VocabularyId)
             .Select(p => new VocabPassageDto
             {
-                VocabPassageId = p.VocabPassageId,
+                VocabPassageId = p.Id,
                 VocabularyId = p.VocabularyId,
                 Content = p.Content
             })

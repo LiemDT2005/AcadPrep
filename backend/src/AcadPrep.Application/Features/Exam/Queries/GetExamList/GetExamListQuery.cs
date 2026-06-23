@@ -1,6 +1,4 @@
 using AcadPrep.Application.Common.Models;
-using Application.Common.Models;
-using Application.Features.Courses.Queries.Common.DTOs;
 using Application.Features.Exam.Queries.Common.DTOs;
 using MediatR;
 

@@ -31,7 +31,7 @@ public class LookupVocabularyQueryHandler : IRequestHandler<LookupVocabularyQuer
             .Where(v => v.Word.ToLower() == keyword)
             .Select(v => new VocabularyDetailDto
             {
-                VocabularyId = v.VocabularyId,
+                VocabularyId = v.Id,
                 Word = v.Word,
                 Phonetic = v.Phonetic,
                 Meaning = v.Meaning,

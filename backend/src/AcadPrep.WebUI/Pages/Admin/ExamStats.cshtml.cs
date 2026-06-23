@@ -1,5 +1,6 @@
-﻿using System.Collections.Generic;
+using System.Collections.Generic;
 using System.Threading.Tasks;
+using AcadPrep.Application.Common.Models;
 using AcadPrep.Application.Features.Admin.DTOs;
 using AcadPrep.Application.Features.Admin.Queries.GetExamStats;
 using MediatR;
@@ -17,11 +18,11 @@ public class ExamStatsModel : PageModel
         _mediator = mediator;
     }
 
-    public List<ExamStatsDto> Stats { get; set; } = new();
+    public PaginatedList<ExamStatsDto>? Stats { get; set; }
 
-    public async Task<IActionResult> OnGetAsync()
+    public async Task<IActionResult> OnGetAsync(int pageNumber = 1)
     {
-        Stats = (await _mediator.Send(new GetExamStatsQuery())).Data!;
+        Stats = (await _mediator.Send(new GetExamStatsQuery(pageNumber, 10))).Data;
         return Page();
     }
 }

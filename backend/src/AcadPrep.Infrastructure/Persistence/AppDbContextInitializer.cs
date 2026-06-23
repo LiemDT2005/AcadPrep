@@ -179,6 +179,7 @@ public class AppDbContextInitializer
         },
         new Exam
         {
+            Title = "YBM TOEIC Vol. 3 - Mock Test 2",
             Description = "A mock test based on the latest TOEIC exam format.",
             Duration = 120,
             ExamSeriesId = ybmSeries.Id

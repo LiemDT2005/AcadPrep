@@ -3,7 +3,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace AcadPrep.Application.Common.Models
 {
-    public class PaginatedList<T>
+    public class PaginatedList<T> : IReadOnlyCollection<T>
     {
         public IReadOnlyCollection<T> Items { get; }
         public int PageNumber { get; }
@@ -44,5 +44,9 @@ namespace AcadPrep.Application.Common.Models
 
             return new PaginatedList<T>(items, count, pageNumber, pageSize, true);
         }
+
+        public IEnumerator<T> GetEnumerator() => Items.GetEnumerator();
+        System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator() => Items.GetEnumerator();
+        public int Count => Items.Count;
     }
 }

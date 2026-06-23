@@ -7,9 +7,12 @@ using Domain.Entities;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 
+using AcadPrep.Application.Features.Admin.DTOs;
+using System.Linq;
+
 namespace AcadPrep.Application.Features.Admin.Queries.GetAchievements;
 
-public class GetAchievementsQueryHandler : IRequestHandler<GetAchievementsQuery, Result<List<Achievement>>>
+public class GetAchievementsQueryHandler : IRequestHandler<GetAchievementsQuery, Result<PaginatedList<AchievementAdminDto>>>
 {
     private readonly IAppDbContext _context;
 
@@ -18,12 +21,26 @@ public class GetAchievementsQueryHandler : IRequestHandler<GetAchievementsQuery,
         _context = context;
     }
 
-    public async Task<Result<List<Achievement>>> Handle(GetAchievementsQuery request, CancellationToken cancellationToken)
+    public async Task<Result<PaginatedList<AchievementAdminDto>>> Handle(GetAchievementsQuery request, CancellationToken cancellationToken)
     {
-        var achievements = await _context.Achievements
+        var query = _context.Achievements
             .AsNoTracking()
-            .ToListAsync(cancellationToken);
+            .Select(a => new AchievementAdminDto
+            {
+                AchievementId = a.AchievementId,
+                Name = a.Name,
+                Description = a.Description,
+                IconUrl = a.IconUrl,
+                ConditionType = a.ConditionType,
+                ConditionValue = a.ConditionValue
+            });
+            
+        var paginatedResult = await PaginatedList<AchievementAdminDto>.CreateAsync(
+            query,
+            request.PageNumber,
+            request.PageSize
+        );
         
-        return Result<List<Achievement>>.Success(achievements);
+        return Result<PaginatedList<AchievementAdminDto>>.Success(paginatedResult);
     }
 }

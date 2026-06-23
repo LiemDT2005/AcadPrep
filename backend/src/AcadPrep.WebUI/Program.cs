@@ -51,6 +51,7 @@ using (var scope = app.Services.CreateScope())
         var logger = services.GetRequiredService<ILogger<Program>>();
         logger.LogError(ex, "An error occurred seeding the DB.");
     }
+}
 if (app.Environment.IsDevelopment())
 {
     using var scope = app.Services.CreateScope();

@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using AcadPrep.Application.Common.Models;
 using Application.Common.Interfaces;
 using AcadPrep.Application.Features.Vocabulary.Queries.GetSavedVocabularies;
 using AcadPrep.Application.Features.Vocabulary.Commands.RateVocabulary;
@@ -22,9 +23,9 @@ public class ReviewModel : PageModel
         _currentUserService = currentUserService;
     }
 
-    public List<SavedVocabularyDto> DueFlashcards { get; set; } = new();
+    public PaginatedList<SavedVocabularyDto>? DueFlashcards { get; set; }
 
-    public async Task<IActionResult> OnGetAsync()
+    public async Task<IActionResult> OnGetAsync(int pageNumber = 1)
     {
         if (string.IsNullOrEmpty(_currentUserService.UserId) || !int.TryParse(_currentUserService.UserId, out int userId))
         {
@@ -32,7 +33,7 @@ public class ReviewModel : PageModel
             userId = 2;
         }
 
-        DueFlashcards = (await _mediator.Send(new GetReviewFlashcardsQuery(userId))).Data!;
+        DueFlashcards = (await _mediator.Send(new GetReviewFlashcardsQuery(userId, pageNumber, 10))).Data;
 
         return Page();
     }

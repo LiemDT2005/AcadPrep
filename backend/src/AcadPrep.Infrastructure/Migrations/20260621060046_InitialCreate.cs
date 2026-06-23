@@ -12,43 +12,39 @@ namespace AcadPrep.Infrastructure.Migrations
         protected override void Up(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.CreateTable(
-                name: "Courses",
+                name: "Achievements",
                 columns: table => new
                 {
-                    Id = table.Column<int>(type: "int", nullable: false)
+                    AchievementId = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
-                    Title = table.Column<string>(type: "nvarchar(200)", maxLength: 200, nullable: false),
-                    Description = table.Column<string>(type: "nvarchar(2000)", maxLength: 2000, nullable: false),
-                    Level = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: false),
-                    Price = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
-                    CreatedBy = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false),
-                    CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    LastModifiedAt = table.Column<DateTime>(type: "datetime2", nullable: true),
-                    LastModifiedBy = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: true),
-                    IsDeleted = table.Column<bool>(type: "bit", nullable: false),
-                    IsActive = table.Column<bool>(type: "bit", nullable: false)
+                    Name = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false),
+                    Description = table.Column<string>(type: "nvarchar(500)", maxLength: 500, nullable: false),
+                    IconUrl = table.Column<string>(type: "nvarchar(500)", maxLength: 500, nullable: true),
+                    ConditionType = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    ConditionValue = table.Column<int>(type: "int", nullable: false)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_Courses", x => x.Id);
+                    table.PrimaryKey("PK_Achievements", x => x.AchievementId);
                 });
 
             migrationBuilder.CreateTable(
-                name: "EXAMS",
+                name: "EXAM_SERIES",
                 columns: table => new
                 {
-                    ExamId = table.Column<int>(type: "int", nullable: false)
+                    ExamSeriesId = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
-                    Title = table.Column<string>(type: "nvarchar(255)", maxLength: 255, nullable: false),
+                    Name = table.Column<string>(type: "nvarchar(255)", maxLength: 255, nullable: false),
+                    Year = table.Column<int>(type: "int", nullable: false),
                     Description = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    Duration = table.Column<int>(type: "int", nullable: false),
+                    CoverImageUrl = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     IsDeleted = table.Column<bool>(type: "bit", nullable: false, defaultValue: false),
                     CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false, defaultValueSql: "GETDATE()"),
                     LastModifiedAt = table.Column<DateTime>(type: "datetime2", nullable: true)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_EXAMS", x => x.ExamId);
+                    table.PrimaryKey("PK_EXAM_SERIES", x => x.ExamSeriesId);
                 });
 
             migrationBuilder.CreateTable(
@@ -83,22 +79,27 @@ namespace AcadPrep.Infrastructure.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "PASSAGES",
+                name: "EXAMS",
                 columns: table => new
                 {
-                    PassageId = table.Column<int>(type: "int", nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
-                    Content = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     ExamId = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    Title = table.Column<string>(type: "nvarchar(255)", maxLength: 255, nullable: false),
+                    Description = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    Duration = table.Column<int>(type: "int", nullable: false),
+                    IsDeleted = table.Column<bool>(type: "bit", nullable: false, defaultValue: false),
+                    CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false, defaultValueSql: "GETDATE()"),
+                    LastModifiedAt = table.Column<DateTime>(type: "datetime2", nullable: true),
+                    ExamSeriesId = table.Column<int>(type: "int", nullable: false)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_PASSAGES", x => x.PassageId);
+                    table.PrimaryKey("PK_EXAMS", x => x.ExamId);
                     table.ForeignKey(
-                        name: "FK_PASSAGES_EXAMS_ExamId",
-                        column: x => x.ExamId,
-                        principalTable: "EXAMS",
-                        principalColumn: "ExamId",
+                        name: "FK_EXAMS_EXAM_SERIES_ExamSeriesId",
+                        column: x => x.ExamSeriesId,
+                        principalTable: "EXAM_SERIES",
+                        principalColumn: "ExamSeriesId",
                         onDelete: ReferentialAction.Cascade);
                 });
 
@@ -149,36 +150,23 @@ namespace AcadPrep.Infrastructure.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "QUESTIONS",
+                name: "PASSAGES",
                 columns: table => new
                 {
-                    QuestionId = table.Column<int>(type: "int", nullable: false)
+                    PassageId = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
-                    QuestionNumber = table.Column<int>(type: "int", nullable: false),
-                    Part = table.Column<int>(type: "int", nullable: false),
-                    QuestionText = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    AudioUrl = table.Column<string>(type: "varchar(500)", unicode: false, maxLength: 500, nullable: true),
-                    CorrectOption = table.Column<string>(type: "varchar(1)", unicode: false, maxLength: 1, nullable: false),
-                    ExamId = table.Column<int>(type: "int", nullable: false),
-                    PassageId = table.Column<int>(type: "int", nullable: true)
+                    Content = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    ExamId = table.Column<int>(type: "int", nullable: false)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_QUESTIONS", x => x.QuestionId);
-                    table.CheckConstraint("CHK_CorrectOption", "[CorrectOption] IN ('A', 'B', 'C', 'D')");
-                    table.CheckConstraint("CHK_QuestionPart", "[Part] BETWEEN 1 AND 7");
+                    table.PrimaryKey("PK_PASSAGES", x => x.PassageId);
                     table.ForeignKey(
-                        name: "FK_QUESTIONS_EXAMS_ExamId",
+                        name: "FK_PASSAGES_EXAMS_ExamId",
                         column: x => x.ExamId,
                         principalTable: "EXAMS",
                         principalColumn: "ExamId",
-                        onDelete: ReferentialAction.Restrict);
-                    table.ForeignKey(
-                        name: "FK_QUESTIONS_PASSAGES_PassageId",
-                        column: x => x.PassageId,
-                        principalTable: "PASSAGES",
-                        principalColumn: "PassageId",
-                        onDelete: ReferentialAction.Restrict);
+                        onDelete: ReferentialAction.Cascade);
                 });
 
             migrationBuilder.CreateTable(
@@ -243,6 +231,7 @@ namespace AcadPrep.Infrastructure.Migrations
                     UserId = table.Column<int>(type: "int", nullable: false),
                     VocabularyId = table.Column<int>(type: "int", nullable: false),
                     Interval = table.Column<int>(type: "int", nullable: false, defaultValue: 1),
+                    NextReviewDate = table.Column<DateTime>(type: "datetime2", nullable: false),
                     DateSaved = table.Column<DateTime>(type: "datetime2", nullable: false, defaultValueSql: "GETDATE()")
                 },
                 constraints: table =>
@@ -269,7 +258,8 @@ namespace AcadPrep.Infrastructure.Migrations
                     UserId = table.Column<int>(type: "int", nullable: false),
                     CurrentStreak = table.Column<int>(type: "int", nullable: false, defaultValue: 0),
                     MaxStreak = table.Column<int>(type: "int", nullable: false, defaultValue: 0),
-                    LastActiveDate = table.Column<DateOnly>(type: "date", nullable: false)
+                    LastActiveDate = table.Column<DateOnly>(type: "date", nullable: false),
+                    UserId1 = table.Column<int>(type: "int", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -280,28 +270,70 @@ namespace AcadPrep.Infrastructure.Migrations
                         principalTable: "USERS",
                         principalColumn: "UserId",
                         onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_STUDY_STREAKS_USERS_UserId1",
+                        column: x => x.UserId1,
+                        principalTable: "USERS",
+                        principalColumn: "UserId");
                 });
 
             migrationBuilder.CreateTable(
-                name: "QUESTION_OPTIONS",
+                name: "UserAchievements",
                 columns: table => new
                 {
-                    OptionId = table.Column<int>(type: "int", nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
-                    QuestionId = table.Column<int>(type: "int", nullable: false),
-                    OptionLetter = table.Column<string>(type: "varchar(1)", unicode: false, maxLength: 1, nullable: false),
-                    OptionText = table.Column<string>(type: "nvarchar(max)", nullable: false)
+                    UserId = table.Column<int>(type: "int", nullable: false),
+                    AchievementId = table.Column<int>(type: "int", nullable: false),
+                    UnlockedAt = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    IsNotified = table.Column<bool>(type: "bit", nullable: false)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_QUESTION_OPTIONS", x => x.OptionId);
-                    table.CheckConstraint("CHK_OptionLetter", "[OptionLetter] IN ('A', 'B', 'C', 'D')");
+                    table.PrimaryKey("PK_UserAchievements", x => new { x.UserId, x.AchievementId });
                     table.ForeignKey(
-                        name: "FK_QUESTION_OPTIONS_QUESTIONS_QuestionId",
-                        column: x => x.QuestionId,
-                        principalTable: "QUESTIONS",
-                        principalColumn: "QuestionId",
+                        name: "FK_UserAchievements_Achievements_AchievementId",
+                        column: x => x.AchievementId,
+                        principalTable: "Achievements",
+                        principalColumn: "AchievementId",
                         onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_UserAchievements_USERS_UserId",
+                        column: x => x.UserId,
+                        principalTable: "USERS",
+                        principalColumn: "UserId",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "QUESTIONS",
+                columns: table => new
+                {
+                    QuestionId = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    QuestionNumber = table.Column<int>(type: "int", nullable: false),
+                    Part = table.Column<int>(type: "int", nullable: false),
+                    QuestionText = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    AudioUrl = table.Column<string>(type: "varchar(500)", unicode: false, maxLength: 500, nullable: true),
+                    CorrectOption = table.Column<string>(type: "varchar(1)", unicode: false, maxLength: 1, nullable: false),
+                    ExamId = table.Column<int>(type: "int", nullable: false),
+                    PassageId = table.Column<int>(type: "int", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_QUESTIONS", x => x.QuestionId);
+                    table.CheckConstraint("CHK_CorrectOption", "[CorrectOption] IN ('A', 'B', 'C', 'D')");
+                    table.CheckConstraint("CHK_QuestionPart", "[Part] BETWEEN 1 AND 7");
+                    table.ForeignKey(
+                        name: "FK_QUESTIONS_EXAMS_ExamId",
+                        column: x => x.ExamId,
+                        principalTable: "EXAMS",
+                        principalColumn: "ExamId",
+                        onDelete: ReferentialAction.Restrict);
+                    table.ForeignKey(
+                        name: "FK_QUESTIONS_PASSAGES_PassageId",
+                        column: x => x.PassageId,
+                        principalTable: "PASSAGES",
+                        principalColumn: "PassageId",
+                        onDelete: ReferentialAction.Restrict);
                 });
 
             migrationBuilder.CreateTable(
@@ -331,6 +363,28 @@ namespace AcadPrep.Infrastructure.Migrations
                         onDelete: ReferentialAction.Restrict);
                 });
 
+            migrationBuilder.CreateTable(
+                name: "QUESTION_OPTIONS",
+                columns: table => new
+                {
+                    OptionId = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    QuestionId = table.Column<int>(type: "int", nullable: false),
+                    OptionLetter = table.Column<string>(type: "varchar(1)", unicode: false, maxLength: 1, nullable: false),
+                    OptionText = table.Column<string>(type: "nvarchar(max)", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_QUESTION_OPTIONS", x => x.OptionId);
+                    table.CheckConstraint("CHK_OptionLetter", "[OptionLetter] IN ('A', 'B', 'C', 'D')");
+                    table.ForeignKey(
+                        name: "FK_QUESTION_OPTIONS_QUESTIONS_QuestionId",
+                        column: x => x.QuestionId,
+                        principalTable: "QUESTIONS",
+                        principalColumn: "QuestionId",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
             migrationBuilder.CreateIndex(
                 name: "IX_ATTEMPT_ANSWERS_QuestionId",
                 table: "ATTEMPT_ANSWERS",
@@ -350,6 +404,11 @@ namespace AcadPrep.Infrastructure.Migrations
                 name: "IX_EXAM_ATTEMPTS_UserId",
                 table: "EXAM_ATTEMPTS",
                 column: "UserId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_EXAMS_ExamSeriesId",
+                table: "EXAMS",
+                column: "ExamSeriesId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_PASSAGES_ExamId",
@@ -381,6 +440,16 @@ namespace AcadPrep.Infrastructure.Migrations
                 name: "IX_SAVED_VOCABULARIES_VocabularyId",
                 table: "SAVED_VOCABULARIES",
                 column: "VocabularyId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_STUDY_STREAKS_UserId1",
+                table: "STUDY_STREAKS",
+                column: "UserId1");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_UserAchievements_AchievementId",
+                table: "UserAchievements",
+                column: "AchievementId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_USERS_Email",
@@ -415,9 +484,6 @@ namespace AcadPrep.Infrastructure.Migrations
                 name: "AUDITLOGS");
 
             migrationBuilder.DropTable(
-                name: "Courses");
-
-            migrationBuilder.DropTable(
                 name: "QUESTION_OPTIONS");
 
             migrationBuilder.DropTable(
@@ -427,6 +493,9 @@ namespace AcadPrep.Infrastructure.Migrations
                 name: "STUDY_STREAKS");
 
             migrationBuilder.DropTable(
+                name: "UserAchievements");
+
+            migrationBuilder.DropTable(
                 name: "VOCAB_PASSAGES");
 
             migrationBuilder.DropTable(
@@ -434,6 +503,9 @@ namespace AcadPrep.Infrastructure.Migrations
 
             migrationBuilder.DropTable(
                 name: "QUESTIONS");
+
+            migrationBuilder.DropTable(
+                name: "Achievements");
 
             migrationBuilder.DropTable(
                 name: "VOCABULARIES");
@@ -449,6 +521,9 @@ namespace AcadPrep.Infrastructure.Migrations
 
             migrationBuilder.DropTable(
                 name: "EXAMS");
+
+            migrationBuilder.DropTable(
+                name: "EXAM_SERIES");
         }
     }
 }

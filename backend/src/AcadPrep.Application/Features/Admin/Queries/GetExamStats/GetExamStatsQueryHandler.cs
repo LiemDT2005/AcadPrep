@@ -1,4 +1,4 @@
-﻿using AcadPrep.Application.Common.Models;
+using AcadPrep.Application.Common.Models;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
@@ -10,7 +10,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace AcadPrep.Application.Features.Admin.Queries.GetExamStats;
 
-public class GetExamStatsQueryHandler : IRequestHandler<GetExamStatsQuery, Result<List<ExamStatsDto>>>
+public class GetExamStatsQueryHandler : IRequestHandler<GetExamStatsQuery, Result<PaginatedList<ExamStatsDto>>>
 {
     private readonly IAppDbContext _context;
 
@@ -19,9 +19,9 @@ public class GetExamStatsQueryHandler : IRequestHandler<GetExamStatsQuery, Resul
         _context = context;
     }
 
-    public async Task<Result<List<ExamStatsDto>>> Handle(GetExamStatsQuery request, CancellationToken cancellationToken)
+    public async Task<Result<PaginatedList<ExamStatsDto>>> Handle(GetExamStatsQuery request, CancellationToken cancellationToken)
     {
-        var groupedStats = await _context.ExamAttempts
+        var groupedStatsQuery = _context.ExamAttempts
             .Include(ea => ea.Exam)
             .GroupBy(ea => new { ea.ExamId, ea.Exam.Title })
             .Select(g => new ExamStatsDto
@@ -33,9 +33,15 @@ public class GetExamStatsQueryHandler : IRequestHandler<GetExamStatsQuery, Resul
                 HighestScore = g.Max(ea => ea.TotalScore),
                 LowestScore = g.Min(ea => ea.TotalScore)
             })
-            .ToListAsync(cancellationToken);
+            .OrderByDescending(s => s.TotalAttempts);
 
-        return groupedStats.OrderByDescending(s => s.TotalAttempts).ToList();
+        var paginatedResult = await PaginatedList<ExamStatsDto>.CreateAsync(
+            groupedStatsQuery,
+            request.PageNumber,
+            request.PageSize
+        );
+
+        return Result<PaginatedList<ExamStatsDto>>.Success(paginatedResult);
     }
 }
 

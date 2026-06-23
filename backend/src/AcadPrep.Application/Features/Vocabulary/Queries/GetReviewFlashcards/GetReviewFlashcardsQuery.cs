@@ -5,5 +5,5 @@ using AcadPrep.Application.Features.Vocabulary.Queries.GetSavedVocabularies;
 
 namespace AcadPrep.Application.Features.Vocabulary.Queries.GetReviewFlashcards;
 
-public record GetReviewFlashcardsQuery(int UserId) : IRequest<Result<List<SavedVocabularyDto>>>;
+public record GetReviewFlashcardsQuery(int UserId, int PageNumber = 1, int PageSize = 50) : IRequest<Result<PaginatedList<SavedVocabularyDto>>>;
 
