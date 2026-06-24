@@ -20,7 +20,11 @@ public class DashboardModel : PageModel
 
     public async Task<IActionResult> OnGetAsync()
     {
-        Stats = await _mediator.Send(new GetUserStatsQuery());
+        var result = await _mediator.Send(new GetUserStatsQuery());
+        if (result.IsSuccess && result.Data != null)
+        {
+            Stats = result.Data;
+        }
         return Page();
     }
 }

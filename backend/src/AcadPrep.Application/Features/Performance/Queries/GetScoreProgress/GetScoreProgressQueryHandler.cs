@@ -1,3 +1,4 @@
+﻿using AcadPrep.Application.Common.Models;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -7,7 +8,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace AcadPrep.Application.Features.Performance.Queries.GetScoreProgress;
 
-public class GetScoreProgressQueryHandler : IRequestHandler<GetScoreProgressQuery, ScoreProgressResultDto>
+public class GetScoreProgressQueryHandler : IRequestHandler<GetScoreProgressQuery, Result<ScoreProgressResultDto>>
 {
     private readonly IAppDbContext _context;
 
@@ -16,7 +17,7 @@ public class GetScoreProgressQueryHandler : IRequestHandler<GetScoreProgressQuer
         _context = context;
     }
 
-    public async Task<ScoreProgressResultDto> Handle(GetScoreProgressQuery request, CancellationToken cancellationToken)
+    public async Task<Result<ScoreProgressResultDto>> Handle(GetScoreProgressQuery request, CancellationToken cancellationToken)
     {
         var attempts = await _context.ExamAttempts
             .AsNoTracking()
@@ -34,7 +35,7 @@ public class GetScoreProgressQueryHandler : IRequestHandler<GetScoreProgressQuer
             return new ScoreProgressResultDto
             {
                 HasSufficientData = false,
-                Message = "Cần làm tối thiểu 2 bài thi để theo dõi tiến độ cải thiện điểm số (Take more tests to track progress)"
+                Message = "Cáº§n lÃ m tá»‘i thiá»ƒu 2 bÃ i thi Ä‘á»ƒ theo dÃµi tiáº¿n Ä‘á»™ cáº£i thiá»‡n Ä‘iá»ƒm sá»‘ (Take more tests to track progress)"
             };
         }
 
@@ -45,3 +46,4 @@ public class GetScoreProgressQueryHandler : IRequestHandler<GetScoreProgressQuer
         };
     }
 }
+

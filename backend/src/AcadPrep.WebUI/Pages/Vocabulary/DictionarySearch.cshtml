@@ -1,0 +1,54 @@
+@page
+@model AcadPrep.WebUI.Pages.Vocabulary.DictionarySearchModel
+@{
+    ViewData["Title"] = "Dictionary Search";
+}
+
+<div class="container mt-5">
+    <h2>Dictionary Search</h2>
+    
+    <form method="get" class="mb-4 form-inline">
+        <div class="input-group">
+            <input type="text" class="form-control" name="Keyword" value="@Model.Keyword" placeholder="Enter word to look up..." required />
+            <div class="input-group-append">
+                <button type="submit" class="btn btn-primary">Search</button>
+            </div>
+        </div>
+    </form>
+
+    @if (Model.HasSearched)
+    {
+        if (Model.Vocabulary == null)
+        {
+            <div class="alert alert-warning">
+                <h4>Word not found in database</h4>
+                <p>We couldn't find a definition for "@Model.Keyword".</p>
+            </div>
+        }
+        else
+        {
+            <div class="card mb-3">
+                <div class="card-body">
+                    <h1 class="display-4">@Model.Vocabulary.Word</h1>
+                    @if (!string.IsNullOrEmpty(Model.Vocabulary.Phonetic))
+                    {
+                        <h4 class="text-secondary">@Model.Vocabulary.Phonetic</h4>
+                    }
+                    <hr />
+                    <h5>Definition:</h5>
+                    <p class="lead">@Model.Vocabulary.Meaning</p>
+
+                    @if (!string.IsNullOrEmpty(Model.Vocabulary.Example))
+                    {
+                        <h5 class="mt-3">Example:</h5>
+                        <p class="font-italic">"@Model.Vocabulary.Example"</p>
+                    }
+
+                    <div class="mt-4">
+                        <a asp-page="./VocabularyDetail" asp-route-vocabularyId="@Model.Vocabulary.VocabularyId" class="btn btn-info">View context passage</a>
+                    </div>
+                </div>
+            </div>
+        }
+    }
+</div>

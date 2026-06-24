@@ -1,0 +1,308 @@
+<!DOCTYPE html><html class="light" lang="en" style=""><head>
+<meta charset="utf-8">
+<meta content="width=device-width, initial-scale=1.0" name="viewport">
+<title>AcadPrep - Manage Achievements</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            "colors": {
+                    "surface-tint": "#4d44e3",
+                    "on-surface-variant": "#464555",
+                    "surface-container-lowest": "#ffffff",
+                    "outline": "#777587",
+                    "on-error-container": "#93000a",
+                    "primary-fixed-dim": "#c3c0ff",
+                    "on-error": "#ffffff",
+                    "on-primary-fixed-variant": "#3323cc",
+                    "on-secondary-fixed": "#341100",
+                    "primary": "#1e00a9",
+                    "surface-container-low": "#f5f2ff",
+                    "on-tertiary-fixed-variant": "#005237",
+                    "tertiary-fixed-dim": "#8fd5b2",
+                    "on-tertiary-fixed": "#002114",
+                    "tertiary-fixed": "#abf2cd",
+                    "on-tertiary": "#ffffff",
+                    "on-secondary": "#ffffff",
+                    "surface-bright": "#fcf8ff",
+                    "primary-fixed": "#e2dfff",
+                    "surface-variant": "#e4e1ee",
+                    "on-primary-fixed": "#0f0069",
+                    "error": "#ba1a1a",
+                    "on-background": "#1b1b24",
+                    "surface-container-highest": "#e4e1ee",
+                    "on-secondary-fixed-variant": "#783200",
+                    "primary-container": "#3525cd",
+                    "surface-container": "#e7eefe",
+                    "outline-variant": "#c7c4d8",
+                    "background": "#fcf8ff",
+                    "secondary-fixed-dim": "#ffb690",
+                    "surface-container-high": "#eae6f4",
+                    "surface-dim": "#dcd8e5",
+                    "secondary-fixed": "#ffdbca",
+                    "secondary": "#9d4300",
+                    "surface": "#f9f9ff",
+                    "on-tertiary-container": "#80c5a3",
+                    "on-surface": "#1b1b24",
+                    "on-secondary-container": "#6c2c00",
+                    "tertiary": "#005338",
+                    "inverse-on-surface": "#f3effc",
+                    "on-primary": "#ffffff",
+                    "inverse-primary": "#c3c0ff",
+                    "on-primary-container": "#b1afff",
+                    "inverse-surface": "#302f39",
+                    "secondary-container": "#ff8d4b",
+                    "tertiary-container": "#005338",
+                    "error-container": "#ffdad6"
+            },
+            "borderRadius": {
+                    "DEFAULT": "0.25rem",
+                    "lg": "0.5rem",
+                    "xl": "0.75rem",
+                    "full": "9999px"
+            },
+            "spacing": {
+                    "gutter": "24px",
+                    "2xl": "48px",
+                    "unit": "4px",
+                    "xs": "4px",
+                    "margin-mobile": "16px",
+                    "md": "16px",
+                    "lg": "24px",
+                    "margin-desktop": "40px",
+                    "base_unit": "4px",
+                    "xl": "32px",
+                    "sm": "8px",
+                    "3xl": "64px"
+            },
+            "fontFamily": {
+                    "label-md": ["Inter"],
+                    "body-lg": ["Inter"],
+                    "headline-md": ["Inter"],
+                    "body-md": ["Inter"],
+                    "headline-lg-mobile": ["Inter"],
+                    "body-sm": ["Inter"],
+                    "headline-sm": ["Inter"],
+                    "display-lg": ["Inter"],
+                    "headline-lg": ["Inter"],
+                    "label-sm": ["Inter"]
+            },
+            "fontSize": {
+                    "label-md": ["14px", {"lineHeight": "20px", "letterSpacing": "0.01em", "fontWeight": "500"}],
+                    "body-lg": ["18px", {"lineHeight": "28px", "fontWeight": "400"}],
+                    "headline-md": ["24px", {"lineHeight": "32px", "fontWeight": "600"}],
+                    "body-md": ["16px", {"lineHeight": "24px", "fontWeight": "400"}],
+                    "headline-lg-mobile": ["28px", {"lineHeight": "36px", "letterSpacing": "-0.01em", "fontWeight": "700"}],
+                    "body-sm": ["14px", {"lineHeight": "20px", "fontWeight": "400"}],
+                    "headline-sm": ["20px", {"lineHeight": "28px", "fontWeight": "600"}],
+                    "display-lg": ["48px", {"lineHeight": "56px", "letterSpacing": "-0.02em", "fontWeight": "700"}],
+                    "headline-lg": ["32px", {"lineHeight": "40px", "letterSpacing": "-0.01em", "fontWeight": "700"}],
+                    "label-sm": ["12px", {"lineHeight": "16px", "fontWeight": "600"}]
+            }
+          }
+        }
+      }
+    </script>
+<style>
+        body { font-family: 'Inter', sans-serif; }
+    </style>
+</head>
+<body class="bg-surface text-on-surface h-screen flex overflow-hidden">
+<!-- SideNavBar -->
+<nav class="hidden md:flex flex-col h-screen overflow-y-auto bg-inverse-surface dark:bg-inverse-surface text-surface-variant dark:text-outline-variant fixed left-0 top-0 h-full w-[260px] z-50">
+<div class="p-lg flex items-center gap-md">
+<div class="w-10 h-10 rounded-full bg-primary-fixed flex items-center justify-center text-on-primary-fixed font-headline-sm">A</div>
+<div>
+<h1 class="font-headline-md text-headline-md font-bold text-inverse-on-surface">AcadPrep</h1>
+<p class="font-body-sm text-body-sm text-surface-variant">Admin Dashboard</p>
+</div>
+</div>
+<div class="px-md pb-md">
+<button class="w-full flex items-center justify-center gap-sm bg-primary text-on-primary rounded-lg py-sm px-md font-label-md hover:bg-primary-container transition-colors duration-200 ease-in-out">
+<span class="material-symbols-outlined text-[20px]">add</span>
+                Add New Content
+            </button>
+</div>
+<ul class="flex-1 flex flex-col gap-xs px-md py-sm">
+<li class=""><a class="flex items-center gap-md px-md py-sm rounded-lg hover:bg-surface-variant hover:text-on-surface-variant transition-colors duration-200 ease-in-out font-label-md text-label-md" href="#"><span class="material-symbols-outlined">dashboard</span> Overview</a></li>
+<li class=""><a class="flex items-center gap-md px-md py-sm rounded-lg hover:bg-surface-variant hover:text-on-surface-variant transition-colors duration-200 ease-in-out font-label-md text-label-md" href="#"><span class="material-symbols-outlined">assignment</span> Exams</a></li>
+<li class=""><a class="flex items-center gap-md px-md py-sm rounded-lg hover:bg-surface-variant hover:text-on-surface-variant transition-colors duration-200 ease-in-out font-label-md text-label-md" href="#"><span class="material-symbols-outlined">quiz</span> Question Bank</a></li>
+<li class=""><a class="flex items-center gap-md px-md py-sm rounded-lg hover:bg-surface-variant hover:text-on-surface-variant transition-colors duration-200 ease-in-out font-label-md text-label-md" href="#"><span class="material-symbols-outlined">menu_book</span> Reading Passages</a></li>
+<li class=""><a class="flex items-center gap-md px-md py-sm rounded-lg hover:bg-surface-variant hover:text-on-surface-variant transition-colors duration-200 ease-in-out font-label-md text-label-md" href="#"><span class="material-symbols-outlined">group</span> All Accounts</a></li>
+<li class=""><a class="flex items-center gap-md px-md py-sm rounded-lg hover:bg-surface-variant hover:text-on-surface-variant transition-colors duration-200 ease-in-out font-label-md text-label-md" href="#"><span class="material-symbols-outlined">security</span> Roles &amp; Permissions</a></li>
+<li class=""><a class="flex items-center gap-md px-md py-sm rounded-lg bg-primary-fixed text-on-primary-fixed-variant border-l-4 border-primary-fixed-dim transition-colors duration-200 ease-in-out font-label-md text-label-md" href="#"><span class="material-symbols-outlined">analytics</span> Reports &amp; Analytics</a></li>
+<li class=""><a class="flex items-center gap-md px-md py-sm rounded-lg hover:bg-surface-variant hover:text-on-surface-variant transition-colors duration-200 ease-in-out font-label-md text-label-md" href="#"><span class="material-symbols-outlined">notifications</span> Notifications</a></li>
+<li class=""><a class="flex items-center gap-md px-md py-sm rounded-lg hover:bg-surface-variant hover:text-on-surface-variant transition-colors duration-200 ease-in-out font-label-md text-label-md" href="#"><span class="material-symbols-outlined">settings</span> Settings</a></li>
+</ul>
+<div class="p-md mt-auto">
+<a class="flex items-center gap-md px-md py-sm rounded-lg hover:bg-surface-variant hover:text-on-surface-variant transition-colors duration-200 ease-in-out font-label-md text-label-md" href="#"><span class="material-symbols-outlined">logout</span> Logout</a>
+</div>
+</nav>
+<!-- Main Content Area -->
+<main class="flex-1 ml-0 md:ml-[260px] flex flex-col overflow-y-auto h-screen bg-background">
+<!-- TopAppBar equivalent for spacing/header -->
+<header class="h-16 flex items-center justify-between px-lg border-b border-outline-variant bg-surface-container-lowest sticky top-0 z-40">
+<h2 class="font-headline-sm text-headline-sm font-bold text-on-surface">Manage Achievements</h2>
+<div class="flex items-center gap-md">
+<button class="w-8 h-8 flex items-center justify-center text-on-surface-variant hover:bg-surface-container-low rounded-full transition-colors"><span class="material-symbols-outlined">help</span></button>
+<div class="h-8 w-8 rounded-full bg-primary-fixed flex items-center justify-center text-on-primary-fixed font-label-sm">Admin</div>
+</div>
+</header>
+<div class="p-lg md:p-margin-desktop flex-1">
+<div class="mb-xl flex flex-col md:flex-row md:items-center justify-between gap-md">
+<div>
+<h3 class="font-headline-md text-headline-md text-on-surface mb-xs">Achievement Badges</h3>
+<p class="font-body-sm text-body-sm text-on-surface-variant">Manage the gamification badges and unlock criteria for students.</p>
+</div>
+<button class="bg-primary text-on-primary font-label-md text-label-md px-md py-sm rounded-lg flex items-center gap-xs hover:bg-primary-container transition-colors shadow-sm">
+<span class="material-symbols-outlined text-[18px]">add_circle</span>
+                    Create New Badge
+                </button>
+</div>
+<!-- Main Data Table Card -->
+<div class="bg-surface-container-lowest rounded-xl shadow-sm border border-outline-variant overflow-hidden">
+<!-- Table Header/Toolbar -->
+<div class="p-md border-b border-outline-variant bg-surface-container-low flex items-center justify-between">
+<div class="relative w-64">
+<span class="material-symbols-outlined absolute left-sm top-1/2 -translate-y-1/2 text-on-surface-variant text-[18px]">search</span>
+<input class="w-full pl-xl pr-sm py-sm rounded-lg border border-outline-variant bg-surface-container-lowest text-body-sm focus:border-primary focus:ring-1 focus:ring-primary outline-none transition-all" placeholder="Search achievements..." type="text">
+</div>
+<button class="text-on-surface-variant hover:text-on-surface flex items-center gap-xs font-label-md text-label-md">
+<span class="material-symbols-outlined text-[18px]">filter_list</span> Filter
+                     </button>
+</div>
+<div class="overflow-x-auto">
+<table class="w-full text-left border-collapse">
+<thead>
+<tr class="bg-surface-bright border-b border-outline-variant">
+<th class="p-md font-label-sm text-label-sm text-on-surface-variant font-semibold w-16 text-center">Icon</th>
+<th class="p-md font-label-sm text-label-sm text-on-surface-variant font-semibold w-1/4">Name</th>
+<th class="p-md font-label-sm text-label-sm text-on-surface-variant font-semibold hidden lg:table-cell w-1/3">Description</th>
+<th class="p-md font-label-sm text-label-sm text-on-surface-variant font-semibold w-fit whitespace-nowrap">Unlock Condition</th>
+<th class="p-md font-label-sm text-label-sm text-on-surface-variant font-semibold w-32 text-right">Actions</th>
+</tr>
+</thead>
+<tbody class="divide-y divide-outline-variant">
+<!-- Row 1 -->
+<tr class="hover:bg-surface-container-low transition-colors group">
+<td class="p-md text-center">
+<div class="w-10 h-10 rounded-full bg-secondary-fixed mx-auto flex items-center justify-center text-on-secondary-fixed">
+<span class="material-symbols-outlined text-[20px]" style="font-variation-settings: 'FILL' 1;">emoji_events</span>
+</div>
+</td>
+<td class="p-md">
+<div class="font-label-md text-label-md text-on-surface font-semibold">Perfect Score</div>
+<div class="font-body-sm text-body-sm text-on-surface-variant lg:hidden">Score 100% on any practice exam.</div>
+</td>
+<td class="p-md hidden lg:table-cell max-w-[300px]">
+<p class="font-body-sm text-body-sm text-on-surface-variant">Awarded for achieving a flawless 100% score on a full-length practice exam.</p>
+</td>
+<td class="p-md whitespace-nowrap"><div class="flex items-center gap-sm bg-surface-container-high px-md py-sm rounded-full w-fit border border-outline-variant whitespace-nowrap">
+<span class="material-symbols-outlined text-[18px] text-primary">military_tech</span>
+<div class="flex flex-col">
+<span class="text-label-sm font-bold text-on-surface-variant uppercase tracking-wider">Exam Score</span>
+<span class="text-body-sm font-semibold text-on-surface">100% Required</span>
+</div>
+</div></td>
+<td class="p-md text-right">
+<div class="flex items-center justify-end gap-sm transition-opacity">
+<button class="flex items-center gap-xs px-md py-sm rounded-lg bg-surface-variant text-on-surface-variant hover:bg-surface-container-high transition-colors font-label-sm" title="Edit"><span class="material-symbols-outlined text-[18px]">edit</span> Edit</button>
+<button class="w-8 h-8 rounded-lg text-error hover:bg-error-container border border-transparent hover:border-error flex items-center justify-center transition-colors" title="Delete">
+<span class="material-symbols-outlined text-[18px]">delete</span>
+</button>
+</div>
+</td>
+</tr>
+<!-- Row 2 -->
+<tr class="hover:bg-surface-container-low transition-colors group">
+<td class="p-md text-center">
+<div class="w-10 h-10 rounded-full bg-tertiary-fixed mx-auto flex items-center justify-center text-on-tertiary-fixed">
+<span class="material-symbols-outlined text-[20px]" style="font-variation-settings: 'FILL' 1;">local_fire_department</span>
+</div>
+</td>
+<td class="p-md">
+<div class="font-label-md text-label-md text-on-surface font-semibold">7-Day Streak</div>
+<div class="font-body-sm text-body-sm text-on-surface-variant lg:hidden">Log in and study 7 days in a row.</div>
+</td>
+<td class="p-md hidden lg:table-cell max-w-[300px]">
+<p class="font-body-sm text-body-sm text-on-surface-variant">Consistently logging in and completing at least one study module for 7 consecutive days.</p>
+</td>
+<td class="p-md whitespace-nowrap"><div class="flex items-center gap-sm bg-surface-container-high px-md py-sm rounded-full w-fit border border-outline-variant whitespace-nowrap">
+<span class="material-symbols-outlined text-[18px] text-tertiary">calendar_today</span>
+<div class="flex flex-col">
+<span class="text-label-sm font-bold text-on-surface-variant uppercase tracking-wider">Daily Activity</span>
+<span class="text-body-sm font-semibold text-on-surface">7 Day Streak</span>
+</div>
+</div></td>
+<td class="p-md text-right">
+<div class="flex items-center justify-end gap-sm transition-opacity">
+<button class="flex items-center gap-xs px-md py-sm rounded-lg bg-surface-variant text-on-surface-variant hover:bg-surface-container-high transition-colors font-label-sm" title="Edit"><span class="material-symbols-outlined text-[18px]">edit</span> Edit</button>
+<button class="w-8 h-8 rounded-lg text-error hover:bg-error-container border border-transparent hover:border-error flex items-center justify-center transition-colors" title="Delete">
+<span class="material-symbols-outlined text-[18px]">delete</span>
+</button>
+</div>
+</td>
+</tr>
+<!-- Row 3 -->
+<tr class="hover:bg-surface-container-low transition-colors group">
+<td class="p-md text-center">
+<div class="w-10 h-10 rounded-full bg-primary-fixed-dim mx-auto flex items-center justify-center text-primary">
+<span class="material-symbols-outlined text-[20px]" style="font-variation-settings: 'FILL' 1;">speed</span>
+</div>
+</td>
+<td class="p-md">
+<div class="font-label-md text-label-md text-on-surface font-semibold">Speed Reader</div>
+<div class="font-body-sm text-body-sm text-on-surface-variant lg:hidden">Finish reading passage under 3m.</div>
+</td>
+<td class="p-md hidden lg:table-cell max-w-[300px]">
+<p class="font-body-sm text-body-sm text-on-surface-variant">Complete a reading comprehension passage in under 3 minutes with &gt;80% accuracy.</p>
+</td>
+<td class="p-md whitespace-nowrap"><div class="flex items-center gap-sm bg-surface-container-high px-md py-sm rounded-full w-fit border border-outline-variant whitespace-nowrap">
+<span class="material-symbols-outlined text-[18px] text-secondary">timer</span>
+<div class="flex flex-col">
+<span class="text-label-sm font-bold text-on-surface-variant uppercase tracking-wider">Module Time</span>
+<span class="text-body-sm font-semibold text-on-surface">&lt; 180s &amp; 80%+ Acc</span>
+</div>
+</div></td>
+<td class="p-md text-right">
+<div class="flex items-center justify-end gap-sm transition-opacity">
+<button class="flex items-center gap-xs px-md py-sm rounded-lg bg-surface-variant text-on-surface-variant hover:bg-surface-container-high transition-colors font-label-sm" title="Edit"><span class="material-symbols-outlined text-[18px]">edit</span> Edit</button>
+<button class="w-8 h-8 rounded-lg text-error hover:bg-error-container border border-transparent hover:border-error flex items-center justify-center transition-colors" title="Delete">
+<span class="material-symbols-outlined text-[18px]">delete</span>
+</button>
+</div>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<!-- Pagination Footer -->
+<div class="p-md border-t border-outline-variant bg-surface-container-low flex items-center justify-between text-body-sm text-on-surface-variant">
+<div class="">Showing 1-3 of 24 Achievements</div>
+<div class="flex items-center gap-sm">
+<button class="w-8 h-8 rounded flex items-center justify-center hover:bg-surface-variant transition-colors disabled:opacity-50" disabled="">
+<span class="material-symbols-outlined text-[18px]">chevron_left</span>
+</button>
+<button class="w-8 h-8 rounded bg-primary-fixed text-on-primary-fixed flex items-center justify-center font-label-sm">1</button>
+<button class="w-8 h-8 rounded flex items-center justify-center hover:bg-surface-variant transition-colors font-label-sm text-on-surface">2</button>
+<button class="w-8 h-8 rounded flex items-center justify-center hover:bg-surface-variant transition-colors font-label-sm text-on-surface">3</button>
+<button class="w-8 h-8 rounded flex items-center justify-center hover:bg-surface-variant transition-colors">
+<span class="material-symbols-outlined text-[18px]">chevron_right</span>
+</button>
+</div>
+</div>
+</div>
+<!-- Reference Image inclusion -->
+<div class="mt-xl hidden">
+<img alt="Reference for dashboard styling" class="w-full rounded-xl opacity-50" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCp30trwRxR2cZz96pY3EhB7NKrO0mlNPmdNvbw_l7kKNdHVjW5sHfd-qc5GuwTViLJlqQdKoYN_Kt4QGezINy6x4zMMgYkA0NOTd63qEKStWqmee7wjNYQq80OwVeO1wYBbLXpddMlXMQAb1WuNBO2dbdRaQt2CsNGgjWnGcqEHvGc-N4ZrxxBnuEvaAZLIbsAR6TP3tYx-PIiydpfLbQCi9Hj7ywSvzOvb0sziilVsaokxQFWyllZ-dWgyKDUm0HFISn-f0Aw-PI">
+</div>
+</div>
+</main>
+
+
+</body></html>

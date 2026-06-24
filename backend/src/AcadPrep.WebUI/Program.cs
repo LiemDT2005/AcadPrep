@@ -52,6 +52,12 @@ using (var scope = app.Services.CreateScope())
         logger.LogError(ex, "An error occurred seeding the DB.");
     }
 }
+if (app.Environment.IsDevelopment())
+{
+    using var scope = app.Services.CreateScope();
+    var initializer = scope.ServiceProvider.GetRequiredService<Infrastructure.Persistence.AppDbContextInitializer>();
+    await initializer.SeedAsync();
+}
 
 // 4. Configure HTTP request pipeline & Custom Exception Middleware
 app.UseMiddleware<ExceptionHandlingMiddleware>();

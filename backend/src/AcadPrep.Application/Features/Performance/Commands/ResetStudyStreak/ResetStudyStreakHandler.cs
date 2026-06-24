@@ -5,7 +5,7 @@ using Application.Common.Interfaces;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 
-namespace AcadPrep.Application.Features.Performance.Command.ResetStudyStreak;
+namespace AcadPrep.Application.Features.Performance.Commands.ResetStudyStreak;
 
 public class ResetStudyStreakHandler : IRequestHandler<ResetStudyStreakCommand>
 {

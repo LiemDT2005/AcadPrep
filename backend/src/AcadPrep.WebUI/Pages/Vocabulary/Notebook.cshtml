@@ -1,0 +1,162 @@
+@page
+@model AcadPrep.WebUI.Pages.Vocabulary.NotebookModel
+@{
+    ViewData["Title"] = "Vocabulary Notebook";
+}
+
+<div class="max-w-[1200px] mx-auto py-2xl px-margin-mobile md:px-margin-desktop">
+    <div class="mb-xl flex flex-col md:flex-row md:justify-between md:items-end gap-md">
+        <div>
+            <h2 class="font-headline-md text-headline-md text-on-surface mb-sm">My Vocabulary Notebook</h2>
+            <p class="font-body-md text-body-md text-on-surface-variant">Review and manage your saved words.</p>
+        </div>
+        
+        <div class="flex flex-col sm:flex-row w-full md:w-auto items-center gap-sm">
+            <form method="get" class="flex w-full sm:w-auto items-center gap-sm">
+                <div class="relative w-full sm:w-[250px] md:w-[300px]">
+                    <span class="material-symbols-outlined absolute left-sm top-1/2 -translate-y-1/2 text-on-surface-variant">search</span>
+                    <input type="text" name="SearchTerm" value="@Model.SearchTerm" placeholder="Search by word or meaning..." class="w-full pl-10 pr-sm py-sm rounded-lg border border-outline-variant bg-surface-container-lowest text-on-surface font-body-sm text-body-sm focus:border-primary focus:ring-1 focus:ring-primary outline-none transition-all" />
+                </div>
+                <button type="submit" class="bg-surface-container-high text-on-surface px-md py-sm rounded-lg font-label-md text-label-md hover:bg-surface-container-highest border border-outline-variant transition-colors shadow-sm">Search</button>
+            </form>
+            <button type="button" onclick="document.getElementById('addWordModal').classList.remove('hidden')" class="w-full sm:w-auto bg-primary text-white px-md py-sm rounded-lg font-label-md text-label-md hover:bg-primary/90 transition-colors shadow-sm flex items-center justify-center gap-xs">
+                <span class="material-symbols-outlined text-[18px]">add</span> Add Word
+            </button>
+        </div>
+    </div>
+
+    @if (!ModelState.IsValid)
+    {
+        <div class="bg-error-container text-on-error-container p-sm rounded-lg mb-md">
+            <div asp-validation-summary="All" class="text-label-sm font-label-sm m-0"></div>
+        </div>
+    }
+
+    <div class="bg-surface-container-lowest rounded-xl shadow-sm border border-surface-variant overflow-hidden">
+        @if (Model.SavedVocabularies.Items.Count == 0)
+        {
+            <div class="p-xl text-center text-on-surface-variant font-body-md">
+                No vocabularies found in your notebook.
+            </div>
+        }
+        else
+        {
+            <div class="overflow-x-auto">
+                <table class="w-full text-left border-collapse">
+                    <thead class="bg-surface-container-high border-b border-surface-variant text-on-surface-variant font-label-sm text-label-sm">
+                        <tr>
+                            <th class="p-md font-semibold">Word</th>
+                            <th class="p-md font-semibold">Phonetic</th>
+                            <th class="p-md font-semibold">Meaning</th>
+                            <th class="p-md font-semibold">Date Saved</th>
+                            <th class="p-md font-semibold">Next Review</th>
+                            <th class="p-md font-semibold text-right">Action</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-surface-variant font-body-sm text-body-sm">
+                        @foreach (var item in Model.SavedVocabularies.Items)
+                        {
+                            <tr class="hover:bg-surface-container-lowest transition-colors group">
+                                <td class="p-md font-medium text-primary">@item.Word</td>
+                                <td class="p-md text-on-surface-variant">@item.Phonetic</td>
+                                <td class="p-md text-on-surface">
+                                    @item.Meaning
+                                    @if (!string.IsNullOrEmpty(item.Example))
+                                    {
+                                        <div class="text-[12px] text-on-surface-variant mt-[2px] italic">Eg: @item.Example</div>
+                                    }
+                                </td>
+                                <td class="p-md text-on-surface-variant">@item.DateSaved.ToString("MMM dd, yyyy")</td>
+                                <td class="p-md">
+                                    <span class="inline-flex items-center px-[6px] py-[2px] rounded-full bg-secondary-container/20 text-secondary font-medium text-[11px]">
+                                        @item.NextReviewDate.ToString("MMM dd, yyyy")
+                                    </span>
+                                </td>
+                                <td class="p-md text-right">
+                                    <form method="post" asp-page-handler="Delete" onsubmit="return confirm('Are you sure you want to remove this word?');" class="inline">
+                                        <input type="hidden" name="vocabularyId" value="@item.VocabularyId" />
+                                        <input type="hidden" name="PageNumber" value="@Model.PageNumber" />
+                                        <input type="hidden" name="SearchTerm" value="@Model.SearchTerm" />
+                                        <button type="submit" class="text-error hover:text-on-error-container hover:bg-error-container/50 p-xs rounded transition-colors" title="Remove">
+                                            <span class="material-symbols-outlined text-[20px]">delete</span>
+                                        </button>
+                                    </form>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Pagination -->
+            <div class="border-t border-surface-variant p-md flex items-center justify-between">
+                <span class="font-body-sm text-body-sm text-on-surface-variant">
+                    Page @Model.SavedVocabularies.PageNumber of @Model.SavedVocabularies.TotalPage
+                </span>
+                <div class="flex gap-sm">
+                    <a href="?PageNumber=@(Model.PageNumber - 1)&SearchTerm=@Model.SearchTerm" 
+                       class="px-sm py-xs border border-outline rounded text-on-surface font-label-sm hover:bg-surface-container-low transition-colors @(Model.SavedVocabularies.HasPreviousPage ? "" : "pointer-events-none opacity-50")">
+                        Previous
+                    </a>
+                    <a href="?PageNumber=@(Model.PageNumber + 1)&SearchTerm=@Model.SearchTerm" 
+                       class="px-sm py-xs border border-outline rounded text-on-surface font-label-sm hover:bg-surface-container-low transition-colors @(Model.SavedVocabularies.HasNextPage ? "" : "pointer-events-none opacity-50")">
+                        Next
+                    </a>
+                </div>
+            </div>
+        }
+    </div>
+</div>
+
+<!-- Add Word Modal -->
+<div id="addWordModal" class="hidden fixed inset-0 z-50 flex items-center justify-center p-4">
+    <div class="absolute inset-0 bg-on-surface/40 backdrop-blur-sm" onclick="document.getElementById('addWordModal').classList.add('hidden')"></div>
+    <div class="bg-surface-container-lowest w-full max-w-md rounded-2xl shadow-xl relative z-10 overflow-hidden flex flex-col max-h-[90vh]">
+        <div class="px-lg py-md border-b border-outline-variant flex items-center justify-between bg-surface-container-low/50 shrink-0">
+            <h3 class="text-[18px] font-semibold text-on-surface flex items-center gap-sm">
+                <span class="material-symbols-outlined text-primary">add_circle</span>
+                Add New Word
+            </h3>
+            <button type="button" onclick="document.getElementById('addWordModal').classList.add('hidden')" class="text-on-surface-variant hover:text-on-surface hover:bg-surface-variant p-xs rounded-full transition-colors">
+                <span class="material-symbols-outlined">close</span>
+            </button>
+        </div>
+        
+        <div class="p-lg overflow-y-auto flex-1">
+            <div class="bg-primary-container/10 border border-primary/20 rounded-lg p-sm mb-md flex items-start gap-sm">
+                <span class="material-symbols-outlined text-primary text-[20px] mt-[2px]">auto_awesome</span>
+                <p class="text-[13px] text-on-surface-variant">Our AI will automatically generate a contextual passage for this word after you save it.</p>
+            </div>
+
+            <form method="post" asp-page-handler="Create" class="flex flex-col gap-md">
+                <div class="flex flex-col gap-xs">
+                    <label asp-for="CreateCommand.Word" class="text-label-md font-semibold text-on-surface-variant">Word <span class="text-error">*</span></label>
+                    <input asp-for="CreateCommand.Word" class="w-full px-md py-sm rounded-lg bg-surface border border-outline-variant text-on-surface focus:border-primary focus:ring-1 focus:ring-primary outline-none transition-all" placeholder="e.g. Ubiquitous" required />
+                </div>
+
+                <div class="flex flex-col gap-xs">
+                    <label asp-for="CreateCommand.Phonetic" class="text-label-md font-semibold text-on-surface-variant">Phonetic</label>
+                    <input asp-for="CreateCommand.Phonetic" class="w-full px-md py-sm rounded-lg bg-surface border border-outline-variant text-on-surface focus:border-primary focus:ring-1 focus:ring-primary outline-none transition-all" placeholder="e.g. /juːˈbɪkwɪtəs/" />
+                </div>
+
+                <div class="flex flex-col gap-xs">
+                    <label asp-for="CreateCommand.Meaning" class="text-label-md font-semibold text-on-surface-variant">Meaning <span class="text-error">*</span></label>
+                    <textarea asp-for="CreateCommand.Meaning" class="w-full px-md py-sm rounded-lg bg-surface border border-outline-variant text-on-surface focus:border-primary focus:ring-1 focus:ring-primary outline-none transition-all" rows="2" placeholder="Present, appearing, or found everywhere." required></textarea>
+                </div>
+
+                <div class="flex flex-col gap-xs">
+                    <label asp-for="CreateCommand.Example" class="text-label-md font-semibold text-on-surface-variant">Example Sentence</label>
+                    <textarea asp-for="CreateCommand.Example" class="w-full px-md py-sm rounded-lg bg-surface border border-outline-variant text-on-surface focus:border-primary focus:ring-1 focus:ring-primary outline-none transition-all" rows="2" placeholder="His ubiquitous influence was felt by all the family."></textarea>
+                </div>
+                
+                <input type="hidden" name="PageNumber" value="@Model.PageNumber" />
+                <input type="hidden" name="SearchTerm" value="@Model.SearchTerm" />
+
+                <div class="flex justify-end gap-sm mt-sm pt-md border-t border-outline-variant">
+                    <button type="button" onclick="document.getElementById('addWordModal').classList.add('hidden')" class="px-md py-sm rounded-lg font-medium text-[14px] text-on-surface-variant hover:bg-surface-variant transition-colors">Cancel</button>
+                    <button type="submit" class="px-md py-sm rounded-lg font-medium text-[14px] bg-primary text-on-primary hover:bg-primary/90 transition-all shadow-sm">Save Word</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>

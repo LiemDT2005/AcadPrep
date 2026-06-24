@@ -1,14 +1,14 @@
+using AcadPrep.Application.Common.Models;
 using System;
 using System.Threading;
 using System.Threading.Tasks;
-using AcadPrep.Application.Features.Performance.DTOs;
 using Application.Common.Interfaces;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 
 namespace AcadPrep.Application.Features.Performance.Queries.GetStudyStreak;
 
-public class GetStudyStreakQueryHandler : IRequestHandler<GetStudyStreakQuery, StudyStreakDto>
+public class GetStudyStreakQueryHandler : IRequestHandler<GetStudyStreakQuery, Result<StudyStreakDto>>
 {
     private readonly IAppDbContext _context;
 
@@ -17,7 +17,7 @@ public class GetStudyStreakQueryHandler : IRequestHandler<GetStudyStreakQuery, S
         _context = context;
     }
 
-    public async Task<StudyStreakDto> Handle(GetStudyStreakQuery request, CancellationToken cancellationToken)
+    public async Task<Result<StudyStreakDto>> Handle(GetStudyStreakQuery request, CancellationToken cancellationToken)
     {
         var streak = await _context.StudyStreaks
             .FirstOrDefaultAsync(s => s.UserId == request.UserId, cancellationToken);
@@ -35,11 +35,12 @@ public class GetStudyStreakQueryHandler : IRequestHandler<GetStudyStreakQuery, S
         var today = DateOnly.FromDateTime(DateTime.UtcNow);
         var yesterday = today.AddDays(-1);
 
-        // Reset streak to zero if LastActiveDate is less than yesterday
+        // Reset streak to zero in memory if LastActiveDate is less than yesterday
         if (streak.LastActiveDate < yesterday)
         {
             streak.CurrentStreak = 0;
-            await _context.SaveChangesAsync(cancellationToken);
+            // Removed SaveChangesAsync to adhere to CQRS. 
+            // The ResetStudyStreakCommand should handle the actual database update.
         }
 
         return new StudyStreakDto
@@ -50,3 +51,4 @@ public class GetStudyStreakQueryHandler : IRequestHandler<GetStudyStreakQuery, S
         };
     }
 }
+

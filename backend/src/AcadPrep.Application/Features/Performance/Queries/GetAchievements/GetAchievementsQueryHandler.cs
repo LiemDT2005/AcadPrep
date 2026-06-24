@@ -1,3 +1,4 @@
+﻿using AcadPrep.Application.Common.Models;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
@@ -9,7 +10,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace AcadPrep.Application.Features.Performance.Queries.GetAchievements;
 
-public class GetAchievementsQueryHandler : IRequestHandler<GetAchievementsQuery, List<AchievementDto>>
+public class GetAchievementsQueryHandler : IRequestHandler<GetAchievementsQuery, Result<List<AchievementDto>>>
 {
     private readonly IAppDbContext _context;
 
@@ -18,7 +19,7 @@ public class GetAchievementsQueryHandler : IRequestHandler<GetAchievementsQuery,
         _context = context;
     }
 
-    public async Task<List<AchievementDto>> Handle(GetAchievementsQuery request, CancellationToken cancellationToken)
+    public async Task<Result<List<AchievementDto>>> Handle(GetAchievementsQuery request, CancellationToken cancellationToken)
     {
         var allAchievements = await _context.Achievements
             .AsNoTracking()
@@ -45,3 +46,4 @@ public class GetAchievementsQueryHandler : IRequestHandler<GetAchievementsQuery,
         return result;
     }
 }
+

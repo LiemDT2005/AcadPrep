@@ -122,11 +122,11 @@ public static class AppDbContextSeed
         if (!context.Achievements.Any())
         {
             context.Achievements.AddRange(
-                new Achievement { Name = "First Blood",     Description = "Complete your first exam",           IconUrl = "https://cdn-icons-png.flaticon.com/512/1000/1000185.png" },
-                new Achievement { Name = "Perfect Score",   Description = "Get a perfect score on any exam",    IconUrl = "https://cdn-icons-png.flaticon.com/512/1000/1000184.png" },
-                new Achievement { Name = "Streak Master",   Description = "Maintain a 7-day study streak",      IconUrl = "https://cdn-icons-png.flaticon.com/512/4302/4302196.png" },
-                new Achievement { Name = "Word Collector",  Description = "Save 50 vocabularies",               IconUrl = "https://cdn-icons-png.flaticon.com/512/2232/2232688.png" },
-                new Achievement { Name = "Speed Demon",     Description = "Complete a full test in under 90 minutes", IconUrl = "https://cdn-icons-png.flaticon.com/512/3524/3524388.png" }
+                new Achievement { Name = "First Blood",     Description = "Complete your first exam",           IconUrl = "https://cdn-icons-png.flaticon.com/512/1000/1000185.png", ConditionType = "ExamsCompleted", ConditionValue = 1 },
+                new Achievement { Name = "Perfect Score",   Description = "Get a perfect score on any exam",    IconUrl = "https://cdn-icons-png.flaticon.com/512/1000/1000184.png", ConditionType = "Score", ConditionValue = 990 },
+                new Achievement { Name = "Streak Master",   Description = "Maintain a 7-day study streak",      IconUrl = "https://cdn-icons-png.flaticon.com/512/4302/4302196.png", ConditionType = "Streak", ConditionValue = 7 },
+                new Achievement { Name = "Word Collector",  Description = "Save 50 vocabularies",               IconUrl = "https://cdn-icons-png.flaticon.com/512/2232/2232688.png", ConditionType = "VocabCount", ConditionValue = 50 },
+                new Achievement { Name = "Speed Demon",     Description = "Complete a full test in under 90 minutes", IconUrl = "https://cdn-icons-png.flaticon.com/512/3524/3524388.png", ConditionType = "Speed", ConditionValue = 90 }
             );
             await context.SaveChangesAsync();
         }

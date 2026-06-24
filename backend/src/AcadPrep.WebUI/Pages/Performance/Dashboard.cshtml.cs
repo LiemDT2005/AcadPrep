@@ -34,9 +34,14 @@ public class DashboardModel : PageModel
         // Reset streak if needed before querying
         await _mediator.Send(new AcadPrep.Application.Features.Performance.Commands.ResetStudyStreak.ResetStudyStreakCommand(parsedUserId));
 
-        StreakData = await _mediator.Send(new GetStudyStreakQuery(parsedUserId));
-        DashboardData = await _mediator.Send(new AcadPrep.Application.Features.Performance.Queries.GetDashboardData.GetDashboardDataQuery(parsedUserId));
-        ScoreProgressData = await _mediator.Send(new AcadPrep.Application.Features.Performance.Queries.GetScoreProgress.GetScoreProgressQuery(parsedUserId));
+        var streakResult = await _mediator.Send(new GetStudyStreakQuery(parsedUserId));
+        if (streakResult.IsSuccess && streakResult.Data != null) StreakData = streakResult.Data;
+
+        var dashResult = await _mediator.Send(new AcadPrep.Application.Features.Performance.Queries.GetDashboardData.GetDashboardDataQuery(parsedUserId));
+        if (dashResult.IsSuccess && dashResult.Data != null) DashboardData = dashResult.Data;
+
+        var scoreResult = await _mediator.Send(new AcadPrep.Application.Features.Performance.Queries.GetScoreProgress.GetScoreProgressQuery(parsedUserId));
+        if (scoreResult.IsSuccess && scoreResult.Data != null) ScoreProgressData = scoreResult.Data;
 
         return Page();
     }

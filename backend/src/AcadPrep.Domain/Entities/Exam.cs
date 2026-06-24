@@ -11,6 +11,9 @@ public class Exam : BaseEntity<int>, IAuditable, ISoftDeletable
     public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
     public DateTime? LastModifiedAt { get; set; }
 
+    public int ExamSeriesId { get; set; }
+    public virtual ExamSeries ExamSeries { get; set; } = null!;
+
     // Navigation properties
     public virtual ICollection<Passage> Passages { get; set; } = new List<Passage>();
     public virtual ICollection<Question> Questions { get; set; } = new List<Question>();

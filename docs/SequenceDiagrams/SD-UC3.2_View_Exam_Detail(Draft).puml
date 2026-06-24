@@ -1,0 +1,119 @@
+@startuml
+
+hide footbox
+
+actor Guest
+participant "DetailView" as View
+participant ":Detail.cshtml.cs" as PageModel
+participant ":ValidationBehavior" as Pipeline
+participant ":GetExamDetailQueryHandler" as Handler
+participant ":ICacheService" as CacheService
+participant "Redis" as Redis
+participant ":IAppDbContext" as DbContext
+database "SQL Server" as DB
+
+Guest -> View : 1 Click exam card → GET /Exams/{id}
+activate Guest
+activate View
+
+View -> PageModel : 2 Request page data examId
+activate PageModel
+
+PageModel -> Pipeline : 3 Send GetExamDetailQuery(examId)
+activate Pipeline
+
+
+Pipeline -> Pipeline : 4 Validate examId not empty
+activate Pipeline
+space 
+deactivate Pipeline
+Pipeline -> Handler : 5 Forward to handler
+activate Handler
+
+Handler -> CacheService : 6 Check cache (key: ExamDetail:{id})
+activate CacheService
+
+CacheService -> Redis : 7 Get exam detail
+activate Redis
+Redis --> CacheService : 8 Return data or null
+deactivate Redis
+
+CacheService --> Handler : 9 Return cache result
+deactivate CacheService
+
+alt Cache MISS
+
+    Handler -> DbContext : 11 Query exam by Id
+    activate DbContext
+
+    DbContext -> DB : 12 Execute query
+    activate DB
+
+    alt Exam found
+        DB --> DbContext : 13 Return exam row
+
+
+        DbContext --> Handler : 14 Return exam entity
+        deactivate DbContext
+
+        Handler -> CacheService : 15 Cache exam detail
+        activate CacheService
+
+        CacheService -> Redis : 16 Write to cache
+        activate Redis
+
+        Redis --> CacheService : 17 Write confirmed
+        deactivate Redis
+        
+        CacheService --> Handler: 18 Caching successful
+        deactivate CacheService
+
+        Handler --> Pipeline : 19 Return exam detail DTO
+
+        Pipeline --> PageModel : 20 Return exam detail DTO
+
+        PageModel --> View : 21 Pass exam detail to view
+
+        View --> Guest : 22 Render exam detail page
+
+    else Exam not found or soft-deleted
+
+        DB --> DbContext : 23 Return empty / null
+        deactivate DB
+
+        DbContext --> Handler : 24 Return null
+        deactivate DbContext
+
+        Handler --> Pipeline : 25 Throw NotFoundException 
+        
+        Pipeline --> PageModel : 26 Propagate exception
+
+        PageModel --> View : 27 Redirect to /Exams with error
+
+        View --> Guest : 28 Show exam list + error message
+
+    end
+
+else Cache HIT
+
+    Handler --> Pipeline : 29 Return cached detail
+    deactivate Handler
+
+    Pipeline --> PageModel : 30 Return cached detail
+    deactivate Pipeline
+    
+    PageModel --> View : 31 Pass exam detail to view
+    deactivate PageModel
+
+    View --> Guest : 32 Render exam detail page
+    deactivate View
+    deactivate Guest
+end
+
+deactivate Handler
+deactivate Pipeline
+deactivate PageModel
+deactivate View
+deactivate Guest
+
+@enduml

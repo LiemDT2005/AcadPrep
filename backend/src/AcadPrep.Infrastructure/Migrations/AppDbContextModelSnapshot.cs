@@ -30,6 +30,13 @@ namespace AcadPrep.Infrastructure.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("AchievementId"));
 
+                    b.Property<string>("ConditionType")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("ConditionValue")
+                        .HasColumnType("int");
+
                     b.Property<string>("Description")
                         .IsRequired()
                         .HasMaxLength(500)
@@ -131,6 +138,9 @@ namespace AcadPrep.Infrastructure.Migrations
                     b.Property<int>("Duration")
                         .HasColumnType("int");
 
+                    b.Property<int>("ExamSeriesId")
+                        .HasColumnType("int");
+
                     b.Property<bool>("IsDeleted")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("bit")
@@ -145,6 +155,8 @@ namespace AcadPrep.Infrastructure.Migrations
                         .HasColumnType("nvarchar(255)");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("ExamSeriesId");
 
                     b.ToTable("EXAMS", (string)null);
                 });
@@ -202,6 +214,47 @@ namespace AcadPrep.Infrastructure.Migrations
                     b.HasIndex("UserId");
 
                     b.ToTable("EXAM_ATTEMPTS", (string)null);
+                });
+
+            modelBuilder.Entity("Domain.Entities.ExamSeries", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int")
+                        .HasColumnName("ExamSeriesId");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("CoverImageUrl")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("datetime2")
+                        .HasDefaultValueSql("GETDATE()");
+
+                    b.Property<string>("Description")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<bool>("IsDeleted")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bit")
+                        .HasDefaultValue(false);
+
+                    b.Property<DateTime?>("LastModifiedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(255)
+                        .HasColumnType("nvarchar(255)");
+
+                    b.Property<int>("Year")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("EXAM_SERIES", (string)null);
                 });
 
             modelBuilder.Entity("Domain.Entities.Passage", b =>
@@ -452,6 +505,9 @@ namespace AcadPrep.Infrastructure.Migrations
                     b.Property<int>("AchievementId")
                         .HasColumnType("int");
 
+                    b.Property<bool>("IsNotified")
+                        .HasColumnType("bit");
+
                     b.Property<DateTime>("UnlockedAt")
                         .HasColumnType("datetime2");
 
@@ -555,6 +611,17 @@ namespace AcadPrep.Infrastructure.Migrations
                         .OnDelete(DeleteBehavior.SetNull);
 
                     b.Navigation("User");
+                });
+
+            modelBuilder.Entity("Domain.Entities.Exam", b =>
+                {
+                    b.HasOne("Domain.Entities.ExamSeries", "ExamSeries")
+                        .WithMany("Exams")
+                        .HasForeignKey("ExamSeriesId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("ExamSeries");
                 });
 
             modelBuilder.Entity("Domain.Entities.ExamAttempt", b =>
@@ -708,6 +775,11 @@ namespace AcadPrep.Infrastructure.Migrations
             modelBuilder.Entity("Domain.Entities.ExamAttempt", b =>
                 {
                     b.Navigation("AttemptAnswers");
+                });
+
+            modelBuilder.Entity("Domain.Entities.ExamSeries", b =>
+                {
+                    b.Navigation("Exams");
                 });
 
             modelBuilder.Entity("Domain.Entities.Passage", b =>

@@ -1,10 +1,11 @@
+﻿using AcadPrep.Application.Common.Models;
 using System;
 using System.Collections.Generic;
 using MediatR;
 
 namespace AcadPrep.Application.Features.Performance.Queries.GetScoreProgress;
 
-public record GetScoreProgressQuery(int UserId) : IRequest<ScoreProgressResultDto>;
+public record GetScoreProgressQuery(int UserId) : IRequest<Result<ScoreProgressResultDto>>;
 
 public class ScoreProgressResultDto
 {
@@ -18,3 +19,4 @@ public class ScoreProgressDto
     public DateTime AttemptDate { get; set; }
     public int Score { get; set; }
 }
+

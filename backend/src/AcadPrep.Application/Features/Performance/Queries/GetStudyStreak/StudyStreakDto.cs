@@ -1,6 +1,6 @@
 using System;
 
-namespace AcadPrep.Application.Features.Performance.DTOs;
+namespace AcadPrep.Application.Features.Performance.Queries.GetStudyStreak;
 
 public class StudyStreakDto
 {
