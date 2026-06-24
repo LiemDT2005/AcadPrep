@@ -35,7 +35,7 @@ public static class DependencyInjection
         // Register standard TimeProvider
         services.AddSingleton(TimeProvider.System);
 
-        // Redis cache configuration
+        // Redis cache configuration: Fallback to In-Memory cache if Redis is not configured
         var redisConnectionString = configuration.GetConnectionString("Redis");
         if (!string.IsNullOrEmpty(redisConnectionString))
         {
@@ -43,6 +43,10 @@ public static class DependencyInjection
             {
                 options.Configuration = redisConnectionString;
             });
+        }
+        else
+        {
+            services.AddDistributedMemoryCache();
         }
         services.AddSingleton<ICacheService, RedisCacheService>();
 
