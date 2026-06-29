@@ -78,8 +78,99 @@ public static class AppDbContextSeed
                     RoleId = userRole.RoleId,
                     Status = UserStatus.Inactive,
                     CreatedAt = DateTime.UtcNow.AddDays(-60)
+                },
+                new User
+                {
+                    Email = "hoang@acadprep.com",
+                    PasswordHash = "hashed_password",
+                    FullName = "Hoang Nguyen",
+                    RoleId = userRole.RoleId,
+                    Status = UserStatus.Active,
+                    CreatedAt = DateTime.UtcNow.AddDays(-12)
+                },
+                new User
+                {
+                    Email = "lananh@acadprep.com",
+                    PasswordHash = "hashed_password",
+                    FullName = "Lan Anh",
+                    RoleId = userRole.RoleId,
+                    Status = UserStatus.Active,
+                    CreatedAt = DateTime.UtcNow.AddDays(-14)
+                },
+                new User
+                {
+                    Email = "duyliem@acadprep.com",
+                    PasswordHash = "hashed_password",
+                    FullName = "Duy Liem",
+                    RoleId = userRole.RoleId,
+                    Status = UserStatus.Active,
+                    CreatedAt = DateTime.UtcNow.AddDays(-10)
+                },
+                new User
+                {
+                    Email = "tuananh@acadprep.com",
+                    PasswordHash = "hashed_password",
+                    FullName = "Tuan Anh",
+                    RoleId = userRole.RoleId,
+                    Status = UserStatus.Active,
+                    CreatedAt = DateTime.UtcNow.AddDays(-8)
+                },
+                new User
+                {
+                    Email = "thuthao@acadprep.com",
+                    PasswordHash = "hashed_password",
+                    FullName = "Thu Thao",
+                    RoleId = userRole.RoleId,
+                    Status = UserStatus.Active,
+                    CreatedAt = DateTime.UtcNow.AddDays(-9)
+                },
+                new User
+                {
+                    Email = "quanghuy@acadprep.com",
+                    PasswordHash = "hashed_password",
+                    FullName = "Quang Huy",
+                    RoleId = userRole.RoleId,
+                    Status = UserStatus.Active,
+                    CreatedAt = DateTime.UtcNow.AddDays(-7)
+                },
+                new User
+                {
+                    Email = "bichphuong@acadprep.com",
+                    PasswordHash = "hashed_password",
+                    FullName = "Bich Phuong",
+                    RoleId = userRole.RoleId,
+                    Status = UserStatus.Active,
+                    CreatedAt = DateTime.UtcNow.AddDays(-11)
+                },
+                new User
+                {
+                    Email = "hoangnam@acadprep.com",
+                    PasswordHash = "hashed_password",
+                    FullName = "Hoang Nam",
+                    RoleId = userRole.RoleId,
+                    Status = UserStatus.Active,
+                    CreatedAt = DateTime.UtcNow.AddDays(-5)
+                },
+                new User
+                {
+                    Email = "maiphuong@acadprep.com",
+                    PasswordHash = "hashed_password",
+                    FullName = "Mai Phuong",
+                    RoleId = userRole.RoleId,
+                    Status = UserStatus.Active,
+                    CreatedAt = DateTime.UtcNow.AddDays(-6)
+                },
+                new User
+                {
+                    Email = "thanhtung@acadprep.com",
+                    PasswordHash = "hashed_password",
+                    FullName = "Thanh Tung",
+                    RoleId = userRole.RoleId,
+                    Status = UserStatus.Active,
+                    CreatedAt = DateTime.UtcNow.AddDays(-4)
                 }
             );
+
             await context.SaveChangesAsync();
         }
 
@@ -97,26 +188,49 @@ public static class AppDbContextSeed
         }
 
         // ── 3.5. Questions ──
-        if (!context.Questions.Any())
+        var examsList = context.Exams.ToList();
+        foreach (var exam in examsList)
         {
-            var examsList = context.Exams.ToList();
-            foreach(var exam in examsList)
+            var hasQuestions = context.Questions.Any(q => q.ExamId == exam.Id);
+            if (!hasQuestions)
             {
                 // Seed 7 questions per exam, one for each Part (1 to 7)
                 for (int p = 1; p <= 7; p++)
                 {
+                    var (qType, tag) = GetQuestionMetadata(p);
                     context.Questions.Add(new Question
                     {
                         ExamId = exam.Id,
                         Part = p,
                         QuestionNumber = p,
                         QuestionText = $"Mock Question for Part {p} of {exam.Title}",
-                        CorrectOption = OptionLetter.A
+                        CorrectOption = OptionLetter.A,
+                        QuestionType = qType,
+                        TopicTag = tag
                     });
                 }
             }
-            await context.SaveChangesAsync();
         }
+        await context.SaveChangesAsync();
+
+        // ── 3.6. Parts ──
+        foreach (var exam in examsList)
+        {
+            var hasParts = context.Parts.Any(pt => pt.ExamId == exam.Id);
+            if (!hasParts)
+            {
+                for (int p = 1; p <= 7; p++)
+                {
+                    context.Parts.Add(new Part
+                    {
+                        ExamId = exam.Id,
+                        PartNumber = p,
+                        TotalQuestions = 1
+                    });
+                }
+            }
+        }
+        await context.SaveChangesAsync();
 
         // ── 4. Achievements ──
         if (!context.Achievements.Any())
@@ -244,6 +358,39 @@ public static class AppDbContextSeed
                     );
                 }
 
+                // Tạo lượt thi thử cho 10 học viên mới để có điểm xếp hạng
+                var random = new Random();
+                var newEmails = new[] { 
+                    "hoang@acadprep.com", "lananh@acadprep.com", "duyliem@acadprep.com", 
+                    "tuananh@acadprep.com", "thuthao@acadprep.com", "quanghuy@acadprep.com", 
+                    "bichphuong@acadprep.com", "hoangnam@acadprep.com", "maiphuong@acadprep.com", 
+                    "thanhtung@acadprep.com" 
+                };
+                foreach (var email in newEmails)
+                {
+                    var mockUser = context.Users.FirstOrDefault(u => u.Email == email);
+                    if (mockUser != null)
+                    {
+                        int attemptCount = random.Next(1, 4); // 1 đến 3 lượt thi
+                        for (int a = 0; a < attemptCount; a++)
+                        {
+                            int listen = random.Next(200, 451);
+                            int read = random.Next(200, 451);
+                            context.ExamAttempts.Add(new ExamAttempt
+                            {
+                                UserId = mockUser.Id,
+                                ExamId = exams[random.Next(0, exams.Count)].Id,
+                                StartedAt = DateTime.UtcNow.AddDays(-15 + a),
+                                CompletedAt = DateTime.UtcNow.AddDays(-15 + a).AddMinutes(110),
+                                ListeningScore = listen,
+                                ReadingScore = read,
+                                TotalScore = listen + read,
+                                IsSubmitted = true
+                            });
+                        }
+                    }
+                }
+
                 await context.SaveChangesAsync();
             }
         }
@@ -305,6 +452,31 @@ public static class AppDbContextSeed
                     LastActiveDate = DateOnly.FromDateTime(DateTime.UtcNow.AddDays(-1))
                 });
             }
+
+            // Thêm chuỗi ngày học cho 10 học viên mới để xếp hạng theo streak
+            var randomStreak = new Random();
+            var newEmails = new[] { 
+                "hoang@acadprep.com", "lananh@acadprep.com", "duyliem@acadprep.com", 
+                "tuananh@acadprep.com", "thuthao@acadprep.com", "quanghuy@acadprep.com", 
+                "bichphuong@acadprep.com", "hoangnam@acadprep.com", "maiphuong@acadprep.com", 
+                "thanhtung@acadprep.com" 
+            };
+            foreach (var email in newEmails)
+            {
+                var mockUser = context.Users.FirstOrDefault(u => u.Email == email);
+                if (mockUser != null)
+                {
+                    int streak = randomStreak.Next(1, 15);
+                    context.StudyStreaks.Add(new StudyStreak
+                    {
+                        UserId = mockUser.Id,
+                        CurrentStreak = streak,
+                        MaxStreak = streak + randomStreak.Next(0, 5),
+                        LastActiveDate = DateOnly.FromDateTime(DateTime.UtcNow.AddDays(-randomStreak.Next(0, 2)))
+                    });
+                }
+            }
+
             await context.SaveChangesAsync();
         }
 
@@ -335,4 +507,20 @@ public static class AppDbContextSeed
             }
         }
     }
+
+    private static (string QuestionType, string TopicTag) GetQuestionMetadata(int partNumber)
+    {
+        return partNumber switch
+        {
+            1 => ("Photographs", "Tranh tả người"),
+            2 => ("Question - Response", "Câu hỏi WHO"),
+            3 => ("Conversations", "Chủ đề du lịch"),
+            4 => ("Talks", "Thông báo công cộng"),
+            5 => ("Incomplete Sentences", "Thì động từ"),
+            6 => ("Text Completion", "Hoàn thành đoạn văn"),
+            7 => ("Reading Comprehension", "Đọc hiểu email"),
+            _ => ("General", "Khác")
+        };
+    }
 }
+

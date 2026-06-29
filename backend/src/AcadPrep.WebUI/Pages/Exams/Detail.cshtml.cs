@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 
 namespace AcadPrep.WebUI.Pages.Exams
 {
+    [IgnoreAntiforgeryToken]
     public class DetailModel : PageModel
     {
         private readonly IMediator _mediator;
@@ -46,5 +47,37 @@ namespace AcadPrep.WebUI.Pages.Exams
                 return RedirectToPage("/Exams/Index");
             }
         }
+
+        public async Task<IActionResult> OnPostStartPracticeAsync([FromBody] StartPracticeRequestModel request)
+        {
+            if (string.IsNullOrEmpty(_currentUserService.UserId) || !int.TryParse(_currentUserService.UserId, out int parsedUserId))
+            {
+                parsedUserId = 2; // Fallback to Test User
+            }
+
+            var command = new AcadPrep.Application.Features.Practice.Commands.StartPractice.StartPracticeCommand(
+                request.ExamId,
+                request.SelectedPartNumbers,
+                request.SelectedTags,
+                request.TimeLimitMinutes,
+                parsedUserId
+            );
+
+            var result = await _mediator.Send(command);
+            if (result.IsSuccess)
+            {
+                return new JsonResult(new { success = true, sessionId = result.Data });
+            }
+
+            return new JsonResult(new { success = false, error = result.Error });
+        }
+    }
+
+    public class StartPracticeRequestModel
+    {
+        public int ExamId { get; set; }
+        public System.Collections.Generic.List<int> SelectedPartNumbers { get; set; } = new();
+        public System.Collections.Generic.List<string> SelectedTags { get; set; } = new();
+        public int? TimeLimitMinutes { get; set; }
     }
 }

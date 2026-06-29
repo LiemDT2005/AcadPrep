@@ -46,6 +46,17 @@ public class QuestionConfiguration : IEntityTypeConfiguration<Question>
         builder.Property(x => x.PassageId)
             .IsRequired(false);
 
+        builder.Property(x => x.QuestionType)
+            .HasMaxLength(100)
+            .IsRequired(false);
+
+        builder.Property(x => x.TopicTag)
+            .HasMaxLength(150)
+            .IsRequired(false);
+
+        builder.Property(x => x.QuestionGroupId)
+            .IsRequired(false);
+
         // Relationships
         builder.HasOne(x => x.Exam)
             .WithMany(e => e.Questions)
@@ -55,6 +66,11 @@ public class QuestionConfiguration : IEntityTypeConfiguration<Question>
         builder.HasOne(x => x.Passage)
             .WithMany(p => p.Questions)
             .HasForeignKey(x => x.PassageId)
+            .OnDelete(DeleteBehavior.Restrict);
+
+        builder.HasOne(x => x.QuestionGroup)
+            .WithMany(g => g.Questions)
+            .HasForeignKey(x => x.QuestionGroupId)
             .OnDelete(DeleteBehavior.Restrict);
     }
 }

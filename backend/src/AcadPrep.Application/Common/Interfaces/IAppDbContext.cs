@@ -23,6 +23,9 @@ public interface IAppDbContext
     DbSet<AuditLog> AuditLogs { get; }
     DbSet<Achievement> Achievements { get; }
     DbSet<UserAchievement> UserAchievements { get; }
+    DbSet<Part> Parts { get; }
+    DbSet<QuestionGroup> QuestionGroups { get; }
+    DbSet<PracticeSession> PracticeSessions { get; }
 
     Task<int> SaveChangesAsync(CancellationToken cancellationToken = default);
 }

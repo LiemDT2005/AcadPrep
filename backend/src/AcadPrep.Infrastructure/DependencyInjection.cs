@@ -20,7 +20,7 @@ public static class DependencyInjection
 
         // Register AppDbContext with Microsoft SQL Server
         services.AddDbContext<AppDbContext>(options =>
-            options.UseSqlServer(connectionString, builder => 
+            options.UseSqlServer(connectionString, builder =>
                 builder.MigrationsAssembly(typeof(AppDbContext).Assembly.FullName)));
 
         // Bind IAppDbContext to DbContext implementation
@@ -39,16 +39,20 @@ public static class DependencyInjection
         services.AddSingleton(TimeProvider.System);
 
         // Redis cache configuration
-        var redisConnectionString = configuration.GetConnectionString("Redis");
-        if (!string.IsNullOrEmpty(redisConnectionString))
-        {
-            services.AddStackExchangeRedisCache(options =>
-            {
-                options.Configuration = redisConnectionString;
-            });
-        }
+        // var redisConnectionString = configuration.GetConnectionString("Redis");
+        // if (!string.IsNullOrEmpty(redisConnectionString))
+        // {
+        //     services.AddStackExchangeRedisCache(options =>
+        //     {
+        //         options.Configuration = redisConnectionString;
+        //     });
+        // }
+        // services.AddSingleton<ICacheService, RedisCacheService>();
+
+        // Sử dụng bộ nhớ RAM cục bộ làm Cache thay thế cho Redis
+        services.AddDistributedMemoryCache();
         services.AddSingleton<ICacheService, RedisCacheService>();
-        
+
         // Register AI generation service
         services.AddScoped<IAiGenerationService, MockAiGenerationService>();
 

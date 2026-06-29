@@ -51,19 +51,28 @@ internal sealed class GetExamDetailQueryHandler(IAppDbContext context, ICacheSer
         var totalAttempts = await context.ExamAttempts
             .CountAsync(ea => ea.ExamId == request.Id, cancellationToken);
 
-        // 5. Thống kê số lượng câu hỏi theo từng Part (Part 1 - 7)
-        var partsSummary = await context.Questions
+        // 5. Tải danh sách câu hỏi của đề thi này để thống kê theo từng Part (Part 1 - 7) và lấy các Tags
+        var questionsOfExam = await context.Questions
             .AsNoTracking()
             .Where(q => q.ExamId == request.Id)
+            .Select(q => new { q.Part, q.TopicTag })
+            .ToListAsync(cancellationToken);
+
+        var partsSummary = questionsOfExam
             .GroupBy(q => q.Part)
             .Select(g => new PartSummaryDto
             {
                 PartNumber = g.Key,
                 PartName = GetPartName(g.Key),
-                QuestionCount = g.Count()
+                QuestionCount = g.Count(),
+                Tags = g.Where(q => !string.IsNullOrEmpty(q.TopicTag))
+                        .Select(q => q.TopicTag!)
+                        .Distinct()
+                        .OrderBy(t => t)
+                        .ToList()
             })
             .OrderBy(p => p.PartNumber)
-            .ToListAsync(cancellationToken);
+            .ToList();
 
         var totalQuestions = partsSummary.Sum(p => p.QuestionCount);
 

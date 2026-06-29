@@ -12,10 +12,14 @@ public class Question : BaseEntity<int>
     public OptionLetter CorrectOption { get; set; }
     public int ExamId { get; set; }
     public int? PassageId { get; set; }
+    public string? QuestionType { get; set; }
+    public string? TopicTag { get; set; }
+    public int? QuestionGroupId { get; set; }
 
     // Navigation properties
     public virtual Exam Exam { get; set; } = null!;
     public virtual Passage? Passage { get; set; }
+    public virtual QuestionGroup? QuestionGroup { get; set; }
     public virtual ICollection<QuestionOption> QuestionOptions { get; set; } = new List<QuestionOption>();
     public virtual ICollection<AttemptAnswer> AttemptAnswers { get; set; } = new List<AttemptAnswer>();
 }

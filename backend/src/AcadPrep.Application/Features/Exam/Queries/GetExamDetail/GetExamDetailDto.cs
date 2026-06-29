@@ -22,6 +22,7 @@ public class PartSummaryDto
     public int PartNumber { get; set; } // Ví dụ: 1, 2, 3...
     public string PartName { get; set; } = string.Empty; // Ví dụ: "Part 1: Photographs"
     public int QuestionCount { get; set; }
+    public List<string> Tags { get; set; } = new();
 }
 
 public class UserAttemptHistoryDto
