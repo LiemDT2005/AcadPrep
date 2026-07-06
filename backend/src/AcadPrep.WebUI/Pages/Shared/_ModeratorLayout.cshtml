@@ -1,0 +1,383 @@
+<!DOCTYPE html>
+<html class="light" lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta content="width=device-width, initial-scale=1.0" name="viewport">
+    <title>@ViewData["Title"] - AcadPrep</title>
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+    
+    <script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            "colors": {
+                    "error-container": "#ffdad6",
+                    "surface-container-low": "#f5f2ff",
+                    "tertiary-container": "#005338",
+                    "on-surface": "#1b1b24",
+                    "surface-container": "#f0ecf9",
+                    "secondary-fixed-dim": "#ffb690",
+                    "secondary": "#9d4300",
+                    "outline-variant": "#c7c4d8",
+                    "tertiary-fixed": "#abf2cd",
+                    "surface-dim": "#dcd8e5",
+                    "secondary-container": "#ff8d4b",
+                    "tertiary": "#005338",
+                    "surface-variant": "#e4e1ee",
+                    "inverse-on-surface": "#f3effc",
+                    "primary-fixed-dim": "#c3c0ff",
+                    "on-tertiary-container": "#80c5a3",
+                    "primary-container": "#3525cd",
+                    "surface-container-highest": "#e4e1ee",
+                    "secondary-fixed": "#ffdbca",
+                    "on-secondary-container": "#6c2c00",
+                    "on-secondary": "#ffffff",
+                    "surface-tint": "#4d44e3",
+                    "surface-bright": "#fcf8ff",
+                    "surface-container-lowest": "#ffffff",
+                    "on-primary-container": "#b1afff",
+                    "on-error": "#ffffff",
+                    "on-primary-fixed": "#0f0069",
+                    "tertiary-fixed-dim": "#8fd5b2",
+                    "on-background": "#1b1b24",
+                    "primary-fixed": "#e2dfff",
+                    "on-tertiary-fixed": "#002114",
+                    "surface-container-high": "#eae6f4",
+                    "on-surface-variant": "#464555",
+                    "inverse-surface": "#302f39",
+                    "primary": "#1e00a9",
+                    "on-tertiary-fixed-variant": "#005237",
+                    "on-primary": "#ffffff",
+                    "outline": "#777587",
+                    "background": "#fcf8ff",
+                    "error": "#ba1a1a",
+                    "on-secondary-fixed": "#341100",
+                    "on-primary-fixed-variant": "#3323cc",
+                    "on-secondary-fixed-variant": "#783200",
+                    "on-tertiary": "#ffffff",
+                    "inverse-primary": "#c3c0ff",
+                    "surface": "#f9f9ff",
+                    "on-error-container": "#93000a"
+            },
+            "borderRadius": {
+                    "DEFAULT": "0.25rem",
+                    "lg": "0.5rem",
+                    "xl": "0.75rem",
+                    "full": "9999px"
+            },
+            "spacing": {
+                    "xs": "4px",
+                    "unit": "4px",
+                    "base_unit": "4px",
+                    "2xl": "48px",
+                    "margin-mobile": "16px",
+                    "gutter": "24px",
+                    "sm": "8px",
+                    "margin-desktop": "40px",
+                    "3xl": "64px",
+                    "xl": "32px",
+                    "md": "16px",
+                    "lg": "24px"
+            },
+            "fontFamily": {
+                    "body-lg": ["Inter"],
+                    "label-sm": ["Inter"],
+                    "headline-sm": ["Inter"],
+                    "body-sm": ["Inter"],
+                    "headline-md": ["Inter"],
+                    "display-lg": ["Inter"],
+                    "headline-lg": ["Inter"],
+                    "body-md": ["Inter"],
+                    "label-md": ["Inter"],
+                    "headline-lg-mobile": ["Inter"]
+            },
+            "fontSize": {
+                    "body-lg": ["18px", { "lineHeight": "28px", "fontWeight": "400" }],
+                    "label-sm": ["12px", { "lineHeight": "16px", "fontWeight": "600" }],
+                    "headline-sm": ["20px", { "lineHeight": "28px", "fontWeight": "600" }],
+                    "body-sm": ["14px", { "lineHeight": "20px", "fontWeight": "400" }],
+                    "headline-md": ["24px", { "lineHeight": "32px", "fontWeight": "600" }],
+                    "display-lg": ["48px", { "lineHeight": "56px", "letterSpacing": "-0.02em", "fontWeight": "700" }],
+                    "headline-lg": ["32px", { "lineHeight": "40px", "letterSpacing": "-0.01em", "fontWeight": "700" }],
+                    "body-md": ["16px", { "lineHeight": "24px", "fontWeight": "400" }],
+                    "label-md": ["14px", { "lineHeight": "20px", "letterSpacing": "0.01em", "fontWeight": "500" }],
+                    "headline-lg-mobile": ["28px", { "lineHeight": "36px", "letterSpacing": "-0.01em", "fontWeight": "700" }]
+            }
+          },
+        },
+      }
+    </script>
+    <style>
+      body {
+        background-color: theme('colors.surface');
+      }
+    </style>
+</head>
+<body class="flex h-screen overflow-hidden bg-surface text-on-surface">
+
+    <!-- SideNavBar -->
+    <aside class="hidden md:flex flex-col h-screen w-64 fixed left-0 top-0 bg-surface-container border-r border-outline-variant z-20">
+        <div class="p-md border-b border-outline-variant">
+            <span class="font-headline-md text-headline-md font-bold text-primary block mb-sm">AcadPrep CMS</span>
+            <div class="flex items-center gap-sm mt-sm">
+                <img alt="Moderator Profile Avatar" class="w-10 h-10 rounded-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCmkF1bnCELqugUtJUPmZ8Q84oX5e3kE2prDFwO_AgUbBIHPSyfU11oinBNUtB_bsqjqiazmKXfGLU1bBZnhqKbpeRt4PFXw23SBgcUokuyUNgwXigDRegC9nddR8tDY4ptic5X2nqVQ22tozznanEcbHeYDMWB6xVcLf87_hVjVyGl_G0ySRCMT22UV_ArVWUEcEvBNm3qTrvf1GtE8466IoFzW8fmS7lvKezb4APhCFqCgVuRsZfo7HHzw4J4eX56qs0ShbkLKuUS">
+                <div>
+                    <div class="font-label-md text-label-md text-on-surface">Jordan Smith</div>
+                    <div class="font-label-sm text-label-sm text-on-surface-variant">TOEIC Moderator</div>
+                </div>
+            </div>
+        </div>
+        <nav class="flex-1 overflow-y-auto py-md flex flex-col gap-sm">
+            <div class="px-md mb-xs font-label-sm text-label-sm text-on-surface-variant uppercase tracking-wider">Overview</div>
+            <a class="flex items-center gap-sm px-md py-sm text-on-surface-variant hover:bg-surface-container-high transition-colors duration-200 cursor-pointer" href="/Courses">
+                <span class="material-symbols-outlined">dashboard</span>
+                <span class="font-label-md text-label-md">Dashboard</span>
+            </a>
+            
+            <div class="px-md mt-sm mb-xs font-label-sm text-label-sm text-on-surface-variant uppercase tracking-wider">Content Management</div>
+            
+            <!-- Exams Group -->
+            <div class="group">
+                <button type="button" onclick="toggleDropdown('exams-submenu', 'exams-arrow')" class="w-full flex items-center justify-between px-md py-sm text-on-surface-variant hover:bg-surface-container-high transition-colors duration-200 cursor-pointer focus:outline-none">
+                    <div class="flex items-center gap-sm">
+                        <span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">quiz</span>
+                        <span class="font-label-md text-label-md">Exams</span>
+                    </div>
+                    <span id="exams-arrow" class="material-symbols-outlined text-sm transition-transform duration-200">expand_more</span>
+                </button>
+                <div id="exams-submenu" class="pl-[44px] pr-md pb-sm flex flex-col gap-xs transition-all duration-300">
+                    <a class="block py-xs text-on-surface-variant hover:text-primary font-body-sm text-body-sm" href="/Exams">All Exams</a>
+                    <a class="block py-xs text-on-surface-variant hover:text-primary font-body-sm text-body-sm" href="/Exams/Create">+ Create Exam</a>
+                </div>
+            </div>
+            
+            <!-- Question Bank Group -->
+            <div class="group">
+                <button type="button" onclick="toggleDropdown('questions-submenu', 'questions-arrow')" class="w-full flex items-center justify-between px-md py-sm text-on-surface-variant hover:bg-surface-container-high transition-colors duration-200 cursor-pointer focus:outline-none">
+                    <div class="flex items-center gap-sm">
+                        <span class="material-symbols-outlined">description</span>
+                        <span class="font-label-md text-label-md">Question Bank</span>
+                    </div>
+                    <span id="questions-arrow" class="material-symbols-outlined text-sm transition-transform duration-200 rotate-180">expand_more</span>
+                </button>
+                <div id="questions-submenu" class="pl-[44px] pr-md pb-sm flex flex-col gap-xs hidden">
+                    <a class="block py-xs text-on-surface-variant hover:text-primary font-body-sm text-body-sm" href="#">All Questions</a>
+                    <a class="block py-xs text-on-surface-variant hover:text-primary font-body-sm text-body-sm" href="#">+ Add Question</a>
+                </div>
+            </div>
+
+            <div class="px-md mt-sm mb-xs font-label-sm text-label-sm text-on-surface-variant uppercase tracking-wider">System</div>
+            <a class="flex items-center gap-sm px-md py-sm text-on-surface-variant hover:bg-surface-container-high transition-colors duration-200 cursor-pointer" href="#">
+                <span class="material-symbols-outlined">notifications</span>
+                <span class="font-label-md text-label-md">Notifications</span>
+            </a>
+            <a class="flex items-center gap-sm px-md py-sm text-on-surface-variant hover:bg-surface-container-high transition-colors duration-200 cursor-pointer" href="/Courses">
+                <span class="material-symbols-outlined">arrow_back</span>
+                <span class="font-label-md text-label-md">Back to Site</span>
+            </a>
+        </nav>
+    </aside>
+
+    <!-- Main Area Wrapper -->
+    <div class="flex-1 flex flex-col md:ml-64 h-screen">
+        
+        <!-- TopNavBar -->
+        <header class="flex justify-between items-center h-16 px-md bg-surface border-b border-outline-variant w-full z-10 shrink-0">
+            <div class="flex items-center gap-md">
+                <h1 class="font-headline-sm text-headline-sm text-primary font-bold">@ViewData["Title"]</h1>
+                <span class="bg-primary-fixed text-on-primary-fixed-variant px-2 py-1 rounded-full font-label-sm text-label-sm">Moderator</span>
+            </div>
+            <div class="flex items-center gap-md">
+                <span class="font-label-sm text-label-sm text-on-surface-variant hidden sm:inline-block">Last login: Today 08:32</span>
+                <div class="flex items-center gap-sm">
+                    <button class="text-on-surface-variant hover:text-primary transition-colors cursor-pointer p-1">
+                        <span class="material-symbols-outlined">notifications</span>
+                    </button>
+                    <button class="text-on-surface-variant hover:text-primary transition-colors cursor-pointer p-1">
+                        <span class="material-symbols-outlined">dark_mode</span>
+                    </button>
+                    <button class="text-on-surface-variant hover:text-primary transition-colors cursor-pointer p-1">
+                        <span class="material-symbols-outlined">account_circle</span>
+                    </button>
+                </div>
+            </div>
+        </header>
+
+        <!-- Main Content Canvas -->
+        <main class="flex-1 overflow-y-auto p-margin-mobile md:p-gutter">
+            @RenderBody()
+        </main>
+    </div>
+
+    <!-- Global Premium Notification Toast -->
+    <div id="global-toast" class="fixed top-5 right-5 z-50 transform translate-x-[120%] opacity-0 flex items-center gap-md px-md py-sm rounded-xl border border-outline-variant/30 bg-surface-container-lowest shadow-xl transition-all duration-500 ease-out max-w-sm pointer-events-auto">
+        <div id="global-toast-accent" class="absolute left-0 top-0 bottom-0 w-1.5 rounded-l-xl bg-primary"></div>
+        <span id="global-toast-icon" class="material-symbols-outlined text-primary">info</span>
+        <div class="flex flex-col pr-sm">
+            <span id="global-toast-title" class="font-label-sm text-label-sm text-on-surface-variant font-bold uppercase tracking-wider">Notification</span>
+            <span id="global-toast-text" class="font-body-sm text-body-sm text-on-surface mt-0.5">Processing...</span>
+        </div>
+        <button onclick="hideGlobalToast()" class="text-on-surface-variant hover:text-on-surface p-1 rounded hover:bg-surface-container transition-colors ml-auto cursor-pointer flex items-center justify-center">
+            <span class="material-symbols-outlined text-sm block">close</span>
+        </button>
+    </div>
+
+    <!-- Global Custom Confirm Modal -->
+    <div id="global-confirm-modal" class="hidden fixed inset-0 z-50 bg-on-surface/40 backdrop-blur-sm flex items-center justify-center opacity-0 transition-opacity duration-300 pointer-events-none">
+        <div id="global-confirm-content" class="bg-surface-container-lowest border border-outline-variant/30 rounded-2xl shadow-2xl p-lg max-w-md w-full flex flex-col gap-md transform scale-95 opacity-0 transition-all duration-300 ease-out mx-margin-mobile">
+            <div class="flex items-start gap-md">
+                <span id="global-confirm-icon" class="material-symbols-outlined text-display-lg text-error">warning</span>
+                <div class="flex flex-col gap-xs">
+                    <h3 id="global-confirm-title" class="font-headline-sm text-headline-sm text-on-surface font-bold">Confirm Action</h3>
+                    <p id="global-confirm-message" class="font-body-md text-body-md text-on-surface-variant leading-relaxed mt-xs">Are you sure you want to proceed?</p>
+                </div>
+            </div>
+            <div class="flex justify-end gap-sm mt-sm border-t border-outline-variant/10 pt-md">
+                <button id="global-confirm-cancel" onclick="closeConfirmModal()" class="border border-outline-variant hover:bg-surface-container text-on-surface-variant font-label-md text-label-md py-2 px-4 rounded-lg transition-colors cursor-pointer">Cancel</button>
+                <button id="global-confirm-btn" onclick="handleConfirmClick()" class="bg-primary hover:bg-primary/90 text-on-primary font-label-md text-label-md py-2 px-5 rounded-lg transition-colors cursor-pointer">Confirm</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function toggleDropdown(id, arrowId) {
+            const submenu = document.getElementById(id);
+            const arrow = document.getElementById(arrowId);
+            if (submenu && arrow) {
+                if (submenu.classList.contains('hidden')) {
+                    submenu.classList.remove('hidden');
+                    arrow.classList.remove('rotate-180');
+                } else {
+                    submenu.classList.add('hidden');
+                    arrow.classList.add('rotate-180');
+                }
+            }
+        }
+
+        let toastTimeout = null;
+
+        function showToast(text, type = 'info') {
+            const toast = document.getElementById('global-toast');
+            const accent = document.getElementById('global-toast-accent');
+            const icon = document.getElementById('global-toast-icon');
+            const title = document.getElementById('global-toast-title');
+            const txt = document.getElementById('global-toast-text');
+            
+            if (!toast || !accent || !icon || !title || !txt) return;
+
+            // Reset classes
+            accent.className = 'absolute left-0 top-0 bottom-0 w-1.5 rounded-l-xl';
+            icon.className = 'material-symbols-outlined';
+
+            // Apply styles based on type
+            if (type === 'success') {
+                accent.classList.add('bg-tertiary');
+                icon.classList.add('text-tertiary');
+                icon.innerText = 'check_circle';
+                title.innerText = 'Success';
+                title.className = 'font-label-sm text-label-sm text-tertiary font-bold uppercase tracking-wider';
+            } else if (type === 'error') {
+                accent.classList.add('bg-error');
+                icon.classList.add('text-error');
+                icon.innerText = 'error';
+                title.innerText = 'Error';
+                title.className = 'font-label-sm text-label-sm text-error font-bold uppercase tracking-wider';
+            } else {
+                accent.classList.add('bg-primary');
+                icon.classList.add('text-primary');
+                icon.innerText = 'info';
+                title.innerText = 'Information';
+                title.className = 'font-label-sm text-label-sm text-primary font-bold uppercase tracking-wider';
+            }
+
+            txt.innerText = text;
+
+            // Show toast with slide-in animation
+            toast.classList.remove('translate-x-[120%]', 'opacity-0');
+            toast.classList.add('translate-x-0', 'opacity-100');
+
+            // Clear existing timer if any
+            if (toastTimeout) {
+                clearTimeout(toastTimeout);
+            }
+
+            // Hide after 3 seconds
+            toastTimeout = setTimeout(() => {
+                hideGlobalToast();
+            }, 3000);
+        }
+
+        function hideGlobalToast() {
+            const toast = document.getElementById('global-toast');
+            if (toast) {
+                toast.classList.remove('translate-x-0', 'opacity-100');
+                toast.classList.add('translate-x-[120%]', 'opacity-0');
+            }
+        }
+
+        let onConfirmCallback = null;
+
+        function showConfirm({ title, message, confirmText = 'Confirm', cancelText = 'Cancel', isDestructive = false, onConfirm }) {
+            const modal = document.getElementById('global-confirm-modal');
+            const modalContent = document.getElementById('global-confirm-content');
+            const titleEl = document.getElementById('global-confirm-title');
+            const msgEl = document.getElementById('global-confirm-message');
+            const btnConfirm = document.getElementById('global-confirm-btn');
+            const btnCancel = document.getElementById('global-confirm-cancel');
+            const iconEl = document.getElementById('global-confirm-icon');
+
+            if (!modal || !modalContent || !titleEl || !msgEl || !btnConfirm || !btnCancel || !iconEl) return;
+
+            titleEl.innerText = title;
+            msgEl.innerText = message;
+            btnConfirm.innerText = confirmText;
+            btnCancel.innerText = cancelText;
+
+            if (isDestructive) {
+                btnConfirm.className = 'bg-error hover:bg-error/90 text-on-error font-label-md text-label-md py-2 px-5 rounded-lg transition-colors cursor-pointer';
+                iconEl.innerText = 'warning';
+                iconEl.className = 'material-symbols-outlined text-display-lg text-error';
+            } else {
+                btnConfirm.className = 'bg-primary hover:bg-primary/90 text-on-primary font-label-md text-label-md py-2 px-5 rounded-lg transition-colors cursor-pointer';
+                iconEl.innerText = 'help';
+                iconEl.className = 'material-symbols-outlined text-display-lg text-primary';
+            }
+
+            onConfirmCallback = onConfirm;
+
+            modal.classList.remove('hidden', 'pointer-events-none');
+            setTimeout(() => {
+                modal.classList.add('opacity-100');
+                modalContent.classList.remove('scale-95', 'opacity-0');
+                modalContent.classList.add('scale-100', 'opacity-100');
+            }, 10);
+        }
+
+        function closeConfirmModal() {
+            const modal = document.getElementById('global-confirm-modal');
+            const modalContent = document.getElementById('global-confirm-content');
+            if (!modal || !modalContent) return;
+
+            modalContent.classList.remove('scale-100', 'opacity-100');
+            modalContent.classList.add('scale-95', 'opacity-0');
+            modal.classList.remove('opacity-100');
+            
+            setTimeout(() => {
+                modal.classList.add('hidden', 'pointer-events-none');
+                onConfirmCallback = null;
+            }, 300);
+        }
+
+        function handleConfirmClick() {
+            if (onConfirmCallback) {
+                onConfirmCallback();
+            }
+            closeConfirmModal();
+        }
+    </script>
+    @await RenderSectionAsync("Scripts", required: false)
+</body>
+</html>

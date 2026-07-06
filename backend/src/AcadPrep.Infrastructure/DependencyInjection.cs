@@ -38,19 +38,19 @@ public static class DependencyInjection
         // Register standard TimeProvider
         services.AddSingleton(TimeProvider.System);
 
-        // Redis cache configuration
-        // var redisConnectionString = configuration.GetConnectionString("Redis");
-        // if (!string.IsNullOrEmpty(redisConnectionString))
-        // {
-        //     services.AddStackExchangeRedisCache(options =>
-        //     {
-        //         options.Configuration = redisConnectionString;
-        //     });
-        // }
-        // services.AddSingleton<ICacheService, RedisCacheService>();
-
-        // Sử dụng bộ nhớ RAM cục bộ làm Cache thay thế cho Redis
-        services.AddDistributedMemoryCache();
+        // Redis cache configuration: Fallback to In-Memory cache if Redis is not configured
+        var redisConnectionString = configuration.GetConnectionString("Redis");
+        if (!string.IsNullOrEmpty(redisConnectionString))
+        {
+            services.AddStackExchangeRedisCache(options =>
+            {
+                options.Configuration = redisConnectionString;
+            });
+        }
+        else
+        {
+            services.AddDistributedMemoryCache();
+        }
         services.AddSingleton<ICacheService, RedisCacheService>();
 
         // Register AI generation service

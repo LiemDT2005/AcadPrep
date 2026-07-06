@@ -8,7 +8,7 @@ using Application.Features.Exam.Queries.GetExamDetail;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 
-namespace Application.Features.Exams.Queries.GetExamDetail;
+namespace Application.Features.Exam.Queries.GetExamDetail;
 
 internal sealed class GetExamDetailQueryHandler(IAppDbContext context, ICacheService cache)
     : IRequestHandler<GetExamDetailQuery, Result<GetExamDetailDto>>
