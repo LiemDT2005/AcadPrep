@@ -63,10 +63,10 @@
     <!-- 2. QUICK ACTIONS -->
     <section class="flex justify-between items-center gap-sm">
         <div class="flex gap-sm">
-            <a href="/Admin/Exams/Create" class="bg-primary hover:bg-primary/90 text-on-primary font-label-md text-label-md py-2 px-4 rounded-lg flex items-center gap-xs transition-colors cursor-pointer">
+            <button type="button" onclick="openCreateExamModal()" class="bg-primary hover:bg-primary/90 text-on-primary font-label-md text-label-md py-2 px-4 rounded-lg flex items-center gap-xs transition-colors cursor-pointer">
                 <span class="material-symbols-outlined text-sm">add</span>
                 Create New Exam
-            </a>
+            </button>
         </div>
     </section>
 
@@ -159,8 +159,52 @@
     </section>
 </div>
 
+<partial name="_CreateExamModal" />
+
 @section Scripts {
 <script>
+    function openCreateExamModal() {
+        const modal = document.getElementById('create-exam-modal');
+        const content = document.getElementById('create-exam-modal-content');
+        if (!modal || !content) return;
+
+        modal.classList.remove('hidden', 'pointer-events-none', 'opacity-0');
+        modal.classList.add('opacity-100');
+        content.classList.remove('scale-95', 'opacity-0');
+        content.classList.add('scale-100', 'opacity-100');
+    }
+
+    function closeCreateExamModal() {
+        const modal = document.getElementById('create-exam-modal');
+        const content = document.getElementById('create-exam-modal-content');
+        if (!modal || !content) return;
+
+        content.classList.remove('scale-100', 'opacity-100');
+        content.classList.add('scale-95', 'opacity-0');
+        modal.classList.remove('opacity-100');
+        modal.classList.add('opacity-0');
+
+        setTimeout(() => {
+            modal.classList.add('hidden', 'pointer-events-none');
+        }, 300);
+    }
+
+    document.getElementById('create-exam-modal')?.addEventListener('click', (e) => {
+        if (e.target.id === 'create-exam-modal') {
+            closeCreateExamModal();
+        }
+    });
+
+    document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape') {
+            closeCreateExamModal();
+        }
+    });
+
+    @if (Model.ShowCreateModal)
+    {
+        <text>document.addEventListener('DOMContentLoaded', openCreateExamModal);</text>
+    }
 
     function confirmSoftDelete(id, title) {
         showConfirm({

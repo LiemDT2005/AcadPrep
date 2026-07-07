@@ -149,8 +149,8 @@
                     <span id="exams-arrow" class="material-symbols-outlined text-sm transition-transform duration-200">expand_more</span>
                 </button>
                 <div id="exams-submenu" class="pl-[44px] pr-md pb-sm flex flex-col gap-xs transition-all duration-300">
-                    <a class="block py-xs text-on-surface-variant hover:text-primary font-body-sm text-body-sm" href="/Exams">All Exams</a>
-                    <a class="block py-xs text-on-surface-variant hover:text-primary font-body-sm text-body-sm" href="/Exams/Create">+ Create Exam</a>
+                    <a class="block py-xs text-on-surface-variant hover:text-primary font-body-sm text-body-sm" href="/Admin/Exams">All Exams</a>
+                    <button type="button" onclick="if(typeof openCreateExamModal === 'function') openCreateExamModal(); else window.location.href='/Admin/Exams'" class="block py-xs text-on-surface-variant hover:text-primary font-body-sm text-body-sm text-left w-full">+ Create Exam</button>
                 </div>
             </div>
             

@@ -34,6 +34,16 @@ public class QuestionConfiguration : IEntityTypeConfiguration<Question>
             .IsUnicode(false)
             .IsRequired(false);
 
+        builder.Property(x => x.AudioStartSecond)
+            .IsRequired(false);
+
+        builder.Property(x => x.AudioEndSecond)
+            .IsRequired(false);
+
+        builder.Property(x => x.ImageUrl)
+            .HasMaxLength(500)
+            .IsUnicode(false)
+            .IsRequired(false);
         builder.Property(x => x.CorrectOption)
             .HasMaxLength(1)
             .IsUnicode(false)

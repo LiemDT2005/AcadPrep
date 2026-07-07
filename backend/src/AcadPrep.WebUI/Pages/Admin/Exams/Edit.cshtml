@@ -1,0 +1,84 @@
+@page
+@model AcadPrep.WebUI.Pages.Admin.Exams.EditModel
+@{
+    Layout = "_ModeratorLayout";
+    ViewData["Title"] = "Edit Exam";
+
+    var exam = Model.Exam;
+    var totalQuestions = exam.Questions.Count;
+}
+
+<div class="w-full flex flex-col gap-lg pb-12">
+    <div class="flex justify-between items-center">
+        <a href="/Admin/Exams" class="flex items-center gap-xs text-on-surface-variant hover:text-primary transition-colors">
+            <span class="material-symbols-outlined">arrow_back</span>
+            <span class="font-label-md text-label-md">Back to list</span>
+        </a>
+        <a href="/Admin/Exams/Detail?id=@exam.Id" class="border border-outline-variant hover:bg-surface-container-high text-on-surface-variant font-label-md text-label-md py-2 px-4 rounded-lg transition-colors">
+            View Details
+        </a>
+    </div>
+
+    <section class="bg-surface-container-lowest rounded-xl p-lg border border-outline-variant/30 shadow-sm flex flex-col gap-md">
+        <div class="flex justify-between items-start gap-md">
+            <div>
+                <span class="font-label-sm text-label-sm text-outline-variant font-semibold">EXAM ID: #@exam.Id</span>
+                <h2 class="font-headline-lg text-headline-lg font-bold text-on-surface mt-xs">@exam.Title</h2>
+                @if (!string.IsNullOrEmpty(exam.Description))
+                {
+                    <p class="font-body-md text-body-md text-on-surface-variant mt-sm">@exam.Description</p>
+                }
+            </div>
+            <div class="text-right shrink-0">
+                <span class="font-label-sm text-label-sm text-on-surface-variant block">Duration</span>
+                <span class="font-headline-sm text-headline-sm text-primary font-bold">@exam.Duration mins</span>
+            </div>
+        </div>
+    </section>
+
+    <section class="flex flex-col gap-md">
+        <div class="flex justify-between items-center border-b border-outline-variant/30 pb-xs">
+            <h3 class="font-headline-sm text-headline-sm text-on-surface font-semibold flex items-center gap-xs">
+                <span class="material-symbols-outlined text-primary">quiz</span>
+                Question Management
+            </h3>
+            <span class="font-label-sm text-label-sm text-on-surface-variant">@totalQuestions questions</span>
+        </div>
+
+        @if (totalQuestions > 0)
+        {
+            <div class="flex flex-col gap-sm">
+                @foreach (var question in exam.Questions.OrderBy(q => q.Part).ThenBy(q => q.QuestionNumber))
+                {
+                    <div class="bg-surface-container-lowest rounded-xl p-md border border-outline-variant/30 flex justify-between items-center">
+                        <div>
+                            <span class="font-label-md text-label-md font-semibold text-on-surface">Part @question.Part - Q@question.QuestionNumber</span>
+                            <p class="font-body-sm text-body-sm text-on-surface-variant line-clamp-1 mt-xs">
+                                @(string.IsNullOrWhiteSpace(question.QuestionText) ? "(No question text)" : question.QuestionText)
+                            </p>
+                        </div>
+                        <div class="flex items-center gap-sm text-on-surface-variant">
+                            <span class="material-symbols-outlined text-sm" title="Edit question (coming soon)">edit</span>
+                            <span class="material-symbols-outlined text-sm" title="Delete question (coming soon)">delete</span>
+                        </div>
+                    </div>
+                }
+            </div>
+        }
+        else
+        {
+            <div class="text-center py-12 bg-surface-container-lowest rounded-xl border border-outline-variant/30 border-dashed">
+                <span class="material-symbols-outlined text-display-lg text-outline-variant block mb-sm">add_circle</span>
+                <p class="font-headline-sm text-headline-sm mb-xs">No questions yet</p>
+                <p class="font-body-sm text-body-sm text-on-surface-variant mb-md">Add questions to this exam below.</p>
+            </div>
+        }
+
+        <div class="flex justify-center mt-sm">
+            <button type="button" disabled class="bg-surface-container-lowest border border-outline-variant text-on-surface-variant font-label-md text-label-md py-2.5 px-6 rounded-lg flex items-center gap-xs opacity-60 cursor-not-allowed">
+                <span class="material-symbols-outlined">add_circle</span>
+                Add Question (coming soon)
+            </button>
+        </div>
+    </section>
+</div>

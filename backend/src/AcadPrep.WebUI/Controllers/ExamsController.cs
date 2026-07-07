@@ -87,7 +87,8 @@ public class ExamsController : ApiControllerBase
     }
 
     /// <summary>
-    /// Tạo một đề thi mới kèm theo danh sách các câu hỏi
+    /// Tạo một đề thi trống (metadata only). Thêm/sửa câu hỏi thực hiện ở trang Edit.
+    /// Endpoint này dùng để test qua Swagger; UI Razor Pages gọi trực tiếp CreateExamCommand qua code-behind.
     /// </summary>
     [HttpPost]
     [ProducesResponseType(StatusCodes.Status201Created)]

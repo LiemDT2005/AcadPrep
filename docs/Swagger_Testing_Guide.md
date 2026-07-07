@@ -358,4 +358,21 @@ Nếu Swagger trả về dữ liệu đúng → Razor Pages cũng sẽ nhận đ
 
 ---
 
-^**\_**^
+## 9. Script Test Nhanh — Create Exam API
+
+Dùng script sau để test `POST /api/Exams` qua curl (tương đương Swagger Try it out):
+
+```bash
+# Chạy backend trước
+dotnet run --project backend/src/AcadPrep.WebUI/AcadPrep.WebUI.csproj
+
+# Terminal khác
+./backend/scripts/test-swagger-create-exam.sh
+
+# Tùy chọn: đổi port hoặc exam series ID
+BASE_URL=http://localhost:5001 EXAM_SERIES_ID=1 ./backend/scripts/test-swagger-create-exam.sh
+```
+
+> **Lưu ý:** UI tạo exam trên `/Admin/Exams` dùng **Razor Pages code-behind** (`OnPostCreateAsync`), không gọi API. Controller `/api/Exams` giữ lại để test Swagger.
+
+---

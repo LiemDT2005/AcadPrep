@@ -4,7 +4,9 @@ namespace Domain.Entities;
 
 public class Passage : BaseEntity<int>
 {
-    public string Content { get; set; } = null!;
+    public string? Content { get; set; } 
+    public string? ImageUrl { get; set; } 
+    
     public int ExamId { get; set; }
 
     // Navigation properties

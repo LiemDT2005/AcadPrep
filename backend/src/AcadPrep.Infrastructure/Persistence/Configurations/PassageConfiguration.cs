@@ -17,7 +17,12 @@ public class PassageConfiguration : IEntityTypeConfiguration<Passage>
             .ValueGeneratedOnAdd();
 
         builder.Property(x => x.Content)
-            .IsRequired();
+            .IsRequired(false);
+
+        builder.Property(x => x.ImageUrl)
+            .HasMaxLength(500)
+            .IsUnicode(false)
+            .IsRequired(false);
 
         builder.Property(x => x.ExamId)
             .IsRequired();
