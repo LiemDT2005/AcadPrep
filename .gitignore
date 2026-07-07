@@ -66,3 +66,4 @@ nunit-*.xml
 
 # VS Code
 .vscode/
+.cursor/mcp.json
