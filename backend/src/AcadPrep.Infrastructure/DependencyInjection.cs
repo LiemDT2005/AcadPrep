@@ -35,6 +35,9 @@ public static class DependencyInjection
         // Register CurrentUserService
         services.AddScoped<ICurrentUserService, CurrentUserService>();
 
+        // Register PasswordHasher
+        services.AddScoped<IPasswordHasher, PasswordHasher>();
+
         // Register standard TimeProvider
         services.AddSingleton(TimeProvider.System);
 

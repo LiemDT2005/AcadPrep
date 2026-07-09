@@ -53,14 +53,13 @@ public class AppDbContextInitializer
             var learnerRole = await _context.Roles.FirstOrDefaultAsync(r => r.RoleName == "Learner");
             if (learnerRole != null)
             {
-                _context.Users.Add(new User
-                {
-                    Email = "learner@test.com",
-                    FullName = "Nguyen Van Learner",
-                    PasswordHash = "hashedpassword", // Not real auth for seeding purposes
-                    Status = UserStatus.Active,
-                    RoleId = learnerRole.RoleId
-                });
+                var learnerUser = User.Create(
+                    "learner@test.com",
+                    "Nguyen Van Learner",
+                    "hashedpassword", // Not real auth for seeding purposes
+                    learnerRole.RoleId);
+                learnerUser.Activate();
+                _context.Users.Add(learnerUser);
                 await _context.SaveChangesAsync();
             }
         }
