@@ -18,5 +18,6 @@ public class QuestionGroup : BaseEntity<int>
     
     // Navigation properties
     public virtual Exam Exam { get; set; } = null!;
+    public virtual ICollection<Passage> Passages { get; set; } = new List<Passage>();
     public virtual ICollection<Question> Questions { get; set; } = new List<Question>();
 }

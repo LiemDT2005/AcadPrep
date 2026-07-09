@@ -15,13 +15,17 @@ internal sealed class GetExamDetailQueryHandler(IAppDbContext context)
     public async Task<Result<ExamDetailDto>> Handle(
         GetExamDetailQuery request, CancellationToken cancellationToken)
     {
-        // Truy vấn đề thi cùng các mối quan hệ (câu hỏi, đáp án lựa chọn, đoạn văn, lượt thi)
         var exam = await context.Exams
             .IgnoreQueryFilters()
             .Include(x => x.Questions)
                 .ThenInclude(q => q.QuestionOptions)
             .Include(x => x.Questions)
                 .ThenInclude(q => q.Passage)
+            .Include(x => x.QuestionGroups)
+                .ThenInclude(g => g.Passages)
+            .Include(x => x.QuestionGroups)
+                .ThenInclude(g => g.Questions)
+                    .ThenInclude(q => q.QuestionOptions)
             .Include(x => x.ExamAttempts)
             .FirstOrDefaultAsync(x => x.Id == request.Id, cancellationToken);
 
@@ -30,7 +34,6 @@ internal sealed class GetExamDetailQueryHandler(IAppDbContext context)
             return Result<ExamDetailDto>.Failure("Exam not found.");
         }
 
-        // Ánh xạ sang DTO
         var dto = new ExamDetailDto
         {
             Id = exam.Id,
@@ -42,23 +45,29 @@ internal sealed class GetExamDetailQueryHandler(IAppDbContext context)
             AttemptCount = exam.ExamAttempts.Count,
             Questions = exam.Questions
                 .OrderBy(q => q.QuestionNumber)
-                .Select(q => new QuestionDetailDto
+                .Select(MapQuestion)
+                .ToList(),
+            Part7ReadingSets = exam.QuestionGroups
+                .Where(g => g.Questions.Any(q => q.Part == 7))
+                .OrderBy(g => g.Questions.Where(q => q.Part == 7).Min(q => q.QuestionNumber))
+                .Select(g => new ReadingSetDto
                 {
-                    Id = q.Id,
-                    QuestionNumber = q.QuestionNumber,
-                    Part = q.Part,
-                    QuestionText = q.QuestionText,
-                    AudioUrl = q.AudioUrl,
-                    CorrectOption = q.CorrectOption.ToString(),
-                    PassageId = q.PassageId,
-                    PassageContent = q.Passage?.Content,
-                    Options = q.QuestionOptions
-                        .OrderBy(o => o.OptionLetter)
-                        .Select(o => new QuestionOptionDto
+                    QuestionGroupId = g.Id,
+                    Name = g.Name,
+                    Passages = g.Passages
+                        .OrderBy(p => p.DisplayOrder)
+                        .Select(p => new PassageDetailDto
                         {
-                            OptionLetter = o.OptionLetter.ToString(),
-                            OptionText = o.OptionText
+                            Id = p.Id,
+                            DisplayOrder = p.DisplayOrder,
+                            Content = p.Content,
+                            ImageUrl = p.ImageUrl
                         })
+                        .ToList(),
+                    Questions = g.Questions
+                        .Where(q => q.Part == 7)
+                        .OrderBy(q => q.QuestionNumber)
+                        .Select(MapQuestion)
                         .ToList()
                 })
                 .ToList()
@@ -66,4 +75,26 @@ internal sealed class GetExamDetailQueryHandler(IAppDbContext context)
 
         return Result<ExamDetailDto>.Success(dto);
     }
+
+    private static QuestionDetailDto MapQuestion(Domain.Entities.Question q) => new()
+    {
+        Id = q.Id,
+        QuestionNumber = q.QuestionNumber,
+        Part = q.Part,
+        QuestionText = q.QuestionText,
+        AudioUrl = q.AudioUrl,
+        CorrectOption = q.CorrectOption.ToString(),
+        PassageId = q.PassageId,
+        PassageContent = q.Passage?.Content,
+        PassageImageUrl = q.Passage?.ImageUrl,
+        QuestionGroupId = q.QuestionGroupId,
+        Options = q.QuestionOptions
+            .OrderBy(o => o.OptionLetter)
+            .Select(o => new QuestionOptionDto
+            {
+                OptionLetter = o.OptionLetter.ToString(),
+                OptionText = o.OptionText
+            })
+            .ToList()
+    };
 }

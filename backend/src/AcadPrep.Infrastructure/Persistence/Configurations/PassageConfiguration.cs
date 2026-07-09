@@ -24,13 +24,27 @@ public class PassageConfiguration : IEntityTypeConfiguration<Passage>
             .IsUnicode(false)
             .IsRequired(false);
 
+        builder.Property(x => x.DisplayOrder)
+            .IsRequired()
+            .HasDefaultValue(1);
+
         builder.Property(x => x.ExamId)
             .IsRequired();
+
+        builder.Property(x => x.QuestionGroupId)
+            .IsRequired(false);
 
         // Relationships
         builder.HasOne(x => x.Exam)
             .WithMany(e => e.Passages)
             .HasForeignKey(x => x.ExamId)
             .OnDelete(DeleteBehavior.Cascade);
+
+        builder.HasOne(x => x.QuestionGroup)
+            .WithMany(g => g.Passages)
+            .HasForeignKey(x => x.QuestionGroupId)
+            .OnDelete(DeleteBehavior.Restrict);
+
+        builder.HasIndex(x => new { x.QuestionGroupId, x.DisplayOrder });
     }
 }

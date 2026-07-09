@@ -25,7 +25,6 @@ public class AppDbContext(DbContextOptions<AppDbContext> options)
     public DbSet<AuditLog> AuditLogs => Set<AuditLog>();
     public DbSet<Achievement> Achievements => Set<Achievement>();
     public DbSet<UserAchievement> UserAchievements => Set<UserAchievement>();
-    public DbSet<Part> Parts => Set<Part>();
     public DbSet<QuestionGroup> QuestionGroups => Set<QuestionGroup>();
     public DbSet<PracticeSession> PracticeSessions => Set<PracticeSession>();
 

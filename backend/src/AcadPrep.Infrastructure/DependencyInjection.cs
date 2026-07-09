@@ -56,6 +56,9 @@ public static class DependencyInjection
         // Register AI generation service
         services.AddScoped<IAiGenerationService, MockAiGenerationService>();
 
+        // Register Cloudinary storage service
+        services.AddScoped<IFileStorageService, CloudinaryStorageService>();
+
         return services;
     }
 }

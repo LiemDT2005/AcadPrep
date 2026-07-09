@@ -13,6 +13,7 @@ public class ExamDetailDto
     public DateTime CreatedAt { get; set; }
     public int AttemptCount { get; set; }
     public List<QuestionDetailDto> Questions { get; set; } = new();
+    public List<ReadingSetDto> Part7ReadingSets { get; set; } = new();
 }
 
 public class QuestionDetailDto
@@ -25,6 +26,8 @@ public class QuestionDetailDto
     public required string CorrectOption { get; set; }
     public int? PassageId { get; set; }
     public string? PassageContent { get; set; }
+    public string? PassageImageUrl { get; set; }
+    public int? QuestionGroupId { get; set; }
     public List<QuestionOptionDto> Options { get; set; } = new();
 }
 

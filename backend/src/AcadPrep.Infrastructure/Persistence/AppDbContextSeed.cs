@@ -214,23 +214,6 @@ public static class AppDbContextSeed
         await context.SaveChangesAsync();
 
         // ── 3.6. Parts ──
-        foreach (var exam in examsList)
-        {
-            var hasParts = context.Parts.Any(pt => pt.ExamId == exam.Id);
-            if (!hasParts)
-            {
-                for (int p = 1; p <= 7; p++)
-                {
-                    context.Parts.Add(new Part
-                    {
-                        ExamId = exam.Id,
-                        PartNumber = p,
-                        TotalQuestions = 1
-                    });
-                }
-            }
-        }
-        await context.SaveChangesAsync();
 
         // ── 4. Achievements ──
         if (!context.Achievements.Any())

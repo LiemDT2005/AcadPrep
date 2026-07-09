@@ -109,66 +109,71 @@
 
                         <!-- Questions inside Part -->
                         <div class="flex flex-col gap-md pl-xs md:pl-md">
-                            @{
-                                int? lastPassageId = null;
-                            }
-                            @foreach (var question in partQuestions)
+                            @if (part == 7 && exam.Part7ReadingSets.Any())
                             {
-                                <!-- Render Reading Passage for Part 6, 7 (Avoid duplicates) -->
-                                @if ((part == 6 || part == 7) && question.PassageId != null && question.PassageId != lastPassageId)
+                                @foreach (var readingSet in exam.Part7ReadingSets)
                                 {
-                                    lastPassageId = question.PassageId;
-                                    <div class="bg-secondary-fixed/10 border-l-4 border-secondary-container p-md rounded-r-xl flex flex-col gap-xs my-sm">
-                                        <div class="flex items-center gap-xs font-semibold text-secondary text-sm">
-                                            <span class="material-symbols-outlined text-base">menu_book</span>
-                                            Reading Passage (Passage ID: #@question.PassageId)
+                                    <div class="bg-secondary-fixed/10 border border-secondary-container/30 rounded-xl p-md flex flex-col gap-md">
+                                        <div class="flex items-center justify-between gap-sm">
+                                            <div class="flex items-center gap-xs font-semibold text-secondary">
+                                                <span class="material-symbols-outlined text-base">menu_book</span>
+                                                Reading Set: @readingSet.Name
+                                            </div>
+                                            <span class="font-label-sm text-label-sm text-on-surface-variant">
+                                                @readingSet.Passages.Count passage(s), @readingSet.Questions.Count question(s)
+                                            </span>
                                         </div>
-                                        <div class="font-body-sm text-body-sm text-on-surface leading-relaxed whitespace-pre-wrap">@question.PassageContent</div>
-                                    </div>
-                                }
 
-                                <!-- Question Card -->
-                                <div class="bg-surface-container-lowest rounded-xl p-md border border-outline-variant/30 shadow-sm flex flex-col gap-sm hover:border-primary/20 transition-colors">
-                                    <div class="flex justify-between items-start">
-                                        <span class="font-label-md text-label-md font-semibold text-primary">Question @question.QuestionNumber:</span>
-                                    </div>
-
-                                    <!-- Audio Player (Parts 1-4) -->
-                                    @if (!string.IsNullOrEmpty(question.AudioUrl))
-                                    {
-                                        <div class="flex items-center gap-sm bg-surface-container/20 p-2 rounded-lg border border-outline-variant/20 max-w-md">
-                                            <span class="material-symbols-outlined text-primary">volume_up</span>
-                                            <audio controls class="w-full h-8">
-                                                <source src="@question.AudioUrl" type="audio/mpeg">
-                                                Your browser does not support the audio player.
-                                            </audio>
-                                        </div>
-                                    }
-
-                                    <!-- Question Text -->
-                                    @if (!string.IsNullOrEmpty(question.QuestionText))
-                                    {
-                                        <p class="font-body-sm text-body-sm text-on-surface font-medium">@question.QuestionText</p>
-                                    }
-
-                                    <!-- Options Grid -->
-                                    <div class="grid grid-cols-1 md:grid-cols-2 gap-sm mt-xs">
-                                        @foreach (var opt in question.Options)
+                                        @foreach (var passage in readingSet.Passages)
                                         {
-                                            var isCorrect = opt.OptionLetter == question.CorrectOption;
-                                            <div class="flex items-center gap-sm p-2 rounded-lg border @(isCorrect ? "bg-tertiary-fixed/20 border-tertiary text-on-tertiary-fixed-variant font-semibold" : "border-outline-variant/20 bg-surface/30")">
-                                                <span class="w-6 h-6 rounded-full flex justify-center items-center font-label-sm text-label-sm @(isCorrect ? "bg-tertiary text-on-tertiary" : "bg-surface-container text-on-surface-variant")">
-                                                    @opt.OptionLetter
+                                            <div class="bg-surface-container-lowest rounded-lg p-md border border-outline-variant/20 flex flex-col gap-xs">
+                                                <span class="font-label-sm text-label-sm font-semibold text-on-surface-variant">
+                                                    Passage @passage.DisplayOrder (ID: #@passage.Id)
                                                 </span>
-                                                <span class="font-body-sm text-body-sm">@opt.OptionText</span>
-                                                @if (isCorrect)
+                                                @if (!string.IsNullOrEmpty(passage.Content))
                                                 {
-                                                    <span class="material-symbols-outlined text-tertiary text-sm ml-auto">check_circle</span>
+                                                    <div class="font-body-sm text-body-sm text-on-surface leading-relaxed whitespace-pre-wrap">@passage.Content</div>
+                                                }
+                                                @if (!string.IsNullOrEmpty(passage.ImageUrl))
+                                                {
+                                                    <img src="@passage.ImageUrl" alt="Passage @passage.DisplayOrder" class="max-w-full rounded-lg border border-outline-variant/20" />
                                                 }
                                             </div>
                                         }
+
+                                        @foreach (var question in readingSet.Questions)
+                                        {
+                                            @await Html.PartialAsync("_QuestionCard", question)
+                                        }
                                     </div>
-                                </div>
+                                }
+                            }
+                            else
+                            {
+                                int? lastPassageId = null;
+                                @foreach (var question in partQuestions)
+                                {
+                                    @if ((part == 6 || part == 7) && question.PassageId != null && question.PassageId != lastPassageId)
+                                    {
+                                        lastPassageId = question.PassageId;
+                                        <div class="bg-secondary-fixed/10 border-l-4 border-secondary-container p-md rounded-r-xl flex flex-col gap-xs my-sm">
+                                            <div class="flex items-center gap-xs font-semibold text-secondary text-sm">
+                                                <span class="material-symbols-outlined text-base">menu_book</span>
+                                                Reading Passage (Passage ID: #@question.PassageId)
+                                            </div>
+                                            @if (!string.IsNullOrEmpty(question.PassageContent))
+                                            {
+                                                <div class="font-body-sm text-body-sm text-on-surface leading-relaxed whitespace-pre-wrap">@question.PassageContent</div>
+                                            }
+                                            @if (!string.IsNullOrEmpty(question.PassageImageUrl))
+                                            {
+                                                <img src="@question.PassageImageUrl" alt="Reading passage" class="max-w-full rounded-lg border border-outline-variant/20" />
+                                            }
+                                        </div>
+                                    }
+
+                                    @await Html.PartialAsync("_QuestionCard", question)
+                                }
                             }
                         </div>
                     </div>
