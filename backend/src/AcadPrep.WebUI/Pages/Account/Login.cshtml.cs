@@ -27,8 +27,7 @@ public class LoginModel(ISender mediator) : PageModel
     /// <summary>Thông báo lỗi hiển thị trên form (null = không hiển thị).</summary>
     public string? ErrorMessage { get; private set; }
 
-    /// <summary>Hiển thị khi tài khoản cần xác minh email (Status == Inactive).</summary>
-    public bool RequiresVerification { get; private set; }
+
 
     public IActionResult OnGet(string? returnUrl = null)
     {
@@ -73,11 +72,10 @@ public class LoginModel(ISender mediator) : PageModel
 
         var dto = result.Data!;
 
-        // Nhánh 2: Tài khoản cần xác minh email (Inactive)
+        // Nhánh 2: Tài khoản chưa xác minh email (Inactive) — OTP đã được handler phát, redirect sang VerifyOtp
         if (dto.RequiresVerification)
         {
-            RequiresVerification = true;
-            return Page();
+            return RedirectToPage("/Account/VerifyOtp", new { email = dto.Email, isReactivation = true });
         }
 
         // Nhánh 3: Đăng nhập thành công → dựng ClaimsPrincipal và phát cookie

@@ -13,7 +13,8 @@ namespace Application.Features.Auth.Commands.Login;
 /// </summary>
 internal sealed class LoginCommandHandler(
     IAppDbContext db,
-    IPasswordHasher passwordHasher)
+    IPasswordHasher passwordHasher,
+    IOtpIssuer otpIssuer)
     : IRequestHandler<LoginCommand, Result<LoginResultDto>>
 {
     public async Task<Result<LoginResultDto>> Handle(LoginCommand request, CancellationToken cancellationToken)
@@ -42,10 +43,22 @@ internal sealed class LoginCommandHandler(
             return Result<LoginResultDto>.Failure("Tài khoản của bạn đã bị khóa. Vui lòng liên hệ hỗ trợ.");
         }
 
-        // Bước 6: Tài khoản chưa xác minh — trả Success nhưng RequiresVerification = true
-        // PageModel sẽ hiển thị thông báo, KHÔNG phát cookie
+        // Bước 6: Tài khoản chưa xác minh — phát OTP reactivation, trả Success với RequiresVerification = true
         if (user.Status == UserStatus.Inactive)
         {
+            var issued = await otpIssuer.IssueOtpAsync(
+                email:          user.Email,
+                isReactivation: true,
+                passwordHash:   null,
+                fullName:       null,
+                ct:             cancellationToken);
+
+            if (!issued)
+            {
+                return Result<LoginResultDto>.Failure(
+                    "Bạn đã nhập sai OTP quá số lần cho phép. Vui lòng thử lại sau 15 phút.");
+            }
+
             return Result<LoginResultDto>.Success(new LoginResultDto(
                 UserId: user.Id,
                 Email: user.Email,

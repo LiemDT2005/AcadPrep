@@ -59,6 +59,12 @@ public static class DependencyInjection
         // Register AI generation service
         services.AddScoped<IAiGenerationService, MockAiGenerationService>();
 
+        // Register Email service (mock — swap for real SMTP/SendGrid in production)
+        services.AddScoped<IEmailService, MockEmailService>();
+
+        // Register OTP issuer
+        services.AddScoped<IOtpIssuer, OtpIssuer>();
+
         return services;
     }
 }

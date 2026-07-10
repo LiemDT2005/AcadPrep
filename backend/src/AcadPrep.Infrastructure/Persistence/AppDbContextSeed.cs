@@ -5,6 +5,7 @@ using Domain.Entities;
 using Domain.Enums;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
+using Application.Common.Interfaces;
 
 namespace Infrastructure.Persistence;
 
@@ -14,6 +15,7 @@ public static class AppDbContextSeed
     {
         using var scope = serviceProvider.CreateScope();
         var context = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+        var passwordHasher = scope.ServiceProvider.GetRequiredService<IPasswordHasher>();
 
         await context.Database.MigrateAsync();
 
@@ -33,23 +35,25 @@ public static class AppDbContextSeed
             var adminRole = context.Roles.First(r => r.RoleName == "Admin");
             var userRole  = context.Roles.First(r => r.RoleName == "User");
 
+            var now = DateTime.UtcNow;
+            var defaultHash = passwordHasher.Hash("Password123!");
             // Sử dụng User.Create() factory vì User có private setters
-            var adminUser   = User.Create("admin@acadprep.com",    "Admin User",    "hashed_password", adminRole.RoleId); adminUser.Activate();
-            var testUser    = User.Create("user@acadprep.com",     "Test User",     "hashed_password", userRole.RoleId);  testUser.Activate();
-            var hanaUser    = User.Create("hana@acadprep.com",     "Hana Nguyen",   "hashed_password", userRole.RoleId);  hanaUser.Activate();
-            var minhUser    = User.Create("minh@acadprep.com",     "Minh Tran",     "hashed_password", userRole.RoleId);  minhUser.Activate();
+            var adminUser   = User.Create("admin@acadprep.com",    "Admin User",    defaultHash, adminRole.RoleId, now); adminUser.Activate();
+            var testUser    = User.Create("user@acadprep.com",     "Test User",     defaultHash, userRole.RoleId,  now);  testUser.Activate();
+            var hanaUser    = User.Create("hana@acadprep.com",     "Hana Nguyen",   defaultHash, userRole.RoleId,  now);  hanaUser.Activate();
+            var minhUser    = User.Create("minh@acadprep.com",     "Minh Tran",     defaultHash, userRole.RoleId,  now);  minhUser.Activate();
             // inactive user — không gọi Activate() → giữ nguyên Status = Inactive
-            var inactiveUser = User.Create("inactive@acadprep.com", "Inactive User", "hashed_password", userRole.RoleId);
-            var hoangUser   = User.Create("hoang@acadprep.com",    "Hoang Nguyen",  "hashed_password", userRole.RoleId);  hoangUser.Activate();
-            var lananhUser  = User.Create("lananh@acadprep.com",   "Lan Anh",       "hashed_password", userRole.RoleId);  lananhUser.Activate();
-            var duyliemUser = User.Create("duyliem@acadprep.com",  "Duy Liem",      "hashed_password", userRole.RoleId);  duyliemUser.Activate();
-            var tuananhUser = User.Create("tuananh@acadprep.com",  "Tuan Anh",      "hashed_password", userRole.RoleId);  tuananhUser.Activate();
-            var thuthaoUser = User.Create("thuthao@acadprep.com",  "Thu Thao",      "hashed_password", userRole.RoleId);  thuthaoUser.Activate();
-            var quanghuyUser= User.Create("quanghuy@acadprep.com", "Quang Huy",     "hashed_password", userRole.RoleId);  quanghuyUser.Activate();
-            var bichUser    = User.Create("bichphuong@acadprep.com","Bich Phuong",  "hashed_password", userRole.RoleId);  bichUser.Activate();
-            var namUser     = User.Create("hoangnam@acadprep.com", "Hoang Nam",     "hashed_password", userRole.RoleId);  namUser.Activate();
-            var maiUser     = User.Create("maiphuong@acadprep.com","Mai Phuong",    "hashed_password", userRole.RoleId);  maiUser.Activate();
-            var tungUser    = User.Create("thanhtung@acadprep.com","Thanh Tung",    "hashed_password", userRole.RoleId);  tungUser.Activate();
+            var inactiveUser = User.Create("inactive@acadprep.com", "Inactive User", defaultHash, userRole.RoleId, now);
+            var hoangUser   = User.Create("hoang@acadprep.com",    "Hoang Nguyen",  defaultHash, userRole.RoleId,  now);  hoangUser.Activate();
+            var lananhUser  = User.Create("lananh@acadprep.com",   "Lan Anh",       defaultHash, userRole.RoleId,  now);  lananhUser.Activate();
+            var duyliemUser = User.Create("duyliem@acadprep.com",  "Duy Liem",      defaultHash, userRole.RoleId,  now);  duyliemUser.Activate();
+            var tuananhUser = User.Create("tuananh@acadprep.com",  "Tuan Anh",      defaultHash, userRole.RoleId,  now);  tuananhUser.Activate();
+            var thuthaoUser = User.Create("thuthao@acadprep.com",  "Thu Thao",      defaultHash, userRole.RoleId,  now);  thuthaoUser.Activate();
+            var quanghuyUser= User.Create("quanghuy@acadprep.com", "Quang Huy",     defaultHash, userRole.RoleId,  now);  quanghuyUser.Activate();
+            var bichUser    = User.Create("bichphuong@acadprep.com","Bich Phuong",  defaultHash, userRole.RoleId,  now);  bichUser.Activate();
+            var namUser     = User.Create("hoangnam@acadprep.com", "Hoang Nam",     defaultHash, userRole.RoleId,  now);  namUser.Activate();
+            var maiUser     = User.Create("maiphuong@acadprep.com","Mai Phuong",    defaultHash, userRole.RoleId,  now);  maiUser.Activate();
+            var tungUser    = User.Create("thanhtung@acadprep.com","Thanh Tung",    defaultHash, userRole.RoleId,  now);  tungUser.Activate();
 
             context.Users.AddRange(
                 adminUser, testUser, hanaUser, minhUser, inactiveUser,

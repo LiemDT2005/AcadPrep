@@ -1,3 +1,4 @@
+using Application.Common.Constants;
 using Application.Common.Interfaces;
 using AcadPrep.Application.Common.Models;
 using Application.Features.Auth.Commands.Login;
@@ -14,12 +15,10 @@ namespace Application.Features.Auth.Commands.GoogleCallback;
 /// PageModel đảm nhận HttpContext.SignInAsync sau khi nhận Success.
 /// </summary>
 internal sealed class GoogleCallbackCommandHandler(
-    IAppDbContext db)
+    IAppDbContext db,
+    TimeProvider timeProvider)
     : IRequestHandler<GoogleCallbackCommand, Result<LoginResultDto>>
 {
-    // RoleId mặc định cho User mới đăng ký qua Google.
-    // Cần khớp với bản ghi Role "User" trong DB (seed: RoleId = 2).
-    private const int DefaultUserRoleId = 2;
 
     public async Task<Result<LoginResultDto>> Handle(GoogleCallbackCommand request, CancellationToken cancellationToken)
     {
@@ -55,15 +54,16 @@ internal sealed class GoogleCallbackCommandHandler(
 
         // Bước 5: Không tìm thấy user → tạo mới (Status = Active, GoogleId set sẵn, không có PasswordHash)
         var defaultRole = await db.Roles
-            .FirstOrDefaultAsync(r => r.RoleId == DefaultUserRoleId, cancellationToken);
+            .FirstOrDefaultAsync(r => r.RoleId == RoleConstants.DefaultUserRoleId, cancellationToken);
 
         var roleName = defaultRole?.RoleName ?? "User";
 
         var newUser = User.CreateFromGoogle(
-            email: request.Email,
-            fullName: request.FullName,
-            googleId: request.GoogleId,
-            defaultRoleId: DefaultUserRoleId);
+            email:          request.Email,
+            fullName:       request.FullName,
+            googleId:       request.GoogleId,
+            defaultRoleId:  RoleConstants.DefaultUserRoleId,
+            createdAt:      timeProvider.GetUtcNow().UtcDateTime);
 
         db.Users.Add(newUser);
 

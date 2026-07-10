@@ -152,18 +152,6 @@
             </div>
         }
 
-        <!-- ═══ Alert: Tài khoản cần xác minh ═══ -->
-        @if (Model.RequiresVerification)
-        {
-            <div id="alert-verify" role="alert"
-                 class="flex items-start gap-3 rounded-xl px-4 py-3 mb-5 bg-warning-bg text-warning text-sm">
-                <i class="fa-solid fa-envelope-circle-check mt-0.5 shrink-0"></i>
-                <span>
-                    Tài khoản chưa được xác minh. Vui lòng kiểm tra email và nhấp vào liên kết xác minh trước khi đăng nhập.
-                </span>
-            </div>
-        }
-
         <!-- ═══ Form Email + Password ═══ -->
         <form method="post" asp-page="/Account/Login" asp-route-returnUrl="@returnUrl"
               id="login-form" novalidate class="space-y-5 fade-up delay-3">
