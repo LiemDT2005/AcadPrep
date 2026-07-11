@@ -1,5 +1,5 @@
 using System.Threading.Tasks;
-using AcadPrep.Application.Features.Admin.Commands.CreateAchievement;
+using AcadPrep.Application.Features.Admin.Achievements.Commands.CreateAchievement;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;

@@ -1,6 +1,5 @@
 using System.Threading.Tasks;
-using AcadPrep.Application.Features.Admin.DTOs;
-using AcadPrep.Application.Features.Admin.Queries.GetUserStats;
+using AcadPrep.Application.Features.Admin.Dashboard.Queries.GetUserStats;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;

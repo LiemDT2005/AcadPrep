@@ -1,0 +1,36 @@
+@model QuestionPageHeaderViewModel
+
+<div class="qc-page-hero">
+    <nav class="qc-breadcrumb" aria-label="Breadcrumb">
+        <a href="/Admin/Exams">Exams</a>
+        <span class="material-symbols-outlined text-[14px]">chevron_right</span>
+        <a href="/Admin/Exams/Edit?id=@Model.ExamId">@Model.ExamTitle</a>
+        @if (!string.IsNullOrEmpty(Model.BreadcrumbCurrent))
+        {
+            <span class="material-symbols-outlined text-[14px]">chevron_right</span>
+            <span class="qc-breadcrumb-current">@Model.BreadcrumbCurrent</span>
+        }
+    </nav>
+
+    <div class="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-md">
+        <div class="flex items-start gap-md">
+            <div class="hidden sm:flex w-12 h-12 rounded-xl bg-primary/10 items-center justify-center flex-shrink-0">
+                <span class="material-symbols-outlined text-primary text-[28px]">@Model.PartIcon</span>
+            </div>
+            <div>
+                <h1 class="font-headline-sm text-headline-sm font-bold text-on-surface">@Model.Title</h1>
+                @if (!string.IsNullOrEmpty(Model.Subtitle))
+                {
+                    <p class="font-body-sm text-body-sm text-on-surface-variant mt-2xs max-w-xl">@Model.Subtitle</p>
+                }
+            </div>
+        </div>
+        @if (!string.IsNullOrEmpty(Model.PartBadge))
+        {
+            <span class="qc-part-badge qc-part-badge--@Model.PartBadgeVariant self-start">
+                <span class="material-symbols-outlined text-[14px]">@Model.PartIcon</span>
+                @Model.PartBadge
+            </span>
+        }
+    </div>
+</div>

@@ -1,11 +1,11 @@
 using System.Threading.Tasks;
 using Application.Features.Exam.Queries.GetExamDetail;
 using Application.Features.Exam.Queries.GetExamList;
-using Application.Features.Exams.Commands.CreateExam;
-using Application.Features.Exams.Commands.RestoreExam;
-using Application.Features.Exams.Commands.SoftDeleteExam;
-using Application.Features.Exams.Queries.GetAdminExamList;
-using AdminGetExamDetailQuery = Application.Features.Exams.Queries.GetExamDetail.GetExamDetailQuery;
+using AcadPrep.Application.Features.Admin.Exams.Commands.CreateExam;
+using AcadPrep.Application.Features.Admin.Exams.Commands.RestoreExam;
+using AcadPrep.Application.Features.Admin.Exams.Commands.SoftDeleteExam;
+using AcadPrep.Application.Features.Admin.Exams.Queries.GetAdminExamList;
+using AdminGetExamDetailQuery = AcadPrep.Application.Features.Admin.Exams.Queries.GetExamDetail.GetExamDetailQuery;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 

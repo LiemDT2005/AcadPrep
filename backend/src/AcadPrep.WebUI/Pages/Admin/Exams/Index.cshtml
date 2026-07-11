@@ -174,6 +174,43 @@
         content.classList.add('scale-100', 'opacity-100');
     }
 
+    function previewCreateExamAudio(input) {
+        const label = document.getElementById('create-exam-audio-name');
+        const errorEl = document.getElementById('create-exam-audio-error');
+        const maxBytes = 100 * 1024 * 1024;
+        if (!label) return;
+
+        if (input.files && input.files[0]) {
+            const file = input.files[0];
+            label.textContent = file.name;
+            if (errorEl) {
+                if (file.size > maxBytes) {
+                    errorEl.textContent = 'File is too large (' + Math.round(file.size / (1024 * 1024)) + ' MB). Maximum is 100 MB.';
+                    errorEl.classList.remove('hidden');
+                } else {
+                    errorEl.textContent = '';
+                    errorEl.classList.add('hidden');
+                }
+            }
+        } else {
+            label.textContent = 'Upload one full listening audio file (.mp3)';
+            if (errorEl) {
+                errorEl.textContent = '';
+                errorEl.classList.add('hidden');
+            }
+        }
+    }
+
+    document.getElementById('create-exam-form')?.addEventListener('submit', function (e) {
+        const audioInput = document.querySelector('#create-exam-form input[type="file"][accept="audio/*"]');
+        const maxBytes = 100 * 1024 * 1024;
+        if (audioInput?.files?.[0] && audioInput.files[0].size > maxBytes) {
+            e.preventDefault();
+            previewCreateExamAudio(audioInput);
+            showToast('Audio file exceeds the 100 MB limit.', 'error');
+        }
+    });
+
     function closeCreateExamModal() {
         const modal = document.getElementById('create-exam-modal');
         const content = document.getElementById('create-exam-modal-content');

@@ -1,7 +1,6 @@
-﻿using System;
+using System;
 using System.Threading.Tasks;
-using AcadPrep.Application.Features.Admin.DTOs;
-using AcadPrep.Application.Features.Admin.Queries.GetProgressReport;
+using AcadPrep.Application.Features.Admin.Dashboard.Queries.GetProgressReport;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;

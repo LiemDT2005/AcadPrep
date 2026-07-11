@@ -1,0 +1,570 @@
+@page "/Admin/Exams/{examId:int}/Questions/Create/ListeningQuestion"
+@model AcadPrep.WebUI.Pages.Admin.Exams.Questions.ListeningQuestionModel
+@{
+    Layout = "_ModeratorLayout";
+    var partLabel = Model.IsPart1 ? "Part 1: Photographs" : "Part 2: Question-Response";
+    var partBadge = Model.IsPart1 ? "Part 1 · Listening" : "Part 2 · Listening";
+    var partIcon = Model.IsPart1 ? "photo_camera" : "hearing";
+    var subtitle = (Model.IsPart1 ? "Upload one photograph" : "Configure one question-response item") + (Model.HasExamFullAudio ? " and specify its audio segment from the exam file." : " and its audio clip.");
+    ViewData["Title"] = $"Add {partLabel}";
+    var pageHeader = new QuestionPageHeaderViewModel {
+        ExamId = Model.ExamId,
+        ExamTitle = Model.ExamTitle,
+        Title = $"Create {partLabel} Question",
+        Subtitle = subtitle,
+        PartBadge = partBadge,
+        PartIcon = partIcon,
+        PartBadgeVariant = "secondary",
+        BreadcrumbCurrent = $"Add {partLabel}"
+    };
+}
+
+<link rel="stylesheet" href="~/css/admin-question-create.css" />
+
+<div class="w-full flex flex-col gap-lg pb-12">
+    <partial name="_QuestionPageHeader" model="pageHeader" />
+
+    <partial name="_ValidationAlerts" model="new ValidationAlertsViewModel { ErrorMessage = Model.ErrorMessage, ValidationErrors = Model.ValidationErrors }" />
+
+    <div class="grid grid-cols-1 lg:grid-cols-12 gap-lg items-start">
+        <form method="post" enctype="multipart/form-data" class="lg:col-span-7 qc-form-card" novalidate>
+            <input type="hidden" asp-for="Form.Part" />
+
+            <section class="qc-section">
+                <div class="qc-section__header">
+                    <span class="material-symbols-outlined">tag</span>
+                    <div>
+                        <div class="qc-section__title">Question Details</div>
+                        <div class="qc-section__hint">Assign a question number for this item</div>
+                    </div>
+                </div>
+                <label asp-for="Form.QuestionNumber" class="qc-label">Question Number <span class="text-error">*</span></label>
+                <input asp-for="Form.QuestionNumber" type="number" id="inputQNumber" class="qc-input max-w-xs" required />
+            </section>
+
+            @if (Model.IsPart1)
+            {
+                <section class="qc-section">
+                    <div class="qc-section__header">
+                        <span class="material-symbols-outlined">photo_camera</span>
+                        <div>
+                            <div class="qc-section__title">Photograph Image</div>
+                            <div class="qc-section__hint">Upload a clear image for this question</div>
+                        </div>
+                    </div>
+                    <div class="qc-upload-zone flex flex-col items-center justify-center" id="imageUploadZone">
+                        <input asp-for="Form.ImageFile" type="file" accept="image/*" onchange="previewPhotographImage(this)" required />
+                        <span class="material-symbols-outlined text-headline-lg text-outline-variant mb-xs" id="imageUploadIcon">image</span>
+                        <p class="font-body-sm text-body-sm text-on-surface" id="imageUploadName">Click to select a photograph (.jpg, .png)</p>
+                    </div>
+                    <div id="imagePreviewContainer" class="hidden mt-xs text-center">
+                        <img id="imagePreview" src="" alt="Photograph preview" class="max-h-56 rounded-lg border border-outline-variant/30 shadow-sm object-contain mx-auto" />
+                    </div>
+                    <input asp-for="Form.ImageUrl" type="hidden" />
+                </section>
+            }
+
+            <section class="qc-section">
+                <div class="qc-section__header">
+                    <span class="material-symbols-outlined">volume_up</span>
+                    <div>
+                        <div class="qc-section__title">Audio</div>
+                        <div class="qc-section__hint">@(Model.HasExamFullAudio ? "Select a segment from the exam audio file" : "Upload an audio clip for this question")</div>
+                    </div>
+                </div>
+            <div class="flex flex-col gap-sm">
+                @if (Model.HasExamFullAudio)
+                {
+                    <input type="hidden" asp-for="Form.UseExamFullAudio" value="true" />
+                    <div class="flex flex-col gap-sm">
+                        <div class="qc-info-banner">
+                            <span class="material-symbols-outlined">info</span>
+                            <p class="font-body-sm text-body-sm text-on-surface">
+                                Drag on the waveform to select this question's audio segment.
+                            </p>
+                        </div>
+
+                        <partial name="_AudioSegmentPicker" model='new AudioSegmentPickerModel {
+                            PickerId = "listening-question-audio",
+                            AudioUrl = Model.ExamAudioUrl!,
+                            StartInputName = "Form.AudioStartSecond",
+                            EndInputName = "Form.AudioEndSecond",
+                            InitialStart = Model.Form.AudioStartSecond,
+                            InitialEnd = Model.Form.AudioEndSecond
+                        }' />
+                    </div>
+
+                    <div class="grid grid-cols-2 gap-md">
+                        <div class="flex flex-col gap-2xs">
+                            <label asp-for="Form.AudioStartSecond" class="font-label-md text-label-md text-on-surface font-semibold">Start (seconds) <span class="text-error">*</span></label>
+                            <input asp-for="Form.AudioStartSecond" type="number" min="0" id="inputAudioStart" class="qc-input" required />
+                        </div>
+                        <div class="flex flex-col gap-2xs">
+                            <label asp-for="Form.AudioEndSecond" class="qc-label">End (seconds) <span class="text-error">*</span></label>
+                            <input asp-for="Form.AudioEndSecond" type="number" min="0" id="inputAudioEnd" class="qc-input" required />
+                        </div>
+                    </div>
+                    <p class="font-body-xs text-body-xs text-on-surface-variant">Fine-tune with exact seconds if needed — values sync with the waveform above.</p>
+                }
+                else
+                {
+                    <div id="customAudioSection" class="flex flex-col gap-2xs">
+                        <div class="qc-upload-zone flex flex-col items-center justify-center">
+                            <input asp-for="Form.AudioFile" type="file" accept="audio/*" onchange="previewSelectedAudio(this)" required />
+                            <span class="material-symbols-outlined text-headline-lg text-outline-variant mb-xs" id="audioUploadIcon">audiotrack</span>
+                            <p class="font-body-sm text-body-sm text-on-surface" id="audioUploadName">Click to select an audio file (.mp3)</p>
+                        </div>
+                        <div id="customAudioControls" class="hidden flex items-center gap-sm mt-xs">
+                            <button type="button" id="mainAudioToggleBtn" class="flex items-center gap-xs border border-primary/30 text-primary hover:bg-primary/5 font-label-md text-label-md py-1.5 px-3 rounded-lg transition-colors">
+                                <span class="material-symbols-outlined text-sm">play_arrow</span>
+                                <span data-toggle-label>Play</span>
+                            </button>
+                        </div>
+                        <audio id="audioPreview" class="hidden"></audio>
+                        <input asp-for="Form.AudioUrl" type="hidden" />
+                    </div>
+                }
+            </div>
+            </section>
+
+            <section class="qc-section">
+                <div class="qc-section__header">
+                    <span class="material-symbols-outlined">subject</span>
+                    <div>
+                        <div class="qc-section__title">Question Text</div>
+                        <div class="qc-section__hint">Optional prompt shown to learners</div>
+                    </div>
+                </div>
+                <textarea asp-for="Form.QuestionText" id="inputQText" rows="2" class="qc-textarea resize-none"></textarea>
+            </section>
+
+            <section class="qc-section">
+                <div class="qc-section__header">
+                    <span class="material-symbols-outlined">check_circle</span>
+                    <div>
+                        <div class="qc-section__title">Answer Options</div>
+                        <div class="qc-section__hint">Select the radio button to mark the correct answer</div>
+                    </div>
+                </div>
+                <div class="flex flex-col gap-sm">
+                    <div class="qc-option-row">
+                        <span class="qc-option-badge">A</span>
+                        <input asp-for="Form.OptionA" type="text" id="inputOptA" placeholder="Option A" required />
+                        <span class="qc-correct-label">Correct</span>
+                        <input type="radio" asp-for="Form.CorrectOption" value="A" />
+                    </div>
+                    <div class="qc-option-row">
+                        <span class="qc-option-badge">B</span>
+                        <input asp-for="Form.OptionB" type="text" id="inputOptB" placeholder="Option B" required />
+                        <span class="qc-correct-label">Correct</span>
+                        <input type="radio" asp-for="Form.CorrectOption" value="B" />
+                    </div>
+                    <div class="qc-option-row">
+                        <span class="qc-option-badge">C</span>
+                        <input asp-for="Form.OptionC" type="text" id="inputOptC" placeholder="Option C" required />
+                        <span class="qc-correct-label">Correct</span>
+                        <input type="radio" asp-for="Form.CorrectOption" value="C" />
+                    </div>
+                    @if (!Model.IsPart2)
+                    {
+                        <div class="qc-option-row">
+                            <span class="qc-option-badge">D</span>
+                            <input asp-for="Form.OptionD" type="text" id="inputOptD" placeholder="Option D" required />
+                            <span class="qc-correct-label">Correct</span>
+                            <input type="radio" asp-for="Form.CorrectOption" value="D" />
+                        </div>
+                    }
+                </div>
+            </section>
+
+            <div class="qc-form-actions">
+                <a href="/Admin/Exams/Edit?id=@Model.ExamId" class="qc-btn-ghost">Cancel</a>
+                @if (Model.CanAddAnother)
+                {
+                    <button type="submit" formaction="?handler=AddAnother" class="qc-btn-secondary">Save & Add Another</button>
+                }
+                <button type="submit" class="qc-btn-primary">
+                    <span class="material-symbols-outlined text-[18px]">save</span>
+                    Save Question
+                </button>
+            </div>
+        </form>
+
+        <div class="lg:col-span-5 qc-preview-panel">
+            <div class="qc-preview-panel__label">
+                <span class="material-symbols-outlined">visibility</span>
+                Learner Live Preview
+            </div>
+            <div class="qc-preview-shell">
+                <div class="qc-preview-inner">
+                <div class="qc-preview-meta">
+                    <span class="qc-preview-qnum" id="previewQNumber">Question @(Model.Form.QuestionNumber):</span>
+                    <span class="qc-preview-tag">@partLabel</span>
+                </div>
+
+                @if (Model.IsPart1)
+                {
+                    <div id="previewImagePlaceholder" class="flex flex-col items-center justify-center gap-xs p-lg bg-surface/30 border border-dashed border-outline-variant/40 rounded-xl text-on-surface-variant">
+                        <span class="material-symbols-outlined text-headline-md">image</span>
+                        <p class="font-body-sm text-body-sm">No photograph selected</p>
+                    </div>
+                    <div id="previewImageSection" class="hidden">
+                        <img id="previewImage" src="" alt="Photograph preview" class="w-full rounded-lg object-contain max-h-56 border border-outline-variant/30 shadow-sm" />
+                    </div>
+                }
+
+                <div id="previewAudioSection" class="@(Model.HasExamFullAudio ? "" : "hidden") flex flex-col gap-2xs p-sm bg-surface-container-low rounded-xl border border-outline-variant/20">
+                    <div class="flex items-center justify-between gap-sm">
+                        <div class="flex items-center gap-sm">
+                            <span class="material-symbols-outlined text-primary text-sm">volume_up</span>
+                            <span class="font-label-md text-label-md text-on-surface font-semibold">@(Model.HasExamFullAudio ? "Segment Preview" : "Audio")</span>
+                        </div>
+                        <button type="button" id="previewAudioToggleBtn" class="@(Model.HasExamFullAudio ? "" : "hidden") flex items-center gap-xs border border-primary/30 text-primary hover:bg-primary/5 font-label-sm text-label-sm py-1 px-2.5 rounded-lg transition-colors">
+                            <span class="material-symbols-outlined text-sm">play_arrow</span>
+                            <span data-toggle-label>@(Model.HasExamFullAudio ? "Play segment" : "Play")</span>
+                        </button>
+                    </div>
+                    <audio id="previewAudioPlayer" class="hidden"></audio>
+                    <p id="previewAudioInfo" class="font-body-xs text-body-xs text-on-surface-variant"></p>
+                </div>
+
+                <p class="font-body-md text-body-md text-on-surface leading-relaxed" id="previewQText">
+                    @(Model.Form.QuestionText ?? (Model.IsPart1 ? "Which description best matches the photograph?" : "Select the best response for the question."))
+                </p>
+
+                <div class="flex flex-col gap-sm">
+                    <div id="previewCardA" class="qc-preview-option">
+                        <span id="previewBadgeA" class="qc-preview-option-badge">A</span>
+                        <span id="previewTextA" class="font-body-md text-body-md text-on-surface">Option A</span>
+                    </div>
+                    <div id="previewCardB" class="qc-preview-option">
+                        <span id="previewBadgeB" class="qc-preview-option-badge">B</span>
+                        <span id="previewTextB" class="font-body-md text-body-md text-on-surface">Option B</span>
+                    </div>
+                    <div id="previewCardC" class="qc-preview-option">
+                        <span id="previewBadgeC" class="qc-preview-option-badge">C</span>
+                        <span id="previewTextC" class="font-body-md text-body-md text-on-surface">Option C</span>
+                    </div>
+                    @if (!Model.IsPart2)
+                    {
+                        <div id="previewCardD" class="qc-preview-option">
+                            <span id="previewBadgeD" class="qc-preview-option-badge">D</span>
+                            <span id="previewTextD" class="font-body-md text-body-md text-on-surface">Option D</span>
+                        </div>
+                    }
+                </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="~/js/admin-form-validation.js"></script>
+<script src="~/js/admin-question-create.js"></script>
+<script>
+    const hasExamFullAudio = @(Model.HasExamFullAudio ? "true" : "false");
+    const examAudioUrl = '@(Model.ExamAudioUrl ?? "")';
+    const isPart1 = @(Model.IsPart1 ? "true" : "false");
+    const isPart2 = @(Model.IsPart2 ? "true" : "false");
+    const optionLetters = isPart2 ? ['A', 'B', 'C'] : ['A', 'B', 'C', 'D'];
+    const defaultQuestionText = isPart1
+        ? 'Which description best matches the photograph?'
+        : 'Select the best response for the question.';
+
+    let segmentPlaybackTimer = null;
+
+    function getSegmentBounds() {
+        const start = parseFloat(document.getElementById('inputAudioStart')?.value);
+        const end = parseFloat(document.getElementById('inputAudioEnd')?.value);
+        if (isNaN(start) || isNaN(end) || end <= start) {
+            return null;
+        }
+        return { start, end };
+    }
+
+    function clearSegmentPlaybackTimer() {
+        if (segmentPlaybackTimer != null) {
+            clearInterval(segmentPlaybackTimer);
+            segmentPlaybackTimer = null;
+        }
+    }
+
+    function setAudioToggleButton(btn, isPlaying, playLabel) {
+        if (!btn) return;
+        const icon = btn.querySelector('.material-symbols-outlined');
+        const label = btn.querySelector('[data-toggle-label]');
+        if (icon) icon.textContent = isPlaying ? 'pause' : 'play_arrow';
+        if (label) label.textContent = isPlaying ? 'Pause' : playLabel;
+    }
+
+    function isPlayerActive(player) {
+        return !!player && !player.paused && !player.ended;
+    }
+
+    function startSegmentPlayback(player, toggleBtn, playLabel) {
+        const bounds = getSegmentBounds();
+        if (!player || !bounds) return;
+
+        clearSegmentPlaybackTimer();
+        if (player.currentTime < bounds.start || player.currentTime >= bounds.end) {
+            player.currentTime = bounds.start;
+        }
+
+        player.play().catch(() => {});
+        setAudioToggleButton(toggleBtn, true, playLabel);
+
+        segmentPlaybackTimer = setInterval(() => {
+            if (player.currentTime >= bounds.end) {
+                player.pause();
+                player.currentTime = bounds.start;
+                clearSegmentPlaybackTimer();
+                setAudioToggleButton(toggleBtn, false, playLabel);
+            }
+        }, 50);
+    }
+
+    function pausePlayer(player, toggleBtn, playLabel, resetPosition) {
+        clearSegmentPlaybackTimer();
+        if (!player) return;
+
+        player.pause();
+        if (resetPosition) {
+            if (hasExamFullAudio) {
+                const bounds = getSegmentBounds();
+                if (bounds) player.currentTime = bounds.start;
+            } else {
+                player.currentTime = 0;
+            }
+        }
+        setAudioToggleButton(toggleBtn, false, playLabel);
+    }
+
+    function togglePlayer(player, toggleBtn, playLabel, useSegment) {
+        if (!player) return;
+
+        if (isPlayerActive(player)) {
+            pausePlayer(player, toggleBtn, playLabel, false);
+            return;
+        }
+
+        if (useSegment) {
+            startSegmentPlayback(player, toggleBtn, playLabel);
+        } else {
+            player.play().catch(() => {});
+            setAudioToggleButton(toggleBtn, true, playLabel);
+        }
+    }
+
+    function bindAudioToggle(player, toggleBtn, playLabel, useSegment) {
+        if (!player || !toggleBtn) return;
+
+        const syncButton = () => setAudioToggleButton(toggleBtn, isPlayerActive(player), playLabel);
+
+        toggleBtn.addEventListener('click', () => togglePlayer(player, toggleBtn, playLabel, useSegment));
+        player.addEventListener('play', syncButton);
+        player.addEventListener('pause', () => {
+            clearSegmentPlaybackTimer();
+            syncButton();
+        });
+        player.addEventListener('ended', () => {
+            clearSegmentPlaybackTimer();
+            syncButton();
+        });
+
+        syncButton();
+    }
+
+    function updatePreview() {
+        const qNum = document.getElementById('inputQNumber')?.value;
+        document.getElementById('previewQNumber').textContent = 'Question ' + (qNum || '1') + ':';
+
+        const qText = document.getElementById('inputQText')?.value?.trim();
+        document.getElementById('previewQText').textContent = qText || defaultQuestionText;
+
+        optionLetters.forEach(letter => {
+            const input = document.getElementById('inputOpt' + letter);
+            const previewText = document.getElementById('previewText' + letter);
+            if (input && previewText) {
+                previewText.textContent = input.value || ('Option ' + letter);
+            }
+        });
+
+        const checkedRadio = document.querySelector('input[name="Form.CorrectOption"]:checked');
+        const correctOpt = checkedRadio ? checkedRadio.value : 'A';
+        optionLetters.forEach(letter => {
+            AcadPrepQuestionUI.applyPreviewOption(
+                document.getElementById('previewCard' + letter),
+                document.getElementById('previewBadge' + letter),
+                letter === correctOpt
+            );
+        });
+
+        updateAudioPreviewInfo();
+    }
+
+    function updateAudioPreviewInfo() {
+        const info = document.getElementById('previewAudioInfo');
+        if (!info) return;
+
+        if (hasExamFullAudio) {
+            const bounds = getSegmentBounds();
+            if (bounds) {
+                const duration = bounds.end - bounds.start;
+                info.textContent = `Exam audio segment: ${bounds.start}s → ${bounds.end}s (${duration}s). Only this segment will play.`;
+            } else {
+                info.textContent = 'Select a segment on the waveform to preview audio.';
+            }
+        } else {
+            const fileInput = document.querySelector('input[name="Form.AudioFile"]');
+            if (fileInput?.files?.[0]) {
+                info.textContent = fileInput.files[0].name;
+            } else {
+                info.textContent = 'No audio file selected';
+            }
+        }
+    }
+
+    function previewPhotographImage(input) {
+        const previewContainer = document.getElementById('imagePreviewContainer');
+        const previewImg = document.getElementById('imagePreview');
+        const sidebarSection = document.getElementById('previewImageSection');
+        const sidebarImg = document.getElementById('previewImage');
+        const placeholder = document.getElementById('previewImagePlaceholder');
+        const icon = document.getElementById('imageUploadIcon');
+        const text = document.getElementById('imageUploadName');
+
+        if (!input.files || !input.files[0]) {
+            return;
+        }
+
+        const file = input.files[0];
+        const reader = new FileReader();
+        reader.onload = function (e) {
+            const dataUrl = e.target.result;
+            if (previewImg) {
+                previewImg.src = dataUrl;
+            }
+            if (previewContainer) {
+                previewContainer.classList.remove('hidden');
+            }
+            if (sidebarImg) {
+                sidebarImg.src = dataUrl;
+            }
+            if (sidebarSection) {
+                sidebarSection.classList.remove('hidden');
+            }
+            if (placeholder) {
+                placeholder.classList.add('hidden');
+            }
+            if (icon) {
+                icon.textContent = 'check_circle';
+            }
+            if (text) {
+                text.textContent = file.name;
+            }
+        };
+        reader.readAsDataURL(file);
+    }
+
+    function previewSelectedAudio(input) {
+        const icon = document.getElementById('audioUploadIcon');
+        const text = document.getElementById('audioUploadName');
+        const formPlayer = document.getElementById('audioPreview');
+        const previewPlayer = document.getElementById('previewAudioPlayer');
+        const audioSection = document.getElementById('previewAudioSection');
+
+        if (!input.files || !input.files[0]) {
+            return;
+        }
+
+        const file = input.files[0];
+        const objectUrl = URL.createObjectURL(file);
+
+        if (icon) {
+            icon.textContent = 'check_circle';
+        }
+        if (text) {
+            text.textContent = file.name;
+        }
+        if (formPlayer) {
+            formPlayer.src = objectUrl;
+        }
+        const mainControls = document.getElementById('customAudioControls');
+        if (mainControls) {
+            mainControls.classList.remove('hidden');
+        }
+        if (previewPlayer) {
+            previewPlayer.src = objectUrl;
+        }
+        const previewToggleBtn = document.getElementById('previewAudioToggleBtn');
+        if (previewToggleBtn) {
+            previewToggleBtn.classList.remove('hidden');
+        }
+        if (audioSection) {
+            audioSection.classList.remove('hidden');
+        }
+
+        updateAudioPreviewInfo();
+    }
+
+    window.addEventListener('DOMContentLoaded', () => {
+        const form = document.querySelector('form');
+        if (form) {
+            AcadPrepFormValidation.bindForm(form, {
+                beforeValidate: () => {
+                    if (!isPart1) {
+                        return;
+                    }
+
+                    const imageInput = document.querySelector('input[name="Form.ImageFile"]');
+                    const imageUrl = document.querySelector('input[name="Form.ImageUrl"]');
+                    if (!imageInput) {
+                        return;
+                    }
+
+                    imageInput.required = !imageUrl?.value?.trim();
+                }
+            });
+        }
+
+        const previewPlayer = document.getElementById('previewAudioPlayer');
+        const previewToggleBtn = document.getElementById('previewAudioToggleBtn');
+        const mainPlayer = document.getElementById('audioPreview');
+        const mainToggleBtn = document.getElementById('mainAudioToggleBtn');
+        const previewPlayLabel = hasExamFullAudio ? 'Play segment' : 'Play';
+
+        if (hasExamFullAudio && examAudioUrl && previewPlayer) {
+            previewPlayer.src = examAudioUrl;
+            bindAudioToggle(previewPlayer, previewToggleBtn, previewPlayLabel, true);
+        } else if (previewPlayer && previewToggleBtn) {
+            bindAudioToggle(previewPlayer, previewToggleBtn, 'Play', false);
+        }
+
+        if (mainPlayer && mainToggleBtn) {
+            bindAudioToggle(mainPlayer, mainToggleBtn, 'Play', false);
+        }
+
+        const inputIds = ['inputQNumber', 'inputQText', 'inputOptA', 'inputOptB', 'inputOptC', ...(isPart2 ? [] : ['inputOptD']), 'inputAudioStart', 'inputAudioEnd'];
+        inputIds.forEach(id => {
+            const el = document.getElementById(id);
+            if (el) {
+                el.addEventListener('input', updatePreview);
+                el.addEventListener('change', updatePreview);
+            }
+        });
+
+        document.addEventListener('audioSegmentChanged', (e) => {
+            if (e.detail?.pickerId !== 'listening-question-audio') return;
+            updatePreview();
+            if (previewPlayer && hasExamFullAudio) {
+                pausePlayer(previewPlayer, previewToggleBtn, previewPlayLabel, true);
+            }
+        });
+
+        document.querySelectorAll('input[name="Form.CorrectOption"]').forEach(radio => {
+            radio.addEventListener('change', updatePreview);
+        });
+
+        updatePreview();
+    });
+</script>

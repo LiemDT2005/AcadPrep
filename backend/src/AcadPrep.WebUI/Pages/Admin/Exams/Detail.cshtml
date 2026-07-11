@@ -156,10 +156,13 @@
                                     @if ((part == 6 || part == 7) && question.PassageId != null && question.PassageId != lastPassageId)
                                     {
                                         lastPassageId = question.PassageId;
+                                        var passageHeading = part == 6 && question.PassageDisplayOrder.HasValue
+                                            ? $"Reading Passage (Passage {question.PassageDisplayOrder})"
+                                            : $"Reading Passage (Passage ID: #{question.PassageId})";
                                         <div class="bg-secondary-fixed/10 border-l-4 border-secondary-container p-md rounded-r-xl flex flex-col gap-xs my-sm">
                                             <div class="flex items-center gap-xs font-semibold text-secondary text-sm">
                                                 <span class="material-symbols-outlined text-base">menu_book</span>
-                                                Reading Passage (Passage ID: #@question.PassageId)
+                                                @passageHeading
                                             </div>
                                             @if (!string.IsNullOrEmpty(question.PassageContent))
                                             {

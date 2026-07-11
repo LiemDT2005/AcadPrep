@@ -1,6 +1,6 @@
 using System.Threading.Tasks;
-using AcadPrep.Application.Features.Admin.Commands.EditAchievement;
-using AcadPrep.Application.Features.Admin.Queries.GetAchievementById;
+using AcadPrep.Application.Features.Admin.Achievements.Commands.EditAchievement;
+using AcadPrep.Application.Features.Admin.Achievements.Queries.GetAchievementById;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;

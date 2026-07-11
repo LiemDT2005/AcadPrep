@@ -14,18 +14,17 @@
             <div class="mx-lg mt-md bg-error-container text-on-error-container p-md rounded-xl border border-error/20 flex flex-col gap-xs">
                 <div class="flex items-center gap-xs font-semibold">
                     <span class="material-symbols-outlined text-error">error</span>
-                    Validation errors found:
+                        <ul class="list-disc pl-lg font-body-sm text-body-sm">
+                            @foreach (var error in Model.CreateExamErrors)
+                            {
+                                <li>@error</li>
+                            }
+                        </ul>
                 </div>
-                <ul class="list-disc pl-lg font-body-sm text-body-sm">
-                    @foreach (var error in Model.CreateExamErrors)
-                    {
-                        <li>@error</li>
-                    }
-                </ul>
             </div>
         }
 
-        <form method="post" asp-page-handler="Create" id="create-exam-form" class="p-lg space-y-lg">
+        <form method="post" asp-page-handler="Create" enctype="multipart/form-data" id="create-exam-form" class="p-lg space-y-lg">
             <div class="space-y-xs">
                 <label class="flex items-center gap-xs font-label-md text-label-md text-on-surface-variant" asp-for="CreateExamForm.Title">
                     Exam Title
@@ -61,7 +60,7 @@
                         <span class="text-error font-bold">*</span>
                     </label>
                     <div class="relative">
-                        <select asp-for="CreateExamForm.ExamSeriesId" class="w-full appearance-none bg-surface-container-lowest border border-outline-variant rounded-lg px-md py-sm font-body-md text-body-md focus:outline-none focus:ring-2 focus:ring-primary-container focus:border-primary transition-all cursor-pointer">
+                        <select asp-for="CreateExamForm.ExamSeriesId" required class="w-full appearance-none bg-surface-container-lowest border border-outline-variant rounded-lg px-md py-sm font-body-md text-body-md focus:outline-none focus:ring-2 focus:ring-primary-container focus:border-primary transition-all cursor-pointer">
                             <option value="">-- Select Exam Series --</option>
                             @foreach (var series in Model.ExamSeries)
                             {
@@ -73,6 +72,21 @@
                         </div>
                     </div>
                 </div>
+            </div>
+
+            <div class="space-y-xs">
+                <label class="font-label-md text-label-md text-on-surface-variant" asp-for="CreateExamForm.AudioFile">
+                    Full Exam Audio (Optional)
+                </label>
+                <div class="border-2 border-dashed border-outline-variant rounded-xl p-md text-center flex flex-col items-center justify-center bg-surface/10 hover:bg-surface/20 transition-all cursor-pointer relative">
+                    <input asp-for="CreateExamForm.AudioFile" type="file" accept="audio/*" class="absolute inset-0 opacity-0 cursor-pointer" onchange="previewCreateExamAudio(this)" />
+                    <span class="material-symbols-outlined text-headline-lg text-outline-variant mb-xs">audiotrack</span>
+                    <p class="font-body-sm text-body-sm text-on-surface" id="create-exam-audio-name">Upload one full listening audio file (.mp3)</p>
+                </div>
+                <p class="font-body-xs text-body-xs text-on-surface-variant">
+                    If provided, listening questions will use time segments from this file instead of uploading separate audio per question — lighter and faster to set up. Max file size: 100 MB.
+                </p>
+                <p id="create-exam-audio-error" class="hidden font-body-xs text-body-xs text-error"></p>
             </div>
 
             <div class="px-0 py-0 bg-transparent flex items-center justify-between border-t border-outline-variant/30 pt-lg">

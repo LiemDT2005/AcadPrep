@@ -1,6 +1,6 @@
 using System.Threading.Tasks;
-using Application.Features.Exams.Queries.Common.DTOs;
-using Application.Features.Exams.Queries.GetExamDetail;
+using AcadPrep.Application.Features.Admin.Exams.Queries.Common.DTOs;
+using AcadPrep.Application.Features.Admin.Exams.Queries.GetExamDetail;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;

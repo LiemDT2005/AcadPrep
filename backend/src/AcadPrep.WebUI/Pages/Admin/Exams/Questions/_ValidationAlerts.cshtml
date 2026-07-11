@@ -1,0 +1,24 @@
+@model ValidationAlertsViewModel
+
+@if (!string.IsNullOrEmpty(Model.ErrorMessage))
+{
+    <div class="bg-error-container border border-error text-on-error-container rounded-xl p-md flex items-center gap-sm shadow-sm animate-fade-in">
+        <span class="material-symbols-outlined text-error">error</span>
+        <span class="font-body-md">@Model.ErrorMessage</span>
+    </div>
+}
+@if (Model.ValidationErrors.Count > 0)
+{
+    <div class="bg-error-container border border-error text-on-error-container rounded-xl p-md flex flex-col gap-xs shadow-sm animate-fade-in">
+        <div class="flex items-center gap-sm">
+            <span class="material-symbols-outlined text-error">error</span>
+            <span class="font-body-md font-semibold">Please fix the following errors:</span>
+        </div>
+        <ul class="list-disc pl-8 font-body-sm">
+            @foreach (var err in Model.ValidationErrors)
+            {
+                <li>@err</li>
+            }
+        </ul>
+    </div>
+}

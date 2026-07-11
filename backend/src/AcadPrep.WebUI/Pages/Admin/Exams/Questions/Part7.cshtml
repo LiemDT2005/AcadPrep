@@ -1,0 +1,710 @@
+@page "/Admin/Exams/{examId:int}/Questions/Create/Part7"
+@model AcadPrep.WebUI.Pages.Admin.Exams.Questions.Part7Model
+@{
+    Layout = "_ModeratorLayout";
+    ViewData["Title"] = "Create Part 7 Reading Set";
+    var pageHeader = new QuestionPageHeaderViewModel {
+        ExamId = Model.ExamId,
+        ExamTitle = Model.ExamTitle,
+        Title = "Create Part 7 Reading Set",
+        Subtitle = "Reading Comprehension — configure passages and comprehension questions.",
+        PartBadge = "Part 7 · Reading",
+        PartIcon = "menu_book",
+        PartBadgeVariant = "tertiary",
+        BreadcrumbCurrent = "Add Part 7"
+    };
+}
+
+<link rel="stylesheet" href="~/css/admin-question-create.css" />
+
+<div class="w-full flex flex-col gap-lg pb-12">
+    <partial name="_QuestionPageHeader" model="pageHeader" />
+
+    <partial name="_ValidationAlerts" model="new ValidationAlertsViewModel { ErrorMessage = Model.ErrorMessage, ValidationErrors = Model.ValidationErrors }" />
+
+    <div class="qc-stepper">
+        <div class="qc-stepper__track" style="max-width:48rem">
+            <div class="qc-stepper__step qc-stepper__step--active" id="stepIndicator1">
+                <span class="qc-stepper__icon" id="stepIcon1">1</span>
+                <span class="qc-stepper__label" id="stepText1">General Info</span>
+            </div>
+            <div class="qc-stepper__connector" id="stepConnector1"></div>
+            <div class="qc-stepper__step opacity-50" id="stepIndicator2">
+                <span class="qc-stepper__icon" id="stepIcon2">2</span>
+                <span class="qc-stepper__label" id="stepText2">Passages</span>
+            </div>
+            <div class="qc-stepper__connector" id="stepConnector2"></div>
+            <div class="qc-stepper__step opacity-50" id="stepIndicator3">
+                <span class="qc-stepper__icon" id="stepIcon3">3</span>
+                <span class="qc-stepper__label" id="stepText3">Questions</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- main Form -->
+    <form method="post" enctype="multipart/form-data" class="grid grid-cols-1 lg:grid-cols-12 gap-lg items-start" novalidate>
+        
+        <!-- Left: Form -->
+        <div class="lg:col-span-7 qc-form-card min-h-[400px]">
+            
+            <!-- STEP 1: Set Info -->
+            <div id="step1" class="flex flex-col gap-md">
+                <div>
+                    <h3 class="font-headline-sm text-headline-sm font-bold text-on-surface">Step 1: Reading Set Configuration</h3>
+                    <p class="font-body-sm text-body-sm text-on-surface-variant mt-2xs">Enter the Reading Set name and select the number of passages.</p>
+                </div>
+
+                <div class="flex flex-col gap-2xs">
+                    <label asp-for="Form.Name" class="font-label-md text-label-md text-on-surface font-semibold">Reading Set Name <span class="text-error">*</span></label>
+                    <input asp-for="Form.Name" type="text" placeholder="Example: Set 05 - Double Passage" class="border border-outline rounded-lg p-2.5 bg-surface text-on-surface focus:outline-none focus:border-primary font-body-md" required />
+                </div>
+
+                <div class="flex flex-col gap-2xs">
+                    <label class="font-label-md text-label-md text-on-surface font-semibold">Number of Passages (1-3 passages)</label>
+                    <div class="flex gap-sm mt-xs">
+                        <button type="button" onclick="setPassageCount(1)" id="btnCount1" class="flex-1 py-3 rounded-lg border font-label-md text-label-md transition-all border-primary bg-primary/10 text-primary font-bold shadow-sm">
+                            Single Passage (1)
+                        </button>
+                        <button type="button" onclick="setPassageCount(2)" id="btnCount2" class="flex-1 py-3 rounded-lg border font-label-md text-label-md transition-all border-outline-variant/30 bg-surface text-on-surface-variant hover:bg-surface-container">
+                            Double Passage (2)
+                        </button>
+                        <button type="button" onclick="setPassageCount(3)" id="btnCount3" class="flex-1 py-3 rounded-lg border font-label-md text-label-md transition-all border-outline-variant/30 bg-surface text-on-surface-variant hover:bg-surface-container">
+                            Triple Passage (3)
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Nav -->
+                <div class="flex justify-between border-t border-outline-variant/30 pt-md mt-sm">
+                    <a href="/Admin/Exams/Edit?id=@Model.ExamId" class="border border-outline-variant hover:bg-surface-container-high text-on-surface-variant font-label-md text-label-md py-2.5 px-6 rounded-lg transition-colors">
+                        Cancel
+                    </a>
+                    <button type="button" onclick="goToStep(2)" class="bg-primary hover:bg-primary-container text-white font-label-md text-label-md py-2.5 px-6 rounded-lg shadow-sm transition-all flex items-center gap-xs">
+                        Continue
+                        <span class="material-symbols-outlined text-sm">arrow_forward</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- STEP 2: Passages Content (Tabs for 1, 2, or 3 passages) -->
+            <div id="step2" class="flex flex-col gap-md hidden">
+                <div class="flex justify-between items-center">
+                    <div>
+                        <h3 class="font-headline-sm text-headline-sm font-bold text-on-surface">Step 2: Passage Content Editor</h3>
+                        <p class="font-body-sm text-body-sm text-on-surface-variant mt-2xs">Compose text content or upload images for each passage.</p>
+                    </div>
+                </div>
+
+                <!-- Passage Tabs Header -->
+                <div class="flex border-b border-outline-variant/30 gap-sm" id="passageTabsHeader">
+                    <button type="button" onclick="showPassageTab(1)" id="tabHeader1" class="pb-2 px-4 font-label-md text-label-md border-b-2 border-primary text-primary font-bold transition-all">
+                        Passage 1
+                    </button>
+                    <button type="button" onclick="showPassageTab(2)" id="tabHeader2" class="pb-2 px-4 font-label-md text-label-md border-b-2 border-transparent text-on-surface-variant hover:text-on-surface transition-all hidden">
+                        Passage 2
+                    </button>
+                    <button type="button" onclick="showPassageTab(3)" id="tabHeader3" class="pb-2 px-4 font-label-md text-label-md border-b-2 border-transparent text-on-surface-variant hover:text-on-surface transition-all hidden">
+                        Passage 3
+                    </button>
+                </div>
+
+                <!-- Passage Form Containers -->
+                <div id="passagesFormsContainer">
+                    <!-- Passage 1 Form -->
+                    <div id="passageFormBlock1" class="flex flex-col gap-md py-xs">
+                        <input type="hidden" name="Form.Passages[0].DisplayOrder" value="1" />
+                        <div class="flex flex-col gap-2xs">
+                            <label class="font-label-md text-label-md text-on-surface font-semibold">Passage 1 Content</label>
+                            <textarea name="Form.Passages[0].Content" id="passageText1" rows="8" placeholder="Enter emails, articles, advertisements, etc." class="border border-outline rounded-lg p-2.5 bg-surface text-on-surface focus:outline-none focus:border-primary font-body-md w-full resize-none passage-content-textarea">Dear Mr. Lee, We are writing to confirm...</textarea>
+                        </div>
+                        <div class="flex flex-col gap-2xs">
+                            <label class="font-label-md text-label-md text-on-surface font-semibold">Accompanying Image for Passage 1 (Optional)</label>
+                            <div class="border border-outline-variant rounded-xl p-sm bg-surface flex items-center justify-between">
+                                <input name="Form.Passages[0].ImageFile" type="file" accept="image/*" class="font-body-sm" onchange="previewPassageImage(1, this)" />
+                            </div>
+                            <input type="hidden" name="Form.Passages[0].ImageUrl" id="passageImageUrl1" />
+                        </div>
+                    </div>
+
+                    <!-- Passage 2 Form -->
+                    <div id="passageFormBlock2" class="flex flex-col gap-md py-xs hidden">
+                        <input type="hidden" name="Form.Passages[1].DisplayOrder" value="2" />
+                        <div class="flex flex-col gap-2xs">
+                            <label class="font-label-md text-label-md text-on-surface font-semibold">Passage 2 Content</label>
+                            <textarea name="Form.Passages[1].Content" id="passageText2" rows="8" placeholder="Enter content for passage 2..." class="border border-outline rounded-lg p-2.5 bg-surface text-on-surface focus:outline-none focus:border-primary font-body-md w-full resize-none passage-content-textarea"></textarea>
+                        </div>
+                        <div class="flex flex-col gap-2xs">
+                            <label class="font-label-md text-label-md text-on-surface font-semibold">Accompanying Image for Passage 2 (Optional)</label>
+                            <div class="border border-outline-variant rounded-xl p-sm bg-surface flex items-center justify-between">
+                                <input name="Form.Passages[1].ImageFile" type="file" accept="image/*" class="font-body-sm" onchange="previewPassageImage(2, this)" />
+                            </div>
+                            <input type="hidden" name="Form.Passages[1].ImageUrl" id="passageImageUrl2" />
+                        </div>
+                    </div>
+
+                    <!-- Passage 3 Form -->
+                    <div id="passageFormBlock3" class="flex flex-col gap-md py-xs hidden">
+                        <input type="hidden" name="Form.Passages[2].DisplayOrder" value="3" />
+                        <div class="flex flex-col gap-2xs">
+                            <label class="font-label-md text-label-md text-on-surface font-semibold">Passage 3 Content</label>
+                            <textarea name="Form.Passages[2].Content" id="passageText3" rows="8" placeholder="Enter content for passage 3..." class="border border-outline rounded-lg p-2.5 bg-surface text-on-surface focus:outline-none focus:border-primary font-body-md w-full resize-none passage-content-textarea"></textarea>
+                        </div>
+                        <div class="flex flex-col gap-2xs">
+                            <label class="font-label-md text-label-md text-on-surface font-semibold">Accompanying Image for Passage 3 (Optional)</label>
+                            <div class="border border-outline-variant rounded-xl p-sm bg-surface flex items-center justify-between">
+                                <input name="Form.Passages[2].ImageFile" type="file" accept="image/*" class="font-body-sm" onchange="previewPassageImage(3, this)" />
+                            </div>
+                            <input type="hidden" name="Form.Passages[2].ImageUrl" id="passageImageUrl3" />
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Nav -->
+                <div class="flex justify-between border-t border-outline-variant/30 pt-md mt-sm">
+                    <button type="button" onclick="goToStep(1)" class="border border-outline-variant hover:bg-surface-container-high text-on-surface-variant font-label-md text-label-md py-2.5 px-6 rounded-lg transition-colors flex items-center gap-xs">
+                        <span class="material-symbols-outlined text-sm">arrow_back</span>
+                        Back
+                    </button>
+                    <button type="button" onclick="goToStep(3)" class="bg-primary hover:bg-primary-container text-white font-label-md text-label-md py-2.5 px-6 rounded-lg shadow-sm transition-all flex items-center gap-xs">
+                        Continue
+                        <span class="material-symbols-outlined text-sm">arrow_forward</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- STEP 3: Questions & Options (2-5 questions) -->
+            <div id="step3" class="flex flex-col gap-md hidden">
+                <div>
+                    <h3 class="font-headline-sm text-headline-sm font-bold text-on-surface">Step 3: Questions List</h3>
+                    <p class="font-body-sm text-body-sm text-on-surface-variant mt-2xs">Configure reading comprehension questions and answers (min 2, max 5).</p>
+                </div>
+
+                <div class="flex flex-col gap-lg" id="questionsListContainer">
+                    @for (int i = 0; i < Model.Form.Questions.Count; i++)
+                    {
+                        <div class="p7-question-block border border-outline-variant/30 bg-surface/30 rounded-xl p-md flex flex-col gap-md relative" data-index="@i">
+                            <div class="flex justify-between items-center border-b border-outline-variant/20 pb-2xs">
+                                <span class="font-title-sm text-title-sm font-bold text-primary p7-q-label">Question @(i + 1)</span>
+                                <button type="button" onclick="removeP7QuestionBlock(@i)" class="text-error hover:bg-error-container/20 p-1.5 rounded transition-colors flex items-center justify-center text-xs gap-xs p7-remove-btn" title="Remove question">
+                                    <span class="material-symbols-outlined text-sm">delete</span> Remove
+                                </button>
+                            </div>
+
+                            <div class="grid grid-cols-1 md:grid-cols-4 gap-md">
+                                <div class="flex flex-col gap-2xs">
+                                    <label class="font-label-md text-label-md text-on-surface font-semibold">Question Number <span class="text-error">*</span></label>
+                                    <input asp-for="Form.Questions[i].QuestionNumber" type="number" class="border border-outline rounded-lg p-2.5 bg-surface text-on-surface focus:outline-none focus:border-primary font-body-md p7-q-number" required />
+                                </div>
+                                <div class="flex flex-col gap-2xs md:col-span-3">
+                                    <label class="font-label-md text-label-md text-on-surface font-semibold">Question Text <span class="text-error">*</span></label>
+                                    <input asp-for="Form.Questions[i].QuestionText" type="text" placeholder="Example: What is the main purpose of the interview?" class="border border-outline rounded-lg p-2.5 bg-surface text-on-surface focus:outline-none focus:border-primary font-body-md p7-q-text" required />
+                                </div>
+                            </div>
+
+                            <!-- Options A-D -->
+                            <div class="flex flex-col gap-sm">
+                                <span class="font-label-md text-label-md text-on-surface font-semibold">Options & Correct Answer <span class="text-error">*</span></span>
+                                <div class="grid grid-cols-1 md:grid-cols-2 gap-sm">
+                                    <!-- A -->
+                                    <div class="flex items-center gap-sm">
+                                        <span class="font-label-sm text-label-sm font-bold text-on-surface w-6">A</span>
+                                        <input asp-for="Form.Questions[i].OptionA" type="text" placeholder="Option A" class="border border-outline rounded-lg p-2 bg-surface text-on-surface focus:outline-none focus:border-primary font-body-sm flex-1 p7-opt-a" required />
+                                        <input type="radio" name="Form.Questions[@i].CorrectOption" value="A" class="w-4 h-4 text-primary p7-correct-a" checked />
+                                    </div>
+                                    <!-- B -->
+                                    <div class="flex items-center gap-sm">
+                                        <span class="font-label-sm text-label-sm font-bold text-on-surface w-6">B</span>
+                                        <input asp-for="Form.Questions[i].OptionB" type="text" placeholder="Option B" class="border border-outline rounded-lg p-2 bg-surface text-on-surface focus:outline-none focus:border-primary font-body-sm flex-1 p7-opt-b" required />
+                                        <input type="radio" name="Form.Questions[@i].CorrectOption" value="B" class="w-4 h-4 text-primary p7-correct-b" />
+                                    </div>
+                                    <!-- C -->
+                                    <div class="flex items-center gap-sm">
+                                        <span class="font-label-sm text-label-sm font-bold text-on-surface w-6">C</span>
+                                        <input asp-for="Form.Questions[i].OptionC" type="text" placeholder="Option C" class="border border-outline rounded-lg p-2 bg-surface text-on-surface focus:outline-none focus:border-primary font-body-sm flex-1 p7-opt-c" required />
+                                        <input type="radio" name="Form.Questions[@i].CorrectOption" value="C" class="w-4 h-4 text-primary p7-correct-c" />
+                                    </div>
+                                    <!-- D -->
+                                    <div class="flex items-center gap-sm">
+                                        <span class="font-label-sm text-label-sm font-bold text-on-surface w-6 font-bold">D</span>
+                                        <input asp-for="Form.Questions[i].OptionD" type="text" placeholder="Option D" class="border border-outline rounded-lg p-2 bg-surface text-on-surface focus:outline-none focus:border-primary font-body-sm flex-1 p7-opt-d" required />
+                                        <input type="radio" name="Form.Questions[@i].CorrectOption" value="D" class="w-4 h-4 text-primary p7-correct-d" />
+                                    </div>
+                                </div>
+                                <input type="hidden" asp-for="Form.Questions[i].CorrectOption" id="correctHidden_@(i)" value="A" class="correct-hidden-field" />
+                            </div>
+                        </div>
+                    }
+                </div>
+
+                <!-- Add Button -->
+                <div class="flex justify-center mt-sm">
+                    <button type="button" onclick="addP7QuestionBlock()" class="border border-dashed border-primary/50 text-primary hover:bg-primary/5 font-label-md text-label-md py-2.5 px-6 rounded-lg flex items-center gap-xs transition-colors">
+                        <span class="material-symbols-outlined text-sm">add_circle</span>
+                        Add a Question
+                    </button>
+                </div>
+
+                <!-- Nav -->
+                <div class="flex justify-between border-t border-outline-variant/30 pt-md mt-sm">
+                    <button type="button" onclick="goToStep(2)" class="border border-outline-variant hover:bg-surface-container-high text-on-surface-variant font-label-md text-label-md py-2.5 px-6 rounded-lg transition-colors flex items-center gap-xs">
+                        <span class="material-symbols-outlined text-sm">arrow_back</span>
+                        Back
+                    </button>
+                    <button type="submit" class="bg-tertiary hover:bg-tertiary/90 text-white font-label-md text-label-md py-2.5 px-8 rounded-lg shadow-md transition-all flex items-center gap-xs">
+                        <span class="material-symbols-outlined text-sm">check_circle</span>
+                        Save Reading Set
+                    </button>
+                </div>
+            </div>
+
+        </div>
+
+        <!-- Right: Live Preview Panel -->
+        <div class="lg:col-span-5 qc-preview-panel">
+            <div class="qc-preview-panel__label">
+                <span class="material-symbols-outlined">visibility</span>
+                Learner Live Preview
+            </div>
+            <div class="qc-preview-shell max-h-[80vh] overflow-y-auto">
+                <div class="qc-preview-inner">
+                <div class="qc-preview-meta">
+                    <span class="qc-preview-qnum" id="previewSetName">Set 01 - Reading Comprehension</span>
+                </div>
+
+                <!-- Passages stacked display -->
+                <div class="flex flex-col gap-lg" id="previewPassagesContainer">
+                    <!-- Passage 1 preview -->
+                    <div id="previewPassage1" class="flex flex-col gap-sm">
+                        <h6 class="font-label-sm text-label-sm font-semibold text-primary">Passage 1</h6>
+                        <div class="font-body-md text-body-md text-on-surface leading-relaxed bg-surface/30 border border-outline-variant/20 p-3 rounded-lg whitespace-pre-wrap" id="previewPassageText1">Dear Mr. Lee, We are writing to confirm...</div>
+                        <img id="previewPassageImg1" class="max-h-48 mx-auto rounded hidden border border-outline-variant/30 shadow-sm" />
+                    </div>
+                    <!-- Passage 2 preview -->
+                    <div id="previewPassage2" class="flex flex-col gap-sm hidden">
+                        <h6 class="font-label-sm text-label-sm font-semibold text-primary border-t border-outline-variant/30 pt-sm">Passage 2</h6>
+                        <div class="font-body-md text-body-md text-on-surface leading-relaxed bg-surface/30 border border-outline-variant/20 p-3 rounded-lg whitespace-pre-wrap" id="previewPassageText2"></div>
+                        <img id="previewPassageImg2" class="max-h-48 mx-auto rounded hidden border border-outline-variant/30 shadow-sm" />
+                    </div>
+                    <!-- Passage 3 preview -->
+                    <div id="previewPassage3" class="flex flex-col gap-sm hidden">
+                        <h6 class="font-label-sm text-label-sm font-semibold text-primary border-t border-outline-variant/30 pt-sm">Passage 3</h6>
+                        <div class="font-body-md text-body-md text-on-surface leading-relaxed bg-surface/30 border border-outline-variant/20 p-3 rounded-lg whitespace-pre-wrap" id="previewPassageText3"></div>
+                        <img id="previewPassageImg3" class="max-h-48 mx-auto rounded hidden border border-outline-variant/30 shadow-sm" />
+                    </div>
+                </div>
+
+                <div class="flex flex-col gap-md border-t border-outline-variant/20 pt-md mt-sm" id="previewQuestionsList"></div>
+                </div>
+            </div>
+        </div>
+
+    </form>
+</div>
+
+<!-- Template for dynamic question adding -->
+<template id="p7QuestionBlockTemplate">
+    <div class="p7-question-block qc-question-block flex flex-col gap-md relative animate-fade-in">
+        <div class="flex justify-between items-center qc-question-block__title">
+            <span class="p7-q-label">Question X</span>
+            <button type="button" class="text-error hover:bg-error-container/20 p-1.5 rounded transition-colors flex items-center justify-center text-xs gap-xs p7-remove-btn" title="Remove question">
+                <span class="material-symbols-outlined text-sm">delete</span> Remove
+            </button>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-md">
+            <div class="flex flex-col gap-2xs">
+                <label class="qc-label">Question Number <span class="text-error">*</span></label>
+                <input type="number" class="qc-input p7-q-number" required />
+            </div>
+            <div class="flex flex-col gap-2xs md:col-span-3">
+                <label class="qc-label">Question Text <span class="text-error">*</span></label>
+                <input type="text" placeholder="Example: What is the main purpose of the interview?" class="qc-input p7-q-text" required />
+            </div>
+        </div>
+
+        <div class="flex flex-col gap-sm">
+            <span class="qc-label">Options & Correct Answer <span class="text-error">*</span></span>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-sm">
+                <div class="qc-option-row">
+                    <span class="qc-option-badge">A</span>
+                    <input type="text" placeholder="Option A" class="p7-opt-a" required />
+                    <input type="radio" value="A" class="p7-correct-a" checked />
+                </div>
+                <div class="qc-option-row">
+                    <span class="qc-option-badge">B</span>
+                    <input type="text" placeholder="Option B" class="p7-opt-b" required />
+                    <input type="radio" value="B" class="p7-correct-b" />
+                </div>
+                <div class="qc-option-row">
+                    <span class="qc-option-badge">C</span>
+                    <input type="text" placeholder="Option C" class="p7-opt-c" required />
+                    <input type="radio" value="C" class="p7-correct-c" />
+                </div>
+                <div class="qc-option-row">
+                    <span class="qc-option-badge">D</span>
+                    <input type="text" placeholder="Option D" class="p7-opt-d" required />
+                    <input type="radio" value="D" class="p7-correct-d" />
+                </div>
+            </div>
+            <input type="hidden" class="correct-hidden-field" value="A" />
+        </div>
+    </div>
+</template>
+
+<script src="~/js/admin-form-validation.js"></script>
+<script src="~/js/admin-question-create.js"></script>
+<script>
+    let currentStep = 1;
+    let passageCount = 1;
+
+    function validatePassageStep() {
+        const checks = [];
+        for (let i = 1; i <= passageCount; i++) {
+            const textarea = document.getElementById('passageText' + i);
+            const fileInput = document.querySelector(`input[name="Form.Passages[${i - 1}].ImageFile"]`);
+            const imageUrl = document.getElementById('passageImageUrl' + i)?.value?.trim();
+            const hasText = !!textarea?.value.trim();
+            const hasFile = !!(fileInput?.files?.length);
+            const hasImage = hasFile || !!imageUrl;
+
+            checks.push({
+                element: textarea,
+                isValid: hasText || hasImage
+            });
+        }
+
+        const isValid = AcadPrepFormValidation.validateChecks(checks);
+        if (!isValid) {
+            const firstInvalidIndex = checks.findIndex((check) => !check.isValid);
+            if (firstInvalidIndex >= 0) {
+                showPassageTab(firstInvalidIndex + 1);
+            }
+        }
+        return isValid;
+    }
+
+    function goToStep(step) {
+        if (step > currentStep) {
+            if (currentStep === 2 && !validatePassageStep()) {
+                return;
+            }
+
+            const stepElement = document.getElementById('step' + currentStep);
+            if (!AcadPrepFormValidation.validateContainer(stepElement)) {
+                return;
+            }
+        }
+
+        document.getElementById('step' + currentStep).classList.add('hidden');
+        currentStep = step;
+        document.getElementById('step' + currentStep).classList.remove('hidden');
+        AcadPrepQuestionUI.setStepperActive(step, 3);
+    }
+
+    // Passage Counts setup
+    function setPassageCount(count) {
+        passageCount = count;
+        
+        // Update Buttons Styling
+        for (let i = 1; i <= 3; i++) {
+            const btn = document.getElementById('btnCount' + i);
+            if (i === count) {
+                btn.className = 'flex-1 py-3 rounded-lg border font-label-md text-label-md transition-all border-primary bg-primary/10 text-primary font-bold shadow-sm';
+            } else {
+                btn.className = 'flex-1 py-3 rounded-lg border font-label-md text-label-md transition-all border-outline-variant/30 bg-surface text-on-surface-variant hover:bg-surface-container';
+            }
+        }
+
+        // Show/Hide Tabs Header
+        for (let i = 1; i <= 3; i++) {
+            const tabHeader = document.getElementById('tabHeader' + i);
+            const previewBlock = document.getElementById('previewPassage' + i);
+            if (i <= count) {
+                tabHeader.classList.remove('hidden');
+                previewBlock.classList.remove('hidden');
+            } else {
+                tabHeader.classList.add('hidden');
+                previewBlock.classList.add('hidden');
+            }
+        }
+
+        // Default tab view reset
+        showPassageTab(1);
+
+        // Disable inactive passage fields so they are not submitted
+        for (let i = 1; i <= 3; i++) {
+            const form = document.getElementById('passageFormBlock' + i);
+            if (!form) continue;
+            const isActive = i <= count;
+            form.querySelectorAll('input, textarea, select').forEach(el => {
+                el.disabled = !isActive;
+            });
+        }
+        
+        updatePreview();
+    }
+
+    function showPassageTab(tabNum) {
+        for (let i = 1; i <= 3; i++) {
+            const form = document.getElementById('passageFormBlock' + i);
+            const header = document.getElementById('tabHeader' + i);
+            if (i === tabNum) {
+                form.classList.remove('hidden');
+                header.className = 'pb-2 px-4 font-label-md text-label-md border-b-2 border-primary text-primary font-bold transition-all';
+            } else {
+                form.classList.add('hidden');
+                header.className = 'pb-2 px-4 font-label-md text-label-md border-b-2 border-transparent text-on-surface-variant hover:text-on-surface transition-all';
+            }
+        }
+    }
+
+    function previewPassageImage(num, input) {
+        const previewImg = document.getElementById('previewPassageImg' + num);
+        if (input.files && input.files[0]) {
+            previewImg.src = URL.createObjectURL(input.files[0]);
+            previewImg.classList.remove('hidden');
+        } else {
+            previewImg.classList.add('hidden');
+        }
+    }
+
+    // Dynamic questions
+    function addP7QuestionBlock() {
+        const container = document.getElementById('questionsListContainer');
+        const blocks = container.querySelectorAll('.p7-question-block');
+        if (blocks.length >= 5) {
+            alert("A maximum of 5 questions is allowed per Reading Set.");
+            return;
+        }
+
+        const template = document.getElementById('p7QuestionBlockTemplate').content.cloneNode(true);
+        const currentIndex = blocks.length;
+
+        // Auto increment question number
+        let lastQNumber = 146;
+        const qNumberInputs = container.querySelectorAll('.p7-q-number');
+        if (qNumberInputs.length > 0) {
+            lastQNumber = parseInt(qNumberInputs[qNumberInputs.length - 1].value) || 146;
+        }
+
+        const block = template.querySelector('.p7-question-block');
+        block.setAttribute('data-index', currentIndex);
+        block.querySelector('.p7-q-label').textContent = 'Question ' + (currentIndex + 1);
+
+        const qNumInput = block.querySelector('.p7-q-number');
+        qNumInput.setAttribute('name', `Form.Questions[${currentIndex}].QuestionNumber`);
+        qNumInput.setAttribute('id', `Form_Questions_${currentIndex}__QuestionNumber`);
+        qNumInput.value = lastQNumber + 1;
+
+        const qTextInput = block.querySelector('.p7-q-text');
+        qTextInput.setAttribute('name', `Form.Questions[${currentIndex}].QuestionText`);
+        qTextInput.setAttribute('id', `Form_Questions_${currentIndex}__QuestionText`);
+
+        const removeBtn = block.querySelector('.p7-remove-btn');
+        removeBtn.onclick = function() { removeP7QuestionBlock(currentIndex); };
+
+        ['a', 'b', 'c', 'd'].forEach(letter => {
+            const optInput = block.querySelector(`.p7-opt-${letter}`);
+            const uppercase = letter.toUpperCase();
+            optInput.setAttribute('name', `Form.Questions[${currentIndex}].Option${uppercase}`);
+            optInput.setAttribute('id', `Form_Questions_${currentIndex}__Option${uppercase}`);
+
+            const radio = block.querySelector(`.p7-correct-${letter}`);
+            radio.setAttribute('name', `Form.Questions[${currentIndex}].CorrectOption`);
+            radio.onchange = function() {
+                block.querySelector('.correct-hidden-field').value = uppercase;
+            };
+        });
+
+        const hiddenCorrect = block.querySelector('.correct-hidden-field');
+        hiddenCorrect.setAttribute('name', `Form.Questions[${currentIndex}].CorrectOption`);
+        hiddenCorrect.setAttribute('id', `correctHidden_${currentIndex}`);
+
+        container.appendChild(block);
+        updatePreview();
+    }
+
+    function removeP7QuestionBlock(index) {
+        const container = document.getElementById('questionsListContainer');
+        const blocks = container.querySelectorAll('.p7-question-block');
+        if (blocks.length <= 2) {
+            alert("A minimum of 2 questions is required per Reading Set.");
+            return;
+        }
+
+        const targetBlock = Array.from(blocks).find(b => parseInt(b.getAttribute('data-index')) === index);
+        if (targetBlock) {
+            targetBlock.remove();
+        }
+
+        reIndexP7Questions();
+        updatePreview();
+    }
+
+    function reIndexP7Questions() {
+        const container = document.getElementById('questionsListContainer');
+        const blocks = container.querySelectorAll('.p7-question-block');
+        blocks.forEach((block, idx) => {
+            block.setAttribute('data-index', idx);
+            block.querySelector('.p7-q-label').textContent = 'Question ' + (idx + 1);
+
+            const qNumInput = block.querySelector('.p7-q-number');
+            qNumInput.setAttribute('name', `Form.Questions[${idx}].QuestionNumber`);
+
+            const qTextInput = block.querySelector('.p7-q-text');
+            qTextInput.setAttribute('name', `Form.Questions[${idx}].QuestionText`);
+
+            const removeBtn = block.querySelector('.p7-remove-btn');
+            if (removeBtn) {
+                removeBtn.onclick = function() { removeP7QuestionBlock(idx); };
+            }
+
+            ['a', 'b', 'c', 'd'].forEach(letter => {
+                const optInput = block.querySelector(`.p7-opt-${letter}`);
+                const uppercase = letter.toUpperCase();
+                optInput.setAttribute('name', `Form.Questions[${idx}].Option${uppercase}`);
+
+                const radio = block.querySelector(`.p7-correct-${letter}`);
+                radio.setAttribute('name', `Form.Questions[${idx}].CorrectOption`);
+                radio.onchange = function() {
+                    block.querySelector('.correct-hidden-field').value = uppercase;
+                };
+            });
+
+            const hiddenCorrect = block.querySelector('.correct-hidden-field');
+            hiddenCorrect.setAttribute('name', `Form.Questions[${idx}].CorrectOption`);
+            hiddenCorrect.setAttribute('id', `correctHidden_${idx}`);
+        });
+    }
+
+    function updatePreview() {
+        // Name
+        const nameVal = document.querySelector('input[name="Form.Name"]').value;
+        document.getElementById('previewSetName').textContent = nameVal || 'Set 01 - Reading Comprehension';
+
+        // Passages text content
+        for (let i = 1; i <= 3; i++) {
+            const rawVal = document.getElementById('passageText' + i).value;
+            document.getElementById('previewPassageText' + i).textContent = rawVal || `(Passage ${i} is empty...)`;
+        }
+
+        // Questions list render
+        const container = document.getElementById('questionsListContainer');
+        const blocks = container.querySelectorAll('.p7-question-block');
+        const previewList = document.getElementById('previewQuestionsList');
+        previewList.innerHTML = '';
+
+        blocks.forEach((block, idx) => {
+            const qNum = block.querySelector('.p7-q-number').value || (idx + 1);
+            const qText = block.querySelector('.p7-q-text').value || '(Question text is empty...)';
+            const correctOpt = block.querySelector('.correct-hidden-field')?.value
+                ?? block.querySelector('input[type="radio"][name*="CorrectOption"]:checked')?.value
+                ?? 'A';
+
+            const optA = block.querySelector('.p7-opt-a').value || 'Option A';
+            const optB = block.querySelector('.p7-opt-b').value || 'Option B';
+            const optC = block.querySelector('.p7-opt-c').value || 'Option C';
+            const optD = block.querySelector('.p7-opt-d').value || 'Option D';
+
+            const qCard = document.createElement('div');
+            qCard.className = 'p-md bg-surface-container-lowest border border-outline-variant/30 rounded-xl flex flex-col gap-sm shadow-sm';
+
+            qCard.innerHTML = `
+                <div class="flex justify-between items-center">
+                    <div class="flex items-center gap-xs">
+                        <span class="font-label-md text-label-md font-bold text-primary">Question ${qNum}:</span>
+                    </div>
+                    <span class="font-body-xs text-body-xs bg-tertiary-fixed/20 text-on-tertiary-fixed-variant p-0.5 px-2 rounded-full font-bold">
+                        Correct Option: ${correctOpt}
+                    </span>
+                </div>
+                <p class="font-body-md text-body-md text-on-surface font-medium">${qText}</p>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-sm text-body-sm font-body-sm mt-xs">
+                    <div class="flex items-center gap-xs p-1.5 border border-outline-variant/20 rounded ${correctOpt === 'A' ? 'bg-tertiary-fixed/10 border-tertiary font-semibold' : ''}">
+                        <span class="w-5 h-5 rounded-full flex items-center justify-center text-xs ${correctOpt === 'A' ? 'bg-tertiary text-white' : 'bg-surface-container'}">A</span>
+                        <span>${optA}</span>
+                    </div>
+                    <div class="flex items-center gap-xs p-1.5 border border-outline-variant/20 rounded ${correctOpt === 'B' ? 'bg-tertiary-fixed/10 border-tertiary font-semibold' : ''}">
+                        <span class="w-5 h-5 rounded-full flex items-center justify-center text-xs ${correctOpt === 'B' ? 'bg-tertiary text-white' : 'bg-surface-container'}">B</span>
+                        <span>${optB}</span>
+                    </div>
+                    <div class="flex items-center gap-xs p-1.5 border border-outline-variant/20 rounded ${correctOpt === 'C' ? 'bg-tertiary-fixed/10 border-tertiary font-semibold' : ''}">
+                        <span class="w-5 h-5 rounded-full flex items-center justify-center text-xs ${correctOpt === 'C' ? 'bg-tertiary text-white' : 'bg-surface-container'}">C</span>
+                        <span>${optC}</span>
+                    </div>
+                    <div class="flex items-center gap-xs p-1.5 border border-outline-variant/20 rounded ${correctOpt === 'D' ? 'bg-tertiary-fixed/10 border-tertiary font-semibold' : ''}">
+                        <span class="w-5 h-5 rounded-full flex items-center justify-center text-xs ${correctOpt === 'D' ? 'bg-tertiary text-white' : 'bg-surface-container'}">D</span>
+                        <span>${optD}</span>
+                    </div>
+                </div>
+            `;
+            previewList.appendChild(qCard);
+        });
+    }
+
+    // Attach listeners
+    document.querySelector('input[name="Form.Name"]').addEventListener('input', updatePreview);
+    
+    for (let i = 1; i <= 3; i++) {
+        document.getElementById('passageText' + i).addEventListener('input', updatePreview);
+    }
+
+    function attachQuestionListeners() {
+        const container = document.getElementById('questionsListContainer');
+        const blocks = container.querySelectorAll('.p7-question-block');
+        
+        blocks.forEach((block, i) => {
+            // Remove previous to avoid multiple triggers
+            const qNum = block.querySelector('.p7-q-number');
+            qNum.removeEventListener('input', updatePreview);
+            qNum.addEventListener('input', updatePreview);
+
+            const qText = block.querySelector('.p7-q-text');
+            qText.removeEventListener('input', updatePreview);
+            qText.addEventListener('input', updatePreview);
+
+            ['a', 'b', 'c', 'd'].forEach(letter => {
+                const opt = block.querySelector(`.p7-opt-${letter}`);
+                opt.removeEventListener('input', updatePreview);
+                opt.addEventListener('input', updatePreview);
+
+                const radio = block.querySelector(`.p7-correct-${letter}`);
+                radio.removeEventListener('change', updatePreview);
+                
+                radio.addEventListener('change', function() {
+                    block.querySelector('.correct-hidden-field').value = letter.toUpperCase();
+                    updatePreview();
+                });
+            });
+        });
+    }
+
+    // Listen to changes at container level for dynamic items
+    document.getElementById('questionsListContainer').addEventListener('input', updatePreview);
+    document.getElementById('questionsListContainer').addEventListener('change', updatePreview);
+
+    function prepareP7FormForSubmit() {
+        const container = document.getElementById('questionsListContainer');
+        if (container) {
+            Array.from(container.querySelectorAll('.p7-question-block')).forEach(block => {
+                const optA = block.querySelector('.p7-opt-a');
+                if (!optA || !optA.value.trim()) {
+                    block.remove();
+                }
+            });
+            reIndexP7Questions();
+        }
+
+        setPassageCount(passageCount);
+    }
+
+    window.addEventListener('DOMContentLoaded', () => {
+        const form = document.querySelector('form');
+        if (form) {
+            AcadPrepFormValidation.bindForm(form, { beforeValidate: prepareP7FormForSubmit });
+        }
+        setPassageCount(1);
+        AcadPrepQuestionUI.setStepperActive(1, 3);
+        attachQuestionListeners();
+    });
+</script>

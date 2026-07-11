@@ -15,6 +15,16 @@ builder.Services.AddInfrastructureServices(builder.Configuration);
 builder.Services.AddControllers();
 builder.Services.AddRazorPages();
 
+builder.Services.Configure<Microsoft.AspNetCore.Http.Features.FormOptions>(options =>
+{
+    options.MultipartBodyLengthLimit = 104_857_600; // 100 MB
+});
+
+builder.WebHost.ConfigureKestrel(options =>
+{
+    options.Limits.MaxRequestBodySize = 104_857_600; // 100 MB
+});
+
 // Add CORS to allow external Frontend (React, Vue, Next.js, etc.)
 builder.Services.AddCors(options =>
 {
@@ -73,6 +83,7 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
+app.UseStaticFiles();
 
 // Enable CORS for frontend applications (Must be before Auth)
 app.UseCors("AllowExternalFrontend");

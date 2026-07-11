@@ -187,34 +187,6 @@ public static class AppDbContextSeed
             await context.SaveChangesAsync();
         }
 
-        // ── 3.5. Questions ──
-        var examsList = context.Exams.ToList();
-        foreach (var exam in examsList)
-        {
-            var hasQuestions = context.Questions.Any(q => q.ExamId == exam.Id);
-            if (!hasQuestions)
-            {
-                // Seed 7 questions per exam, one for each Part (1 to 7)
-                for (int p = 1; p <= 7; p++)
-                {
-                    var (qType, tag) = GetQuestionMetadata(p);
-                    context.Questions.Add(new Question
-                    {
-                        ExamId = exam.Id,
-                        Part = p,
-                        QuestionNumber = p,
-                        QuestionText = $"Mock Question for Part {p} of {exam.Title}",
-                        CorrectOption = OptionLetter.A,
-                        QuestionType = qType,
-                        TopicTag = tag
-                    });
-                }
-            }
-        }
-        await context.SaveChangesAsync();
-
-        // ── 3.6. Parts ──
-
         // ── 4. Achievements ──
         if (!context.Achievements.Any())
         {

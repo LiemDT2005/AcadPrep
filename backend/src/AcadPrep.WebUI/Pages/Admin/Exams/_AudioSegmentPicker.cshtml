@@ -1,0 +1,52 @@
+@model AcadPrep.WebUI.Pages.Admin.Exams.AudioSegmentPickerModel
+
+<div id="@Model.PickerId" class="audio-segment-picker flex flex-col gap-sm">
+    <div class="flex flex-wrap items-center justify-between gap-sm">
+        <span class="font-label-md text-label-md text-on-surface font-semibold">Drag the highlighted region to select the audio segment</span>
+        <span id="@(Model.PickerId)-time-display" class="font-label-sm text-label-sm text-primary font-bold bg-primary/10 px-3 py-1 rounded-full">--:-- → --:--</span>
+    </div>
+
+    <div id="@(Model.PickerId)-loading" class="flex items-center justify-center gap-sm py-lg text-on-surface-variant border border-outline-variant/30 rounded-xl bg-surface/50">
+        <span class="material-symbols-outlined animate-spin">progress_activity</span>
+        <span class="font-body-sm text-body-sm">Loading waveform...</span>
+    </div>
+
+    <div id="@(Model.PickerId)-wave" class="w-full rounded-xl overflow-hidden border border-outline-variant/30 bg-surface hidden"></div>
+
+    <div id="@(Model.PickerId)-controls" class="flex flex-wrap items-center gap-sm hidden">
+        <button type="button" id="@(Model.PickerId)-play-segment" class="flex items-center gap-xs border border-primary/30 text-primary hover:bg-primary/5 font-label-md text-label-md py-1.5 px-3 rounded-lg transition-colors">
+            <span class="material-symbols-outlined text-sm">play_arrow</span>
+            <span data-toggle-label>Play segment</span>
+        </button>
+        <button type="button" id="@(Model.PickerId)-zoom-in" class="flex items-center gap-xs border border-outline-variant text-on-surface-variant hover:bg-surface-container-high font-label-md text-label-md py-1.5 px-3 rounded-lg transition-colors" title="Zoom in">
+            <span class="material-symbols-outlined text-sm">zoom_in</span>
+        </button>
+        <button type="button" id="@(Model.PickerId)-zoom-out" class="flex items-center gap-xs border border-outline-variant text-on-surface-variant hover:bg-surface-container-high font-label-md text-label-md py-1.5 px-3 rounded-lg transition-colors" title="Zoom out">
+            <span class="material-symbols-outlined text-sm">zoom_out</span>
+        </button>
+        <span class="font-body-xs text-body-xs text-on-surface-variant ml-auto">Scroll horizontally on long audio files</span>
+    </div>
+</div>
+
+@if (!Context.Items.ContainsKey("audio-segment-picker-scripts"))
+{
+    Context.Items["audio-segment-picker-scripts"] = true;
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/wavesurfer.js/6.6.4/wavesurfer.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/wavesurfer.js/6.6.4/plugin/wavesurfer.regions.min.js"></script>
+    <script src="/js/audio-segment-picker.js"></script>
+}
+
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        if (typeof initAudioSegmentPicker === 'function') {
+            initAudioSegmentPicker({
+                pickerId: '@Model.PickerId',
+                audioUrl: @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.AudioUrl)),
+                startInputName: '@Model.StartInputName',
+                endInputName: '@Model.EndInputName',
+                initialStart: @(Model.InitialStart.HasValue ? Model.InitialStart.Value.ToString() : "null"),
+                initialEnd: @(Model.InitialEnd.HasValue ? Model.InitialEnd.Value.ToString() : "null")
+            });
+        }
+    });
+</script>

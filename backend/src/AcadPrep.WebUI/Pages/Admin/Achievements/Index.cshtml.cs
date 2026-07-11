@@ -1,9 +1,9 @@
 using System.Collections.Generic;
 using System.Threading.Tasks;
-using AcadPrep.Application.Features.Admin.Queries.GetAchievements;
-using AcadPrep.Application.Features.Admin.Commands.DeleteAchievement;
+using AcadPrep.Application.Features.Admin.Achievements.Queries.GetAchievements;
+using AcadPrep.Application.Features.Admin.Achievements.Commands.DeleteAchievement;
 using AcadPrep.Application.Common.Models;
-using AcadPrep.Application.Features.Admin.DTOs;
+using AcadPrep.Application.Features.Admin.Achievements.DTOs;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
