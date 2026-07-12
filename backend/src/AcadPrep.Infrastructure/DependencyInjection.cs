@@ -35,6 +35,9 @@ public static class DependencyInjection
         // Register CurrentUserService
         services.AddScoped<ICurrentUserService, CurrentUserService>();
 
+        // Register PasswordHasher
+        services.AddScoped<IPasswordHasher, PasswordHasher>();
+
         // Register standard TimeProvider
         services.AddSingleton(TimeProvider.System);
 
@@ -55,9 +58,14 @@ public static class DependencyInjection
 
         // Register AI generation service
         services.AddScoped<IAiGenerationService, MockAiGenerationService>();
-
+        
         // Register Cloudinary storage service
         services.AddScoped<IFileStorageService, CloudinaryStorageService>();
+        // Register Email service (mock — swap for real SMTP/SendGrid in production)
+        services.AddScoped<IEmailService, MockEmailService>();
+
+        // Register OTP issuer
+        services.AddScoped<IOtpIssuer, OtpIssuer>();
 
         return services;
     }

@@ -1,0 +1,436 @@
+@page
+@model AcadPrep.WebUI.Pages.Account.VerifyOtpModel
+@{
+    ViewData["Title"] = Model.IsReactivation ? "Kích hoạt lại tài khoản" : "Xác thực tài khoản";
+    Layout = null;
+    var pageTitle    = Model.IsReactivation ? "Kích hoạt lại tài khoản" : "Xác thực tài khoản";
+    var pageSubtitle = Model.IsReactivation
+        ? "Nhập mã OTP để kích hoạt lại tài khoản của bạn."
+        : "Nhập mã OTP để hoàn tất đăng ký tài khoản.";
+}
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@pageTitle — AcadPrep</title>
+    <meta name="description" content="Nhập mã OTP 6 số được gửi về email của bạn để xác thực tài khoản AcadPrep." />
+    <script src="https://cdn.tailwindcss.com?plugins=forms"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet"/>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet"/>
+    <script>
+        tailwind.config = {
+          theme: {
+            extend: {
+              colors: {
+                primary:    "#1e00a9",
+                "primary-dark": "#16007e",
+                surface:    "#fcf8ff",
+                accent:     "#3525cd",
+                muted:      "#464555",
+                border:     "#c7c4d8",
+                error:      "#ba1a1a",
+                "error-bg": "#ffdad6",
+                success:    "#006c4c",
+                "success-bg": "#89f8c7",
+                warning:    "#7c5800",
+                "warning-bg": "#ffdfa1"
+              },
+              fontFamily: { sans: ["Inter", "sans-serif"] },
+              boxShadow: {
+                card: "0 4px 24px rgba(30,0,169,0.08), 0 1px 4px rgba(30,0,169,0.04)",
+              }
+            }
+          }
+        }
+    </script>
+    <style>
+        body { font-family: "Inter", sans-serif; }
+
+        .otp-bg {
+            background: linear-gradient(135deg, #1e00a9 0%, #3525cd 40%, #6b5fff 100%);
+        }
+        .glass-card {
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+        }
+
+        /* OTP input boxes */
+        .otp-box {
+            width: 48px; height: 56px;
+            border: 2px solid #c7c4d8;
+            border-radius: 12px;
+            background: #fcf8ff;
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #1e00a9;
+            text-align: center;
+            transition: border-color 0.15s, box-shadow 0.15s;
+            caret-color: transparent;
+        }
+        .otp-box:focus {
+            outline: none;
+            border-color: #1e00a9;
+            box-shadow: 0 0 0 3px rgba(30,0,169,0.15);
+        }
+        .otp-box.error {
+            border-color: #ba1a1a;
+            box-shadow: 0 0 0 3px rgba(186,26,26,0.15);
+            animation: shake 0.35s ease;
+        }
+        .otp-box.success {
+            border-color: #006c4c;
+            box-shadow: 0 0 0 3px rgba(0,108,76,0.15);
+        }
+
+        @@keyframes shake {
+            0%,100% { transform: translateX(0); }
+            20%      { transform: translateX(-6px); }
+            60%      { transform: translateX(6px); }
+        }
+
+        /* Button */
+        .btn-primary { transition: transform 0.15s ease, box-shadow 0.15s ease; }
+        .btn-primary:hover:not(:disabled) { transform: translateY(-1px); box-shadow: 0 6px 20px rgba(30,0,169,0.35); }
+        .btn-primary:active { transform: translateY(0); }
+
+        /* Countdown ring */
+        .countdown-ring {
+            width: 56px; height: 56px;
+        }
+        .countdown-circle {
+            fill: none;
+            stroke: #e9e7f5;
+            stroke-width: 4;
+        }
+        .countdown-progress {
+            fill: none;
+            stroke: #1e00a9;
+            stroke-width: 4;
+            stroke-linecap: round;
+            stroke-dasharray: 138.2; /* 2π × r(22) */
+            stroke-dashoffset: 0;
+            transform: rotate(-90deg);
+            transform-origin: center;
+            transition: stroke-dashoffset 1s linear, stroke 0.3s;
+        }
+
+        @@keyframes fadeUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to   { opacity: 1; transform: translateY(0); }
+        }
+        .fade-up { animation: fadeUp 0.5s ease both; }
+        .delay-1 { animation-delay: 0.1s; }
+        .delay-2 { animation-delay: 0.2s; }
+        .delay-3 { animation-delay: 0.3s; }
+    </style>
+</head>
+<body class="min-h-screen otp-bg flex items-center justify-center p-4">
+
+<div class="w-full max-w-md fade-up">
+
+    <!-- Logo / Brand -->
+    <div class="text-center mb-8 fade-up delay-1">
+        <div class="inline-flex items-center justify-center w-16 h-16 bg-white/20 rounded-2xl mb-4 backdrop-blur-sm">
+            <i class="fa-solid fa-graduation-cap text-3xl text-white"></i>
+        </div>
+        <h1 class="text-3xl font-bold text-white tracking-tight">AcadPrep</h1>
+        <p class="text-white/70 text-sm mt-1">Luyện thi TOEIC thông minh</p>
+    </div>
+
+    <!-- Card -->
+    <div class="glass-card bg-white rounded-3xl shadow-card p-8 fade-up delay-2">
+
+        <!-- Header -->
+        <div class="flex flex-col items-center text-center mb-6">
+            <div class="w-16 h-16 rounded-full bg-primary/10 flex items-center justify-center mb-4">
+                <i class="fa-regular fa-envelope-open text-3xl text-primary"></i>
+            </div>
+            <h2 class="text-2xl font-bold text-gray-900 mb-1">@pageTitle</h2>
+            <p class="text-sm text-muted">@pageSubtitle</p>
+            <p class="text-sm font-semibold text-primary mt-1">@Model.Email</p>
+        </div>
+
+        <!-- Countdown timer -->
+        <div class="flex items-center justify-center gap-3 mb-6">
+            <svg class="countdown-ring -rotate-90" viewBox="0 0 56 56" aria-hidden="true">
+                <circle class="countdown-circle" cx="28" cy="28" r="22"/>
+                <circle id="countdown-progress" class="countdown-progress" cx="28" cy="28" r="22"/>
+            </svg>
+            <div class="text-center">
+                <p id="countdown-text" class="text-2xl font-bold text-primary tabular-nums">5:00</p>
+                <p class="text-xs text-muted">còn lại</p>
+            </div>
+        </div>
+
+        <!-- Error / success alert -->
+        <div id="alert-box" role="alert" class="hidden flex items-start gap-3 rounded-xl px-4 py-3 mb-5 text-sm"></div>
+
+        <!-- OTP input boxes -->
+        <div id="otp-inputs" class="flex gap-2 justify-center mb-6" aria-label="Nhập mã OTP 6 chữ số">
+            @for (int i = 0; i < 6; i++)
+            {
+                <input id="otp-@i"
+                       type="text"
+                       inputmode="numeric"
+                       maxlength="1"
+                       pattern="\d"
+                       class="otp-box"
+                       autocomplete="@(i == 0 ? "one-time-code" : "off")"
+                       aria-label="Chữ số OTP thứ @(i + 1)" />
+            }
+        </div>
+
+        <!-- Verify button -->
+        <button id="btn-verify" type="button"
+                class="btn-primary w-full rounded-xl bg-primary py-3 text-sm font-semibold text-white shadow-md mb-4 disabled:opacity-50 disabled:cursor-not-allowed"
+                disabled>
+            Xác nhận
+        </button>
+
+        <!-- Resend link -->
+        <p class="text-center text-sm text-muted">
+            Không nhận được mã?
+            <button id="btn-resend" type="button"
+                    class="text-primary font-semibold hover:underline disabled:opacity-40 disabled:cursor-not-allowed disabled:no-underline ml-1"
+                    disabled>
+                Gửi lại
+            </button>
+            <span id="resend-countdown" class="text-muted text-xs ml-1 hidden"></span>
+        </p>
+    </div>
+
+    <!-- Footer -->
+    <p class="mt-6 text-center text-xs text-white/50 fade-up delay-3">
+        © @DateTime.UtcNow.Year AcadPrep · Mọi quyền được bảo lưu
+    </p>
+</div>
+
+<script>
+    // ── Constants ──────────────────────────────────────────────────────────────
+    const EMAIL         = '@Html.Raw(System.Text.Encodings.Web.JavaScriptEncoder.Default.Encode(Model.Email))';
+    const OTP_DURATION  = 5 * 60; // seconds
+    const RESEND_COOLDOWN = 60;   // seconds — chống spam
+
+    // ── DOM refs ───────────────────────────────────────────────────────────────
+    const boxes       = Array.from({ length: 6 }, (_, i) => document.getElementById(`otp-${i}`));
+    const btnVerify   = document.getElementById('btn-verify');
+    const btnResend   = document.getElementById('btn-resend');
+    const alertBox    = document.getElementById('alert-box');
+    const countdownEl = document.getElementById('countdown-text');
+    const progressEl  = document.getElementById('countdown-progress');
+    const resendCdEl  = document.getElementById('resend-countdown');
+
+    // Circumference for the SVG ring
+    const CIRC = 2 * Math.PI * 22; // ≈ 138.2
+    progressEl.style.strokeDasharray = CIRC;
+
+    // ── OTP Countdown (5 min) ──────────────────────────────────────────────────
+    let otpSecondsLeft = OTP_DURATION;
+
+    function updateCountdown() {
+        const m = Math.floor(otpSecondsLeft / 60);
+        const s = otpSecondsLeft % 60;
+        countdownEl.textContent = `${m}:${String(s).padStart(2, '0')}`;
+
+        const ratio = otpSecondsLeft / OTP_DURATION;
+        progressEl.style.strokeDashoffset = CIRC * (1 - ratio);
+
+        if (otpSecondsLeft <= 60) {
+            progressEl.style.stroke = '#ba1a1a';
+            countdownEl.classList.add('text-error');
+            countdownEl.classList.remove('text-primary');
+        }
+
+        if (otpSecondsLeft <= 0) {
+            clearInterval(otpTimer);
+            showAlert('error', 'Mã OTP đã hết hạn. Vui lòng bấm "Gửi lại" để nhận mã mới.');
+            boxes.forEach(b => { b.disabled = true; b.classList.add('opacity-50'); });
+            btnVerify.disabled = true;
+        }
+    }
+
+    const otpTimer = setInterval(() => { otpSecondsLeft--; updateCountdown(); }, 1000);
+    updateCountdown();
+
+    // ── Resend cooldown ────────────────────────────────────────────────────────
+    let resendSecondsLeft = 0;
+    let resendTimer       = null;
+
+    function startResendCooldown() {
+        resendSecondsLeft = RESEND_COOLDOWN;
+        btnResend.disabled = true;
+        resendCdEl.classList.remove('hidden');
+
+        resendTimer = setInterval(() => {
+            resendSecondsLeft--;
+            resendCdEl.textContent = `(${resendSecondsLeft}s)`;
+            if (resendSecondsLeft <= 0) {
+                clearInterval(resendTimer);
+                btnResend.disabled = false;
+                resendCdEl.classList.add('hidden');
+            }
+        }, 1000);
+    }
+
+    // Enable resend after initial page load (no cooldown on first load)
+    setTimeout(() => { btnResend.disabled = false; }, 500);
+
+    // ── Alert helper ───────────────────────────────────────────────────────────
+    function showAlert(type, message) {
+        const isError = type === 'error';
+        alertBox.className = `flex items-start gap-3 rounded-xl px-4 py-3 mb-5 text-sm ${
+            isError ? 'bg-error-bg text-error' : 'bg-success-bg text-success'
+        }`;
+        alertBox.innerHTML = `<i class="fa-solid ${isError ? 'fa-circle-exclamation' : 'fa-circle-check'} mt-0.5 shrink-0"></i><span>${message}</span>`;
+        alertBox.classList.remove('hidden');
+    }
+
+    function hideAlert() {
+        alertBox.classList.add('hidden');
+    }
+
+    // ── OTP box interaction ────────────────────────────────────────────────────
+    boxes.forEach((box, idx) => {
+        // Only digits
+        box.addEventListener('keydown', (e) => {
+            if (!/^\d$/.test(e.key) && !['Backspace', 'Delete', 'ArrowLeft', 'ArrowRight', 'Tab'].includes(e.key)) {
+                e.preventDefault();
+            }
+        });
+
+        box.addEventListener('input', (e) => {
+            const val = e.target.value.replace(/\D/g, '');
+            e.target.value = val.slice(-1); // keep last digit only
+
+            if (val && idx < 5) {
+                boxes[idx + 1].focus();
+            }
+            syncVerifyBtn();
+            hideAlert();
+            boxes.forEach(b => b.classList.remove('error'));
+        });
+
+        box.addEventListener('keyup', (e) => {
+            if (e.key === 'Backspace' && !box.value && idx > 0) {
+                boxes[idx - 1].focus();
+                boxes[idx - 1].value = '';
+                syncVerifyBtn();
+            }
+        });
+
+        // Allow pasting full 6-digit code into first box
+        box.addEventListener('paste', (e) => {
+            e.preventDefault();
+            const paste = (e.clipboardData || window.clipboardData).getData('text').replace(/\D/g, '');
+            if (paste.length === 6) {
+                boxes.forEach((b, i) => { b.value = paste[i] ?? ''; });
+                boxes[5].focus();
+                syncVerifyBtn();
+            }
+        });
+
+        box.addEventListener('focus', () => { box.select(); });
+    });
+
+    // Auto-focus first box on load
+    boxes[0].focus();
+
+    function syncVerifyBtn() {
+        const code = getOtpCode();
+        btnVerify.disabled = code.length < 6;
+    }
+
+    function getOtpCode() {
+        return boxes.map(b => b.value).join('');
+    }
+
+    // ── Verify ────────────────────────────────────────────────────────────────
+    btnVerify.addEventListener('click', async () => {
+        const otpCode = getOtpCode();
+        if (otpCode.length < 6) { return; }
+
+        btnVerify.disabled = true;
+        btnVerify.innerHTML = '<i class="fa-solid fa-spinner fa-spin mr-2"></i>Đang xác nhận...';
+        hideAlert();
+
+        try {
+            const res  = await fetch('?handler=Verify', {
+                method:  'POST',
+                headers: { 'Content-Type': 'application/json', 'RequestVerificationToken': getAntiForgery() },
+                body:    JSON.stringify({ email: EMAIL, otpCode })
+            });
+            const data = await res.json();
+
+            if (data.success) {
+                boxes.forEach(b => b.classList.add('success'));
+                showAlert('success', 'Xác thực thành công! Đang chuyển hướng...');
+                clearInterval(otpTimer);
+                setTimeout(() => { window.location.href = data.redirectTo ?? '/Account/Login'; }, 1200);
+            } else {
+                boxes.forEach(b => b.classList.add('error'));
+                showAlert('error', data.error ?? 'Xác thực thất bại.');
+                btnVerify.disabled = false;
+                btnVerify.innerHTML = 'Xác nhận';
+            }
+        } catch {
+            showAlert('error', 'Có lỗi xảy ra. Vui lòng thử lại.');
+            btnVerify.disabled = false;
+            btnVerify.innerHTML = 'Xác nhận';
+        }
+    });
+
+    // ── Resend ────────────────────────────────────────────────────────────────
+    btnResend.addEventListener('click', async () => {
+        btnResend.disabled = true;
+        hideAlert();
+
+        try {
+            const res  = await fetch('?handler=Resend', {
+                method:  'POST',
+                headers: { 'Content-Type': 'application/json', 'RequestVerificationToken': getAntiForgery() },
+                body:    JSON.stringify({ email: EMAIL })
+            });
+            const data = await res.json();
+
+            if (data.success) {
+                // Reset OTP countdown
+                otpSecondsLeft = OTP_DURATION;
+                progressEl.style.stroke = '#1e00a9';
+                countdownEl.classList.remove('text-error');
+                countdownEl.classList.add('text-primary');
+                clearInterval(otpTimer);
+                Object.assign(window, { otpTimer: setInterval(() => { otpSecondsLeft--; updateCountdown(); }, 1000) });
+
+                // Clear boxes
+                boxes.forEach(b => {
+                    b.value = '';
+                    b.disabled = false;
+                    b.classList.remove('error', 'success', 'opacity-50');
+                });
+                boxes[0].focus();
+                btnVerify.disabled = true;
+
+                showAlert('success', 'Mã OTP mới đã được gửi. Vui lòng kiểm tra email.');
+                startResendCooldown();
+            } else {
+                showAlert('error', data.error ?? 'Không thể gửi lại OTP.');
+                btnResend.disabled = false;
+            }
+        } catch {
+            showAlert('error', 'Có lỗi xảy ra. Vui lòng thử lại.');
+            btnResend.disabled = false;
+        }
+    });
+
+    // ── Anti-forgery helper ───────────────────────────────────────────────────
+    function getAntiForgery() {
+        return document.querySelector('input[name="__RequestVerificationToken"]')?.value ?? '';
+    }
+</script>
+
+@* Hidden anti-forgery token for JS fetch calls *@
+@Html.AntiForgeryToken()
+
+</body>
+</html>

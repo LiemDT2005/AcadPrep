@@ -5,6 +5,7 @@ using Domain.Entities;
 using Domain.Enums;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
+using Application.Common.Interfaces;
 
 namespace Infrastructure.Persistence;
 
@@ -14,6 +15,7 @@ public static class AppDbContextSeed
     {
         using var scope = serviceProvider.CreateScope();
         var context = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+        var passwordHasher = scope.ServiceProvider.GetRequiredService<IPasswordHasher>();
 
         await context.Database.MigrateAsync();
 
@@ -33,143 +35,30 @@ public static class AppDbContextSeed
             var adminRole = context.Roles.First(r => r.RoleName == "Admin");
             var userRole  = context.Roles.First(r => r.RoleName == "User");
 
+            var now = DateTime.UtcNow;
+            var defaultHash = passwordHasher.Hash("Password123!");
+            // Sử dụng User.Create() factory vì User có private setters
+            var adminUser   = User.Create("admin@acadprep.com",    "Admin User",    defaultHash, adminRole.RoleId, now); adminUser.Activate();
+            var testUser    = User.Create("user@acadprep.com",     "Test User",     defaultHash, userRole.RoleId,  now);  testUser.Activate();
+            var hanaUser    = User.Create("hana@acadprep.com",     "Hana Nguyen",   defaultHash, userRole.RoleId,  now);  hanaUser.Activate();
+            var minhUser    = User.Create("minh@acadprep.com",     "Minh Tran",     defaultHash, userRole.RoleId,  now);  minhUser.Activate();
+            // inactive user — không gọi Activate() → giữ nguyên Status = Inactive
+            var inactiveUser = User.Create("inactive@acadprep.com", "Inactive User", defaultHash, userRole.RoleId, now);
+            var hoangUser   = User.Create("hoang@acadprep.com",    "Hoang Nguyen",  defaultHash, userRole.RoleId,  now);  hoangUser.Activate();
+            var lananhUser  = User.Create("lananh@acadprep.com",   "Lan Anh",       defaultHash, userRole.RoleId,  now);  lananhUser.Activate();
+            var duyliemUser = User.Create("duyliem@acadprep.com",  "Duy Liem",      defaultHash, userRole.RoleId,  now);  duyliemUser.Activate();
+            var tuananhUser = User.Create("tuananh@acadprep.com",  "Tuan Anh",      defaultHash, userRole.RoleId,  now);  tuananhUser.Activate();
+            var thuthaoUser = User.Create("thuthao@acadprep.com",  "Thu Thao",      defaultHash, userRole.RoleId,  now);  thuthaoUser.Activate();
+            var quanghuyUser= User.Create("quanghuy@acadprep.com", "Quang Huy",     defaultHash, userRole.RoleId,  now);  quanghuyUser.Activate();
+            var bichUser    = User.Create("bichphuong@acadprep.com","Bich Phuong",  defaultHash, userRole.RoleId,  now);  bichUser.Activate();
+            var namUser     = User.Create("hoangnam@acadprep.com", "Hoang Nam",     defaultHash, userRole.RoleId,  now);  namUser.Activate();
+            var maiUser     = User.Create("maiphuong@acadprep.com","Mai Phuong",    defaultHash, userRole.RoleId,  now);  maiUser.Activate();
+            var tungUser    = User.Create("thanhtung@acadprep.com","Thanh Tung",    defaultHash, userRole.RoleId,  now);  tungUser.Activate();
+
             context.Users.AddRange(
-                new User
-                {
-                    Email = "admin@acadprep.com",
-                    PasswordHash = "hashed_password",
-                    FullName = "Admin User",
-                    RoleId = adminRole.RoleId,
-                    Status = UserStatus.Active,
-                    CreatedAt = DateTime.UtcNow.AddDays(-30)
-                },
-                new User
-                {
-                    Email = "user@acadprep.com",
-                    PasswordHash = "hashed_password",
-                    FullName = "Test User",
-                    RoleId = userRole.RoleId,
-                    Status = UserStatus.Active,
-                    CreatedAt = DateTime.UtcNow.AddDays(-30)
-                },
-                new User
-                {
-                    Email = "hana@acadprep.com",
-                    PasswordHash = "hashed_password",
-                    FullName = "Hana Nguyen",
-                    RoleId = userRole.RoleId,
-                    Status = UserStatus.Active,
-                    CreatedAt = DateTime.UtcNow.AddDays(-20)
-                },
-                new User
-                {
-                    Email = "minh@acadprep.com",
-                    PasswordHash = "hashed_password",
-                    FullName = "Minh Tran",
-                    RoleId = userRole.RoleId,
-                    Status = UserStatus.Active,
-                    CreatedAt = DateTime.UtcNow.AddDays(-15)
-                },
-                new User
-                {
-                    Email = "inactive@acadprep.com",
-                    PasswordHash = "hashed_password",
-                    FullName = "Inactive User",
-                    RoleId = userRole.RoleId,
-                    Status = UserStatus.Inactive,
-                    CreatedAt = DateTime.UtcNow.AddDays(-60)
-                },
-                new User
-                {
-                    Email = "hoang@acadprep.com",
-                    PasswordHash = "hashed_password",
-                    FullName = "Hoang Nguyen",
-                    RoleId = userRole.RoleId,
-                    Status = UserStatus.Active,
-                    CreatedAt = DateTime.UtcNow.AddDays(-12)
-                },
-                new User
-                {
-                    Email = "lananh@acadprep.com",
-                    PasswordHash = "hashed_password",
-                    FullName = "Lan Anh",
-                    RoleId = userRole.RoleId,
-                    Status = UserStatus.Active,
-                    CreatedAt = DateTime.UtcNow.AddDays(-14)
-                },
-                new User
-                {
-                    Email = "duyliem@acadprep.com",
-                    PasswordHash = "hashed_password",
-                    FullName = "Duy Liem",
-                    RoleId = userRole.RoleId,
-                    Status = UserStatus.Active,
-                    CreatedAt = DateTime.UtcNow.AddDays(-10)
-                },
-                new User
-                {
-                    Email = "tuananh@acadprep.com",
-                    PasswordHash = "hashed_password",
-                    FullName = "Tuan Anh",
-                    RoleId = userRole.RoleId,
-                    Status = UserStatus.Active,
-                    CreatedAt = DateTime.UtcNow.AddDays(-8)
-                },
-                new User
-                {
-                    Email = "thuthao@acadprep.com",
-                    PasswordHash = "hashed_password",
-                    FullName = "Thu Thao",
-                    RoleId = userRole.RoleId,
-                    Status = UserStatus.Active,
-                    CreatedAt = DateTime.UtcNow.AddDays(-9)
-                },
-                new User
-                {
-                    Email = "quanghuy@acadprep.com",
-                    PasswordHash = "hashed_password",
-                    FullName = "Quang Huy",
-                    RoleId = userRole.RoleId,
-                    Status = UserStatus.Active,
-                    CreatedAt = DateTime.UtcNow.AddDays(-7)
-                },
-                new User
-                {
-                    Email = "bichphuong@acadprep.com",
-                    PasswordHash = "hashed_password",
-                    FullName = "Bich Phuong",
-                    RoleId = userRole.RoleId,
-                    Status = UserStatus.Active,
-                    CreatedAt = DateTime.UtcNow.AddDays(-11)
-                },
-                new User
-                {
-                    Email = "hoangnam@acadprep.com",
-                    PasswordHash = "hashed_password",
-                    FullName = "Hoang Nam",
-                    RoleId = userRole.RoleId,
-                    Status = UserStatus.Active,
-                    CreatedAt = DateTime.UtcNow.AddDays(-5)
-                },
-                new User
-                {
-                    Email = "maiphuong@acadprep.com",
-                    PasswordHash = "hashed_password",
-                    FullName = "Mai Phuong",
-                    RoleId = userRole.RoleId,
-                    Status = UserStatus.Active,
-                    CreatedAt = DateTime.UtcNow.AddDays(-6)
-                },
-                new User
-                {
-                    Email = "thanhtung@acadprep.com",
-                    PasswordHash = "hashed_password",
-                    FullName = "Thanh Tung",
-                    RoleId = userRole.RoleId,
-                    Status = UserStatus.Active,
-                    CreatedAt = DateTime.UtcNow.AddDays(-4)
-                }
-            );
+                adminUser, testUser, hanaUser, minhUser, inactiveUser,
+                hoangUser, lananhUser, duyliemUser, tuananhUser, thuthaoUser,
+                quanghuyUser, bichUser, namUser, maiUser, tungUser);
 
             await context.SaveChangesAsync();
         }

@@ -13,11 +13,13 @@ public class AppDbContextInitializer
 {
     private readonly ILogger<AppDbContextInitializer> _logger;
     private readonly AppDbContext _context;
+    private readonly Application.Common.Interfaces.IPasswordHasher _passwordHasher;
 
-    public AppDbContextInitializer(ILogger<AppDbContextInitializer> logger, AppDbContext context)
+    public AppDbContextInitializer(ILogger<AppDbContextInitializer> logger, AppDbContext context, Application.Common.Interfaces.IPasswordHasher passwordHasher)
     {
         _logger = logger;
         _context = context;
+        _passwordHasher = passwordHasher;
     }
 
     public async Task SeedAsync()
@@ -53,14 +55,14 @@ public class AppDbContextInitializer
             var learnerRole = await _context.Roles.FirstOrDefaultAsync(r => r.RoleName == "Learner");
             if (learnerRole != null)
             {
-                _context.Users.Add(new User
-                {
-                    Email = "learner@test.com",
-                    FullName = "Nguyen Van Learner",
-                    PasswordHash = "hashedpassword", // Not real auth for seeding purposes
-                    Status = UserStatus.Active,
-                    RoleId = learnerRole.RoleId
-                });
+                var learnerUser = User.Create(
+                    "learner@test.com",
+                    "Nguyen Van Learner",
+                    _passwordHasher.Hash("Password123!"),
+                    learnerRole.RoleId,
+                    DateTime.UtcNow);
+                learnerUser.Activate();
+                _context.Users.Add(learnerUser);
                 await _context.SaveChangesAsync();
             }
         }

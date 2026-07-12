@@ -4,6 +4,7 @@ using Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace AcadPrep.Infrastructure.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260710095907_FixUserStatusConstraintAndPasswordHashNullable")]
+    partial class FixUserStatusConstraintAndPasswordHashNullable
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -269,6 +272,31 @@ namespace AcadPrep.Infrastructure.Migrations
                     b.ToTable("EXAM_SERIES", (string)null);
                 });
 
+            modelBuilder.Entity("Domain.Entities.Part", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int")
+                        .HasColumnName("PartId");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<int>("ExamId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("PartNumber")
+                        .HasColumnType("int");
+
+                    b.Property<int>("TotalQuestions")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ExamId");
+
+                    b.ToTable("PARTS", (string)null);
+                });
+
             modelBuilder.Entity("Domain.Entities.Passage", b =>
                 {
                     b.Property<int>("Id")
@@ -281,11 +309,6 @@ namespace AcadPrep.Infrastructure.Migrations
                     b.Property<string>("Content")
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<int>("DisplayOrder")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int")
-                        .HasDefaultValue(1);
-
                     b.Property<int>("ExamId")
                         .HasColumnType("int");
 
@@ -294,14 +317,9 @@ namespace AcadPrep.Infrastructure.Migrations
                         .IsUnicode(false)
                         .HasColumnType("varchar(500)");
 
-                    b.Property<int?>("QuestionGroupId")
-                        .HasColumnType("int");
-
                     b.HasKey("Id");
 
                     b.HasIndex("ExamId");
-
-                    b.HasIndex("QuestionGroupId", "DisplayOrder");
 
                     b.ToTable("PASSAGES", (string)null);
                 });
@@ -779,6 +797,17 @@ namespace AcadPrep.Infrastructure.Migrations
                     b.Navigation("User");
                 });
 
+            modelBuilder.Entity("Domain.Entities.Part", b =>
+                {
+                    b.HasOne("Domain.Entities.Exam", "Exam")
+                        .WithMany()
+                        .HasForeignKey("ExamId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Exam");
+                });
+
             modelBuilder.Entity("Domain.Entities.Passage", b =>
                 {
                     b.HasOne("Domain.Entities.Exam", "Exam")
@@ -787,14 +816,7 @@ namespace AcadPrep.Infrastructure.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("Domain.Entities.QuestionGroup", "QuestionGroup")
-                        .WithMany("Passages")
-                        .HasForeignKey("QuestionGroupId")
-                        .OnDelete(DeleteBehavior.Restrict);
-
                     b.Navigation("Exam");
-
-                    b.Navigation("QuestionGroup");
                 });
 
             modelBuilder.Entity("Domain.Entities.PracticeSession", b =>
@@ -978,8 +1000,6 @@ namespace AcadPrep.Infrastructure.Migrations
 
             modelBuilder.Entity("Domain.Entities.QuestionGroup", b =>
                 {
-                    b.Navigation("Passages");
-
                     b.Navigation("Questions");
                 });
 

@@ -1,0 +1,267 @@
+@page
+@model AcadPrep.WebUI.Pages.Account.LoginModel
+@{
+    ViewData["Title"] = "Đăng nhập";
+    Layout = null; // Trang login dùng layout riêng — không có navbar
+    var returnUrl = ViewData["ReturnUrl"] as string ?? "/";
+    var externalError = Request.Query["error"].ToString();
+}
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Đăng nhập — AcadPrep</title>
+    <meta name="description" content="Đăng nhập vào AcadPrep để luyện thi TOEIC, theo dõi tiến độ và chinh phục mục tiêu của bạn." />
+    <script src="https://cdn.tailwindcss.com?plugins=forms"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet"/>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet"/>
+    <script>
+        tailwind.config = {
+          theme: {
+            extend: {
+              colors: {
+                primary:    "#1e00a9",
+                "primary-dark": "#16007e",
+                surface:    "#fcf8ff",
+                "surface-card": "#ffffff",
+                accent:     "#3525cd",
+                muted:      "#464555",
+                border:     "#c7c4d8",
+                error:      "#ba1a1a",
+                "error-bg": "#ffdad6",
+                success:    "#006c4c",
+                "success-bg": "#89f8c7",
+                warning:    "#7c5800",
+                "warning-bg": "#ffdfa1"
+              },
+              fontFamily: { sans: ["Inter", "sans-serif"] },
+              boxShadow: {
+                card:   "0 4px 24px rgba(30,0,169,0.08), 0 1px 4px rgba(30,0,169,0.04)",
+                "card-hover": "0 8px 40px rgba(30,0,169,0.14), 0 2px 8px rgba(30,0,169,0.06)",
+              }
+            }
+          }
+        }
+    </script>
+    <style>
+        body { font-family: "Inter", sans-serif; }
+
+        /* Gradient background */
+        .login-bg {
+            background: linear-gradient(135deg, #1e00a9 0%, #3525cd 40%, #6b5fff 100%);
+        }
+
+        /* Glass card */
+        .glass-card {
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+        }
+
+        /* Input focus ring */
+        .input-field:focus {
+            outline: none;
+            border-color: #1e00a9;
+            box-shadow: 0 0 0 3px rgba(30,0,169,0.15);
+        }
+
+        /* Animated underline for divider text */
+        .divider-text {
+            position: relative;
+        }
+        .divider-text::before,
+        .divider-text::after {
+            content: "";
+            position: absolute;
+            top: 50%;
+            width: 40%;
+            height: 1px;
+            background: #c7c4d8;
+        }
+        .divider-text::before { right: 100%; margin-right: 12px; }
+        .divider-text::after  { left: 100%;  margin-left: 12px; }
+
+        /* Button hover lift */
+        .btn-primary { transition: transform 0.15s ease, box-shadow 0.15s ease; }
+        .btn-primary:hover { transform: translateY(-1px); box-shadow: 0 6px 20px rgba(30,0,169,0.35); }
+        .btn-primary:active { transform: translateY(0); }
+
+        .btn-google { transition: transform 0.15s ease, box-shadow 0.15s ease, background 0.15s ease; }
+        .btn-google:hover { transform: translateY(-1px); background: #f1f0ff; box-shadow: 0 4px 12px rgba(0,0,0,0.12); }
+        .btn-google:active { transform: translateY(0); }
+
+        /* Floating label animation */
+        .input-wrap { position: relative; }
+        .input-icon {
+            position: absolute;
+            left: 14px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #787680;
+            pointer-events: none;
+        }
+        .input-field { padding-left: 2.75rem; }
+
+        /* Fade-in animation */
+        @@keyframes fadeUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to   { opacity: 1; transform: translateY(0); }
+        }
+        .fade-up { animation: fadeUp 0.5s ease both; }
+        .delay-1 { animation-delay: 0.1s; }
+        .delay-2 { animation-delay: 0.2s; }
+        .delay-3 { animation-delay: 0.3s; }
+        .delay-4 { animation-delay: 0.4s; }
+    </style>
+</head>
+<body class="min-h-screen login-bg flex items-center justify-center p-4">
+
+<div class="w-full max-w-md fade-up">
+
+    <!-- Logo / Brand -->
+    <div class="text-center mb-8 fade-up delay-1">
+        <div class="inline-flex items-center justify-center w-16 h-16 bg-white/20 rounded-2xl mb-4 backdrop-blur-sm">
+            <i class="fa-solid fa-graduation-cap text-3xl text-white"></i>
+        </div>
+        <h1 class="text-3xl font-bold text-white tracking-tight">AcadPrep</h1>
+        <p class="text-white/70 text-sm mt-1">Luyện thi TOEIC thông minh</p>
+    </div>
+
+    <!-- Card -->
+    <div class="glass-card bg-white rounded-3xl shadow-card p-8 fade-up delay-2">
+        <h2 class="text-2xl font-bold text-gray-900 mb-1">Chào mừng trở lại!</h2>
+        <p class="text-muted text-sm mb-6">Đăng nhập để tiếp tục hành trình của bạn.</p>
+
+        <!-- ═══ Alert: Lỗi từ Google callback hoặc external ═══ -->
+        @if (!string.IsNullOrEmpty(externalError))
+        {
+            <div id="alert-external" role="alert"
+                 class="flex items-start gap-3 rounded-xl px-4 py-3 mb-5 bg-error-bg text-error text-sm">
+                <i class="fa-solid fa-circle-exclamation mt-0.5 shrink-0"></i>
+                <span>@externalError</span>
+            </div>
+        }
+
+        <!-- ═══ Alert: Lỗi từ Handler / Validator ═══ -->
+        @if (!string.IsNullOrEmpty(Model.ErrorMessage))
+        {
+            <div id="alert-error" role="alert"
+                 class="flex items-start gap-3 rounded-xl px-4 py-3 mb-5 bg-error-bg text-error text-sm">
+                <i class="fa-solid fa-circle-exclamation mt-0.5 shrink-0"></i>
+                <span>@Model.ErrorMessage</span>
+            </div>
+        }
+
+        <!-- ═══ Form Email + Password ═══ -->
+        <form method="post" asp-page="/Account/Login" asp-route-returnUrl="@returnUrl"
+              id="login-form" novalidate class="space-y-5 fade-up delay-3">
+            @Html.AntiForgeryToken()
+
+            <!-- Email -->
+            <div class="space-y-1">
+                <label for="email-input" class="block text-sm font-medium text-gray-700">Email</label>
+                <div class="input-wrap">
+                    <span class="input-icon"><i class="fa-regular fa-envelope text-sm"></i></span>
+                    <input id="email-input"
+                           type="email"
+                           name="Email"
+                           value="@Model.Email"
+                           placeholder="ban@@example.com"
+                           autocomplete="email"
+                           class="input-field w-full rounded-xl border border-border bg-surface px-4 py-3 text-sm text-gray-900 placeholder:text-gray-400 focus:border-primary transition" />
+                </div>
+            </div>
+
+            <!-- Password -->
+            <div class="space-y-1">
+                <div class="flex items-center justify-between">
+                    <label for="password-input" class="block text-sm font-medium text-gray-700">Mật khẩu</label>
+                    <a href="#" class="text-xs text-primary font-medium hover:underline">Quên mật khẩu?</a>
+                </div>
+                <div class="input-wrap">
+                    <span class="input-icon"><i class="fa-solid fa-lock text-sm"></i></span>
+                    <input id="password-input"
+                           type="password"
+                           name="Password"
+                           placeholder="••••••••"
+                           autocomplete="current-password"
+                           class="input-field w-full rounded-xl border border-border bg-surface px-4 py-3 text-sm text-gray-900 placeholder:text-gray-400 focus:border-primary transition" />
+                    <!-- Toggle show/hide password -->
+                    <button type="button" id="toggle-password"
+                            class="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 transition"
+                            aria-label="Hiện / Ẩn mật khẩu">
+                        <i id="toggle-icon" class="fa-regular fa-eye text-sm"></i>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Submit -->
+            <button type="submit" id="btn-login"
+                    class="btn-primary w-full rounded-xl bg-primary py-3 text-sm font-semibold text-white shadow-md mt-2">
+                Đăng nhập
+            </button>
+        </form>
+
+        <!-- ═══ Divider ═══ -->
+        <div class="flex items-center justify-center my-6 fade-up delay-3">
+            <span class="divider-text text-xs text-muted px-2">hoặc tiếp tục với</span>
+        </div>
+
+        <!-- ═══ Google Login ═══ -->
+        <div class="fade-up delay-4">
+            <a id="btn-google-login"
+               href="/Account/Login?handler=GoogleLogin&returnUrl=@Uri.EscapeDataString(returnUrl)"
+               class="btn-google flex w-full items-center justify-center gap-3 rounded-xl border border-border bg-white px-4 py-3 text-sm font-medium text-gray-700 shadow-sm">
+                <!-- Google SVG logo -->
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" class="w-5 h-5 shrink-0">
+                    <path fill="#EA4335" d="M24 9.5c3.2 0 5.8 1.1 7.9 2.9l5.9-5.9C34.2 3.4 29.4 1.5 24 1.5 14.9 1.5 7.1 7 3.6 14.8l6.9 5.4C12.2 13.7 17.6 9.5 24 9.5z"/>
+                    <path fill="#4285F4" d="M46.5 24c0-1.6-.1-3.1-.4-4.5H24v8.5h12.7c-.6 3-2.3 5.5-4.8 7.2l7.5 5.8C43.6 37.1 46.5 31 46.5 24z"/>
+                    <path fill="#FBBC05" d="M10.5 28.2A14.6 14.6 0 0 1 9.5 24c0-1.5.2-2.9.5-4.2l-6.9-5.4A22.6 22.6 0 0 0 1.5 24c0 3.6.9 7.1 2.5 10.2l6.5-6z"/>
+                    <path fill="#34A853" d="M24 46.5c5.4 0 9.9-1.8 13.2-4.8l-7.5-5.8c-1.8 1.2-4.1 2-5.7 2-6.4 0-11.8-4.3-13.8-10.2l-6.5 6C7.2 41.5 15 46.5 24 46.5z"/>
+                </svg>
+                <span>Đăng nhập bằng Google</span>
+            </a>
+        </div>
+
+        <!-- ═══ Register link ═══ -->
+        <p class="mt-6 text-center text-sm text-muted fade-up delay-4">
+            Chưa có tài khoản?
+            <a href="/Account/Register" class="text-primary font-semibold hover:underline">Đăng ký ngay</a>
+        </p>
+    </div>
+
+    <!-- Footer -->
+    <p class="mt-6 text-center text-xs text-white/50 fade-up delay-4">
+        © @DateTime.UtcNow.Year AcadPrep · Mọi quyền được bảo lưu
+    </p>
+</div>
+
+<script>
+    // Toggle show/hide password
+    const toggleBtn  = document.getElementById('toggle-password');
+    const passwordEl = document.getElementById('password-input');
+    const toggleIcon = document.getElementById('toggle-icon');
+
+    if (toggleBtn && passwordEl) {
+        toggleBtn.addEventListener('click', () => {
+            const isHidden = passwordEl.type === 'password';
+            passwordEl.type = isHidden ? 'text' : 'password';
+            toggleIcon.className = isHidden
+                ? 'fa-regular fa-eye-slash text-sm'
+                : 'fa-regular fa-eye text-sm';
+        });
+    }
+
+    // Loading state on form submit
+    const form    = document.getElementById('login-form');
+    const btnLogin = document.getElementById('btn-login');
+
+    if (form && btnLogin) {
+        form.addEventListener('submit', () => {
+            btnLogin.disabled = true;
+            btnLogin.innerHTML = '<i class="fa-solid fa-spinner fa-spin mr-2"></i>Đang đăng nhập...';
+        });
+    }
+</script>
+</body>
+</html>
