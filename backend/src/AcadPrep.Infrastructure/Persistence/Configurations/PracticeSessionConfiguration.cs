@@ -40,6 +40,41 @@ public class PracticeSessionConfiguration : IEntityTypeConfiguration<PracticeSes
         builder.Property(x => x.CreatedAt)
             .IsRequired();
 
+        builder.Property(x => x.AnswersJson)
+            .HasColumnType("nvarchar(max)")
+            .IsRequired(false);
+
+        builder.Property(x => x.IsSubmitted)
+            .IsRequired()
+            .HasDefaultValue(false);
+
+        builder.Property(x => x.CompletedAt)
+            .IsRequired(false);
+
+        builder.Property(x => x.CorrectCount)
+            .IsRequired()
+            .HasDefaultValue(0);
+
+        builder.Property(x => x.TotalQuestions)
+            .IsRequired()
+            .HasDefaultValue(0);
+
+        builder.Property(x => x.ListeningCorrect)
+            .IsRequired()
+            .HasDefaultValue(0);
+
+        builder.Property(x => x.ReadingCorrect)
+            .IsRequired()
+            .HasDefaultValue(0);
+
+        builder.Property(x => x.ListeningTotal)
+            .IsRequired()
+            .HasDefaultValue(0);
+
+        builder.Property(x => x.ReadingTotal)
+            .IsRequired()
+            .HasDefaultValue(0);
+
         // Relationships
         builder.HasOne(x => x.User)
             .WithMany()

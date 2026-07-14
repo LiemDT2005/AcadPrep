@@ -307,9 +307,19 @@
                     window.location.href = `/Exams/Results?attemptId=${result.attemptId}`;
                 }
             } catch (e) { console.error(e); }
-        } else if (mode === 'practice') {
-            isSubmitting = true;
-            window.location.href = `/Exams/Results?sessionId=${config.sessionId}&examId=${config.examId}`;
+        } else if (mode === 'practice' && config.sessionId) {
+            try {
+                const res = await fetch('?handler=Submit', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ sessionId: config.sessionId, answers })
+                });
+                const result = await res.json();
+                if (result.success) {
+                    isSubmitting = true;
+                    window.location.href = `/Exams/Results?sessionId=${result.sessionId}`;
+                }
+            } catch (e) { console.error(e); }
         }
     }
 
