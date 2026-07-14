@@ -604,7 +604,6 @@ namespace AcadPrep.Infrastructure.Migrations
                         .HasColumnType("datetime2");
 
                     b.Property<string>("PasswordHash")
-                        .IsRequired()
                         .HasMaxLength(255)
                         .IsUnicode(false)
                         .HasColumnType("varchar(255)");
@@ -629,7 +628,7 @@ namespace AcadPrep.Infrastructure.Migrations
 
                     b.ToTable("USERS", null, t =>
                         {
-                            t.HasCheckConstraint("CHK_UserStatus", "[Status] IN ('Active', 'Inactive')");
+                            t.HasCheckConstraint("CHK_UserStatus", "[Status] IN ('Active', 'Inactive', 'Suspended')");
                         });
                 });
 

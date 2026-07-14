@@ -226,6 +226,27 @@
                 </div>
             </section>
 
+            @if (Model.ExamDetail.AttemptHistory?.FirstOrDefault(a => !a.IsSubmitted) is { } inProgressAttempt)
+            {
+                <div class="mb-lg bg-secondary/10 border border-secondary/30 rounded-2xl p-lg flex flex-col md:flex-row md:items-center justify-between gap-md">
+                    <div class="flex items-start gap-3">
+                        <span class="material-symbols-outlined text-secondary text-2xl">history</span>
+                        <div>
+                            <p class="font-headline-sm font-bold text-on-surface">Test in progress</p>
+                            <p class="text-body-sm text-on-surface-variant">
+                                @TimeSpan.FromSeconds(inProgressAttempt.RemainingTime).ToString(@"hh\:mm\:ss") remaining ·
+                                Started @inProgressAttempt.StartedAt.ToString("MMM dd, HH:mm")
+                            </p>
+                        </div>
+                    </div>
+                    <div class="flex gap-2">
+                        <button type="button" onclick="resumeTest(@inProgressAttempt.AttemptId)" class="px-5 py-2.5 rounded-xl bg-primary text-on-primary font-bold hover:bg-primary-container transition-colors">
+                            Resume Test
+                        </button>
+                    </div>
+                </div>
+            }
+
             <div class="flex flex-col lg:flex-row gap-lg">
                 <!-- Left Main Area: Tabs & Cards -->
                 <div class="w-full lg:w-2/3">
@@ -243,7 +264,17 @@
                     </div>                    <!-- Tab Content: Practice (Active) -->
                     <div class="space-y-md" id="content-practice">
                         <!-- Part Selection Cards -->
-                        <div class="grid grid-cols-1 md:grid-cols-2 gap-md">
+                        @if (!Model.ExamDetail.Parts.Any())
+                        {
+                            <div class="bg-surface-container-low p-lg rounded-2xl border border-outline-variant/30 text-center">
+                                <span class="material-symbols-outlined text-4xl text-on-surface-variant mb-2">quiz</span>
+                                <p class="text-body-md text-on-surface-variant">This exam has no questions yet. Please choose another exam.</p>
+                            </div>
+                        }
+                        else
+                        {
+                        <p class="text-body-sm text-on-surface-variant mb-sm">Select the parts you want to practice (multiple parts allowed):</p>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-md" id="part-selection-grid">
                             @foreach (var part in Model.ExamDetail.Parts)
                             {
                                 var partIcon = part.PartNumber switch
@@ -301,22 +332,12 @@
                                     7 => "Read various texts and answer comprehension questions.",
                                     _ => "Answer questions for this section."
                                 };
-
-                                var partTags = part.PartNumber switch
-                                {
-                                     1 => new List<string> { "[Part 1] Tranh tả người", "[Part 1] Tranh tả cả người và vật" },
-                                     2 => new List<string> { "[Part 2] Câu hỏi WHAT", "[Part 2] Câu hỏi WHO", "[Part 2] Câu hỏi WHERE", "[Part 2] Câu hỏi WHEN", "[Part 2] Câu hỏi HOW", "[Part 2] Câu hỏi WHY", "[Part 2] Câu hỏi YES/NO", "[Part 2] Câu hỏi đuôi", "[Part 2] Câu hỏi lựa chọn", "[Part 2] Câu yêu cầu, đề nghị", "[Part 2] Câu trần thuật" },
-                                     3 => new List<string> { "[Part 3] Câu hỏi về chủ đề, mục đích", "[Part 3] Câu hỏi về danh tính người nói", "[Part 3] Câu hỏi về chi tiết cuộc hội thoại", "[Part 3] Câu hỏi về hành động tương lai", "[Part 3] Câu hỏi kết hợp bảng biểu", "[Part 3] Câu hỏi về hàm ý câu nói", "[Part 3] Chủ đề: Company - General Office Work", "[Part 3] Chủ đề: Company - Personnel", "[Part 3] Chủ đề: Company - Event, Project", "[Part 3] Chủ đề: Company - Facility", "[Part 3] Chủ đề: Shopping, Service", "[Part 3] Chủ đề: Housing", "[Part 3] Câu hỏi về yêu cầu, gợi ý" },
-                                     4 => new List<string> { "[Part 4] Câu hỏi về chủ đề, mục đích", "[Part 4] Câu hỏi về danh tính, địa điểm", "[Part 4] Câu hỏi về chi tiết", "[Part 4] Câu hỏi về hành động tương lai", "[Part 4] Câu hỏi kết hợp bảng biểu", "[Part 4] Câu hỏi về hàm ý câu nói", "[Part 4] Dạng bài: Telephone message - Tin nhắn thoại", "[Part 4] Dạng bài: Announcement - Thông báo", "[Part 4] Dạng bài: News report, Broadcast - Bản tin", "[Part 4] Dạng bài: Talk - Bài phát biểu, diễn văn", "[Part 4] Câu hỏi yêu cầu, gợi ý" },
-                                     5 => new List<string> { "[Part 5] Câu hỏi từ loại", "[Part 5] Câu hỏi ngữ pháp", "[Part 5] Câu hỏi từ vựng", "[Grammar] Danh từ", "[Grammar] Đại từ", "[Grammar] Tính từ", "[Grammar] Thì", "[Grammar] Thể", "[Grammar] Trạng từ", "[Grammar] Động từ nguyên mẫu có to", "[Grammar] Phân từ và Cấu trúc phân từ", "[Grammar] Giới từ", "[Grammar] Liên từ", "[Grammar] Cấu trúc so sánh" },
-                                     6 => new List<string> { "[Part 6] Câu hỏi ngữ pháp", "[Part 6] Câu hỏi từ vựng", "[Part 6] Câu hỏi điền câu vào đoạn văn", "[Part 6] Hình thức: Thư điện tử/ thư tay (Email/ Letter)", "[Part 6] Hình thức: Quảng cáo (Advertisement)", "[Part 6] Hình thức: Thông báo/ văn bản hướng dẫn (Notice/ Announcement Information)", "[Part 6] Hình thức: Thông báo nội bộ (Memo)", "[Grammar] Danh từ", "[Grammar] Tính từ", "[Grammar] Thì", "[Grammar] Thể", "[Grammar] Phân từ và Cấu trúc phân từ", "[Grammar] Giới từ" },
-                                     7 => new List<string> { "[Part 7] Câu hỏi tìm thông tin", "[Part 7] Câu hỏi tìm chi tiết sai", "[Part 7] Câu hỏi về chủ đề, mục đích", "[Part 7] Câu hỏi về suy luận", "[Part 7] Câu hỏi điền câu", "[Part 7] Cấu trúc: một đoạn", "[Part 7] Cấu trúc: nhiều đoạn", "[Part 7] Dạng bài: Email/ Letter: Thư điện tử/ Thư tay", "[Part 7] Dạng bài: Form - Đơn từ, biểu mẫu" },
-                                     _ => new List<string>()
-                                 };
                                 
-                                <div class="p-md bg-surface-container-lowest rounded-2xl border border-outline-variant/30 transition-all flex flex-col gap-sm relative">
+                                <div id="part-card-@part.PartNumber" class="part-card p-md bg-surface-container-lowest rounded-2xl border-2 border-outline-variant/30 transition-all flex flex-col gap-sm relative">
                                     <div class="flex items-start gap-md cursor-pointer select-none" onclick="togglePartCheckbox(@part.PartNumber)">
-                                        <input type="checkbox" id="part-check-@part.PartNumber" data-part="@part.PartNumber" class="part-checkbox form-checkbox text-primary focus:ring-primary w-5 h-5 rounded border-outline-variant mt-1" onclick="event.stopPropagation(); togglePartCheckbox(@part.PartNumber, true)">
+                                        <input type="checkbox" id="part-check-@part.PartNumber" data-part="@part.PartNumber" checked
+                                            class="part-checkbox shrink-0 w-5 h-5 mt-1 rounded border-outline-variant text-primary focus:ring-primary cursor-pointer"
+                                            onclick="event.stopPropagation(); togglePartCheckbox(@part.PartNumber, true)">
                                         
                                         <div class="flex-grow">
                                             <h3 class="font-headline-sm text-headline-sm text-on-surface mb-xs flex items-center gap-xs">
@@ -335,39 +356,44 @@
                                         </div>
                                     </div>
                                     
-                                    @if (partTags.Any())
+                                    @if (part.Tags.Any())
                                     {
-                                        <div class="mt-xs pt-sm border-t border-outline-variant/20 flex flex-wrap gap-xs" onclick="event.stopPropagation();">
-                                            @foreach (var tag in partTags)
-                                            {
-                                                <span class="inline-flex items-center bg-surface-container px-sm py-xs rounded-lg text-body-sm text-on-surface border border-outline-variant/30 select-none">
-                                                    #@tag
-                                                </span>
-                                            }
-                                        </div>
+                                        <details class="mt-xs pt-sm border-t border-outline-variant/20" onclick="event.stopPropagation();">
+                                            <summary class="text-label-sm text-primary cursor-pointer font-medium mb-xs">Filter by tag (@part.Tags.Count)</summary>
+                                            <div class="flex flex-wrap gap-xs max-h-32 overflow-y-auto">
+                                                @foreach (var tag in part.Tags.Take(12))
+                                                {
+                                                    <label class="inline-flex items-center gap-1 bg-surface-container px-sm py-xs rounded-lg text-body-sm border border-outline-variant/30 cursor-pointer hover:border-primary/40">
+                                                        <input type="checkbox" class="tag-checkbox w-3.5 h-3.5 text-primary rounded" value="@tag" data-parent-part="@part.PartNumber" onchange="syncParentPartCheckbox(@part.PartNumber)">
+                                                        <span class="truncate max-w-[180px]">@tag</span>
+                                                    </label>
+                                                }
+                                            </div>
+                                        </details>
                                     }
                                 </div>
                             }
                         </div>
+                        }
 
                         <!-- Time Limit Dropdown -->
                         <div class="bg-surface-container-low p-lg rounded-2xl flex flex-col md:flex-row items-center justify-between gap-md border border-outline-variant/20">
                             <div class="flex items-center gap-md">
                                 <span class="material-symbols-outlined text-primary-container text-[28px]">timer</span>
                                 <div>
-                                    <h4 class="font-label-md font-bold text-on-surface">Giới Hạn Thời Gian</h4>
-                                    <p class="text-body-sm text-on-surface-variant">Bài thi luyện tập sẽ kết thúc khi hết thời gian giới hạn.</p>
+                                    <h4 class="font-label-md font-bold text-on-surface">Time Limit</h4>
+                                    <p class="text-body-sm text-on-surface-variant">The practice session will end when the time limit is reached.</p>
                                 </div>
                             </div>
                             <div class="flex items-center gap-2">
                                 <select id="customTimeLimit" class="bg-surface-container-lowest border border-outline-variant rounded-lg py-2 pl-3 pr-10 focus:ring-2 focus:ring-primary focus:border-primary">
-                                    <option value="">Không giới hạn</option>
-                                    <option value="15">15 phút</option>
-                                    <option value="30">30 phút</option>
-                                    <option value="45">45 phút</option>
-                                    <option value="60">60 phút</option>
-                                    <option value="90">90 phút</option>
-                                    <option value="120">120 phút</option>
+                                    <option value="">No limit</option>
+                                    <option value="15">15 minutes</option>
+                                    <option value="30">30 minutes</option>
+                                    <option value="45">45 minutes</option>
+                                    <option value="60">60 minutes</option>
+                                    <option value="90">90 minutes</option>
+                                    <option value="120">120 minutes</option>
                                 </select>
                             </div>
                         </div>
@@ -378,7 +404,7 @@
                                 7 Parts Selected | 7 Questions | ~10 mins
                             </div>
                             <button onclick="startPracticeSession()" class="w-full bg-secondary hover:bg-on-secondary-fixed-variant text-on-secondary font-headline-sm py-4 rounded-2xl shadow-lg shadow-secondary/20 transition-all active:scale-[0.98] flex items-center justify-center gap-2">
-                                LUYỆN TẬP
+                                START PRACTICE
                                 <span class="material-symbols-outlined">play_arrow</span>
                             </button>
                         </div>
@@ -688,10 +714,30 @@
             }
         }
 
-        // Tự động cập nhật tóm tắt khi trang vừa tải
+        // Tự động cập nhật tóm tắt khi trang vừa tải — mặc định tick tất cả Part
         document.addEventListener('DOMContentLoaded', () => {
+            document.querySelectorAll('input.part-checkbox').forEach(cb => {
+                if (!cb.hasAttribute('data-initialized')) {
+                    cb.checked = true;
+                    cb.setAttribute('data-initialized', 'true');
+                }
+                syncPartCardStyle(parseInt(cb.getAttribute('data-part')));
+            });
             updateSummary();
         });
+
+        function syncPartCardStyle(partNumber) {
+            const card = document.getElementById('part-card-' + partNumber);
+            const partCheck = document.getElementById('part-check-' + partNumber);
+            if (!card || !partCheck) return;
+            if (partCheck.checked) {
+                card.classList.add('border-primary', 'bg-primary/5');
+                card.classList.remove('border-outline-variant/30');
+            } else {
+                card.classList.remove('border-primary', 'bg-primary/5');
+                card.classList.add('border-outline-variant/30');
+            }
+        }
 
         function switchTab(tabName) {
             // Hide all tab contents
@@ -739,6 +785,7 @@
                 cb.checked = partCheck.checked;
             });
 
+            syncPartCardStyle(partNumber);
             updateSummary();
         }
 
@@ -748,9 +795,14 @@
             if (!partCheck) return;
 
             const tagChecks = document.querySelectorAll(`input.tag-checkbox[data-parent-part="${partNumber}"]`);
-            const anyChecked = Array.from(tagChecks).some(cb => cb.checked);
-            
-            partCheck.checked = anyChecked;
+            const anyTagChecked = Array.from(tagChecks).some(cb => cb.checked);
+
+            // Chọn tag → bật Part cha; bỏ hết tag → giữ nguyên trạng thái Part (luyện cả Part)
+            if (anyTagChecked) {
+                partCheck.checked = true;
+            }
+
+            syncPartCardStyle(partNumber);
             updateSummary();
         }
 
@@ -776,7 +828,9 @@
                 }
             });
 
-            const summaryText = `${selectedPartsCount} Parts Selected | ${totalQuestions} Questions | ~${estimatedMins} mins`;
+            const summaryText = selectedPartsCount === 0
+                ? 'No parts selected — please select at least one part'
+                : `${selectedPartsCount} Parts Selected | ${totalQuestions} Questions | ~${estimatedMins} mins`;
             document.getElementById('selection-summary').innerText = summaryText;
         }
 
@@ -800,7 +854,7 @@
             const timeLimitMinutes = timeLimitVal ? parseInt(timeLimitVal) : null;
 
             if (selectedParts.length === 0) {
-                alert("Vui lòng chọn ít nhất một Part để luyện tập!");
+                alert("Please select at least one part to practice.");
                 return;
             }
 
@@ -813,7 +867,7 @@
 
             const btn = document.querySelector('button[onclick="startPracticeSession()"]');
             btn.disabled = true;
-            btn.innerHTML = `<span class="animate-spin inline-block w-4 h-4 border-2 border-current border-t-transparent rounded-full mr-2"></span> Đang khởi tạo...`;
+            btn.innerHTML = `<span class="animate-spin inline-block w-4 h-4 border-2 border-current border-t-transparent rounded-full mr-2"></span> Starting...`;
 
             try {
                 const response = await fetch('?handler=StartPractice', {
@@ -829,20 +883,52 @@
                     // Chuyển hướng sang trang làm bài chi tiết với SessionId vừa nhận
                     window.location.href = `/Exams/Practice?sessionId=${result.sessionId}`;
                 } else {
-                    alert("Lỗi: " + result.error);
+                    alert("Error: " + result.error);
                     btn.disabled = false;
-                    btn.innerHTML = `LUYỆN TẬP <span class="material-symbols-outlined">play_arrow</span>`;
+                    btn.innerHTML = `START PRACTICE <span class="material-symbols-outlined">play_arrow</span>`;
                 }
             } catch (err) {
                 console.error(err);
-                alert("Đã xảy ra lỗi kết nối hệ thống. Vui lòng thử lại sau.");
+                alert("A connection error occurred. Please try again later.");
                 btn.disabled = false;
-                btn.innerHTML = `LUYỆN TẬP <span class="material-symbols-outlined">play_arrow</span>`;
+                btn.innerHTML = `START PRACTICE <span class="material-symbols-outlined">play_arrow</span>`;
             }
         }
 
-        function startFullTestSession() {
-            alert('Bắt đầu làm bài thi Full Test 120 phút dưới điều kiện thi thật.');
+        async function startFullTestSession() {
+            const confirmed = confirm(
+                'Start Full Test?\n\n' +
+                '• 120-minute countdown timer\n' +
+                '• Audio P1-4: no rewind or pause\n' +
+                '• Score is recorded only when you submit or time runs out'
+            );
+            if (!confirmed) return;
+
+            const examId = @(Model.ExamDetail?.Id ?? 0);
+            try {
+                const response = await fetch('?handler=StartFullTest', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ examId })
+                });
+                const result = await response.json();
+                if (result.success) {
+                    window.location.href = `/Exams/Take?attemptId=${result.attemptId}`;
+                } else if (result.inProgressAttemptId) {
+                    if (confirm(result.error + '\n\nClick OK to resume your in-progress test.')) {
+                        window.location.href = `/Exams/Take?attemptId=${result.inProgressAttemptId}`;
+                    }
+                } else {
+                    alert('Error: ' + result.error);
+                }
+            } catch (err) {
+                console.error(err);
+                alert('A connection error occurred.');
+            }
+        }
+
+        function resumeTest(attemptId) {
+            window.location.href = `/Exams/Take?attemptId=${attemptId}`;
         }
     </script>
 </body>

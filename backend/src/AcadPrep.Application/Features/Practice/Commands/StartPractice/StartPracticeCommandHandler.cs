@@ -27,7 +27,7 @@ public class StartPracticeCommandHandler : IRequestHandler<StartPracticeCommand,
         var examExists = await _context.Exams.AnyAsync(e => e.Id == request.ExamId && !e.IsDeleted, cancellationToken);
         if (!examExists)
         {
-            return Result<int>.Failure("Đề thi không tồn tại hoặc đã bị xóa.");
+            return Result<int>.Failure("Exam not found or has been deleted.");
         }
 
         // 2. Query danh sách câu hỏi thuộc đề thi
@@ -51,7 +51,7 @@ public class StartPracticeCommandHandler : IRequestHandler<StartPracticeCommand,
 
         if (!questionIds.Any())
         {
-            return Result<int>.Failure("Không tìm thấy câu hỏi phù hợp với tiêu chí đã chọn. Vui lòng chọn lại các Part hoặc Nhãn khác.");
+            return Result<int>.Failure("No questions match your selected parts or tags. Please adjust your selection.");
         }
 
         // Trộn ngẫu nhiên câu hỏi để tăng hiệu quả luyện tập

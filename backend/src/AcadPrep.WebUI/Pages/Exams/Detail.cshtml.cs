@@ -3,7 +3,7 @@ using Application.Features.Exam.Queries.GetExamDetail;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
-using System.Threading.Tasks;
+using Microsoft.EntityFrameworkCore;
 
 namespace AcadPrep.WebUI.Pages.Exams
 {
@@ -12,11 +12,13 @@ namespace AcadPrep.WebUI.Pages.Exams
     {
         private readonly IMediator _mediator;
         private readonly ICurrentUserService _currentUserService;
+        private readonly IAppDbContext _context;
 
-        public DetailModel(IMediator mediator, ICurrentUserService currentUserService)
+        public DetailModel(IMediator mediator, ICurrentUserService currentUserService, IAppDbContext context)
         {
             _mediator = mediator;
             _currentUserService = currentUserService;
+            _context = context;
         }
 
         public GetExamDetailDto? ExamDetail { get; set; }
@@ -40,27 +42,22 @@ namespace AcadPrep.WebUI.Pages.Exams
                 ExamDetail = result.Data;
                 return Page();
             }
-            else
-            {
-                ErrorMessage = result.Error ?? "An error occurred while loading the exam detail.";
-                TempData["ErrorMessage"] = ErrorMessage;
-                return RedirectToPage("/Exams/Index");
-            }
+
+            ErrorMessage = result.Error ?? "An error occurred while loading the exam detail.";
+            TempData["ErrorMessage"] = ErrorMessage;
+            return RedirectToPage("/Exams/Index");
         }
 
         public async Task<IActionResult> OnPostStartPracticeAsync([FromBody] StartPracticeRequestModel request)
         {
-            if (string.IsNullOrEmpty(_currentUserService.UserId) || !int.TryParse(_currentUserService.UserId, out int parsedUserId))
-            {
-                parsedUserId = 2; // Fallback to Test User
-            }
+            var userId = ResolveUserId();
 
             var command = new AcadPrep.Application.Features.Practice.Commands.StartPractice.StartPracticeCommand(
                 request.ExamId,
                 request.SelectedPartNumbers,
                 request.SelectedTags,
                 request.TimeLimitMinutes,
-                parsedUserId
+                userId
             );
 
             var result = await _mediator.Send(command);
@@ -71,13 +68,57 @@ namespace AcadPrep.WebUI.Pages.Exams
 
             return new JsonResult(new { success = false, error = result.Error });
         }
+
+        public async Task<IActionResult> OnPostStartFullTestAsync([FromBody] StartFullTestRequestModel request)
+        {
+            var userId = ResolveUserId();
+
+            var inProgress = await _context.ExamAttempts
+                .AsNoTracking()
+                .FirstOrDefaultAsync(a => a.ExamId == request.ExamId && a.UserId == userId && !a.IsSubmitted);
+
+            if (inProgress is not null)
+            {
+                return new JsonResult(new
+                {
+                    success = false,
+                    inProgressAttemptId = inProgress.Id,
+                    error = $"You have an unfinished test ({TimeSpan.FromSeconds(inProgress.RemainingTime):hh\\:mm\\:ss} remaining)."
+                });
+            }
+
+            var command = new AcadPrep.Application.Features.FullTest.Commands.StartFullTest.StartFullTestCommand(request.ExamId, userId);
+            var result = await _mediator.Send(command);
+
+            if (result.IsSuccess && result.Data is not null)
+            {
+                return new JsonResult(new { success = true, attemptId = result.Data.AttemptId });
+            }
+
+            return new JsonResult(new { success = false, error = result.Error });
+        }
+
+        private int ResolveUserId()
+        {
+            if (!string.IsNullOrEmpty(_currentUserService.UserId) && int.TryParse(_currentUserService.UserId, out int parsedUserId))
+            {
+                return parsedUserId;
+            }
+
+            return 2;
+        }
     }
 
     public class StartPracticeRequestModel
     {
         public int ExamId { get; set; }
-        public System.Collections.Generic.List<int> SelectedPartNumbers { get; set; } = new();
-        public System.Collections.Generic.List<string> SelectedTags { get; set; } = new();
+        public List<int> SelectedPartNumbers { get; set; } = new();
+        public List<string> SelectedTags { get; set; } = new();
         public int? TimeLimitMinutes { get; set; }
+    }
+
+    public class StartFullTestRequestModel
+    {
+        public int ExamId { get; set; }
     }
 }

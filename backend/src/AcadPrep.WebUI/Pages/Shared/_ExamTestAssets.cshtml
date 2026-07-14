@@ -1,0 +1,50 @@
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet">
+<style>
+    .material-symbols-outlined {
+        font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        vertical-align: middle;
+    }
+    ::-webkit-scrollbar { width: 8px; height: 8px; }
+    ::-webkit-scrollbar-track { background: #f1f1f1; }
+    ::-webkit-scrollbar-thumb { background: #c7c4d8; border-radius: 10px; }
+    .exam-timer-warning { color: #ba1a1a; animation: pulse 1s ease-in-out infinite; }
+    @@keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.65; } }
+    .q-cell { min-width: 28px; height: 28px; font-size: 10px; }
+</style>
+<script id="tailwind-config">
+    tailwind.config = {
+        darkMode: "class",
+        theme: {
+            extend: {
+                colors: {
+                    surface: "#f9f9ff",
+                    primary: "#1e00a9",
+                    "primary-container": "#3525cd",
+                    "on-primary": "#ffffff",
+                    "on-surface": "#1b1b24",
+                    "on-surface-variant": "#464555",
+                    "surface-container-lowest": "#ffffff",
+                    "surface-container-low": "#f5f2ff",
+                    "surface-container": "#f0ecf9",
+                    "outline-variant": "#c7c4d8",
+                    secondary: "#9d4300",
+                    "secondary-container": "#ff8d4b",
+                    "on-secondary": "#ffffff",
+                    tertiary: "#005338",
+                    error: "#ba1a1a",
+                    background: "#fcf8ff"
+                },
+                borderRadius: { "2xl": "16px" },
+                fontFamily: {
+                    "headline-sm": ["Inter", "sans-serif"],
+                    "headline-md": ["Inter", "sans-serif"],
+                    "body-sm": ["Inter", "sans-serif"],
+                    "body-md": ["Inter", "sans-serif"],
+                    "label-sm": ["Inter", "sans-serif"]
+                }
+            }
+        }
+    };
+</script>

@@ -1,0 +1,113 @@
+@page
+@model AcadPrep.WebUI.Pages.Exams.PracticeModel
+@using System.Text.Json
+@using System.Text.Json.Serialization
+@{
+    Layout = null;
+    var session = Model.Session!;
+    var jsonOptions = new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase };
+    var questionsJson = JsonSerializer.Serialize(session.Questions, jsonOptions);
+}
+<!DOCTYPE html>
+<html class="light" lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Practice — @session.ExamTitle | AcadPrep</title>
+    <partial name="Shared/_ExamTestAssets" />
+</head>
+<body class="bg-surface font-body-md text-on-surface min-h-screen flex flex-col">
+
+    <header class="sticky top-0 z-40 bg-surface-container-lowest border-b border-outline-variant/30 shadow-sm">
+        <div class="mx-auto px-6 py-3">
+            <div class="flex flex-wrap items-center justify-between gap-3">
+                <div class="flex items-center gap-3 min-w-0">
+                    <span class="shrink-0 px-2.5 py-1 rounded-lg bg-secondary text-on-secondary text-label-sm font-bold uppercase">Practice</span>
+                    <h1 class="font-headline-sm font-semibold truncate">@session.ExamTitle</h1>
+                </div>
+                <div class="flex items-center gap-4">
+                    <span id="current-part-label" class="text-body-sm text-on-surface-variant">Part @session.SelectedParts.FirstOrDefault()</span>
+                    @if (session.TimeLimitMinutes.HasValue)
+                    {
+                        <span id="exam-timer" class="font-mono text-headline-sm font-bold tabular-nums text-secondary">--:--</span>
+                    }
+                    <button id="btn-submit" type="button" class="bg-secondary hover:bg-secondary-container text-on-secondary font-label-sm font-bold px-5 py-2.5 rounded-xl flex items-center gap-1">
+                        <span class="material-symbols-outlined text-lg">send</span> Submit
+                    </button>
+                    <button id="btn-exit" type="button" class="text-body-sm text-on-surface-variant hover:text-secondary" data-exit-url="/Exams/Detail/@session.ExamId">Exit</button>
+                </div>
+            </div>
+            <div class="mt-2 flex flex-wrap gap-2">
+                @foreach (var p in session.SelectedParts)
+                {
+                    <span class="px-2 py-0.5 rounded-md bg-secondary/10 text-secondary text-label-sm font-bold">@p</span>
+                }
+            </div>
+        </div>
+    </header>
+
+    <main class="flex-1 mx-auto w-full px-6 py-6 flex flex-col gap-6">
+        <section id="audio-section" class="bg-surface-container-low rounded-2xl border border-outline-variant/30 p-4 hidden">
+            <audio id="exam-audio" class="w-full" controls preload="auto"></audio>
+            <p class="text-body-sm text-on-surface-variant mt-2">Practice mode — play, pause, and seek are allowed.</p>
+        </section>
+
+        <section class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <div class="bg-surface-container-lowest rounded-2xl border border-outline-variant/30 p-6 min-h-[200px]">
+                <span id="question-label" class="text-label-sm font-bold text-secondary mb-2 block">Question 1</span>
+                <div id="question-image-wrap" class="hidden mb-4">
+                    <img id="question-image" alt="Question" class="max-h-64 rounded-xl mx-auto" />
+                </div>
+                <p id="question-text" class="text-body-md"></p>
+            </div>
+            <div id="options-container" class="space-y-3"></div>
+        </section>
+
+        <div class="flex items-center justify-between">
+            <button id="btn-prev" type="button" class="px-4 py-2 rounded-xl hover:bg-surface-container">← Prev</button>
+            <span class="text-body-sm">Q <span id="current-q-num">1</span> / <span id="total-q-num">@session.Questions.Count</span></span>
+            <button id="btn-next" type="button" class="px-4 py-2 rounded-xl bg-surface-container font-medium">Next →</button>
+        </div>
+
+        <section class="bg-surface-container-lowest rounded-2xl border border-outline-variant/30 p-4">
+            <div id="question-palette" class="grid gap-1" style="grid-template-columns: repeat(10, minmax(28px, 1fr));"></div>
+        </section>
+    </main>
+
+    <div id="modal-submit" class="hidden fixed inset-0 z-50 flex items-center justify-center p-4 bg-on-surface/40 backdrop-blur-sm">
+        <div class="bg-surface-container-lowest rounded-2xl max-w-md w-full p-6 space-y-4">
+            <h3 class="font-headline-md font-bold">Submit your answers?</h3>
+            <p class="text-body-sm text-on-surface-variant">Your answers will be graded and you'll see the results.</p>
+            <div class="flex gap-3">
+                <button data-close-submit type="button" class="flex-1 py-3 rounded-xl border font-medium">Continue practicing</button>
+                <button data-confirm-submit type="button" class="flex-1 py-3 rounded-xl bg-secondary text-on-secondary font-bold">Submit</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="modal-leave" class="hidden fixed inset-0 z-50 flex items-center justify-center p-4 bg-on-surface/40 backdrop-blur-sm">
+        <div class="bg-surface-container-lowest rounded-2xl max-w-md w-full p-6 space-y-4">
+            <h3 class="font-headline-md font-bold">Leave practice?</h3>
+            <p class="text-body-sm text-error">Your progress will NOT be saved. Are you sure you want to exit?</p>
+            <div class="flex gap-3">
+                <button data-close-leave type="button" class="flex-1 py-3 rounded-xl border font-medium">Stay</button>
+                <button data-confirm-leave type="button" class="flex-1 py-3 rounded-xl bg-error text-on-primary font-bold">Leave</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        window.examSessionConfig = {
+            mode: 'practice',
+            sessionId: @session.SessionId,
+            examId: @session.ExamId,
+            examAudioUrl: @Html.Raw(System.Text.Json.JsonSerializer.Serialize(session.ExamAudioUrl)),
+            remainingSeconds: @(session.TimeLimitMinutes.HasValue ? session.TimeLimitMinutes.Value * 60 : 0),
+            questions: @Html.Raw(questionsJson),
+            savedAnswers: {},
+            currentIndex: 0
+        };
+    </script>
+    <script src="~/js/exam-session.js"></script>
+</body>
+</html>

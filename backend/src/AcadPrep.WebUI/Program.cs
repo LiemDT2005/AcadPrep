@@ -14,11 +14,17 @@ builder.Services.AddApplicationServices();
 builder.Services.AddInfrastructureServices(builder.Configuration);
 
 // 2. Cookie + Google OAuth Authentication
-builder.Services
+var googleClientId     = builder.Configuration["Authentication:Google:ClientId"];
+var googleClientSecret = builder.Configuration["Authentication:Google:ClientSecret"];
+var isGoogleAuthConfigured = !string.IsNullOrWhiteSpace(googleClientId)
+    && !string.IsNullOrWhiteSpace(googleClientSecret)
+    && !googleClientId.StartsWith("${", StringComparison.Ordinal);
+
+var authBuilder = builder.Services
     .AddAuthentication(options =>
     {
         options.DefaultScheme          = CookieAuthenticationDefaults.AuthenticationScheme;
-        options.DefaultChallengeScheme = GoogleDefaults.AuthenticationScheme;
+        options.DefaultChallengeScheme = CookieAuthenticationDefaults.AuthenticationScheme;
     })
     .AddCookie(options =>
     {
@@ -26,14 +32,17 @@ builder.Services
         options.AccessDeniedPath = "/Account/AccessDenied";
         options.ExpireTimeSpan   = TimeSpan.FromDays(14);
         options.SlidingExpiration = true;
-    })
-    .AddGoogle(options =>
+    });
+
+if (isGoogleAuthConfigured)
+{
+    authBuilder.AddGoogle(options =>
     {
-        // Cấu hình trong appsettings.json → "Authentication": { "Google": { "ClientId": "...", "ClientSecret": "..." } }
-        options.ClientId     = builder.Configuration["Authentication:Google:ClientId"]     ?? string.Empty;
-        options.ClientSecret = builder.Configuration["Authentication:Google:ClientSecret"] ?? string.Empty;
+        options.ClientId     = googleClientId!;
+        options.ClientSecret = googleClientSecret!;
         options.CallbackPath = "/Account/GoogleCallback";
     });
+}
 
 // 2. Register Controllers & Razor Pages
 builder.Services.AddControllers();

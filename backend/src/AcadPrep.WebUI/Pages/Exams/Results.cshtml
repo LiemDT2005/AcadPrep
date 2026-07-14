@@ -1,0 +1,47 @@
+@page
+@model AcadPrep.WebUI.Pages.Exams.ResultsModel
+@{
+    Layout = null;
+}
+<!DOCTYPE html>
+<html class="light" lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Results | AcadPrep</title>
+    <partial name="Shared/_ExamTestAssets" />
+</head>
+<body class="bg-surface min-h-screen flex items-center justify-center p-4">
+    <div class="max-w-lg w-full text-center space-y-8">
+        <div class="space-y-2">
+            <span class="material-symbols-outlined text-5xl text-primary">celebration</span>
+            <h1 class="font-headline-md text-headline-md font-bold text-on-surface">Test complete!</h1>
+        </div>
+
+        <div class="bg-primary/5 border-2 border-primary/20 rounded-2xl p-8">
+            <p class="text-label-sm text-on-surface-variant uppercase tracking-wide mb-2">Total Score</p>
+            <p class="text-5xl font-bold text-primary tabular-nums">@Model.TotalScore <span class="text-2xl text-on-surface-variant font-medium">/ 990</span></p>
+        </div>
+
+        <div class="grid grid-cols-2 gap-4">
+            <div class="bg-surface-container-lowest rounded-2xl border border-outline-variant/30 p-5">
+                <p class="text-label-sm text-on-surface-variant mb-1">Listening</p>
+                <p class="text-headline-md font-bold text-primary">@Model.ListeningScore</p>
+            </div>
+            <div class="bg-surface-container-lowest rounded-2xl border border-outline-variant/30 p-5">
+                <p class="text-label-sm text-on-surface-variant mb-1">Reading</p>
+                <p class="text-headline-md font-bold text-primary">@Model.ReadingScore</p>
+            </div>
+        </div>
+
+        <div class="flex flex-col sm:flex-row gap-3 justify-center">
+            <a href="/Exams/Detail/1" class="px-6 py-3 rounded-xl bg-primary text-on-primary font-bold hover:bg-primary-container transition-colors">
+                Review answers
+            </a>
+            <a href="/Exams/Detail/@Model.ExamId" class="px-6 py-3 rounded-xl border border-outline-variant/50 font-medium hover:bg-surface-container transition-colors">
+                Try again
+            </a>
+        </div>
+    </div>
+</body>
+</html>

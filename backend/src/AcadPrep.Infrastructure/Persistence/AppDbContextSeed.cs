@@ -63,15 +63,68 @@ public static class AppDbContextSeed
             await context.SaveChangesAsync();
         }
 
-        // ── 3. Exams ──
+        // Sửa hash mật khẩu cũ (không phải BCrypt) để login không bị 500.
+        var repairedHash = passwordHasher.Hash("Password123!");
+        await context.Database.ExecuteSqlInterpolatedAsync(
+            $"UPDATE USERS SET PasswordHash = {repairedHash} WHERE PasswordHash IS NOT NULL AND PasswordHash NOT LIKE '$2%'");
+
+        // ── 3. ExamSeries ──
+        if (!context.ExamSeries.Any())
+        {
+            context.ExamSeries.AddRange(
+                new ExamSeries { Name = "ETS",            Year = 2025, Description = "Official ETS TOEIC practice tests",                     CreatedAt = DateTime.UtcNow.AddDays(-60) },
+                new ExamSeries { Name = "ETS",            Year = 2024, Description = "Official ETS TOEIC practice tests (2024 edition)",      CreatedAt = DateTime.UtcNow.AddDays(-120) },
+                new ExamSeries { Name = "New Economy",    Year = 2025, Description = "Economy series – best-selling TOEIC prep in Vietnam",   CreatedAt = DateTime.UtcNow.AddDays(-55) },
+                new ExamSeries { Name = "New Economy",    Year = 2024, Description = "Economy series – 2024 edition",                         CreatedAt = DateTime.UtcNow.AddDays(-110) },
+                new ExamSeries { Name = "Hacker TOEIC",   Year = 2025, Description = "Advanced difficulty TOEIC practice",                    CreatedAt = DateTime.UtcNow.AddDays(-50) },
+                new ExamSeries { Name = "Luyện Đề",       Year = 2025, Description = "Curated Vietnamese TOEIC practice collection",          CreatedAt = DateTime.UtcNow.AddDays(-45) }
+            );
+            await context.SaveChangesAsync();
+        }
+
+        // ── 4. Exams (20 exams across series) ──
         if (!context.Exams.Any())
         {
+            var allSeries = context.ExamSeries.ToList();
+            var ets2025       = allSeries.First(s => s.Name == "ETS"          && s.Year == 2025);
+            var ets2024       = allSeries.First(s => s.Name == "ETS"          && s.Year == 2024);
+            var economy2025   = allSeries.First(s => s.Name == "New Economy"  && s.Year == 2025);
+            var economy2024   = allSeries.First(s => s.Name == "New Economy"  && s.Year == 2024);
+            var hacker2025    = allSeries.First(s => s.Name == "Hacker TOEIC" && s.Year == 2025);
+            var luyenDe2025   = allSeries.First(s => s.Name == "Luyện Đề"     && s.Year == 2025);
+
             context.Exams.AddRange(
-                new Exam { Title = "ETS TOEIC 2025 Test 1", Duration = 120, Description = "Official Practice Test",          CreatedAt = DateTime.UtcNow.AddDays(-25) },
-                new Exam { Title = "Economy TOEIC Vol 5",   Duration = 120, Description = "Trending Practice Test",          CreatedAt = DateTime.UtcNow.AddDays(-20) },
-                new Exam { Title = "Hacker TOEIC Practice", Duration = 120, Description = "Hard difficulty Practice Test",   CreatedAt = DateTime.UtcNow.AddDays(-15) },
-                new Exam { Title = "ETS TOEIC 2025 Test 2", Duration = 120, Description = "Official Practice Test 2",       CreatedAt = DateTime.UtcNow.AddDays(-10) },
-                new Exam { Title = "Economy TOEIC Vol 6",   Duration = 120, Description = "Latest Economy edition",         CreatedAt = DateTime.UtcNow.AddDays(-5) }
+                // ETS 2025 – 4 tests
+                new Exam { Title = "ETS TOEIC 2025 Test 1",  Duration = 120, Description = "Official Practice Test 1 – Full simulation",               ExamSeriesId = ets2025.Id, Status = ExamStatus.Published, CreatedAt = DateTime.UtcNow.AddDays(-30) },
+                new Exam { Title = "ETS TOEIC 2025 Test 2",  Duration = 120, Description = "Official Practice Test 2 – Listening focus",               ExamSeriesId = ets2025.Id, Status = ExamStatus.Published, CreatedAt = DateTime.UtcNow.AddDays(-28) },
+                new Exam { Title = "ETS TOEIC 2025 Test 3",  Duration = 120, Description = "Official Practice Test 3 – Reading focus",                 ExamSeriesId = ets2025.Id, Status = ExamStatus.Published, CreatedAt = DateTime.UtcNow.AddDays(-26) },
+                new Exam { Title = "ETS TOEIC 2025 Test 4",  Duration = 120, Description = "Official Practice Test 4 – Mixed difficulty",              ExamSeriesId = ets2025.Id, Status = ExamStatus.Published, CreatedAt = DateTime.UtcNow.AddDays(-24) },
+
+                // ETS 2024 – 3 tests
+                new Exam { Title = "ETS TOEIC 2024 Test 1",  Duration = 120, Description = "Previous year official test – excellent for baseline",      ExamSeriesId = ets2024.Id, Status = ExamStatus.Published, CreatedAt = DateTime.UtcNow.AddDays(-90) },
+                new Exam { Title = "ETS TOEIC 2024 Test 2",  Duration = 120, Description = "Previous year official test – intermediate level",         ExamSeriesId = ets2024.Id, Status = ExamStatus.Published, CreatedAt = DateTime.UtcNow.AddDays(-85) },
+                new Exam { Title = "ETS TOEIC 2024 Test 3",  Duration = 120, Description = "Previous year official test – advanced level",             ExamSeriesId = ets2024.Id, Status = ExamStatus.Published, CreatedAt = DateTime.UtcNow.AddDays(-80) },
+
+                // New Economy 2025 – 4 tests
+                new Exam { Title = "New Economy TOEIC Vol 7", Duration = 120, Description = "Latest Economy edition – trending practice set",           ExamSeriesId = economy2025.Id, Status = ExamStatus.Published, CreatedAt = DateTime.UtcNow.AddDays(-22) },
+                new Exam { Title = "New Economy TOEIC Vol 8", Duration = 120, Description = "Economy series – comprehensive review",                    ExamSeriesId = economy2025.Id, Status = ExamStatus.Published, CreatedAt = DateTime.UtcNow.AddDays(-20) },
+                new Exam { Title = "New Economy TOEIC Vol 9", Duration = 120, Description = "Economy series – Part 5-6-7 heavy",                       ExamSeriesId = economy2025.Id, Status = ExamStatus.Published, CreatedAt = DateTime.UtcNow.AddDays(-18) },
+                new Exam { Title = "New Economy TOEIC Vol 10",Duration = 120, Description = "Economy series – final mock exam",                         ExamSeriesId = economy2025.Id, Status = ExamStatus.Published, CreatedAt = DateTime.UtcNow.AddDays(-16) },
+
+                // New Economy 2024 – 3 tests
+                new Exam { Title = "Economy TOEIC Vol 4",     Duration = 120, Description = "2024 Economy edition – Part 3-4 intensive",                ExamSeriesId = economy2024.Id, Status = ExamStatus.Published, CreatedAt = DateTime.UtcNow.AddDays(-75) },
+                new Exam { Title = "Economy TOEIC Vol 5",     Duration = 120, Description = "2024 Economy edition – balanced difficulty",                ExamSeriesId = economy2024.Id, Status = ExamStatus.Published, CreatedAt = DateTime.UtcNow.AddDays(-70) },
+                new Exam { Title = "Economy TOEIC Vol 6",     Duration = 120, Description = "2024 Economy edition – exam simulation",                   ExamSeriesId = economy2024.Id, Status = ExamStatus.Published, CreatedAt = DateTime.UtcNow.AddDays(-65) },
+
+                // Hacker TOEIC 2025 – 3 tests
+                new Exam { Title = "Hacker TOEIC Test 1",     Duration = 120, Description = "Hard difficulty – designed for 800+ target scorers",       ExamSeriesId = hacker2025.Id, Status = ExamStatus.Published, CreatedAt = DateTime.UtcNow.AddDays(-14) },
+                new Exam { Title = "Hacker TOEIC Test 2",     Duration = 120, Description = "Hard difficulty – tricky grammar & vocabulary",            ExamSeriesId = hacker2025.Id, Status = ExamStatus.Published, CreatedAt = DateTime.UtcNow.AddDays(-12) },
+                new Exam { Title = "Hacker TOEIC Test 3",     Duration = 120, Description = "Hard difficulty – long passage reading comprehension",     ExamSeriesId = hacker2025.Id, Status = ExamStatus.Published, CreatedAt = DateTime.UtcNow.AddDays(-10) },
+
+                // Luyện Đề 2025 – 3 tests
+                new Exam { Title = "Luyện Đề TOEIC Đề 1",    Duration = 120, Description = "Vietnamese curated practice – beginner friendly",          ExamSeriesId = luyenDe2025.Id, Status = ExamStatus.Published, CreatedAt = DateTime.UtcNow.AddDays(-8) },
+                new Exam { Title = "Luyện Đề TOEIC Đề 2",    Duration = 120, Description = "Vietnamese curated practice – intermediate level",         ExamSeriesId = luyenDe2025.Id, Status = ExamStatus.Published, CreatedAt = DateTime.UtcNow.AddDays(-6) },
+                new Exam { Title = "Luyện Đề TOEIC Đề 3",    Duration = 120, Description = "Vietnamese curated practice – full mock simulation",       ExamSeriesId = luyenDe2025.Id, Status = ExamStatus.Published, CreatedAt = DateTime.UtcNow.AddDays(-4) }
             );
             await context.SaveChangesAsync();
         }

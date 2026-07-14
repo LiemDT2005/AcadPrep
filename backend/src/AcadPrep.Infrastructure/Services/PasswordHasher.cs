@@ -14,6 +14,14 @@ public sealed class PasswordHasher : IPasswordHasher
 
     public bool Verify(string hash, string password)
     {
-        return BCrypt.Net.BCrypt.Verify(password, hash);
+        try
+        {
+            return BCrypt.Net.BCrypt.Verify(password, hash);
+        }
+        catch (BCrypt.Net.SaltParseException)
+        {
+            // Hash cũ trong DB không phải BCrypt → coi như sai mật khẩu, tránh 500.
+            return false;
+        }
     }
 }

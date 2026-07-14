@@ -11,6 +11,9 @@ namespace Infrastructure.Persistence;
 
 public class AppDbContextInitializer
 {
+    private const string SampleListeningAudioUrl = "/audio/sample-listening.wav";
+    private const int ListeningSegmentSeconds = 8;
+
     private readonly ILogger<AppDbContextInitializer> _logger;
     private readonly AppDbContext _context;
     private readonly Application.Common.Interfaces.IPasswordHasher _passwordHasher;
@@ -199,39 +202,111 @@ public class AppDbContextInitializer
 }
         }
 
-        // 5. Seed Questions for ETS 2024 - Test 1
-        if (!_context.Questions.Any())
+        // 4.5 Link exams missing a series (e.g. seeded by AppDbContextSeed)
+        var defaultSeries = await _context.Set<ExamSeries>().FirstOrDefaultAsync();
+        if (defaultSeries is not null)
         {
-            _logger.LogInformation("Seeding Questions...");
-            var exam1 = await _context.Exams.FirstOrDefaultAsync(e => e.Title.Contains("ETS TOEIC 2024 - Test 1"));
-            if (exam1 != null)
+            var orphanExams = await _context.Exams
+                .Where(e => e.ExamSeriesId == 0 || !_context.Set<ExamSeries>().Any(s => s.Id == e.ExamSeriesId))
+                .ToListAsync();
+
+            if (orphanExams.Count > 0)
             {
-                var questions = new List<Question>();
-                var rnd = new Random();
-                
-                // Add mock questions for Part 1 to 7
-                int qNum = 1;
-                var partCounts = new[] { 6, 25, 39, 30, 30, 16, 54 }; // TOEIC standard question counts
-                
-                for (int part = 1; part <= 7; part++)
+                _logger.LogInformation("Linking {Count} exam(s) to default series...", orphanExams.Count);
+                foreach (var exam in orphanExams)
                 {
-                    int countForPart = partCounts[part - 1];
-                    for (int i = 0; i < countForPart; i++)
-                    {
-                        questions.Add(new Question
-                        {
-                            ExamId = exam1.Id,
-                            Part = part,
-                            QuestionNumber = qNum++,
-                            QuestionText = $"This is mock question {qNum} for Part {part}",
-                            CorrectOption = (OptionLetter)rnd.Next(0, 4)
-                        });
-                    }
+                    exam.ExamSeriesId = defaultSeries.Id;
+                    exam.Status = ExamStatus.Published;
                 }
-                
-                _context.Questions.AddRange(questions);
                 await _context.SaveChangesAsync();
             }
+        }
+
+        // 5. Seed Questions with answer options for exams that have none
+        var examsNeedingQuestions = await _context.Exams
+            .Where(e => !_context.Questions.Any(q => q.ExamId == e.Id))
+            .OrderBy(e => e.Id)
+            .Take(2)
+            .ToListAsync();
+
+        if (examsNeedingQuestions.Count > 0)
+        {
+            _logger.LogInformation("Seeding Questions for {Count} exam(s)...", examsNeedingQuestions.Count);
+            foreach (var exam in examsNeedingQuestions)
+            {
+                exam.Status = ExamStatus.Published;
+                exam.AudioUrl = SampleListeningAudioUrl;
+                var questions = BuildToeicQuestions(exam.Id);
+                _context.Questions.AddRange(questions);
+            }
+
+            await _context.SaveChangesAsync();
+        }
+
+        // 5.5 Backfill answer options for questions that have none
+        var questionsMissingOptions = await _context.Questions
+            .Include(q => q.QuestionOptions)
+            .Where(q => !q.QuestionOptions.Any())
+            .ToListAsync();
+
+        if (questionsMissingOptions.Count > 0)
+        {
+            _logger.LogInformation("Backfilling options for {Count} question(s)...", questionsMissingOptions.Count);
+            foreach (var question in questionsMissingOptions)
+            {
+                var optionTexts = BuildOptionTexts(question.Part, question.QuestionNumber);
+                for (var i = 0; i < 4; i++)
+                {
+                    question.QuestionOptions.Add(new QuestionOption
+                    {
+                        OptionLetter = (OptionLetter)i,
+                        OptionText = optionTexts[i]
+                    });
+                }
+            }
+
+            await _context.SaveChangesAsync();
+        }
+
+        // 5.6 Backfill listening audio for exams / questions missing media
+        var examsMissingAudio = await _context.Exams
+            .Where(e => e.AudioUrl == null && _context.Questions.Any(q => q.ExamId == e.Id && q.Part <= 4))
+            .ToListAsync();
+
+        if (examsMissingAudio.Count > 0)
+        {
+            _logger.LogInformation("Backfilling exam audio for {Count} exam(s)...", examsMissingAudio.Count);
+            foreach (var exam in examsMissingAudio)
+            {
+                exam.AudioUrl = SampleListeningAudioUrl;
+            }
+
+            await _context.SaveChangesAsync();
+        }
+
+        var listeningQuestionsMissingAudio = await _context.Questions
+            .Where(q => q.Part <= 4 && q.AudioUrl == null && q.AudioStartSecond == null)
+            .OrderBy(q => q.ExamId)
+            .ThenBy(q => q.QuestionNumber)
+            .ToListAsync();
+
+        if (listeningQuestionsMissingAudio.Count > 0)
+        {
+            _logger.LogInformation("Backfilling audio segments for {Count} listening question(s)...", listeningQuestionsMissingAudio.Count);
+            var segmentIndexByExam = new Dictionary<int, int>();
+            foreach (var question in listeningQuestionsMissingAudio)
+            {
+                if (!segmentIndexByExam.TryGetValue(question.ExamId, out var segmentIndex))
+                {
+                    segmentIndex = 0;
+                }
+
+                question.AudioStartSecond = segmentIndex * ListeningSegmentSeconds;
+                question.AudioEndSecond = question.AudioStartSecond + ListeningSegmentSeconds;
+                segmentIndexByExam[question.ExamId] = segmentIndex + 1;
+            }
+
+            await _context.SaveChangesAsync();
         }
 
         // 6. Seed ExamAttempts (Lịch sử làm bài)
@@ -239,7 +314,8 @@ public class AppDbContextInitializer
         {
             _logger.LogInformation("Seeding Exam Attempts...");
             var learner = await _context.Users.FirstOrDefaultAsync(u => u.Email == "learner@test.com");
-            var exam1 = await _context.Exams.FirstOrDefaultAsync(e => e.Title.Contains("ETS TOEIC 2024 - Test 1"));
+            var exam1 = await _context.Exams.FirstOrDefaultAsync(e => e.Title.Contains("ETS TOEIC 2024 - Test 1"))
+                ?? await _context.Exams.OrderBy(e => e.Id).FirstOrDefaultAsync();
 
             if (learner != null && exam1 != null)
             {
@@ -271,5 +347,168 @@ public class AppDbContextInitializer
                 await _context.SaveChangesAsync();
             }
         }
+    }
+
+    private static List<Question> BuildToeicQuestions(int examId)
+    {
+        var questions = new List<Question>();
+        var partCounts = new[] { 6, 25, 39, 30, 30, 16, 54 };
+        var rnd = new Random(42);
+        var qNum = 1;
+        var listeningSegmentIndex = 0;
+
+        for (var part = 1; part <= 7; part++)
+        {
+            var (questionType, topicTag) = GetQuestionMetadata(part);
+            for (var i = 0; i < partCounts[part - 1]; i++)
+            {
+                var correct = (OptionLetter)rnd.Next(0, 4);
+                int? audioStart = null;
+                int? audioEnd = null;
+                if (part <= 4)
+                {
+                    audioStart = listeningSegmentIndex * ListeningSegmentSeconds;
+                    audioEnd = audioStart + ListeningSegmentSeconds;
+                    listeningSegmentIndex++;
+                }
+
+                questions.Add(CreateQuestion(
+                    examId,
+                    part,
+                    qNum++,
+                    BuildQuestionText(part, i + 1),
+                    BuildOptionTexts(part, i + 1),
+                    correct,
+                    questionType,
+                    topicTag,
+                    audioStart,
+                    audioEnd));
+            }
+        }
+
+        return questions;
+    }
+
+    private static Question CreateQuestion(
+        int examId,
+        int part,
+        int questionNumber,
+        string questionText,
+        string[] optionTexts,
+        OptionLetter correctOption,
+        string questionType,
+        string topicTag,
+        int? audioStartSecond = null,
+        int? audioEndSecond = null)
+    {
+        var question = new Question
+        {
+            ExamId = examId,
+            Part = part,
+            QuestionNumber = questionNumber,
+            QuestionText = questionText,
+            CorrectOption = correctOption,
+            QuestionType = questionType,
+            TopicTag = topicTag,
+            AudioStartSecond = audioStartSecond,
+            AudioEndSecond = audioEndSecond
+        };
+
+        for (var i = 0; i < 4; i++)
+        {
+            question.QuestionOptions.Add(new QuestionOption
+            {
+                OptionLetter = (OptionLetter)i,
+                OptionText = optionTexts[i]
+            });
+        }
+
+        return question;
+    }
+
+    private static string BuildQuestionText(int part, int index)
+    {
+        return part switch
+        {
+            1 => $"Look at the photograph marked number {index}. Which statement best describes the scene?",
+            2 => $"Question {index}: Mark the best response to the statement or question.",
+            3 => $"Questions {index}-{index + 2} refer to the following conversation. What is the main topic?",
+            4 => $"Questions {index}-{index + 2} refer to the following talk. What is the announcement mainly about?",
+            5 => $"Choose the word or phrase that best completes the sentence: The manager asked the team to _____ the report by Friday.",
+            6 => $"Read the passage and choose the best word for blank {index}: Our company has expanded _____ into new markets this year.",
+            7 => $"Read the following text and answer question {index}: What is the purpose of this message?",
+            _ => $"Question {index}"
+        };
+    }
+
+    private static string[] BuildOptionTexts(int part, int index)
+    {
+        return part switch
+        {
+            1 =>
+            [
+                "They are reviewing documents at a table.",
+                "They are waiting for a train at the station.",
+                "They are planting trees in a garden.",
+                "They are swimming in a pool."
+            ],
+            2 =>
+            [
+                "At 3 o'clock in the afternoon.",
+                "Yes, I have finished the report.",
+                "About twenty people attended.",
+                "The meeting room on the third floor."
+            ],
+            3 or 4 =>
+            [
+                "Scheduling a business trip",
+                "Ordering office supplies",
+                "Repairing a computer",
+                "Planning a company picnic"
+            ],
+            5 =>
+            [
+                "submit",
+                "submitted",
+                "submitting",
+                "submits"
+            ],
+            6 =>
+            [
+                "rapidly",
+                "rapid",
+                "rapidity",
+                "rapidness"
+            ],
+            7 =>
+            [
+                "To confirm a reservation",
+                "To request a refund",
+                "To advertise a product",
+                "To announce a policy change"
+            ],
+            _ =>
+            [
+                $"Option A for question {index}",
+                $"Option B for question {index}",
+                $"Option C for question {index}",
+                $"Option D for question {index}"
+            ]
+        };
+    }
+
+    private static (string QuestionType, string TopicTag) GetQuestionMetadata(int partNumber)
+    {
+        return partNumber switch
+        {
+            1 => ("Photographs", "People at work"),
+            2 => ("Question - Response", "WH-questions"),
+            3 => ("Conversations", "Business travel"),
+            4 => ("Talks", "Public announcements"),
+            5 => ("Incomplete Sentences", "Verb tenses"),
+            6 => ("Text Completion", "Passage completion"),
+            7 => ("Reading Comprehension", "Email messages"),
+            _ => ("General", "Other")
+        };
     }
 }

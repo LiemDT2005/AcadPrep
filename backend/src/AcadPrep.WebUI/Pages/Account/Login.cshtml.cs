@@ -7,6 +7,8 @@ using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication.Google;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
 using System.Security.Claims;
 
 namespace AcadPrep.WebUI.Pages.Account;
@@ -90,6 +92,19 @@ public class LoginModel(ISender mediator) : PageModel
     /// </summary>
     public IActionResult OnGetGoogleLogin(string? returnUrl = null)
     {
+        var googleClientId = HttpContext.RequestServices
+            .GetRequiredService<IConfiguration>()["Authentication:Google:ClientId"];
+
+        if (string.IsNullOrWhiteSpace(googleClientId)
+            || googleClientId.StartsWith("${", StringComparison.Ordinal))
+        {
+            return RedirectToPage("/Account/Login", new
+            {
+                returnUrl,
+                error = "Google login chưa được cấu hình. Vui lòng đăng nhập bằng email/mật khẩu."
+            });
+        }
+
         var redirectUrl = Url.Page("/Account/GoogleCallback", pageHandler: null,
             values: new { returnUrl });
 

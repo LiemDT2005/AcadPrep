@@ -29,8 +29,7 @@ namespace AcadPrep.WebUI.Pages.Exams
         [BindProperty(SupportsGet = true)]
         public int CurrentPage { get; set; } = 1;
 
-        [BindProperty(SupportsGet = true)]
-        public int PageSize { get; set; } = 6;
+        public int PageSize { get; set; } = 8;
 
         // ===== Filter Options (Dynamic from DB) =====
         public List<string> SeriesFilters { get; set; } = new();
