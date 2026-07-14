@@ -27,6 +27,11 @@ public class GetPracticeSessionQueryHandler : IRequestHandler<GetPracticeSession
             return Result<PracticeSessionDto>.Failure("Practice session not found.");
         }
 
+        if (session.IsSubmitted)
+        {
+            return Result<PracticeSessionDto>.Failure("This practice session has already been submitted.");
+        }
+
         List<int> questionIds;
         try
         {

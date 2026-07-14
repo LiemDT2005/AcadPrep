@@ -4,6 +4,7 @@ using Application.Common.Interfaces;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
+using Microsoft.EntityFrameworkCore;
 
 namespace AcadPrep.WebUI.Pages.Exams;
 
@@ -12,11 +13,13 @@ public class PracticeModel : PageModel
 {
     private readonly IMediator _mediator;
     private readonly ICurrentUserService _currentUserService;
+    private readonly IAppDbContext _context;
 
-    public PracticeModel(IMediator mediator, ICurrentUserService currentUserService)
+    public PracticeModel(IMediator mediator, ICurrentUserService currentUserService, IAppDbContext context)
     {
         _mediator = mediator;
         _currentUserService = currentUserService;
+        _context = context;
     }
 
     [BindProperty(SupportsGet = true)]
@@ -32,6 +35,22 @@ public class PracticeModel : PageModel
         }
 
         var userId = ResolveUserId();
+
+        var existing = await _context.PracticeSessions
+            .AsNoTracking()
+            .FirstOrDefaultAsync(s => s.Id == SessionId.Value && s.UserId == userId);
+
+        if (existing is null)
+        {
+            TempData["ErrorMessage"] = "Unable to load practice session.";
+            return RedirectToPage("/Exams/Index");
+        }
+
+        if (existing.IsSubmitted)
+        {
+            return RedirectToPage("/Exams/Results", new { sessionId = existing.Id });
+        }
+
         var result = await _mediator.Send(new GetPracticeSessionQuery(SessionId.Value, userId));
 
         if (!result.IsSuccess || result.Data is null)
