@@ -22,7 +22,7 @@ public class CloudinaryStorageService : IFileStorageService
         if (string.IsNullOrWhiteSpace(cloudName) || string.IsNullOrWhiteSpace(apiKey) || string.IsNullOrWhiteSpace(apiSecret))
         {
             throw new InvalidOperationException(
-                "Cloudinary credentials not configuration yet. Add Cloudinary:CloudName, Cloudinary:ApiKey, and Cloudinary:ApiSecret into appsettings.Development.json.");
+                "Cloudinary credentials not configured. Set Cloudinary:CloudName, Cloudinary:ApiKey, and Cloudinary:ApiSecret via User Secrets, environment variables, or a local appsettings.Development.json (gitignored). See appsettings.Development.json.example.");
         }
 
         var account = new Account(cloudName, apiKey, apiSecret);

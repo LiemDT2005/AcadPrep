@@ -6,13 +6,13 @@
     }
   },
   "ConnectionStrings": {
-    "DefaultConnection": "Server=localhost,1433;Database=AcadPrepDb;User Id=sa;Password=AcadPrep@12345;TrustServerCertificate=True;Encrypt=False;",
+    "DefaultConnection": "Server=localhost,1433;Database=AcadPrepDb;User Id=sa;Password=YOUR_DB_PASSWORD;TrustServerCertificate=True;Encrypt=False;",
     "Redis": "localhost:6379"
   },
   "Cloudinary": {
-    "CloudName": "dpfy23tda",
-    "ApiKey": "953398772632599",
-    "ApiSecret": "t1DWOpDR-k9AOKH0W8xVDKsOVzY"
+    "CloudName": "YOUR_CLOUDINARY_CLOUD_NAME",
+    "ApiKey": "YOUR_CLOUDINARY_API_KEY",
+    "ApiSecret": "YOUR_CLOUDINARY_API_SECRET"
   },
   "Authentication": {
     "Google": {
