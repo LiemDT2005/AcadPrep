@@ -73,26 +73,39 @@ namespace AcadPrep.WebUI.Pages.Exams
         {
             var userId = ResolveUserId();
 
-            var inProgress = await _context.ExamAttempts
-                .AsNoTracking()
-                .FirstOrDefaultAsync(a => a.ExamId == request.ExamId && a.UserId == userId && !a.IsSubmitted);
-
-            if (inProgress is not null)
+            if (!request.StartNewAttempt)
             {
-                return new JsonResult(new
+                var inProgress = await _context.ExamAttempts
+                    .AsNoTracking()
+                    .FirstOrDefaultAsync(a => a.ExamId == request.ExamId && a.UserId == userId && !a.IsSubmitted);
+
+                if (inProgress is not null)
                 {
-                    success = false,
-                    inProgressAttemptId = inProgress.Id,
-                    error = $"You have an unfinished test ({TimeSpan.FromSeconds(inProgress.RemainingTime):hh\\:mm\\:ss} remaining)."
-                });
+                    return new JsonResult(new
+                    {
+                        success = false,
+                        inProgressAttemptId = inProgress.Id,
+                        remainingSeconds = inProgress.RemainingTime,
+                        error = $"You have an unfinished test ({TimeSpan.FromSeconds(inProgress.RemainingTime):hh\\:mm\\:ss} remaining)."
+                    });
+                }
             }
 
-            var command = new AcadPrep.Application.Features.FullTest.Commands.StartFullTest.StartFullTestCommand(request.ExamId, userId);
+            var command = new AcadPrep.Application.Features.FullTest.Commands.StartFullTest.StartFullTestCommand(
+                request.ExamId,
+                userId,
+                request.StartNewAttempt);
+
             var result = await _mediator.Send(command);
 
             if (result.IsSuccess && result.Data is not null)
             {
-                return new JsonResult(new { success = true, attemptId = result.Data.AttemptId });
+                return new JsonResult(new
+                {
+                    success = true,
+                    attemptId = result.Data.AttemptId,
+                    abandonedAttemptId = result.Data.AbandonedAttemptId
+                });
             }
 
             return new JsonResult(new { success = false, error = result.Error });
@@ -120,5 +133,6 @@ namespace AcadPrep.WebUI.Pages.Exams
     public class StartFullTestRequestModel
     {
         public int ExamId { get; set; }
+        public bool StartNewAttempt { get; set; }
     }
 }

@@ -1,15 +1,15 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using AcadPrep.Application.Features.Admin.Exams.Commands.CreatePart5Question;
 using AcadPrep.Application.Common.Utils;
-using AcadPrep.Application.Features.Admin.Exams.Queries.GetExamDetail;
+using AcadPrep.Application.Features.Admin.Exams.Commands.CreatePart5Question;
+using AcadPrep.Application.Features.Admin.Exams.Commands.UpdatePart5Question;
+using Application.Common.Interfaces;
 using FluentValidation;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.EntityFrameworkCore;
-using Application.Common.Interfaces;
 
 namespace AcadPrep.WebUI.Pages.Admin.Exams.Questions;
 
@@ -25,10 +25,11 @@ public class Part5Model(ISender mediator, IAppDbContext context) : PageModel
     public List<string> ValidationErrors { get; set; } = new();
     public int PartQuestionCount { get; set; }
     public int PartQuestionLimit { get; set; } = ToeicPartLimits.GetLimit(5);
-    public bool CanAddAnother => PartQuestionCount < PartQuestionLimit;
+    public bool CanAddAnother => !IsEditMode && PartQuestionCount < PartQuestionLimit;
     public bool IsPartFull => PartQuestionCount >= PartQuestionLimit;
+    public bool IsEditMode { get; set; }
 
-    public async Task<IActionResult> OnGetAsync(int examId)
+    public async Task<IActionResult> OnGetAsync(int examId, int? editId = null)
     {
         ExamId = examId;
         var exam = await context.Exams.FirstOrDefaultAsync(e => e.Id == examId && !e.IsDeleted);
@@ -38,16 +39,50 @@ public class Part5Model(ISender mediator, IAppDbContext context) : PageModel
         }
 
         ExamTitle = exam.Title;
+        PartQuestionCount = await context.Questions.CountAsync(q => q.ExamId == examId && q.Part == 5);
 
-        // Suggest the next question number
+        if (editId.HasValue)
+        {
+            IsEditMode = true;
+            Form.EditId = editId.Value;
+
+            var question = await context.Questions
+                .Include(q => q.QuestionOptions)
+                .FirstOrDefaultAsync(q => q.Id == editId.Value && q.ExamId == examId && q.Part == 5);
+
+            if (question == null)
+            {
+                TempData["ErrorMessage"] = "Question not found.";
+                return RedirectToPage("/Admin/Exams/Edit", new { id = examId });
+            }
+
+            Form.QuestionNumber = question.QuestionNumber;
+            Form.QuestionText = question.QuestionText ?? string.Empty;
+            Form.CorrectOption = question.CorrectOption.ToString();
+            Form.QuestionType = question.QuestionType;
+            Form.TopicTag = question.TopicTag;
+
+            foreach (var opt in question.QuestionOptions.OrderBy(o => o.OptionLetter))
+            {
+                switch (opt.OptionLetter.ToString())
+                {
+                    case "A": Form.OptionA = opt.OptionText; break;
+                    case "B": Form.OptionB = opt.OptionText; break;
+                    case "C": Form.OptionC = opt.OptionText; break;
+                    case "D": Form.OptionD = opt.OptionText; break;
+                }
+            }
+
+            return Page();
+        }
+
         var maxQNum = await context.Questions
             .Where(q => q.ExamId == examId)
             .Select(q => (int?)q.QuestionNumber)
             .MaxAsync();
-        
+
         Form.QuestionNumber = (maxQNum ?? 100) + 1;
 
-        PartQuestionCount = await context.Questions.CountAsync(q => q.ExamId == examId && q.Part == 5);
         if (IsPartFull)
         {
             TempData["ErrorMessage"] =
@@ -71,6 +106,8 @@ public class Part5Model(ISender mediator, IAppDbContext context) : PageModel
     private async Task<IActionResult> SaveQuestionAsync(int examId, bool addAnother)
     {
         ExamId = examId;
+        IsEditMode = Form.EditId.HasValue && Form.EditId.Value > 0;
+
         var exam = await context.Exams.FirstOrDefaultAsync(e => e.Id == examId && !e.IsDeleted);
         if (exam == null)
         {
@@ -79,7 +116,7 @@ public class Part5Model(ISender mediator, IAppDbContext context) : PageModel
         ExamTitle = exam.Title;
 
         PartQuestionCount = await context.Questions.CountAsync(q => q.ExamId == examId && q.Part == 5);
-        if (IsPartFull)
+        if (!IsEditMode && IsPartFull)
         {
             ErrorMessage = $"Part 5 already has the maximum of {PartQuestionLimit} questions.";
             return Page();
@@ -95,29 +132,49 @@ public class Part5Model(ISender mediator, IAppDbContext context) : PageModel
             return Page();
         }
 
-        var cmd = new CreatePart5QuestionCommand
+        var questionDto = new Part5QuestionDto
         {
-            ExamId = examId,
-            Question = new Part5QuestionDto
+            QuestionNumber = Form.QuestionNumber,
+            QuestionText = Form.QuestionText,
+            CorrectOption = Form.CorrectOption,
+            QuestionType = Form.QuestionType,
+            TopicTag = Form.TopicTag,
+            Options = new List<Part5OptionDto>
             {
-                QuestionNumber = Form.QuestionNumber,
-                QuestionText = Form.QuestionText,
-                CorrectOption = Form.CorrectOption,
-                QuestionType = Form.QuestionType,
-                TopicTag = Form.TopicTag,
-                Options = new List<Part5OptionDto>
-                {
-                    new() { Letter = "A", Text = Form.OptionA },
-                    new() { Letter = "B", Text = Form.OptionB },
-                    new() { Letter = "C", Text = Form.OptionC },
-                    new() { Letter = "D", Text = Form.OptionD }
-                }
+                new() { Letter = "A", Text = Form.OptionA },
+                new() { Letter = "B", Text = Form.OptionB },
+                new() { Letter = "C", Text = Form.OptionC },
+                new() { Letter = "D", Text = Form.OptionD }
             }
         };
 
         try
         {
-            var result = await mediator.Send(cmd);
+            if (IsEditMode)
+            {
+                var updateResult = await mediator.Send(new UpdatePart5QuestionCommand
+                {
+                    ExamId = examId,
+                    QuestionId = Form.EditId!.Value,
+                    Question = questionDto
+                });
+
+                if (updateResult.IsSuccess)
+                {
+                    TempData["SuccessMessage"] = $"Successfully updated question number {Form.QuestionNumber}.";
+                    return RedirectToPage("/Admin/Exams/Edit", new { id = examId });
+                }
+
+                ErrorMessage = updateResult.Error ?? "Failed to update question.";
+                return Page();
+            }
+
+            var result = await mediator.Send(new CreatePart5QuestionCommand
+            {
+                ExamId = examId,
+                Question = questionDto
+            });
+
             if (result.IsSuccess)
             {
                 TempData["SuccessMessage"] = $"Successfully created question number {Form.QuestionNumber}.";
@@ -151,6 +208,7 @@ public class Part5Model(ISender mediator, IAppDbContext context) : PageModel
 
 public class Part5FormModel
 {
+    public int? EditId { get; set; }
     public int QuestionNumber { get; set; }
     public string QuestionText { get; set; } = string.Empty;
     public string CorrectOption { get; set; } = "A";

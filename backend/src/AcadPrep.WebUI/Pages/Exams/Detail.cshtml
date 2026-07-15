@@ -895,6 +895,24 @@
             }
         }
 
+        const inProgressAttemptId = @(Model.ExamDetail?.AttemptHistory?.FirstOrDefault(a => !a.IsSubmitted)?.AttemptId.ToString() ?? "null");
+
+        function clearAttemptLocalProgress(attemptId) {
+            if (!attemptId) return;
+            try {
+                localStorage.removeItem(`acadprep-exam-${attemptId}`);
+            } catch { /* ignore */ }
+        }
+
+        async function postStartFullTest(examId, startNewAttempt) {
+            const response = await fetch('?handler=StartFullTest', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ examId, startNewAttempt })
+            });
+            return response.json();
+        }
+
         async function startFullTestSession() {
             const confirmed = confirm(
                 'Start Full Test?\n\n' +
@@ -904,22 +922,37 @@
             );
             if (!confirmed) return;
 
+            let startNewAttempt = false;
+            if (inProgressAttemptId) {
+                const abandon = confirm(
+                    'You already have an unfinished test.\n\n' +
+                    'Start a NEW attempt? Your previous progress will be permanently discarded.\n\n' +
+                    'Tip: Cancel and use "Resume Test" if you want to continue the current attempt.'
+                );
+                if (!abandon) return;
+                startNewAttempt = true;
+            }
+
             const examId = @(Model.ExamDetail?.Id ?? 0);
             try {
-                const response = await fetch('?handler=StartFullTest', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ examId })
-                });
-                const result = await response.json();
+                let result = await postStartFullTest(examId, startNewAttempt);
+
+                // Race / stale page: server still has an in-progress attempt
+                if (!result.success && result.inProgressAttemptId && !startNewAttempt) {
+                    const abandon = confirm(
+                        (result.error || 'You have an unfinished test.') + '\n\n' +
+                        'Start a NEW attempt? Your previous progress will be permanently discarded.\n\n' +
+                        'Tip: Cancel and use "Resume Test" if you want to continue.'
+                    );
+                    if (!abandon) return;
+                    result = await postStartFullTest(examId, true);
+                }
+
                 if (result.success) {
+                    clearAttemptLocalProgress(result.abandonedAttemptId || inProgressAttemptId);
                     window.location.href = `/Exams/Take?attemptId=${result.attemptId}`;
-                } else if (result.inProgressAttemptId) {
-                    if (confirm(result.error + '\n\nClick OK to resume your in-progress test.')) {
-                        window.location.href = `/Exams/Take?attemptId=${result.inProgressAttemptId}`;
-                    }
                 } else {
-                    alert('Error: ' + result.error);
+                    alert('Error: ' + (result.error || 'Could not start the test.'));
                 }
             } catch (err) {
                 console.error(err);

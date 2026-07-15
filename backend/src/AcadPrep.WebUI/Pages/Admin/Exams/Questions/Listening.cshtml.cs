@@ -1,10 +1,10 @@
 using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
-using AcadPrep.Application.Features.Admin.Exams.Commands.CreateListeningGroup;
 using AcadPrep.Application.Common.Utils;
+using AcadPrep.Application.Features.Admin.Exams.Commands.CreateListeningGroup;
+using AcadPrep.Application.Features.Admin.Exams.Commands.UpdateListeningGroup;
 using Application.Common.Interfaces;
 using FluentValidation;
 using MediatR;
@@ -21,6 +21,7 @@ public class ListeningModel(ISender mediator, IAppDbContext context, IFileStorag
     public string ExamTitle { get; set; } = string.Empty;
     public bool HasExamFullAudio { get; set; }
     public string? ExamAudioUrl { get; set; }
+    public bool IsEditMode { get; set; }
 
     [BindProperty]
     public ListeningFormModel Form { get; set; } = new();
@@ -28,7 +29,7 @@ public class ListeningModel(ISender mediator, IAppDbContext context, IFileStorag
     public string? ErrorMessage { get; set; }
     public List<string> ValidationErrors { get; set; } = new();
 
-    public async Task<IActionResult> OnGetAsync(int examId, int part)
+    public async Task<IActionResult> OnGetAsync(int examId, int part, int? groupId = null)
     {
         if (part is 1 or 2)
         {
@@ -52,6 +53,64 @@ public class ListeningModel(ISender mediator, IAppDbContext context, IFileStorag
             Form.UseExamFullAudio = true;
         }
 
+        if (groupId.HasValue)
+        {
+            IsEditMode = true;
+            Form.GroupId = groupId.Value;
+
+            var group = await context.QuestionGroups
+                .Include(g => g.Questions)
+                    .ThenInclude(q => q.QuestionOptions)
+                .FirstOrDefaultAsync(g => g.Id == groupId.Value && g.ExamId == examId);
+
+            if (group == null)
+            {
+                TempData["ErrorMessage"] = "Listening group not found.";
+                return RedirectToPage("/Admin/Exams/Edit", new { id = examId });
+            }
+
+            var questions = group.Questions.Where(q => q.Part == Form.Part).OrderBy(q => q.QuestionNumber).ToList();
+            if (questions.Count != 3)
+            {
+                TempData["ErrorMessage"] = "Listening group must have exactly 3 questions to edit.";
+                return RedirectToPage("/Admin/Exams/Edit", new { id = examId });
+            }
+
+            Form.Name = group.Name;
+            Form.ImageUrl = group.ImageUrl;
+            Form.AudioUrl = group.AudioUrl;
+            Form.AudioStartSecond = group.AudioStartSecond;
+            Form.AudioEndSecond = group.AudioEndSecond;
+            Form.UseExamFullAudio = HasExamFullAudio || group.AudioStartSecond.HasValue;
+
+            foreach (var q in questions)
+            {
+                var item = new ListeningQuestionFormItem
+                {
+                    Id = q.Id,
+                    QuestionNumber = q.QuestionNumber,
+                    QuestionText = q.QuestionText,
+                    ImageUrl = q.ImageUrl,
+                    CorrectOption = q.CorrectOption.ToString()
+                };
+
+                foreach (var opt in q.QuestionOptions.OrderBy(o => o.OptionLetter))
+                {
+                    switch (opt.OptionLetter.ToString())
+                    {
+                        case "A": item.OptionA = opt.OptionText; break;
+                        case "B": item.OptionB = opt.OptionText; break;
+                        case "C": item.OptionC = opt.OptionText; break;
+                        case "D": item.OptionD = opt.OptionText; break;
+                    }
+                }
+
+                Form.Questions.Add(item);
+            }
+
+            return Page();
+        }
+
         var partCount = await context.Questions.CountAsync(q => q.ExamId == examId && q.Part == Form.Part);
         if (!ToeicPartLimits.CanAddQuestionCount(Form.Part, partCount, ToeicPartLimits.ListeningGroupQuestionCount))
         {
@@ -60,7 +119,6 @@ public class ListeningModel(ISender mediator, IAppDbContext context, IFileStorag
             return RedirectToPage("/Admin/Exams/Edit", new { id = examId });
         }
 
-        // Auto name suggestion
         Form.Name = Form.Part switch
         {
             3 => "Part 3 - Conversations Set",
@@ -68,23 +126,14 @@ public class ListeningModel(ISender mediator, IAppDbContext context, IFileStorag
             _ => "New listening group"
         };
 
-        // Determine suggest question numbers count
-        var suggestCount = Form.Part switch
-        {
-            3 => 3,
-            4 => 3,
-            _ => 3
-        };
-
-        // Suggest the next starting question number
         var maxQNum = await context.Questions
             .Where(q => q.ExamId == examId)
             .Select(q => (int?)q.QuestionNumber)
             .MaxAsync();
-        
+
         var startNum = (maxQNum ?? 0) + 1;
 
-        for (int i = 0; i < suggestCount; i++)
+        for (int i = 0; i < 3; i++)
         {
             Form.Questions.Add(new ListeningQuestionFormItem
             {
@@ -104,6 +153,8 @@ public class ListeningModel(ISender mediator, IAppDbContext context, IFileStorag
         }
 
         ExamId = examId;
+        IsEditMode = Form.GroupId.HasValue && Form.GroupId.Value > 0;
+
         var exam = await context.Exams.FirstOrDefaultAsync(e => e.Id == examId && !e.IsDeleted);
         if (exam == null)
         {
@@ -139,7 +190,6 @@ public class ListeningModel(ISender mediator, IAppDbContext context, IFileStorag
             return Page();
         }
 
-        // ── Manually bind nested IFormFile from Request.Form.Files ──
         for (int i = 0; i < Form.Questions.Count; i++)
         {
             var imageFileKey = $"Form.Questions[{i}].ImageFile";
@@ -150,7 +200,6 @@ public class ListeningModel(ISender mediator, IAppDbContext context, IFileStorag
             if (audioFile != null) Form.Questions[i].AudioFile = audioFile;
         }
 
-        // ── Process group-level uploads (Parts 3 & 4) ──
         string? groupImageUrl = Form.ImageUrl;
         if (Form.ImageFile != null && Form.ImageFile.Length > 0)
         {
@@ -183,11 +232,15 @@ public class ListeningModel(ISender mediator, IAppDbContext context, IFileStorag
             }
         }
 
-        // ── Process per-question uploads (optional charts for Part 3/4) ──
+        if (!Form.UseExamFullAudio && string.IsNullOrWhiteSpace(groupAudioUrl))
+        {
+            ValidationErrors.Add("Group audio file is required.");
+            return Page();
+        }
+
         for (int i = 0; i < Form.Questions.Count; i++)
         {
             var q = Form.Questions[i];
-
             if (q.ImageFile != null && q.ImageFile.Length > 0)
             {
                 try
@@ -204,45 +257,90 @@ public class ListeningModel(ISender mediator, IAppDbContext context, IFileStorag
             }
         }
 
-        var cmd = new CreateListeningGroupCommand
-        {
-            ExamId = examId,
-            Group = new CreateListeningGroupDto
-            {
-                Part = Form.Part,
-                Name = Form.Name,
-                Media = new ListeningGroupMediaDto
-                {
-                    AudioUrl = groupAudioUrl,
-                    AudioStartSecond = Form.AudioStartSecond,
-                    AudioEndSecond = Form.AudioEndSecond,
-                    ImageUrl = groupImageUrl,
-                    UseExamFullAudio = Form.UseExamFullAudio
-                },
-                Questions = Form.Questions.Select(q => new ListeningQuestionDto
-                {
-                    QuestionNumber = q.QuestionNumber,
-                    QuestionText = q.QuestionText,
-                    ImageUrl = q.ImageUrl,
-                    CorrectOption = q.CorrectOption,
-                    AudioUrl = q.AudioUrl,
-                    UseExamFullAudio = q.UseExamFullAudio,
-                    AudioStartSecond = q.AudioStartSecond,
-                    AudioEndSecond = q.AudioEndSecond,
-                    Options = new List<ListeningOptionDto>
-                    {
-                        new() { Letter = "A", Text = q.OptionA },
-                        new() { Letter = "B", Text = q.OptionB },
-                        new() { Letter = "C", Text = q.OptionC },
-                        new() { Letter = "D", Text = q.OptionD }
-                    }
-                }).ToList()
-            }
-        };
-
         try
         {
-            var result = await mediator.Send(cmd);
+            if (IsEditMode)
+            {
+                var updateResult = await mediator.Send(new UpdateListeningGroupCommand
+                {
+                    ExamId = examId,
+                    QuestionGroupId = Form.GroupId!.Value,
+                    Group = new UpdateListeningGroupDto
+                    {
+                        Part = Form.Part,
+                        Name = Form.Name,
+                        Media = new ListeningGroupMediaDto
+                        {
+                            AudioUrl = groupAudioUrl,
+                            AudioStartSecond = Form.AudioStartSecond,
+                            AudioEndSecond = Form.AudioEndSecond,
+                            ImageUrl = groupImageUrl,
+                            UseExamFullAudio = Form.UseExamFullAudio
+                        },
+                        Questions = Form.Questions.Select(q => new UpdateListeningGroupQuestionDto
+                        {
+                            Id = q.Id,
+                            QuestionNumber = q.QuestionNumber,
+                            QuestionText = q.QuestionText,
+                            ImageUrl = q.ImageUrl,
+                            CorrectOption = q.CorrectOption,
+                            Options = new List<ListeningOptionDto>
+                            {
+                                new() { Letter = "A", Text = q.OptionA },
+                                new() { Letter = "B", Text = q.OptionB },
+                                new() { Letter = "C", Text = q.OptionC },
+                                new() { Letter = "D", Text = q.OptionD }
+                            }
+                        }).ToList()
+                    }
+                });
+
+                if (updateResult.IsSuccess)
+                {
+                    TempData["SuccessMessage"] = $"Successfully updated listening group '{Form.Name}'.";
+                    return RedirectToPage("/Admin/Exams/Edit", new { id = examId });
+                }
+
+                ErrorMessage = updateResult.Error ?? "Failed to update listening group.";
+                return Page();
+            }
+
+            var result = await mediator.Send(new CreateListeningGroupCommand
+            {
+                ExamId = examId,
+                Group = new CreateListeningGroupDto
+                {
+                    Part = Form.Part,
+                    Name = Form.Name,
+                    Media = new ListeningGroupMediaDto
+                    {
+                        AudioUrl = groupAudioUrl,
+                        AudioStartSecond = Form.AudioStartSecond,
+                        AudioEndSecond = Form.AudioEndSecond,
+                        ImageUrl = groupImageUrl,
+                        UseExamFullAudio = Form.UseExamFullAudio
+                    },
+                    Questions = Form.Questions.Select(q => new ListeningQuestionDto
+                    {
+                        QuestionNumber = q.QuestionNumber,
+                        QuestionText = q.QuestionText,
+                        ImageUrl = q.ImageUrl,
+                        CorrectOption = q.CorrectOption,
+                        AudioUrl = q.AudioUrl,
+                        UseExamFullAudio = q.UseExamFullAudio,
+                        AudioStartSecond = q.AudioStartSecond,
+                        AudioEndSecond = q.AudioEndSecond,
+                        Options = new List<ListeningOptionDto>
+                        {
+                            new() { Letter = "A", Text = q.OptionA },
+                            new() { Letter = "B", Text = q.OptionB },
+                            new() { Letter = "C", Text = q.OptionC },
+                            new() { Letter = "D", Text = q.OptionD }
+                        }
+                    }).ToList()
+                }
+            });
+
             if (result.IsSuccess)
             {
                 TempData["SuccessMessage"] = $"Successfully created listening group '{Form.Name}'.";
@@ -266,6 +364,7 @@ public class ListeningModel(ISender mediator, IAppDbContext context, IFileStorag
 
 public class ListeningFormModel
 {
+    public int? GroupId { get; set; }
     public int Part { get; set; }
     public string Name { get; set; } = string.Empty;
     public bool UseExamFullAudio { get; set; }
@@ -273,15 +372,16 @@ public class ListeningFormModel
     public int? AudioStartSecond { get; set; }
     public int? AudioEndSecond { get; set; }
     public string? ImageUrl { get; set; }
-    
+
     public IFormFile? AudioFile { get; set; }
     public IFormFile? ImageFile { get; set; }
-    
+
     public List<ListeningQuestionFormItem> Questions { get; set; } = new();
 }
 
 public class ListeningQuestionFormItem
 {
+    public int Id { get; set; }
     public int QuestionNumber { get; set; }
     public string? QuestionText { get; set; }
     public string CorrectOption { get; set; } = "A";
@@ -290,11 +390,9 @@ public class ListeningQuestionFormItem
     public string OptionC { get; set; } = string.Empty;
     public string OptionD { get; set; } = string.Empty;
 
-    // Per-question image (Part 1: required, Part 3/4: optional for charts)
     public string? ImageUrl { get; set; }
     public IFormFile? ImageFile { get; set; }
 
-    // Per-question audio (Parts 1 & 2)
     public string? AudioUrl { get; set; }
     public IFormFile? AudioFile { get; set; }
     public bool UseExamFullAudio { get; set; }

@@ -10,6 +10,8 @@
     var totalAttempts = Model.Exams.Sum(e => e.AttemptCount);
 }
 
+<link rel="stylesheet" href="~/css/admin-question-create.css" />
+
 <div class="w-full flex flex-col gap-xl">
     
     <!-- 1. STATS ROW (Bento Grid Style) -->
@@ -128,6 +130,9 @@
                                         </a>
                                         @if (!exam.IsDeleted)
                                         {
+                                            <a href="/Admin/Exams/Edit?id=@exam.Id" class="text-on-surface-variant hover:text-primary p-1 rounded hover:bg-surface-container" title="Edit Exam">
+                                                <span class="material-symbols-outlined text-sm block">edit</span>
+                                            </a>
                                             <button onclick="confirmSoftDelete(@exam.Id, '@exam.Title')" class="text-on-surface-variant hover:text-error p-1 rounded hover:bg-surface-container" title="Hide/Soft Delete">
                                                 <span class="material-symbols-outlined text-sm block">delete</span>
                                             </button>
@@ -177,12 +182,16 @@
     function previewCreateExamAudio(input) {
         const label = document.getElementById('create-exam-audio-name');
         const errorEl = document.getElementById('create-exam-audio-error');
+        const icon = document.getElementById('create-exam-audio-icon');
+        const removeRow = document.getElementById('createExamAudioRemoveRow');
         const maxBytes = 100 * 1024 * 1024;
         if (!label) return;
 
         if (input.files && input.files[0]) {
             const file = input.files[0];
             label.textContent = file.name;
+            if (icon) icon.textContent = 'check_circle';
+            if (removeRow) removeRow.classList.remove('hidden');
             if (errorEl) {
                 if (file.size > maxBytes) {
                     errorEl.textContent = 'File is too large (' + Math.round(file.size / (1024 * 1024)) + ' MB). Maximum is 100 MB.';
@@ -194,11 +203,19 @@
             }
         } else {
             label.textContent = 'Upload one full listening audio file (.mp3)';
+            if (icon) icon.textContent = 'audiotrack';
+            if (removeRow) removeRow.classList.add('hidden');
             if (errorEl) {
                 errorEl.textContent = '';
                 errorEl.classList.add('hidden');
             }
         }
+    }
+
+    function removeCreateExamAudio() {
+        const input = document.getElementById('createExamAudioInput');
+        if (input) input.value = '';
+        previewCreateExamAudio(input || { files: null });
     }
 
     document.getElementById('create-exam-form')?.addEventListener('submit', function (e) {

@@ -9,10 +9,12 @@ namespace AcadPrep.Application.Features.FullTest.Commands.StartFullTest;
 public class StartFullTestCommandHandler : IRequestHandler<StartFullTestCommand, Result<StartFullTestResultDto>>
 {
     private readonly IAppDbContext _context;
+    private readonly ICacheService _cache;
 
-    public StartFullTestCommandHandler(IAppDbContext context)
+    public StartFullTestCommandHandler(IAppDbContext context, ICacheService cache)
     {
         _context = context;
+        _cache = cache;
     }
 
     public async Task<Result<StartFullTestResultDto>> Handle(StartFullTestCommand request, CancellationToken cancellationToken)
@@ -27,15 +29,25 @@ public class StartFullTestCommandHandler : IRequestHandler<StartFullTestCommand,
         }
 
         var inProgress = await _context.ExamAttempts
+            .Include(a => a.AttemptAnswers)
             .FirstOrDefaultAsync(a =>
                 a.ExamId == request.ExamId &&
                 a.UserId == request.UserId &&
                 !a.IsSubmitted, cancellationToken);
 
+        int? abandonedAttemptId = null;
+
         if (inProgress is not null)
         {
-            return Result<StartFullTestResultDto>.Failure(
-                $"You have an unfinished test ({TimeSpan.FromSeconds(inProgress.RemainingTime):hh\\:mm\\:ss} remaining).");
+            if (!request.StartNewAttempt)
+            {
+                return Result<StartFullTestResultDto>.Failure(
+                    $"You have an unfinished test ({TimeSpan.FromSeconds(inProgress.RemainingTime):hh\\:mm\\:ss} remaining).");
+            }
+
+            abandonedAttemptId = inProgress.Id;
+            _context.AttemptAnswers.RemoveRange(inProgress.AttemptAnswers);
+            _context.ExamAttempts.Remove(inProgress);
         }
 
         var hasQuestions = await _context.Questions
@@ -46,11 +58,14 @@ public class StartFullTestCommandHandler : IRequestHandler<StartFullTestCommand,
             return Result<StartFullTestResultDto>.Failure("This exam has no questions yet. Cannot start a full test.");
         }
 
+        // Section timers: Listening 45 min first; Reading 75 min starts after listening ends.
+        const int listeningSeconds = 45 * 60;
+
         var attempt = new ExamAttempt
         {
             UserId = request.UserId,
             ExamId = request.ExamId,
-            RemainingTime = exam.Duration * 60,
+            RemainingTime = listeningSeconds,
             IsSubmitted = false,
             StartedAt = DateTime.UtcNow
         };
@@ -58,10 +73,14 @@ public class StartFullTestCommandHandler : IRequestHandler<StartFullTestCommand,
         _context.ExamAttempts.Add(attempt);
         await _context.SaveChangesAsync(cancellationToken);
 
+        // Attempt history is cached on exam detail — refresh after create/abandon
+        await _cache.RemoveAsync($"ExamDetail_{request.ExamId}_U_{request.UserId}", cancellationToken);
+
         return Result<StartFullTestResultDto>.Success(new StartFullTestResultDto
         {
             AttemptId = attempt.Id,
-            IsResume = false
+            IsResume = false,
+            AbandonedAttemptId = abandonedAttemptId
         });
     }
 }

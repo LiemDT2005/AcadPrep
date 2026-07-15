@@ -2,17 +2,19 @@
 @model AcadPrep.WebUI.Pages.Admin.Exams.Questions.Part7Model
 @{
     Layout = "_ModeratorLayout";
-    ViewData["Title"] = "Create Part 7 Reading Set";
+    var actionVerb = Model.IsEditMode ? "Edit" : "Create";
+    ViewData["Title"] = $"{actionVerb} Part 7 Reading Set";
     var pageHeader = new QuestionPageHeaderViewModel {
         ExamId = Model.ExamId,
         ExamTitle = Model.ExamTitle,
-        Title = "Create Part 7 Reading Set",
+        Title = $"{actionVerb} Part 7 Reading Set",
         Subtitle = "Reading Comprehension — configure passages and comprehension questions.",
         PartBadge = "Part 7 · Reading",
         PartIcon = "menu_book",
         PartBadgeVariant = "tertiary",
-        BreadcrumbCurrent = "Add Part 7"
+        BreadcrumbCurrent = $"{actionVerb} Part 7"
     };
+    var initialPassageCount = Math.Max(1, Model.Form.Passages.Count);
 }
 
 <link rel="stylesheet" href="~/css/admin-question-create.css" />
@@ -43,6 +45,7 @@
 
     <!-- main Form -->
     <form method="post" enctype="multipart/form-data" class="grid grid-cols-1 lg:grid-cols-12 gap-lg items-start" novalidate>
+        <input type="hidden" asp-for="Form.GroupId" />
         
         <!-- Left: Form -->
         <div class="lg:col-span-7 qc-form-card min-h-[400px]">
@@ -62,16 +65,20 @@
                 <div class="flex flex-col gap-2xs">
                     <label class="font-label-md text-label-md text-on-surface font-semibold">Number of Passages (1-3 passages)</label>
                     <div class="flex gap-sm mt-xs">
-                        <button type="button" onclick="setPassageCount(1)" id="btnCount1" class="flex-1 py-3 rounded-lg border font-label-md text-label-md transition-all border-primary bg-primary/10 text-primary font-bold shadow-sm">
+                        <button type="button" onclick="setPassageCount(1)" id="btnCount1" class="flex-1 py-3 rounded-lg border font-label-md text-label-md transition-all border-primary bg-primary/10 text-primary font-bold shadow-sm" @(Model.IsEditMode ? "disabled" : null)>
                             Single Passage (1)
                         </button>
-                        <button type="button" onclick="setPassageCount(2)" id="btnCount2" class="flex-1 py-3 rounded-lg border font-label-md text-label-md transition-all border-outline-variant/30 bg-surface text-on-surface-variant hover:bg-surface-container">
+                        <button type="button" onclick="setPassageCount(2)" id="btnCount2" class="flex-1 py-3 rounded-lg border font-label-md text-label-md transition-all border-outline-variant/30 bg-surface text-on-surface-variant hover:bg-surface-container" @(Model.IsEditMode ? "disabled" : null)>
                             Double Passage (2)
                         </button>
-                        <button type="button" onclick="setPassageCount(3)" id="btnCount3" class="flex-1 py-3 rounded-lg border font-label-md text-label-md transition-all border-outline-variant/30 bg-surface text-on-surface-variant hover:bg-surface-container">
+                        <button type="button" onclick="setPassageCount(3)" id="btnCount3" class="flex-1 py-3 rounded-lg border font-label-md text-label-md transition-all border-outline-variant/30 bg-surface text-on-surface-variant hover:bg-surface-container" @(Model.IsEditMode ? "disabled" : null)>
                             Triple Passage (3)
                         </button>
                     </div>
+                    @if (Model.IsEditMode)
+                    {
+                        <p class="font-body-xs text-body-xs text-on-surface-variant">Passage count is locked while editing. Delete and recreate the set to change structure.</p>
+                    }
                 </div>
 
                 <!-- Nav -->
@@ -115,14 +122,22 @@
                         <input type="hidden" name="Form.Passages[0].DisplayOrder" value="1" />
                         <div class="flex flex-col gap-2xs">
                             <label class="font-label-md text-label-md text-on-surface font-semibold">Passage 1 Content</label>
-                            <textarea name="Form.Passages[0].Content" id="passageText1" rows="8" placeholder="Enter emails, articles, advertisements, etc." class="border border-outline rounded-lg p-2.5 bg-surface text-on-surface focus:outline-none focus:border-primary font-body-md w-full resize-none passage-content-textarea">Dear Mr. Lee, We are writing to confirm...</textarea>
+                            <textarea name="Form.Passages[0].Content" id="passageText1" rows="8" placeholder="Enter emails, articles, advertisements, etc." class="border border-outline rounded-lg p-2.5 bg-surface text-on-surface focus:outline-none focus:border-primary font-body-md w-full resize-none passage-content-textarea">@(Model.Form.Passages.Count > 0 ? Model.Form.Passages[0].Content : "Dear Mr. Lee, We are writing to confirm...")</textarea>
                         </div>
                         <div class="flex flex-col gap-2xs">
                             <label class="font-label-md text-label-md text-on-surface font-semibold">Accompanying Image for Passage 1 (Optional)</label>
-                            <div class="border border-outline-variant rounded-xl p-sm bg-surface flex items-center justify-between">
-                                <input name="Form.Passages[0].ImageFile" type="file" accept="image/*" class="font-body-sm" onchange="previewPassageImage(1, this)" />
+                            <div class="border border-outline-variant rounded-xl p-sm bg-surface flex items-center justify-between gap-sm flex-wrap">
+                                <input name="Form.Passages[0].ImageFile" type="file" accept="image/*" id="passageImageFile1" class="font-body-sm" onchange="previewPassageImage(1, this)" />
+                                <button type="button" id="removePassageImageBtn1" class="qc-btn-remove-media @(Model.Form.Passages.Count > 0 && !string.IsNullOrWhiteSpace(Model.Form.Passages[0].ImageUrl) ? "" : "hidden")" onclick="removePassageImage(1)">
+                                    <span class="material-symbols-outlined">delete</span>
+                                    Remove image
+                                </button>
                             </div>
-                            <input type="hidden" name="Form.Passages[0].ImageUrl" id="passageImageUrl1" />
+                            <div id="passageImagePreview1" class="@(Model.Form.Passages.Count > 0 && !string.IsNullOrWhiteSpace(Model.Form.Passages[0].ImageUrl) ? "" : "hidden") mt-xs text-center">
+                                <img id="passageImagePreviewImg1" src="@(Model.Form.Passages.Count > 0 ? Model.Form.Passages[0].ImageUrl : "")" alt="Passage 1 preview" class="max-h-40 rounded-lg border border-outline-variant/30 object-contain mx-auto" />
+                            </div>
+                            <input type="hidden" name="Form.Passages[0].ImageUrl" id="passageImageUrl1" value="@(Model.Form.Passages.Count > 0 ? Model.Form.Passages[0].ImageUrl : "")" />
+                            <input type="hidden" name="Form.Passages[0].Id" value="@(Model.Form.Passages.Count > 0 ? Model.Form.Passages[0].Id : 0)" />
                         </div>
                     </div>
 
@@ -131,14 +146,22 @@
                         <input type="hidden" name="Form.Passages[1].DisplayOrder" value="2" />
                         <div class="flex flex-col gap-2xs">
                             <label class="font-label-md text-label-md text-on-surface font-semibold">Passage 2 Content</label>
-                            <textarea name="Form.Passages[1].Content" id="passageText2" rows="8" placeholder="Enter content for passage 2..." class="border border-outline rounded-lg p-2.5 bg-surface text-on-surface focus:outline-none focus:border-primary font-body-md w-full resize-none passage-content-textarea"></textarea>
+                            <textarea name="Form.Passages[1].Content" id="passageText2" rows="8" placeholder="Enter content for passage 2..." class="border border-outline rounded-lg p-2.5 bg-surface text-on-surface focus:outline-none focus:border-primary font-body-md w-full resize-none passage-content-textarea">@(Model.Form.Passages.Count > 1 ? Model.Form.Passages[1].Content : "")</textarea>
                         </div>
                         <div class="flex flex-col gap-2xs">
                             <label class="font-label-md text-label-md text-on-surface font-semibold">Accompanying Image for Passage 2 (Optional)</label>
-                            <div class="border border-outline-variant rounded-xl p-sm bg-surface flex items-center justify-between">
-                                <input name="Form.Passages[1].ImageFile" type="file" accept="image/*" class="font-body-sm" onchange="previewPassageImage(2, this)" />
+                            <div class="border border-outline-variant rounded-xl p-sm bg-surface flex items-center justify-between gap-sm flex-wrap">
+                                <input name="Form.Passages[1].ImageFile" type="file" accept="image/*" id="passageImageFile2" class="font-body-sm" onchange="previewPassageImage(2, this)" />
+                                <button type="button" id="removePassageImageBtn2" class="qc-btn-remove-media @(Model.Form.Passages.Count > 1 && !string.IsNullOrWhiteSpace(Model.Form.Passages[1].ImageUrl) ? "" : "hidden")" onclick="removePassageImage(2)">
+                                    <span class="material-symbols-outlined">delete</span>
+                                    Remove image
+                                </button>
                             </div>
-                            <input type="hidden" name="Form.Passages[1].ImageUrl" id="passageImageUrl2" />
+                            <div id="passageImagePreview2" class="@(Model.Form.Passages.Count > 1 && !string.IsNullOrWhiteSpace(Model.Form.Passages[1].ImageUrl) ? "" : "hidden") mt-xs text-center">
+                                <img id="passageImagePreviewImg2" src="@(Model.Form.Passages.Count > 1 ? Model.Form.Passages[1].ImageUrl : "")" alt="Passage 2 preview" class="max-h-40 rounded-lg border border-outline-variant/30 object-contain mx-auto" />
+                            </div>
+                            <input type="hidden" name="Form.Passages[1].ImageUrl" id="passageImageUrl2" value="@(Model.Form.Passages.Count > 1 ? Model.Form.Passages[1].ImageUrl : "")" />
+                            <input type="hidden" name="Form.Passages[1].Id" value="@(Model.Form.Passages.Count > 1 ? Model.Form.Passages[1].Id : 0)" />
                         </div>
                     </div>
 
@@ -147,14 +170,22 @@
                         <input type="hidden" name="Form.Passages[2].DisplayOrder" value="3" />
                         <div class="flex flex-col gap-2xs">
                             <label class="font-label-md text-label-md text-on-surface font-semibold">Passage 3 Content</label>
-                            <textarea name="Form.Passages[2].Content" id="passageText3" rows="8" placeholder="Enter content for passage 3..." class="border border-outline rounded-lg p-2.5 bg-surface text-on-surface focus:outline-none focus:border-primary font-body-md w-full resize-none passage-content-textarea"></textarea>
+                            <textarea name="Form.Passages[2].Content" id="passageText3" rows="8" placeholder="Enter content for passage 3..." class="border border-outline rounded-lg p-2.5 bg-surface text-on-surface focus:outline-none focus:border-primary font-body-md w-full resize-none passage-content-textarea">@(Model.Form.Passages.Count > 2 ? Model.Form.Passages[2].Content : "")</textarea>
                         </div>
                         <div class="flex flex-col gap-2xs">
                             <label class="font-label-md text-label-md text-on-surface font-semibold">Accompanying Image for Passage 3 (Optional)</label>
-                            <div class="border border-outline-variant rounded-xl p-sm bg-surface flex items-center justify-between">
-                                <input name="Form.Passages[2].ImageFile" type="file" accept="image/*" class="font-body-sm" onchange="previewPassageImage(3, this)" />
+                            <div class="border border-outline-variant rounded-xl p-sm bg-surface flex items-center justify-between gap-sm flex-wrap">
+                                <input name="Form.Passages[2].ImageFile" type="file" accept="image/*" id="passageImageFile3" class="font-body-sm" onchange="previewPassageImage(3, this)" />
+                                <button type="button" id="removePassageImageBtn3" class="qc-btn-remove-media @(Model.Form.Passages.Count > 2 && !string.IsNullOrWhiteSpace(Model.Form.Passages[2].ImageUrl) ? "" : "hidden")" onclick="removePassageImage(3)">
+                                    <span class="material-symbols-outlined">delete</span>
+                                    Remove image
+                                </button>
                             </div>
-                            <input type="hidden" name="Form.Passages[2].ImageUrl" id="passageImageUrl3" />
+                            <div id="passageImagePreview3" class="@(Model.Form.Passages.Count > 2 && !string.IsNullOrWhiteSpace(Model.Form.Passages[2].ImageUrl) ? "" : "hidden") mt-xs text-center">
+                                <img id="passageImagePreviewImg3" src="@(Model.Form.Passages.Count > 2 ? Model.Form.Passages[2].ImageUrl : "")" alt="Passage 3 preview" class="max-h-40 rounded-lg border border-outline-variant/30 object-contain mx-auto" />
+                            </div>
+                            <input type="hidden" name="Form.Passages[2].ImageUrl" id="passageImageUrl3" value="@(Model.Form.Passages.Count > 2 ? Model.Form.Passages[2].ImageUrl : "")" />
+                            <input type="hidden" name="Form.Passages[2].Id" value="@(Model.Form.Passages.Count > 2 ? Model.Form.Passages[2].Id : 0)" />
                         </div>
                     </div>
                 </div>
@@ -183,66 +214,88 @@
                     @for (int i = 0; i < Model.Form.Questions.Count; i++)
                     {
                         <div class="p7-question-block border border-outline-variant/30 bg-surface/30 rounded-xl p-md flex flex-col gap-md relative" data-index="@i">
+                            <input type="hidden" asp-for="Form.Questions[i].Id" />
                             <div class="flex justify-between items-center border-b border-outline-variant/20 pb-2xs">
                                 <span class="font-title-sm text-title-sm font-bold text-primary p7-q-label">Question @(i + 1)</span>
-                                <button type="button" onclick="removeP7QuestionBlock(@i)" class="text-error hover:bg-error-container/20 p-1.5 rounded transition-colors flex items-center justify-center text-xs gap-xs p7-remove-btn" title="Remove question">
-                                    <span class="material-symbols-outlined text-sm">delete</span> Remove
-                                </button>
+                                @if (!Model.IsEditMode)
+                                {
+                                    <button type="button" onclick="removeP7QuestionBlock(@i)" class="text-error hover:bg-error-container/20 p-1.5 rounded transition-colors flex items-center justify-center text-xs gap-xs p7-remove-btn" title="Remove question">
+                                        <span class="material-symbols-outlined text-sm">delete</span> Remove
+                                    </button>
+                                }
                             </div>
 
-                            <div class="grid grid-cols-1 md:grid-cols-4 gap-md">
-                                <div class="flex flex-col gap-2xs">
-                                    <label class="font-label-md text-label-md text-on-surface font-semibold">Question Number <span class="text-error">*</span></label>
-                                    <input asp-for="Form.Questions[i].QuestionNumber" type="number" class="border border-outline rounded-lg p-2.5 bg-surface text-on-surface focus:outline-none focus:border-primary font-body-md p7-q-number" required />
+                            <div class="qc-section-stack">
+                                <div class="qc-section">
+                                    <div class="qc-section__header">
+                                        <span class="material-symbols-outlined">subject</span>
+                                        <div>
+                                            <div class="qc-section__title">Question Text</div>
+                                            <div class="qc-section__hint">Prompt shown to learners</div>
+                                        </div>
+                                    </div>
+                                    <div class="grid grid-cols-1 md:grid-cols-4 gap-md">
+                                        <div class="flex flex-col gap-2xs">
+                                            <label class="font-label-md text-label-md text-on-surface font-semibold">Question Number <span class="text-error">*</span></label>
+                                            <input asp-for="Form.Questions[i].QuestionNumber" type="number" class="border border-outline rounded-lg p-2.5 bg-surface text-on-surface focus:outline-none focus:border-primary font-body-md p7-q-number" required />
+                                        </div>
+                                        <div class="flex flex-col gap-2xs md:col-span-3">
+                                            <label class="font-label-md text-label-md text-on-surface font-semibold">Prompt <span class="text-error">*</span></label>
+                                            <input asp-for="Form.Questions[i].QuestionText" type="text" placeholder="Example: What is the main purpose of the interview?" class="border border-outline rounded-lg p-2.5 bg-surface text-on-surface focus:outline-none focus:border-primary font-body-md p7-q-text" required />
+                                        </div>
+                                    </div>
                                 </div>
-                                <div class="flex flex-col gap-2xs md:col-span-3">
-                                    <label class="font-label-md text-label-md text-on-surface font-semibold">Question Text <span class="text-error">*</span></label>
-                                    <input asp-for="Form.Questions[i].QuestionText" type="text" placeholder="Example: What is the main purpose of the interview?" class="border border-outline rounded-lg p-2.5 bg-surface text-on-surface focus:outline-none focus:border-primary font-body-md p7-q-text" required />
-                                </div>
-                            </div>
 
-                            <!-- Options A-D -->
-                            <div class="flex flex-col gap-sm">
-                                <span class="font-label-md text-label-md text-on-surface font-semibold">Options & Correct Answer <span class="text-error">*</span></span>
-                                <div class="grid grid-cols-1 md:grid-cols-2 gap-sm">
-                                    <!-- A -->
-                                    <div class="flex items-center gap-sm">
-                                        <span class="font-label-sm text-label-sm font-bold text-on-surface w-6">A</span>
-                                        <input asp-for="Form.Questions[i].OptionA" type="text" placeholder="Option A" class="border border-outline rounded-lg p-2 bg-surface text-on-surface focus:outline-none focus:border-primary font-body-sm flex-1 p7-opt-a" required />
-                                        <input type="radio" name="Form.Questions[@i].CorrectOption" value="A" class="w-4 h-4 text-primary p7-correct-a" checked />
+                                <div class="qc-section">
+                                    <div class="qc-section__header">
+                                        <span class="material-symbols-outlined">check_circle</span>
+                                        <div>
+                                            <div class="qc-section__title">Answer Options</div>
+                                            <div class="qc-section__hint">Select the radio button to mark the correct answer</div>
+                                        </div>
                                     </div>
-                                    <!-- B -->
-                                    <div class="flex items-center gap-sm">
-                                        <span class="font-label-sm text-label-sm font-bold text-on-surface w-6">B</span>
-                                        <input asp-for="Form.Questions[i].OptionB" type="text" placeholder="Option B" class="border border-outline rounded-lg p-2 bg-surface text-on-surface focus:outline-none focus:border-primary font-body-sm flex-1 p7-opt-b" required />
-                                        <input type="radio" name="Form.Questions[@i].CorrectOption" value="B" class="w-4 h-4 text-primary p7-correct-b" />
+                                    <div class="grid grid-cols-1 md:grid-cols-2 gap-sm">
+                                        <!-- A -->
+                                        <div class="flex items-center gap-sm">
+                                            <span class="font-label-sm text-label-sm font-bold text-on-surface w-6">A</span>
+                                            <input asp-for="Form.Questions[i].OptionA" type="text" placeholder="Option A" class="border border-outline rounded-lg p-2 bg-surface text-on-surface focus:outline-none focus:border-primary font-body-sm flex-1 p7-opt-a" required />
+                                            <input type="radio" name="Form.Questions[@i].CorrectOption" value="A" class="w-4 h-4 text-primary p7-correct-a" checked />
+                                        </div>
+                                        <!-- B -->
+                                        <div class="flex items-center gap-sm">
+                                            <span class="font-label-sm text-label-sm font-bold text-on-surface w-6">B</span>
+                                            <input asp-for="Form.Questions[i].OptionB" type="text" placeholder="Option B" class="border border-outline rounded-lg p-2 bg-surface text-on-surface focus:outline-none focus:border-primary font-body-sm flex-1 p7-opt-b" required />
+                                            <input type="radio" name="Form.Questions[@i].CorrectOption" value="B" class="w-4 h-4 text-primary p7-correct-b" />
+                                        </div>
+                                        <!-- C -->
+                                        <div class="flex items-center gap-sm">
+                                            <span class="font-label-sm text-label-sm font-bold text-on-surface w-6">C</span>
+                                            <input asp-for="Form.Questions[i].OptionC" type="text" placeholder="Option C" class="border border-outline rounded-lg p-2 bg-surface text-on-surface focus:outline-none focus:border-primary font-body-sm flex-1 p7-opt-c" required />
+                                            <input type="radio" name="Form.Questions[@i].CorrectOption" value="C" class="w-4 h-4 text-primary p7-correct-c" />
+                                        </div>
+                                        <!-- D -->
+                                        <div class="flex items-center gap-sm">
+                                            <span class="font-label-sm text-label-sm font-bold text-on-surface w-6 font-bold">D</span>
+                                            <input asp-for="Form.Questions[i].OptionD" type="text" placeholder="Option D" class="border border-outline rounded-lg p-2 bg-surface text-on-surface focus:outline-none focus:border-primary font-body-sm flex-1 p7-opt-d" required />
+                                            <input type="radio" name="Form.Questions[@i].CorrectOption" value="D" class="w-4 h-4 text-primary p7-correct-d" />
+                                        </div>
                                     </div>
-                                    <!-- C -->
-                                    <div class="flex items-center gap-sm">
-                                        <span class="font-label-sm text-label-sm font-bold text-on-surface w-6">C</span>
-                                        <input asp-for="Form.Questions[i].OptionC" type="text" placeholder="Option C" class="border border-outline rounded-lg p-2 bg-surface text-on-surface focus:outline-none focus:border-primary font-body-sm flex-1 p7-opt-c" required />
-                                        <input type="radio" name="Form.Questions[@i].CorrectOption" value="C" class="w-4 h-4 text-primary p7-correct-c" />
-                                    </div>
-                                    <!-- D -->
-                                    <div class="flex items-center gap-sm">
-                                        <span class="font-label-sm text-label-sm font-bold text-on-surface w-6 font-bold">D</span>
-                                        <input asp-for="Form.Questions[i].OptionD" type="text" placeholder="Option D" class="border border-outline rounded-lg p-2 bg-surface text-on-surface focus:outline-none focus:border-primary font-body-sm flex-1 p7-opt-d" required />
-                                        <input type="radio" name="Form.Questions[@i].CorrectOption" value="D" class="w-4 h-4 text-primary p7-correct-d" />
-                                    </div>
+                                    <input type="hidden" asp-for="Form.Questions[i].CorrectOption" id="correctHidden_@(i)" value="A" class="correct-hidden-field" />
                                 </div>
-                                <input type="hidden" asp-for="Form.Questions[i].CorrectOption" id="correctHidden_@(i)" value="A" class="correct-hidden-field" />
                             </div>
                         </div>
                     }
                 </div>
 
-                <!-- Add Button -->
-                <div class="flex justify-center mt-sm">
-                    <button type="button" onclick="addP7QuestionBlock()" class="border border-dashed border-primary/50 text-primary hover:bg-primary/5 font-label-md text-label-md py-2.5 px-6 rounded-lg flex items-center gap-xs transition-colors">
-                        <span class="material-symbols-outlined text-sm">add_circle</span>
-                        Add a Question
-                    </button>
-                </div>
+                @if (!Model.IsEditMode)
+                {
+                    <div class="flex justify-center mt-sm">
+                        <button type="button" onclick="addP7QuestionBlock()" class="border border-dashed border-primary/50 text-primary hover:bg-primary/5 font-label-md text-label-md py-2.5 px-6 rounded-lg flex items-center gap-xs transition-colors">
+                            <span class="material-symbols-outlined text-sm">add_circle</span>
+                            Add a Question
+                        </button>
+                    </div>
+                }
 
                 <!-- Nav -->
                 <div class="flex justify-between border-t border-outline-variant/30 pt-md mt-sm">
@@ -252,7 +305,7 @@
                     </button>
                     <button type="submit" class="bg-tertiary hover:bg-tertiary/90 text-white font-label-md text-label-md py-2.5 px-8 rounded-lg shadow-md transition-all flex items-center gap-xs">
                         <span class="material-symbols-outlined text-sm">check_circle</span>
-                        Save Reading Set
+                        @(Model.IsEditMode ? "Save Changes" : "Save Reading Set")
                     </button>
                 </div>
             </div>
@@ -311,42 +364,59 @@
             </button>
         </div>
 
-        <div class="grid grid-cols-1 md:grid-cols-4 gap-md">
-            <div class="flex flex-col gap-2xs">
-                <label class="qc-label">Question Number <span class="text-error">*</span></label>
-                <input type="number" class="qc-input p7-q-number" required />
+        <div class="qc-section-stack">
+            <div class="qc-section">
+                <div class="qc-section__header">
+                    <span class="material-symbols-outlined">subject</span>
+                    <div>
+                        <div class="qc-section__title">Question Text</div>
+                        <div class="qc-section__hint">Prompt shown to learners</div>
+                    </div>
+                </div>
+                <div class="grid grid-cols-1 md:grid-cols-4 gap-md">
+                    <div class="flex flex-col gap-2xs">
+                        <label class="qc-label">Question Number <span class="text-error">*</span></label>
+                        <input type="number" class="qc-input p7-q-number" required />
+                    </div>
+                    <div class="flex flex-col gap-2xs md:col-span-3">
+                        <label class="qc-label">Prompt <span class="text-error">*</span></label>
+                        <input type="text" placeholder="Example: What is the main purpose of the interview?" class="qc-input p7-q-text" required />
+                    </div>
+                </div>
             </div>
-            <div class="flex flex-col gap-2xs md:col-span-3">
-                <label class="qc-label">Question Text <span class="text-error">*</span></label>
-                <input type="text" placeholder="Example: What is the main purpose of the interview?" class="qc-input p7-q-text" required />
-            </div>
-        </div>
 
-        <div class="flex flex-col gap-sm">
-            <span class="qc-label">Options & Correct Answer <span class="text-error">*</span></span>
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-sm">
-                <div class="qc-option-row">
-                    <span class="qc-option-badge">A</span>
-                    <input type="text" placeholder="Option A" class="p7-opt-a" required />
-                    <input type="radio" value="A" class="p7-correct-a" checked />
+            <div class="qc-section">
+                <div class="qc-section__header">
+                    <span class="material-symbols-outlined">check_circle</span>
+                    <div>
+                        <div class="qc-section__title">Answer Options</div>
+                        <div class="qc-section__hint">Select the radio button to mark the correct answer</div>
+                    </div>
                 </div>
-                <div class="qc-option-row">
-                    <span class="qc-option-badge">B</span>
-                    <input type="text" placeholder="Option B" class="p7-opt-b" required />
-                    <input type="radio" value="B" class="p7-correct-b" />
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-sm">
+                    <div class="qc-option-row">
+                        <span class="qc-option-badge">A</span>
+                        <input type="text" placeholder="Option A" class="p7-opt-a" required />
+                        <input type="radio" value="A" class="p7-correct-a" checked />
+                    </div>
+                    <div class="qc-option-row">
+                        <span class="qc-option-badge">B</span>
+                        <input type="text" placeholder="Option B" class="p7-opt-b" required />
+                        <input type="radio" value="B" class="p7-correct-b" />
+                    </div>
+                    <div class="qc-option-row">
+                        <span class="qc-option-badge">C</span>
+                        <input type="text" placeholder="Option C" class="p7-opt-c" required />
+                        <input type="radio" value="C" class="p7-correct-c" />
+                    </div>
+                    <div class="qc-option-row">
+                        <span class="qc-option-badge">D</span>
+                        <input type="text" placeholder="Option D" class="p7-opt-d" required />
+                        <input type="radio" value="D" class="p7-correct-d" />
+                    </div>
                 </div>
-                <div class="qc-option-row">
-                    <span class="qc-option-badge">C</span>
-                    <input type="text" placeholder="Option C" class="p7-opt-c" required />
-                    <input type="radio" value="C" class="p7-correct-c" />
-                </div>
-                <div class="qc-option-row">
-                    <span class="qc-option-badge">D</span>
-                    <input type="text" placeholder="Option D" class="p7-opt-d" required />
-                    <input type="radio" value="D" class="p7-correct-d" />
-                </div>
+                <input type="hidden" class="correct-hidden-field" value="A" />
             </div>
-            <input type="hidden" class="correct-hidden-field" value="A" />
         </div>
     </div>
 </template>
@@ -355,7 +425,8 @@
 <script src="~/js/admin-question-create.js"></script>
 <script>
     let currentStep = 1;
-    let passageCount = 1;
+    let passageCount = @initialPassageCount;
+    const isEditMode = @(Model.IsEditMode ? "true" : "false");
 
     function validatePassageStep() {
         const checks = [];
@@ -458,14 +529,46 @@
         }
     }
 
+    const passageImageObjectUrls = {};
+
     function previewPassageImage(num, input) {
         const previewImg = document.getElementById('previewPassageImg' + num);
+        const formPreview = document.getElementById('passageImagePreview' + num);
+        const formPreviewImg = document.getElementById('passageImagePreviewImg' + num);
         if (input.files && input.files[0]) {
-            previewImg.src = URL.createObjectURL(input.files[0]);
-            previewImg.classList.remove('hidden');
+            if (passageImageObjectUrls[num]) {
+                try { URL.revokeObjectURL(passageImageObjectUrls[num]); } catch (_) { /* ignore */ }
+            }
+            const url = URL.createObjectURL(input.files[0]);
+            passageImageObjectUrls[num] = url;
+            if (previewImg) {
+                previewImg.src = url;
+                previewImg.classList.remove('hidden');
+            }
+            if (formPreviewImg) formPreviewImg.src = url;
+            if (formPreview) formPreview.classList.remove('hidden');
+            AcadPrepQuestionUI.showMediaRemove('removePassageImageBtn' + num);
         } else {
-            previewImg.classList.add('hidden');
+            if (previewImg) previewImg.classList.add('hidden');
         }
+    }
+
+    function removePassageImage(num) {
+        passageImageObjectUrls[num] = AcadPrepQuestionUI.clearMedia({
+            fileInput: 'passageImageFile' + num,
+            removeBtn: 'removePassageImageBtn' + num,
+            previewContainer: 'passageImagePreview' + num,
+            previewImg: 'passageImagePreviewImg' + num,
+            hiddenUrl: 'passageImageUrl' + num,
+            objectUrl: passageImageObjectUrls[num],
+            onCleared: () => {
+                const previewImg = document.getElementById('previewPassageImg' + num);
+                if (previewImg) {
+                    previewImg.removeAttribute('src');
+                    previewImg.classList.add('hidden');
+                }
+            }
+        });
     }
 
     // Dynamic questions
@@ -703,7 +806,7 @@
         if (form) {
             AcadPrepFormValidation.bindForm(form, { beforeValidate: prepareP7FormForSubmit });
         }
-        setPassageCount(1);
+        setPassageCount(passageCount);
         AcadPrepQuestionUI.setStepperActive(1, 3);
         attachQuestionListeners();
     });

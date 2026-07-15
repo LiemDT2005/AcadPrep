@@ -1,0 +1,16 @@
+@model ExamStructureViewModel
+
+@if (!string.IsNullOrEmpty(Model.SuccessMessage))
+{
+    <div class="bg-tertiary-fixed/20 border border-tertiary text-on-tertiary-fixed-variant rounded-xl p-md flex items-center gap-sm shadow-sm animate-fade-in">
+        <span class="material-symbols-outlined text-tertiary">check_circle</span>
+        <span class="font-body-md">@Model.SuccessMessage</span>
+    </div>
+}
+@if (!string.IsNullOrEmpty(Model.ErrorMessage))
+{
+    <div class="bg-error-container border border-error text-on-error-container rounded-xl p-md flex items-center gap-sm shadow-sm animate-fade-in">
+        <span class="material-symbols-outlined text-error">error</span>
+        <span class="font-body-md">@Model.ErrorMessage</span>
+    </div>
+}

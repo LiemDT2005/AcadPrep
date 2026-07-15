@@ -47,17 +47,47 @@ public class StartPracticeCommandHandler : IRequestHandler<StartPracticeCommand,
             query = query.Where(q => q.TopicTag != null && request.SelectedTags.Contains(q.TopicTag));
         }
 
-        var questionIds = await query.Select(q => q.Id).ToListAsync(cancellationToken);
+        var questions = await query
+            .Select(q => new { q.Id, q.Part, q.QuestionGroupId, q.PassageId, q.QuestionNumber })
+            .ToListAsync(cancellationToken);
 
-        if (!questionIds.Any())
+        if (!questions.Any())
         {
             return Result<int>.Failure("No questions match your selected parts or tags. Please adjust your selection.");
         }
 
-        // Trộn ngẫu nhiên câu hỏi để tăng hiệu quả luyện tập
-        var rnd = new Random();
-        var shuffledIds = questionIds.OrderBy(x => rnd.Next()).ToList();
-        var jsonQuestionsList = JsonSerializer.Serialize(shuffledIds);
+        // Keep Listening groups (3/4), Part 6 passages, and Part 7 reading sets together,
+        // then order units by question number so Next follows the part sequence.
+        var units = new List<(int SortKey, List<int> Ids)>();
+
+        units.AddRange(questions
+            .Where(q => (q.Part is 3 or 4 or 7) && q.QuestionGroupId.HasValue)
+            .GroupBy(q => q.QuestionGroupId!.Value)
+            .Select(g =>
+            {
+                var ordered = g.OrderBy(x => x.QuestionNumber).ToList();
+                return (ordered[0].QuestionNumber, ordered.Select(x => x.Id).ToList());
+            }));
+
+        units.AddRange(questions
+            .Where(q => q.Part == 6 && q.PassageId.HasValue)
+            .GroupBy(q => q.PassageId!.Value)
+            .Select(g =>
+            {
+                var ordered = g.OrderBy(x => x.QuestionNumber).ToList();
+                return (ordered[0].QuestionNumber, ordered.Select(x => x.Id).ToList());
+            }));
+
+        units.AddRange(questions
+            .Where(q => !((q.Part is 3 or 4 or 7) && q.QuestionGroupId.HasValue)
+                        && !(q.Part == 6 && q.PassageId.HasValue))
+            .Select(q => (q.QuestionNumber, new List<int> { q.Id })));
+
+        var orderedIds = units
+            .OrderBy(u => u.SortKey)
+            .SelectMany(u => u.Ids)
+            .ToList();
+        var jsonQuestionsList = JsonSerializer.Serialize(orderedIds);
 
         // 5. Khởi tạo phiên luyện tập mới
         var session = new PracticeSession
