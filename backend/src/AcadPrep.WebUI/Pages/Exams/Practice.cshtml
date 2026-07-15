@@ -1,7 +1,6 @@
 @page
 @model AcadPrep.WebUI.Pages.Exams.PracticeModel
 @using System.Text.Json
-@using System.Text.Json.Serialization
 @{
     Layout = null;
     var session = Model.Session!;
@@ -16,63 +15,104 @@
     <title>Practice — @session.ExamTitle | AcadPrep</title>
     <partial name="Shared/_ExamTestAssets" />
 </head>
-<body class="bg-surface font-body-md text-on-surface min-h-screen flex flex-col">
+<body class="bg-surface font-body-md text-on-surface h-screen overflow-hidden flex flex-col">
 
-    <header class="sticky top-0 z-40 bg-surface-container-lowest border-b border-outline-variant/30 shadow-sm">
-        <div class="mx-auto px-6 py-3">
-            <div class="flex flex-wrap items-center justify-between gap-3">
-                <div class="flex items-center gap-3 min-w-0">
-                    <span class="shrink-0 px-2.5 py-1 rounded-lg bg-secondary text-on-secondary text-label-sm font-bold uppercase">Practice</span>
-                    <h1 class="font-headline-sm font-semibold truncate">@session.ExamTitle</h1>
-                </div>
-                <div class="flex items-center gap-4">
-                    <span id="current-part-label" class="text-body-sm text-on-surface-variant">Part @session.SelectedParts.FirstOrDefault()</span>
-                    @if (session.TimeLimitMinutes.HasValue)
-                    {
-                        <span id="exam-timer" class="font-mono text-headline-sm font-bold tabular-nums text-secondary">--:--</span>
-                    }
-                    <button id="btn-submit" type="button" class="bg-secondary hover:bg-secondary-container text-on-secondary font-label-sm font-bold px-5 py-2.5 rounded-xl flex items-center gap-1">
-                        <span class="material-symbols-outlined text-lg">send</span> Submit
-                    </button>
-                    <button id="btn-exit" type="button" class="text-body-sm text-on-surface-variant hover:text-secondary" data-exit-url="/Exams/Detail/@session.ExamId">Exit</button>
-                </div>
+    <header class="shrink-0 z-40 bg-[#1a237e] text-white shadow-md">
+        <div class="px-4 py-2.5 flex flex-wrap items-center justify-between gap-3">
+            <div class="flex items-center gap-3 min-w-0">
+                <button id="btn-sidebar-toggle" type="button" class="shrink-0 w-10 h-10 rounded-lg bg-white/10 hover:bg-white/20 flex items-center justify-center" title="Question list" aria-label="Toggle question list">
+                    <span class="material-symbols-outlined">menu</span>
+                </button>
+                <span class="shrink-0 px-2.5 py-1 rounded-md bg-[#ff8d4b] text-[#5c2e00] text-label-sm font-bold uppercase tracking-wide">Practice</span>
+                <h1 class="font-headline-sm font-semibold truncate text-white/95">@session.ExamTitle</h1>
             </div>
-            <div class="mt-2 flex flex-wrap gap-2">
-                @foreach (var p in session.SelectedParts)
+            <div class="flex items-center gap-3">
+                <span id="current-part-label" class="text-body-sm text-white/80 hidden sm:inline">Part @session.SelectedParts.FirstOrDefault()</span>
+                @if (session.TimeLimitMinutes.HasValue)
                 {
-                    <span class="px-2 py-0.5 rounded-md bg-secondary/10 text-secondary text-label-sm font-bold">@p</span>
+                    <span id="exam-timer" class="font-mono text-lg font-bold tabular-nums bg-[#4fc3f7] text-[#0d47a1] px-3 py-1.5 rounded-md">--:--</span>
                 }
+                <button id="btn-submit" type="button" class="bg-[#ff6d00] hover:bg-[#e65100] text-white font-label-sm font-bold px-5 py-2.5 rounded-lg flex items-center gap-1">
+                    <span class="material-symbols-outlined text-lg">send</span> Submit
+                </button>
+                <button id="btn-exit" type="button" class="text-body-sm text-white/80 hover:text-white" data-exit-url="/Exams/Detail/@session.ExamId">Exit</button>
             </div>
+        </div>
+        <div class="px-4 pb-2 flex flex-wrap gap-1.5">
+            @foreach (var p in session.SelectedParts)
+            {
+                <span class="px-2 py-0.5 rounded-md bg-white/15 text-white text-label-sm font-bold">Part @p</span>
+            }
         </div>
     </header>
 
-    <main class="flex-1 mx-auto w-full px-6 py-6 flex flex-col gap-6">
-        <section id="audio-section" class="bg-surface-container-low rounded-2xl border border-outline-variant/30 p-4 hidden">
-            <audio id="exam-audio" class="w-full" controls preload="auto"></audio>
-            <p class="text-body-sm text-on-surface-variant mt-2">Practice mode — play, pause, and seek are allowed.</p>
-        </section>
-
-        <section class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            <div class="bg-surface-container-lowest rounded-2xl border border-outline-variant/30 p-6 min-h-[200px]">
-                <span id="question-label" class="text-label-sm font-bold text-secondary mb-2 block">Question 1</span>
-                <div id="question-image-wrap" class="hidden mb-4">
-                    <img id="question-image" alt="Question" class="max-h-64 rounded-xl mx-auto" />
+    <div class="flex-1 flex min-h-0 relative">
+        <aside id="question-sidebar" class="exam-sidebar absolute inset-y-0 left-0 z-30 w-[300px] max-w-[90vw] bg-white border-r border-outline-variant/40 shadow-2xl flex flex-col -translate-x-full transition-transform duration-200">
+            <div class="shrink-0 px-4 py-3 border-b border-outline-variant/30 flex items-center justify-between">
+                <div>
+                    <h2 class="font-headline-sm font-semibold">Questions</h2>
+                    <p class="text-body-sm text-on-surface-variant"><span id="answered-count">0</span> / @session.Questions.Count answered</p>
                 </div>
-                <p id="question-text" class="text-body-md"></p>
+                <button id="btn-sidebar-close" type="button" class="w-8 h-8 rounded-lg hover:bg-surface-container flex items-center justify-center">
+                    <span class="material-symbols-outlined">close</span>
+                </button>
             </div>
-            <div id="options-container" class="space-y-3"></div>
-        </section>
+            <div id="question-palette" class="flex-1 overflow-y-auto p-3 space-y-4"></div>
+        </aside>
+        <div id="sidebar-backdrop" class="exam-sidebar-backdrop absolute inset-0 z-20 bg-black/30 hidden"></div>
 
-        <div class="flex items-center justify-between">
-            <button id="btn-prev" type="button" class="px-4 py-2 rounded-xl hover:bg-surface-container">← Prev</button>
-            <span class="text-body-sm">Q <span id="current-q-num">1</span> / <span id="total-q-num">@session.Questions.Count</span></span>
-            <button id="btn-next" type="button" class="px-4 py-2 rounded-xl bg-surface-container font-medium">Next →</button>
-        </div>
+        <main class="flex-1 min-w-0 min-h-0 overflow-y-auto relative">
+            <div id="exam-workspace" class="h-full flex flex-col p-4 md:p-6 gap-4">
+                <div class="flex items-center justify-between shrink-0">
+                    <span id="question-label" class="text-label-sm font-bold text-secondary">Question 1</span>
+                    <span class="px-3 py-1 rounded-md bg-[#ff6d00] text-white text-label-sm font-bold tabular-nums">
+                        <span id="answered-count-badge">0</span>/<span id="total-q-num">@session.Questions.Count</span>
+                    </span>
+                </div>
 
-        <section class="bg-surface-container-lowest rounded-2xl border border-outline-variant/30 p-4">
-            <div id="question-palette" class="grid gap-1" style="grid-template-columns: repeat(10, minmax(28px, 1fr));"></div>
-        </section>
-    </main>
+                <section id="audio-section" class="shrink-0 bg-surface-container-low rounded-xl border border-outline-variant/30 p-3 hidden">
+                    @* Hidden media element — clip progress is shown via custom segment controls *@
+                    <audio id="exam-audio" class="hidden" preload="auto" controlsList="nodownload noplaybackrate"></audio>
+                    <div id="audio-player-ui" class="flex items-center gap-3">
+                        <button id="audio-play-btn" type="button" class="shrink-0 w-11 h-11 rounded-full bg-secondary text-on-secondary flex items-center justify-center hover:opacity-90" title="Play / Pause" aria-label="Play or pause audio segment">
+                            <span id="audio-play-icon" class="material-symbols-outlined text-[28px]">play_arrow</span>
+                        </button>
+                        <div class="flex-1 min-w-0">
+                            <div id="audio-progress-track" class="h-2 rounded-full bg-outline-variant/40 cursor-pointer relative" role="slider" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0" tabindex="0" title="Seek within segment">
+                                <div id="audio-progress-fill" class="absolute inset-y-0 left-0 rounded-full bg-secondary w-0"></div>
+                            </div>
+                            <div class="flex items-center justify-between mt-1.5 gap-2">
+                                <span id="audio-time-current" class="text-body-sm font-mono text-on-surface-variant tabular-nums">00:00</span>
+                                <span id="audio-time-range" class="text-body-sm text-on-surface-variant truncate">Segment</span>
+                                <span id="audio-time-duration" class="text-body-sm font-mono text-on-surface-variant tabular-nums">00:00</span>
+                            </div>
+                        </div>
+                    </div>
+                    <p class="text-body-sm text-on-surface-variant mt-2">Practice mode — only this question’s audio segment is shown. Play, pause, and seek within the clip.</p>
+                </section>
+
+                <section class="flex-1 min-h-0 grid grid-cols-1 lg:grid-cols-2 gap-0 rounded-xl border border-outline-variant/30 overflow-hidden bg-surface-container-lowest">
+                    <div class="p-5 md:p-6 min-h-[200px] overflow-y-auto border-b lg:border-b-0 lg:border-r-4 lg:border-r-secondary/40">
+                        <div id="question-image-wrap" class="hidden mb-4">
+                            <img id="question-image" alt="Question" class="max-h-80 rounded-lg mx-auto" />
+                        </div>
+                        <div id="question-text" class="text-body-md whitespace-pre-wrap"></div>
+                    </div>
+                    <div id="options-container" class="p-5 md:p-6 space-y-3 overflow-y-auto"></div>
+                </section>
+
+                <div class="flex items-center justify-between shrink-0 py-1">
+                    <button id="btn-prev" type="button" class="flex items-center gap-1 px-4 py-2.5 rounded-xl border border-outline-variant/40 hover:bg-surface-container font-medium">
+                        <span class="material-symbols-outlined">arrow_back</span> Prev
+                    </button>
+                    <span class="text-body-sm font-medium">Q <span id="current-q-num">1</span> / <span id="total-q-num-nav">@session.Questions.Count</span></span>
+                    <button id="btn-next" type="button" class="flex items-center gap-1 px-4 py-2.5 rounded-xl bg-secondary text-on-secondary font-medium hover:bg-secondary-container">
+                        Next <span class="material-symbols-outlined">arrow_forward</span>
+                    </button>
+                </div>
+            </div>
+        </main>
+    </div>
 
     <div id="modal-submit" class="hidden fixed inset-0 z-50 flex items-center justify-center p-4 bg-on-surface/40 backdrop-blur-sm">
         <div class="bg-surface-container-lowest rounded-2xl max-w-md w-full p-6 space-y-4">

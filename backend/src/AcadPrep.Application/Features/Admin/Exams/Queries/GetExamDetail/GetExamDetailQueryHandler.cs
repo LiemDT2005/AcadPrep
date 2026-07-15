@@ -17,6 +17,7 @@ internal sealed class GetExamDetailQueryHandler(IAppDbContext context)
     {
         var exam = await context.Exams
             .IgnoreQueryFilters()
+            .Include(x => x.ExamSeries)
             .Include(x => x.Questions)
                 .ThenInclude(q => q.QuestionOptions)
             .Include(x => x.Questions)
@@ -40,8 +41,14 @@ internal sealed class GetExamDetailQueryHandler(IAppDbContext context)
             Title = exam.Title,
             Description = exam.Description,
             Duration = exam.Duration,
+            ExamSeriesId = exam.ExamSeriesId,
+            ExamSeriesName = exam.ExamSeries != null
+                ? $"{exam.ExamSeries.Name} ({exam.ExamSeries.Year})"
+                : null,
+            AudioUrl = exam.AudioUrl,
             IsDeleted = exam.IsDeleted,
             CreatedAt = exam.CreatedAt,
+            LastModifiedAt = exam.LastModifiedAt,
             AttemptCount = exam.ExamAttempts.Count,
             Questions = exam.Questions
                 .OrderBy(q => q.QuestionNumber)

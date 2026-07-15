@@ -79,9 +79,15 @@
                     Full Exam Audio (Optional)
                 </label>
                 <div class="border-2 border-dashed border-outline-variant rounded-xl p-md text-center flex flex-col items-center justify-center bg-surface/10 hover:bg-surface/20 transition-all cursor-pointer relative">
-                    <input asp-for="CreateExamForm.AudioFile" type="file" accept="audio/*" class="absolute inset-0 opacity-0 cursor-pointer" onchange="previewCreateExamAudio(this)" />
-                    <span class="material-symbols-outlined text-headline-lg text-outline-variant mb-xs">audiotrack</span>
+                    <input asp-for="CreateExamForm.AudioFile" type="file" accept="audio/*" id="createExamAudioInput" class="absolute inset-0 opacity-0 cursor-pointer" onchange="previewCreateExamAudio(this)" />
+                    <span class="material-symbols-outlined text-headline-lg text-outline-variant mb-xs" id="create-exam-audio-icon">audiotrack</span>
                     <p class="font-body-sm text-body-sm text-on-surface" id="create-exam-audio-name">Upload one full listening audio file (.mp3)</p>
+                </div>
+                <div id="createExamAudioRemoveRow" class="qc-media-toolbar hidden">
+                    <button type="button" id="removeCreateExamAudioBtn" class="qc-btn-remove-media" onclick="removeCreateExamAudio()">
+                        <span class="material-symbols-outlined">delete</span>
+                        Remove audio
+                    </button>
                 </div>
                 <p class="font-body-xs text-body-xs text-on-surface-variant">
                     If provided, listening questions will use time segments from this file instead of uploading separate audio per question — lighter and faster to set up. Max file size: 100 MB.

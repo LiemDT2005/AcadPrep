@@ -8,4 +8,5 @@ public class UpdateExamDto
     public int Duration { get; set; }
     public int ExamSeriesId { get; set; }
     public string? AudioUrl { get; set; }
+    public bool ClearAudio { get; set; }
 }

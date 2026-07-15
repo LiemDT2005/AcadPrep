@@ -1,0 +1,91 @@
+@model ExamPageHeroViewModel
+@{
+    var exam = Model.Exam;
+}
+
+<nav class="qc-breadcrumb" aria-label="Breadcrumb">
+    <a href="/Admin/Exams">Exams</a>
+    <span class="material-symbols-outlined text-[14px]">chevron_right</span>
+    <span class="qc-breadcrumb-current">@Model.BreadcrumbCurrent</span>
+</nav>
+
+<div class="qc-page-hero-block">
+    <a href="/Admin/Exams" class="qc-back-link">
+        <span class="material-symbols-outlined text-[18px]">arrow_back</span>
+        Back to Exams
+    </a>
+    <div class="qc-page-hero">
+        <div class="flex flex-col lg:flex-row lg:items-start lg:justify-between gap-md">
+            <div class="flex items-start gap-md">
+                <div class="hidden sm:flex w-12 h-12 rounded-xl bg-primary/10 items-center justify-center flex-shrink-0">
+                    <span class="material-symbols-outlined text-primary text-[28px]">@Model.HeroIcon</span>
+                </div>
+                <div>
+                    <div class="flex items-center gap-sm flex-wrap">
+                        <span class="font-label-sm text-label-sm text-outline-variant font-semibold">EXAM ID: #@exam.Id</span>
+                        @if (exam.IsDeleted)
+                        {
+                            <span class="bg-error-container text-on-error-container px-2 py-0.5 rounded-full font-label-sm text-label-sm flex items-center gap-xs">
+                                <span class="material-symbols-outlined text-xs">visibility_off</span>
+                                Hidden
+                            </span>
+                        }
+                        else
+                        {
+                            <span class="bg-tertiary-fixed text-on-tertiary-fixed-variant px-2 py-0.5 rounded-full font-label-sm text-label-sm flex items-center gap-xs">
+                                <span class="material-symbols-outlined text-xs">visibility</span>
+                                Public
+                            </span>
+                        }
+                    </div>
+                    <h1 class="font-headline-lg text-headline-lg font-bold text-on-surface mt-2xs">@exam.Title</h1>
+                    @if (!string.IsNullOrEmpty(exam.Description))
+                    {
+                        <p class="font-body-md text-body-md text-on-surface-variant mt-sm max-w-2xl">@exam.Description</p>
+                    }
+                    else if (Model.IsReadOnly)
+                    {
+                        <p class="font-body-sm text-body-sm text-on-surface-variant/70 italic mt-sm">No description available for this exam.</p>
+                    }
+                    <div class="flex items-center gap-sm mt-sm flex-wrap">
+                        <span class="qc-part-badge qc-part-badge--primary">
+                            <span class="material-symbols-outlined text-[14px]">schedule</span>
+                            @exam.Duration minutes
+                        </span>
+                        <span class="qc-part-badge qc-part-badge--tertiary">
+                            <span class="material-symbols-outlined text-[14px]">quiz</span>
+                            @Model.TotalQuestions questions
+                        </span>
+                        @if (!string.IsNullOrEmpty(exam.ExamSeriesName))
+                        {
+                            <span class="qc-part-badge">
+                                <span class="material-symbols-outlined text-[14px]">folder</span>
+                                @exam.ExamSeriesName
+                            </span>
+                        }
+                    </div>
+                </div>
+            </div>
+            <div class="flex gap-sm self-start flex-wrap">
+                @if (Model.IsReadOnly)
+                {
+                    @if (!exam.IsDeleted)
+                    {
+                        <a href="/Admin/Exams/Edit?id=@exam.Id" class="qc-btn-primary">
+                            <span class="material-symbols-outlined text-[18px]">edit</span>
+                            Edit Exam
+                        </a>
+                    }
+                }
+                else
+                {
+                    <a href="/Admin/Exams/Detail?id=@exam.Id" class="qc-btn-ghost">View Details</a>
+                    <button type="button" onclick="openPartPicker()" class="qc-btn-primary">
+                        <span class="material-symbols-outlined text-[18px]">add_circle</span>
+                        Add Content
+                    </button>
+                }
+            </div>
+        </div>
+    </div>
+</div>

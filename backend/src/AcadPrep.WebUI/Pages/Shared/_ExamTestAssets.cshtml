@@ -9,9 +9,12 @@
     ::-webkit-scrollbar { width: 8px; height: 8px; }
     ::-webkit-scrollbar-track { background: #f1f1f1; }
     ::-webkit-scrollbar-thumb { background: #c7c4d8; border-radius: 10px; }
-    .exam-timer-warning { color: #ba1a1a; animation: pulse 1s ease-in-out infinite; }
+    .exam-timer-warning { color: #ba1a1a !important; animation: pulse 1s ease-in-out infinite; }
     @@keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.65; } }
-    .q-cell { min-width: 28px; height: 28px; font-size: 10px; }
+    .q-cell { min-width: 32px; width: 32px; height: 32px; font-size: 11px; }
+    #section-intro { position: absolute; inset: 0; }
+    main { position: relative; }
+    .exam-sidebar.is-open { transform: translateX(0) !important; }
 </style>
 <script id="tailwind-config">
     tailwind.config = {

@@ -2,16 +2,17 @@
 @model AcadPrep.WebUI.Pages.Admin.Exams.Questions.Part6Model
 @{
     Layout = "_ModeratorLayout";
-    ViewData["Title"] = "Create Part 6 Passage";
+    var actionVerb = Model.IsEditMode ? "Edit" : "Create";
+    ViewData["Title"] = $"{actionVerb} Part 6 Passage";
     var pageHeader = new QuestionPageHeaderViewModel {
         ExamId = Model.ExamId,
         ExamTitle = Model.ExamTitle,
-        Title = "Create Part 6 Passage",
+        Title = $"{actionVerb} Part 6 Passage",
         Subtitle = "Text Completion — enter a passage with 4 blanks and configure answer options for each.",
         PartBadge = "Part 6 · Reading",
         PartIcon = "article",
         PartBadgeVariant = "tertiary",
-        BreadcrumbCurrent = "Add Part 6"
+        BreadcrumbCurrent = $"{actionVerb} Part 6"
     };
 }
 
@@ -38,6 +39,7 @@
 
     <!-- main Form -->
     <form method="post" enctype="multipart/form-data" class="grid grid-cols-1 lg:grid-cols-12 gap-lg items-start" novalidate>
+        <input type="hidden" asp-for="Form.PassageId" />
         
         <!-- Left: Wizard Step Form -->
         <div class="lg:col-span-7 qc-form-card min-h-[400px]">
@@ -82,13 +84,24 @@
                 <!-- Image passage -->
                 <div class="flex flex-col gap-2xs hidden" id="imagePassageSection">
                     <label class="font-label-md text-label-md text-on-surface font-semibold">Passage Image <span class="text-error">*</span></label>
-                    <div class="border border-outline-variant rounded-xl p-sm bg-surface flex items-center justify-between">
+                    <div class="border border-outline-variant rounded-xl p-sm bg-surface">
                         <input asp-for="Form.ImageFile" type="file" accept="image/*" id="passageImageInput" class="font-body-sm" onchange="previewPassageImage(this)" />
                     </div>
-                    <div id="passageImagePreview" class="hidden mt-xs text-center">
-                        <img id="passageImagePreviewImg" src="" alt="Passage preview" class="max-h-56 rounded-lg border border-outline-variant/30 shadow-sm object-contain mx-auto" />
+                    <div id="passageImagePreview" class="@(string.IsNullOrWhiteSpace(Model.Form.ImageUrl) ? "hidden" : "")">
+                        <div class="qc-media-preview">
+                            <img id="passageImagePreviewImg" src="@(Model.Form.ImageUrl ?? "")" alt="Passage preview" />
+                            <button type="button" class="qc-btn-remove-media qc-btn-remove-media--chip" onclick="removePassageImage()" title="Remove image" aria-label="Remove image">
+                                <span class="material-symbols-outlined">close</span>
+                            </button>
+                        </div>
+                        <div class="qc-media-actions">
+                            <button type="button" id="removePassageImageBtn" class="qc-btn-remove-media" onclick="removePassageImage()">
+                                <span class="material-symbols-outlined">delete</span>
+                                Remove image
+                            </button>
+                        </div>
                     </div>
-                    <input asp-for="Form.ImageUrl" type="hidden" />
+                    <input asp-for="Form.ImageUrl" type="hidden" id="passageImageUrlField" />
                 </div>
 
                 <!-- Nav -->
@@ -112,6 +125,7 @@
                     @for (int i = 0; i < 4; i++)
                     {
                         <div class="qc-question-block">
+                            <input type="hidden" asp-for="Form.Questions[i].Id" />
                             <div class="flex justify-between items-center qc-question-block__title">
                                 <span>Options for Blank @(i + 1)</span>
                                 <div class="flex items-center gap-xs">
@@ -124,25 +138,25 @@
                                 <div class="qc-option-row">
                                     <span class="qc-option-badge">A</span>
                                     <input asp-for="Form.Questions[i].OptionA" type="text" placeholder="Option A" class="opt-input-a" required />
-                                    <input type="radio" name="Form.Questions[@i].CorrectOption" value="A" class="opt-radio-a" checked />
+                                    <input type="radio" name="Form.Questions[@i].CorrectOption" value="A" class="opt-radio-a" @(Model.Form.Questions[i].CorrectOption == "A" ? "checked" : null) />
                                 </div>
                                 <div class="qc-option-row">
                                     <span class="qc-option-badge">B</span>
                                     <input asp-for="Form.Questions[i].OptionB" type="text" placeholder="Option B" class="opt-input-b" required />
-                                    <input type="radio" name="Form.Questions[@i].CorrectOption" value="B" class="opt-radio-b" />
+                                    <input type="radio" name="Form.Questions[@i].CorrectOption" value="B" class="opt-radio-b" @(Model.Form.Questions[i].CorrectOption == "B" ? "checked" : null) />
                                 </div>
                                 <div class="qc-option-row">
                                     <span class="qc-option-badge">C</span>
                                     <input asp-for="Form.Questions[i].OptionC" type="text" placeholder="Option C" class="opt-input-c" required />
-                                    <input type="radio" name="Form.Questions[@i].CorrectOption" value="C" class="opt-radio-c" />
+                                    <input type="radio" name="Form.Questions[@i].CorrectOption" value="C" class="opt-radio-c" @(Model.Form.Questions[i].CorrectOption == "C" ? "checked" : null) />
                                 </div>
                                 <div class="qc-option-row">
                                     <span class="qc-option-badge">D</span>
                                     <input asp-for="Form.Questions[i].OptionD" type="text" placeholder="Option D" class="opt-input-d" required />
-                                    <input type="radio" name="Form.Questions[@i].CorrectOption" value="D" class="opt-radio-d" />
+                                    <input type="radio" name="Form.Questions[@i].CorrectOption" value="D" class="opt-radio-d" @(Model.Form.Questions[i].CorrectOption == "D" ? "checked" : null) />
                                 </div>
                             </div>
-                            <input type="hidden" asp-for="Form.Questions[i].CorrectOption" id="correctHidden_@(i)" value="A" />
+                            <input type="hidden" asp-for="Form.Questions[i].CorrectOption" id="correctHidden_@(i)" />
                         </div>
                     }
                 </div>
@@ -155,7 +169,7 @@
                     </button>
                     <button type="submit" class="qc-btn-primary" style="background:#005338">
                         <span class="material-symbols-outlined text-sm">check_circle</span>
-                        Save Passage
+                        @(Model.IsEditMode ? "Save Changes" : "Save Passage")
                     </button>
                 </div>
             </div>
@@ -337,6 +351,20 @@
             updatePreview();
         };
         reader.readAsDataURL(input.files[0]);
+    }
+
+    function removePassageImage() {
+        AcadPrepQuestionUI.clearMedia({
+            fileInput: 'passageImageInput',
+            previewContainer: 'passageImagePreview',
+            previewImg: 'passageImagePreviewImg',
+            hiddenUrl: 'passageImageUrlField',
+            onCleared: () => {
+                const imageInput = document.getElementById('passageImageInput');
+                if (imageInput) imageInput.required = true;
+                updatePreview();
+            }
+        });
     }
 
     window.addEventListener('DOMContentLoaded', () => {

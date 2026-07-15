@@ -5,17 +5,20 @@
     var partLabel = Model.IsPart1 ? "Part 1: Photographs" : "Part 2: Question-Response";
     var partBadge = Model.IsPart1 ? "Part 1 · Listening" : "Part 2 · Listening";
     var partIcon = Model.IsPart1 ? "photo_camera" : "hearing";
-    var subtitle = (Model.IsPart1 ? "Upload one photograph" : "Configure one question-response item") + (Model.HasExamFullAudio ? " and specify its audio segment from the exam file." : " and its audio clip.");
-    ViewData["Title"] = $"Add {partLabel}";
+    var actionVerb = Model.IsEditMode ? "Edit" : "Create";
+    var subtitle = Model.IsEditMode
+        ? "Update question text, options, and media."
+        : (Model.IsPart1 ? "Upload one photograph" : "Configure one question-response item") + (Model.HasExamFullAudio ? " and specify its audio segment from the exam file." : " and its audio clip.");
+    ViewData["Title"] = $"{actionVerb} {partLabel}";
     var pageHeader = new QuestionPageHeaderViewModel {
         ExamId = Model.ExamId,
         ExamTitle = Model.ExamTitle,
-        Title = $"Create {partLabel} Question",
+        Title = $"{actionVerb} {partLabel} Question",
         Subtitle = subtitle,
         PartBadge = partBadge,
         PartIcon = partIcon,
         PartBadgeVariant = "secondary",
-        BreadcrumbCurrent = $"Add {partLabel}"
+        BreadcrumbCurrent = $"{actionVerb} {partLabel}"
     };
 }
 
@@ -29,6 +32,7 @@
     <div class="grid grid-cols-1 lg:grid-cols-12 gap-lg items-start">
         <form method="post" enctype="multipart/form-data" class="lg:col-span-7 qc-form-card" novalidate>
             <input type="hidden" asp-for="Form.Part" />
+            <input type="hidden" asp-for="Form.EditId" />
 
             <section class="qc-section">
                 <div class="qc-section__header">
@@ -42,140 +46,173 @@
                 <input asp-for="Form.QuestionNumber" type="number" id="inputQNumber" class="qc-input max-w-xs" required />
             </section>
 
-            @if (Model.IsPart1)
-            {
+            <div class="qc-section-stack">
+                @if (Model.IsPart1)
+                {
+                    <section class="qc-section">
+                        <div class="qc-section__header">
+                            <span class="material-symbols-outlined">photo_camera</span>
+                            <div>
+                                <div class="qc-section__title">Photograph Image</div>
+                                <div class="qc-section__hint">Upload a clear image for this question</div>
+                            </div>
+                        </div>
+                        <div class="qc-upload-zone flex flex-col items-center justify-center" id="imageUploadZone">
+                            @if (Model.IsEditMode && !string.IsNullOrWhiteSpace(Model.Form.ImageUrl))
+                            {
+                                <input asp-for="Form.ImageFile" type="file" accept="image/*" id="photographImageInput" onchange="previewPhotographImage(this)" />
+                            }
+                            else
+                            {
+                                <input asp-for="Form.ImageFile" type="file" accept="image/*" id="photographImageInput" onchange="previewPhotographImage(this)" required />
+                            }
+                            <span class="material-symbols-outlined text-headline-lg text-outline-variant mb-xs" id="imageUploadIcon">image</span>
+                            <p class="font-body-sm text-body-sm text-on-surface" id="imageUploadName">Click to select a photograph (.jpg, .png)</p>
+                        </div>
+                        <div id="imagePreviewContainer" class="@(string.IsNullOrWhiteSpace(Model.Form.ImageUrl) ? "hidden" : "")">
+                            <div class="qc-media-preview">
+                                <img id="imagePreview" src="@(Model.Form.ImageUrl ?? "")" alt="Photograph preview" />
+                                <button type="button" id="removePhotographBtn" class="qc-btn-remove-media qc-btn-remove-media--chip" onclick="removePhotographImage()" title="Remove image" aria-label="Remove image">
+                                    <span class="material-symbols-outlined">close</span>
+                                </button>
+                            </div>
+                            <div class="qc-media-actions">
+                                <button type="button" class="qc-btn-remove-media" onclick="removePhotographImage()">
+                                    <span class="material-symbols-outlined">delete</span>
+                                    Remove image
+                                </button>
+                            </div>
+                        </div>
+                        <input asp-for="Form.ImageUrl" type="hidden" id="photographImageUrl" />
+                    </section>
+                }
+
                 <section class="qc-section">
                     <div class="qc-section__header">
-                        <span class="material-symbols-outlined">photo_camera</span>
+                        <span class="material-symbols-outlined">volume_up</span>
                         <div>
-                            <div class="qc-section__title">Photograph Image</div>
-                            <div class="qc-section__hint">Upload a clear image for this question</div>
+                            <div class="qc-section__title">Audio</div>
+                            <div class="qc-section__hint">@(Model.HasExamFullAudio ? "Select a segment from the exam audio file" : "Upload an audio clip for this question")</div>
                         </div>
                     </div>
-                    <div class="qc-upload-zone flex flex-col items-center justify-center" id="imageUploadZone">
-                        <input asp-for="Form.ImageFile" type="file" accept="image/*" onchange="previewPhotographImage(this)" required />
-                        <span class="material-symbols-outlined text-headline-lg text-outline-variant mb-xs" id="imageUploadIcon">image</span>
-                        <p class="font-body-sm text-body-sm text-on-surface" id="imageUploadName">Click to select a photograph (.jpg, .png)</p>
-                    </div>
-                    <div id="imagePreviewContainer" class="hidden mt-xs text-center">
-                        <img id="imagePreview" src="" alt="Photograph preview" class="max-h-56 rounded-lg border border-outline-variant/30 shadow-sm object-contain mx-auto" />
-                    </div>
-                    <input asp-for="Form.ImageUrl" type="hidden" />
-                </section>
-            }
-
-            <section class="qc-section">
-                <div class="qc-section__header">
-                    <span class="material-symbols-outlined">volume_up</span>
-                    <div>
-                        <div class="qc-section__title">Audio</div>
-                        <div class="qc-section__hint">@(Model.HasExamFullAudio ? "Select a segment from the exam audio file" : "Upload an audio clip for this question")</div>
-                    </div>
-                </div>
-            <div class="flex flex-col gap-sm">
-                @if (Model.HasExamFullAudio)
-                {
-                    <input type="hidden" asp-for="Form.UseExamFullAudio" value="true" />
                     <div class="flex flex-col gap-sm">
-                        <div class="qc-info-banner">
-                            <span class="material-symbols-outlined">info</span>
-                            <p class="font-body-sm text-body-sm text-on-surface">
-                                Drag on the waveform to select this question's audio segment.
-                            </p>
-                        </div>
+                        @if (Model.HasExamFullAudio)
+                        {
+                            <input type="hidden" asp-for="Form.UseExamFullAudio" value="true" />
+                            <div class="flex flex-col gap-sm">
+                                <div class="qc-info-banner">
+                                    <span class="material-symbols-outlined">info</span>
+                                    <p class="font-body-sm text-body-sm text-on-surface">
+                                        Drag on the waveform to select this question's audio segment.
+                                    </p>
+                                </div>
 
-                        <partial name="_AudioSegmentPicker" model='new AudioSegmentPickerModel {
-                            PickerId = "listening-question-audio",
-                            AudioUrl = Model.ExamAudioUrl!,
-                            StartInputName = "Form.AudioStartSecond",
-                            EndInputName = "Form.AudioEndSecond",
-                            InitialStart = Model.Form.AudioStartSecond,
-                            InitialEnd = Model.Form.AudioEndSecond
-                        }' />
-                    </div>
+                                <partial name="_AudioSegmentPicker" model='new AudioSegmentPickerModel {
+                                    PickerId = "listening-question-audio",
+                                    AudioUrl = Model.ExamAudioUrl!,
+                                    StartInputName = "Form.AudioStartSecond",
+                                    EndInputName = "Form.AudioEndSecond",
+                                    InitialStart = Model.Form.AudioStartSecond,
+                                    InitialEnd = Model.Form.AudioEndSecond
+                                }' />
+                            </div>
 
-                    <div class="grid grid-cols-2 gap-md">
-                        <div class="flex flex-col gap-2xs">
-                            <label asp-for="Form.AudioStartSecond" class="font-label-md text-label-md text-on-surface font-semibold">Start (seconds) <span class="text-error">*</span></label>
-                            <input asp-for="Form.AudioStartSecond" type="number" min="0" id="inputAudioStart" class="qc-input" required />
-                        </div>
-                        <div class="flex flex-col gap-2xs">
-                            <label asp-for="Form.AudioEndSecond" class="qc-label">End (seconds) <span class="text-error">*</span></label>
-                            <input asp-for="Form.AudioEndSecond" type="number" min="0" id="inputAudioEnd" class="qc-input" required />
-                        </div>
+                            <div class="grid grid-cols-2 gap-md">
+                                <div class="flex flex-col gap-2xs">
+                                    <label asp-for="Form.AudioStartSecond" class="font-label-md text-label-md text-on-surface font-semibold">Start (seconds) <span class="text-error">*</span></label>
+                                    <input asp-for="Form.AudioStartSecond" type="number" min="0" id="inputAudioStart" class="qc-input" required />
+                                </div>
+                                <div class="flex flex-col gap-2xs">
+                                    <label asp-for="Form.AudioEndSecond" class="qc-label">End (seconds) <span class="text-error">*</span></label>
+                                    <input asp-for="Form.AudioEndSecond" type="number" min="0" id="inputAudioEnd" class="qc-input" required />
+                                </div>
+                            </div>
+                            <p class="font-body-xs text-body-xs text-on-surface-variant">Fine-tune with exact seconds if needed — values sync with the waveform above.</p>
+                        }
+                        else
+                        {
+                            <div id="customAudioSection" class="flex flex-col gap-2xs">
+                                <div class="qc-upload-zone flex flex-col items-center justify-center">
+                                    @if (Model.IsEditMode && !string.IsNullOrWhiteSpace(Model.Form.AudioUrl))
+                                    {
+                                        <input asp-for="Form.AudioFile" type="file" accept="audio/*" id="questionAudioInput" onchange="previewSelectedAudio(this)" />
+                                    }
+                                    else
+                                    {
+                                        <input asp-for="Form.AudioFile" type="file" accept="audio/*" id="questionAudioInput" onchange="previewSelectedAudio(this)" required />
+                                    }
+                                    <span class="material-symbols-outlined text-headline-lg text-outline-variant mb-xs" id="audioUploadIcon">audiotrack</span>
+                                    <p class="font-body-sm text-body-sm text-on-surface" id="audioUploadName">@(string.IsNullOrWhiteSpace(Model.Form.AudioUrl) ? "Click to select an audio file (.mp3)" : "Audio selected — choose a new file to replace")</p>
+                                </div>
+                                <div id="customAudioControls" class="qc-media-toolbar @(string.IsNullOrWhiteSpace(Model.Form.AudioUrl) ? "hidden" : "")">
+                                    <button type="button" id="mainAudioToggleBtn" class="qc-btn-play">
+                                        <span class="material-symbols-outlined text-sm">play_arrow</span>
+                                        <span data-toggle-label>Play</span>
+                                    </button>
+                                    <button type="button" id="removeAudioBtn" class="qc-btn-remove-media" onclick="removeSelectedAudio()">
+                                        <span class="material-symbols-outlined">delete</span>
+                                        Remove audio
+                                    </button>
+                                </div>
+                                <audio id="audioPreview" class="hidden" src="@(Model.Form.AudioUrl ?? "")"></audio>
+                                <input asp-for="Form.AudioUrl" type="hidden" id="questionAudioUrl" />
+                            </div>
+                        }
                     </div>
-                    <p class="font-body-xs text-body-xs text-on-surface-variant">Fine-tune with exact seconds if needed — values sync with the waveform above.</p>
-                }
-                else
-                {
-                    <div id="customAudioSection" class="flex flex-col gap-2xs">
-                        <div class="qc-upload-zone flex flex-col items-center justify-center">
-                            <input asp-for="Form.AudioFile" type="file" accept="audio/*" onchange="previewSelectedAudio(this)" required />
-                            <span class="material-symbols-outlined text-headline-lg text-outline-variant mb-xs" id="audioUploadIcon">audiotrack</span>
-                            <p class="font-body-sm text-body-sm text-on-surface" id="audioUploadName">Click to select an audio file (.mp3)</p>
-                        </div>
-                        <div id="customAudioControls" class="hidden flex items-center gap-sm mt-xs">
-                            <button type="button" id="mainAudioToggleBtn" class="flex items-center gap-xs border border-primary/30 text-primary hover:bg-primary/5 font-label-md text-label-md py-1.5 px-3 rounded-lg transition-colors">
-                                <span class="material-symbols-outlined text-sm">play_arrow</span>
-                                <span data-toggle-label>Play</span>
-                            </button>
-                        </div>
-                        <audio id="audioPreview" class="hidden"></audio>
-                        <input asp-for="Form.AudioUrl" type="hidden" />
-                    </div>
-                }
+                </section>
             </div>
-            </section>
 
-            <section class="qc-section">
-                <div class="qc-section__header">
-                    <span class="material-symbols-outlined">subject</span>
-                    <div>
-                        <div class="qc-section__title">Question Text</div>
-                        <div class="qc-section__hint">Optional prompt shown to learners</div>
-                    </div>
-                </div>
-                <textarea asp-for="Form.QuestionText" id="inputQText" rows="2" class="qc-textarea resize-none"></textarea>
-            </section>
-
-            <section class="qc-section">
-                <div class="qc-section__header">
-                    <span class="material-symbols-outlined">check_circle</span>
-                    <div>
-                        <div class="qc-section__title">Answer Options</div>
-                        <div class="qc-section__hint">Select the radio button to mark the correct answer</div>
-                    </div>
-                </div>
-                <div class="flex flex-col gap-sm">
-                    <div class="qc-option-row">
-                        <span class="qc-option-badge">A</span>
-                        <input asp-for="Form.OptionA" type="text" id="inputOptA" placeholder="Option A" required />
-                        <span class="qc-correct-label">Correct</span>
-                        <input type="radio" asp-for="Form.CorrectOption" value="A" />
-                    </div>
-                    <div class="qc-option-row">
-                        <span class="qc-option-badge">B</span>
-                        <input asp-for="Form.OptionB" type="text" id="inputOptB" placeholder="Option B" required />
-                        <span class="qc-correct-label">Correct</span>
-                        <input type="radio" asp-for="Form.CorrectOption" value="B" />
-                    </div>
-                    <div class="qc-option-row">
-                        <span class="qc-option-badge">C</span>
-                        <input asp-for="Form.OptionC" type="text" id="inputOptC" placeholder="Option C" required />
-                        <span class="qc-correct-label">Correct</span>
-                        <input type="radio" asp-for="Form.CorrectOption" value="C" />
-                    </div>
-                    @if (!Model.IsPart2)
-                    {
-                        <div class="qc-option-row">
-                            <span class="qc-option-badge">D</span>
-                            <input asp-for="Form.OptionD" type="text" id="inputOptD" placeholder="Option D" required />
-                            <span class="qc-correct-label">Correct</span>
-                            <input type="radio" asp-for="Form.CorrectOption" value="D" />
+            <div class="qc-section-stack">
+                <section class="qc-section">
+                    <div class="qc-section__header">
+                        <span class="material-symbols-outlined">subject</span>
+                        <div>
+                            <div class="qc-section__title">Question Text</div>
+                            <div class="qc-section__hint">Optional prompt shown to learners</div>
                         </div>
-                    }
-                </div>
-            </section>
+                    </div>
+                    <textarea asp-for="Form.QuestionText" id="inputQText" rows="2" class="qc-textarea resize-none"></textarea>
+                </section>
+
+                <section class="qc-section">
+                    <div class="qc-section__header">
+                        <span class="material-symbols-outlined">check_circle</span>
+                        <div>
+                            <div class="qc-section__title">Answer Options</div>
+                            <div class="qc-section__hint">Select the radio button to mark the correct answer</div>
+                        </div>
+                    </div>
+                    <div class="flex flex-col gap-sm">
+                        <div class="qc-option-row">
+                            <span class="qc-option-badge">A</span>
+                            <input asp-for="Form.OptionA" type="text" id="inputOptA" placeholder="Option A" required />
+                            <span class="qc-correct-label">Correct</span>
+                            <input type="radio" asp-for="Form.CorrectOption" value="A" />
+                        </div>
+                        <div class="qc-option-row">
+                            <span class="qc-option-badge">B</span>
+                            <input asp-for="Form.OptionB" type="text" id="inputOptB" placeholder="Option B" required />
+                            <span class="qc-correct-label">Correct</span>
+                            <input type="radio" asp-for="Form.CorrectOption" value="B" />
+                        </div>
+                        <div class="qc-option-row">
+                            <span class="qc-option-badge">C</span>
+                            <input asp-for="Form.OptionC" type="text" id="inputOptC" placeholder="Option C" required />
+                            <span class="qc-correct-label">Correct</span>
+                            <input type="radio" asp-for="Form.CorrectOption" value="C" />
+                        </div>
+                        @if (!Model.IsPart2)
+                        {
+                            <div class="qc-option-row">
+                                <span class="qc-option-badge">D</span>
+                                <input asp-for="Form.OptionD" type="text" id="inputOptD" placeholder="Option D" required />
+                                <span class="qc-correct-label">Correct</span>
+                                <input type="radio" asp-for="Form.CorrectOption" value="D" />
+                            </div>
+                        }
+                    </div>
+                </section>
+            </div>
 
             <div class="qc-form-actions">
                 <a href="/Admin/Exams/Edit?id=@Model.ExamId" class="qc-btn-ghost">Cancel</a>
@@ -185,7 +222,7 @@
                 }
                 <button type="submit" class="qc-btn-primary">
                     <span class="material-symbols-outlined text-[18px]">save</span>
-                    Save Question
+                    @(Model.IsEditMode ? "Save Changes" : "Save Question")
                 </button>
             </div>
         </form>
@@ -424,6 +461,9 @@
         }
     }
 
+    let photographObjectUrl = null;
+    let customAudioObjectUrl = null;
+
     function previewPhotographImage(input) {
         const previewContainer = document.getElementById('imagePreviewContainer');
         const previewImg = document.getElementById('imagePreview');
@@ -466,6 +506,30 @@
         reader.readAsDataURL(file);
     }
 
+    function removePhotographImage() {
+        photographObjectUrl = AcadPrepQuestionUI.clearMedia({
+            fileInput: 'photographImageInput',
+            previewContainer: 'imagePreviewContainer',
+            previewImg: 'imagePreview',
+            hiddenUrl: 'photographImageUrl',
+            icon: 'imageUploadIcon',
+            label: 'imageUploadName',
+            defaultIcon: 'image',
+            defaultLabel: 'Click to select a photograph (.jpg, .png)',
+            objectUrl: photographObjectUrl,
+            onCleared: () => {
+                const sidebarSection = document.getElementById('previewImageSection');
+                const sidebarImg = document.getElementById('previewImage');
+                const placeholder = document.getElementById('previewImagePlaceholder');
+                if (sidebarImg) sidebarImg.removeAttribute('src');
+                if (sidebarSection) sidebarSection.classList.add('hidden');
+                if (placeholder) placeholder.classList.remove('hidden');
+                const input = document.getElementById('photographImageInput');
+                if (input) input.required = true;
+            }
+        });
+    }
+
     function previewSelectedAudio(input) {
         const icon = document.getElementById('audioUploadIcon');
         const text = document.getElementById('audioUploadName');
@@ -478,7 +542,10 @@
         }
 
         const file = input.files[0];
-        const objectUrl = URL.createObjectURL(file);
+        if (customAudioObjectUrl) {
+            try { URL.revokeObjectURL(customAudioObjectUrl); } catch (_) { /* ignore */ }
+        }
+        customAudioObjectUrl = URL.createObjectURL(file);
 
         if (icon) {
             icon.textContent = 'check_circle';
@@ -487,14 +554,14 @@
             text.textContent = file.name;
         }
         if (formPlayer) {
-            formPlayer.src = objectUrl;
+            formPlayer.src = customAudioObjectUrl;
         }
         const mainControls = document.getElementById('customAudioControls');
         if (mainControls) {
             mainControls.classList.remove('hidden');
         }
         if (previewPlayer) {
-            previewPlayer.src = objectUrl;
+            previewPlayer.src = customAudioObjectUrl;
         }
         const previewToggleBtn = document.getElementById('previewAudioToggleBtn');
         if (previewToggleBtn) {
@@ -505,6 +572,35 @@
         }
 
         updateAudioPreviewInfo();
+    }
+
+    function removeSelectedAudio() {
+        customAudioObjectUrl = AcadPrepQuestionUI.clearMedia({
+            fileInput: 'questionAudioInput',
+            audioEl: 'audioPreview',
+            hiddenUrl: 'questionAudioUrl',
+            icon: 'audioUploadIcon',
+            label: 'audioUploadName',
+            defaultIcon: 'audiotrack',
+            defaultLabel: 'Click to select an audio file (.mp3)',
+            extraHide: 'customAudioControls',
+            objectUrl: customAudioObjectUrl,
+            onCleared: () => {
+                const previewPlayer = document.getElementById('previewAudioPlayer');
+                const audioSection = document.getElementById('previewAudioSection');
+                const previewToggleBtn = document.getElementById('previewAudioToggleBtn');
+                if (previewPlayer) {
+                    previewPlayer.pause?.();
+                    previewPlayer.removeAttribute('src');
+                    previewPlayer.load?.();
+                }
+                if (previewToggleBtn) previewToggleBtn.classList.add('hidden');
+                if (audioSection) audioSection.classList.add('hidden');
+                const input = document.getElementById('questionAudioInput');
+                if (input) input.required = true;
+                updateAudioPreviewInfo();
+            }
+        });
     }
 
     window.addEventListener('DOMContentLoaded', () => {

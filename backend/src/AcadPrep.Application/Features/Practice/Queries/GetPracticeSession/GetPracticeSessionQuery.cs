@@ -26,6 +26,14 @@ public class PracticeQuestionDto
     public int? AudioStartSecond { get; set; }
     public int? AudioEndSecond { get; set; }
     public string? ImageUrl { get; set; }
+    public int? PassageId { get; set; }
+    public int? QuestionGroupId { get; set; }
+    public string? GroupAudioUrl { get; set; }
+    public int? GroupAudioStartSecond { get; set; }
+    public int? GroupAudioEndSecond { get; set; }
+    public string? GroupImageUrl { get; set; }
+    /// <summary>Shared reading stimulus (Part 6 passage, Part 7 set passages).</summary>
+    public List<SessionPassageDto> Passages { get; set; } = new();
     public List<PracticeQuestionOptionDto> Options { get; set; } = new();
 }
 

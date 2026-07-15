@@ -1,0 +1,126 @@
+@model AcadPrep.WebUI.Pages.Admin.Exams.EditModel
+
+<section class="qc-form-card">
+    <div class="qc-section__header" style="margin-bottom:0.75rem;padding-bottom:0.75rem">
+        <span class="material-symbols-outlined">tune</span>
+        <div>
+            <div class="qc-section__title">Exam Information</div>
+            <div class="qc-section__hint">Update title, duration, series and description</div>
+        </div>
+    </div>
+
+    @if (Model.UpdateErrors.Any())
+    {
+        <div class="mb-md bg-error-container text-on-error-container p-md rounded-xl border border-error/20">
+            <ul class="list-disc pl-lg font-body-sm text-body-sm">
+                @foreach (var error in Model.UpdateErrors)
+                {
+                    <li>@error</li>
+                }
+            </ul>
+        </div>
+    }
+
+    <form method="post" asp-page-handler="Update" enctype="multipart/form-data" class="space-y-lg" id="update-exam-form">
+        <input type="hidden" asp-for="UpdateForm.Id" />
+
+        <div class="space-y-xs">
+            <label class="flex items-center gap-xs font-label-md text-label-md text-on-surface-variant" asp-for="UpdateForm.Title">
+                Exam Title
+                <span class="text-error font-bold">*</span>
+            </label>
+            <input asp-for="UpdateForm.Title" class="w-full bg-surface-container-lowest border border-outline-variant rounded-lg px-md py-sm font-body-md text-body-md focus:outline-none focus:ring-2 focus:ring-primary-container focus:border-primary transition-all" />
+        </div>
+
+        <div class="space-y-xs">
+            <label class="font-label-md text-label-md text-on-surface-variant" asp-for="UpdateForm.Description">
+                Description (Optional)
+            </label>
+            <textarea asp-for="UpdateForm.Description" rows="3" class="w-full bg-surface-container-lowest border border-outline-variant rounded-lg px-md py-sm font-body-md text-body-md focus:outline-none focus:ring-2 focus:ring-primary-container focus:border-primary transition-all resize-none"></textarea>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-lg">
+            <div class="space-y-xs">
+                <label class="flex items-center gap-xs font-label-md text-label-md text-on-surface-variant" asp-for="UpdateForm.Duration">
+                    Duration (minutes)
+                    <span class="text-error font-bold">*</span>
+                </label>
+                <div class="relative">
+                    <input asp-for="UpdateForm.Duration" type="number" min="1" max="120" class="w-full bg-surface-container-lowest border border-outline-variant rounded-lg pl-md pr-16 py-sm font-body-md text-body-md focus:outline-none focus:ring-2 focus:ring-primary-container focus:border-primary transition-all" />
+                    <div class="absolute inset-y-0 right-0 flex items-center pr-md pointer-events-none">
+                        <span class="font-label-md text-label-md text-outline">minutes</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="space-y-xs">
+                <label class="flex items-center gap-xs font-label-md text-label-md text-on-surface-variant" asp-for="UpdateForm.ExamSeriesId">
+                    Exam Series
+                    <span class="text-error font-bold">*</span>
+                </label>
+                <div class="relative">
+                    <select asp-for="UpdateForm.ExamSeriesId" required class="w-full appearance-none bg-surface-container-lowest border border-outline-variant rounded-lg px-md py-sm font-body-md text-body-md focus:outline-none focus:ring-2 focus:ring-primary-container focus:border-primary transition-all cursor-pointer">
+                        <option value="">-- Select Exam Series --</option>
+                        @foreach (var series in Model.ExamSeries)
+                        {
+                            <option value="@series.Id">@series.Name (@series.Year)</option>
+                        }
+                    </select>
+                    <div class="absolute inset-y-0 right-0 flex items-center pr-sm pointer-events-none">
+                        <span class="material-symbols-outlined text-on-surface-variant">expand_more</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="space-y-xs">
+            <label class="font-label-md text-label-md text-on-surface-variant" asp-for="UpdateForm.AudioFile">
+                Full Exam Audio (Optional)
+            </label>
+            @if (!string.IsNullOrEmpty(Model.Exam.AudioUrl))
+            {
+                <div class="flex flex-col gap-sm mb-sm p-sm rounded-lg bg-surface-container/40 border border-outline-variant/20">
+                    <div class="flex items-center gap-sm">
+                        <span class="material-symbols-outlined text-primary">audiotrack</span>
+                        <audio controls class="w-full h-8 max-w-md" src="@Model.Exam.AudioUrl"></audio>
+                    </div>
+                    <div class="qc-media-toolbar" style="margin-top:0">
+                        <button type="button" class="qc-btn-remove-media" onclick="confirmRemoveExamAudio()">
+                            <span class="material-symbols-outlined">delete</span>
+                            Remove audio
+                        </button>
+                    </div>
+                </div>
+                <p class="font-body-xs text-body-xs text-on-surface-variant mb-sm">Upload a new file only if you want to replace the current audio.</p>
+            }
+            <input asp-for="UpdateForm.AudioFile" type="file" accept="audio/*" class="w-full font-body-sm text-body-sm text-on-surface-variant file:mr-md file:py-sm file:px-md file:rounded-lg file:border-0 file:bg-primary/10 file:text-primary file:font-label-md hover:file:bg-primary/20 cursor-pointer" />
+        </div>
+
+        <div class="flex justify-end">
+            <button type="submit" class="qc-btn-primary">
+                <span class="material-symbols-outlined text-[18px]">save</span>
+                Save Exam Info
+            </button>
+        </div>
+    </form>
+
+    @if (!string.IsNullOrEmpty(Model.Exam.AudioUrl))
+    {
+        <form method="post" asp-page-handler="RemoveAudio" id="remove-exam-audio-form" class="hidden">
+            <input type="hidden" name="id" value="@Model.Exam.Id" />
+        </form>
+        <script>
+            function confirmRemoveExamAudio() {
+                showConfirm({
+                    title: 'Remove Exam Audio',
+                    message: 'Remove the full exam audio file? Listening questions that use time segments from this file will need new audio setup.',
+                    confirmText: 'Remove Audio',
+                    isDestructive: true,
+                    onConfirm: () => {
+                        document.getElementById('remove-exam-audio-form')?.submit();
+                    }
+                });
+            }
+        </script>
+    }
+</section>

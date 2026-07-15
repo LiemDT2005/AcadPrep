@@ -9,8 +9,12 @@ public class ExamDetailDto
     public required string Title { get; set; }
     public string? Description { get; set; }
     public int Duration { get; set; }
+    public int ExamSeriesId { get; set; }
+    public string? ExamSeriesName { get; set; }
+    public string? AudioUrl { get; set; }
     public bool IsDeleted { get; set; }
     public DateTime CreatedAt { get; set; }
+    public DateTime? LastModifiedAt { get; set; }
     public int AttemptCount { get; set; }
     public List<QuestionDetailDto> Questions { get; set; } = new();
     public List<ReadingSetDto> Part7ReadingSets { get; set; } = new();

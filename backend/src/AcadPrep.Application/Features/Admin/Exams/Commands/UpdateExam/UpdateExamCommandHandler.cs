@@ -51,8 +51,12 @@ internal sealed class UpdateExamCommandHandler(IAppDbContext context)
         exam.Duration = dto.Duration;
         exam.ExamSeriesId = dto.ExamSeriesId;
         exam.LastModifiedAt = DateTime.UtcNow;
-        
-        if (!string.IsNullOrWhiteSpace(dto.AudioUrl))
+
+        if (dto.ClearAudio)
+        {
+            exam.AudioUrl = null;
+        }
+        else if (!string.IsNullOrWhiteSpace(dto.AudioUrl))
         {
             exam.AudioUrl = dto.AudioUrl;
         }

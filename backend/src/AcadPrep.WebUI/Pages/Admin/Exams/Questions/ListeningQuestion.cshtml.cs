@@ -2,8 +2,9 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using AcadPrep.Application.Features.Admin.Exams.Commands.CreateListeningQuestion;
 using AcadPrep.Application.Common.Utils;
+using AcadPrep.Application.Features.Admin.Exams.Commands.CreateListeningQuestion;
+using AcadPrep.Application.Features.Admin.Exams.Commands.UpdateListeningQuestion;
 using Application.Common.Interfaces;
 using FluentValidation;
 using MediatR;
@@ -24,8 +25,9 @@ public class ListeningQuestionModel(ISender mediator, IAppDbContext context, IFi
     public bool IsPart2 => Form.Part == 2;
     public int PartQuestionCount { get; set; }
     public int PartQuestionLimit { get; set; }
-    public bool CanAddAnother => PartQuestionCount < PartQuestionLimit;
+    public bool CanAddAnother => !IsEditMode && PartQuestionCount < PartQuestionLimit;
     public bool IsPartFull => PartQuestionCount >= PartQuestionLimit;
+    public bool IsEditMode { get; set; }
 
     [BindProperty]
     public ListeningQuestionFormModel Form { get; set; } = new();
@@ -33,7 +35,7 @@ public class ListeningQuestionModel(ISender mediator, IAppDbContext context, IFi
     public string? ErrorMessage { get; set; }
     public List<string> ValidationErrors { get; set; } = new();
 
-    public async Task<IActionResult> OnGetAsync(int examId, int part)
+    public async Task<IActionResult> OnGetAsync(int examId, int part, int? editId = null)
     {
         if (part is not (1 or 2))
         {
@@ -57,6 +59,46 @@ public class ListeningQuestionModel(ISender mediator, IAppDbContext context, IFi
             Form.UseExamFullAudio = true;
         }
 
+        await LoadPartStatsAsync(examId, part);
+
+        if (editId.HasValue)
+        {
+            IsEditMode = true;
+            Form.EditId = editId.Value;
+
+            var question = await context.Questions
+                .Include(q => q.QuestionOptions)
+                .FirstOrDefaultAsync(q => q.Id == editId.Value && q.ExamId == examId && q.Part == part);
+
+            if (question == null)
+            {
+                TempData["ErrorMessage"] = "Question not found.";
+                return RedirectToPage("/Admin/Exams/Edit", new { id = examId });
+            }
+
+            Form.QuestionNumber = question.QuestionNumber;
+            Form.QuestionText = question.QuestionText;
+            Form.ImageUrl = question.ImageUrl;
+            Form.AudioUrl = question.AudioUrl;
+            Form.AudioStartSecond = question.AudioStartSecond;
+            Form.AudioEndSecond = question.AudioEndSecond;
+            Form.UseExamFullAudio = HasExamFullAudio || question.AudioStartSecond.HasValue;
+            Form.CorrectOption = question.CorrectOption.ToString();
+
+            foreach (var opt in question.QuestionOptions.OrderBy(o => o.OptionLetter))
+            {
+                switch (opt.OptionLetter.ToString())
+                {
+                    case "A": Form.OptionA = opt.OptionText; break;
+                    case "B": Form.OptionB = opt.OptionText; break;
+                    case "C": Form.OptionC = opt.OptionText; break;
+                    case "D": Form.OptionD = opt.OptionText; break;
+                }
+            }
+
+            return Page();
+        }
+
         Form.QuestionText = part == 1
             ? "Which description best matches the photograph?"
             : "Select the best response for the question.";
@@ -68,7 +110,6 @@ public class ListeningQuestionModel(ISender mediator, IAppDbContext context, IFi
 
         Form.QuestionNumber = (maxQNum ?? 0) + 1;
 
-        await LoadPartStatsAsync(examId, part);
         if (IsPartFull)
         {
             TempData["ErrorMessage"] =
@@ -98,6 +139,7 @@ public class ListeningQuestionModel(ISender mediator, IAppDbContext context, IFi
     private async Task<IActionResult> SaveQuestionAsync(int examId, bool addAnother)
     {
         ExamId = examId;
+        IsEditMode = Form.EditId.HasValue && Form.EditId.Value > 0;
 
         if (Form.Part is not (1 or 2))
         {
@@ -115,7 +157,7 @@ public class ListeningQuestionModel(ISender mediator, IAppDbContext context, IFi
         ExamAudioUrl = exam.AudioUrl;
 
         await LoadPartStatsAsync(examId, Form.Part);
-        if (IsPartFull)
+        if (!IsEditMode && IsPartFull)
         {
             ErrorMessage = $"Part {Form.Part} already has the maximum of {PartQuestionLimit} questions.";
             return Page();
@@ -147,6 +189,12 @@ public class ListeningQuestionModel(ISender mediator, IAppDbContext context, IFi
             return Page();
         }
 
+        if (!Form.UseExamFullAudio && (Form.AudioFile == null || Form.AudioFile.Length == 0) && string.IsNullOrWhiteSpace(Form.AudioUrl))
+        {
+            ValidationErrors.Add("Audio file is required.");
+            return Page();
+        }
+
         try
         {
             if (Form.ImageFile != null && Form.ImageFile.Length > 0)
@@ -169,40 +217,61 @@ public class ListeningQuestionModel(ISender mediator, IAppDbContext context, IFi
             return Page();
         }
 
-        var cmd = new CreateListeningQuestionCommand
+        var questionDto = new ListeningQuestionInputDto
         {
-            ExamId = examId,
-            Part = Form.Part,
-            Question = new ListeningQuestionInputDto
-            {
-                QuestionNumber = Form.QuestionNumber,
-                QuestionText = Form.QuestionText,
-                ImageUrl = Form.ImageUrl,
-                CorrectOption = Form.CorrectOption,
-                AudioUrl = Form.AudioUrl,
-                UseExamFullAudio = Form.UseExamFullAudio,
-                AudioStartSecond = Form.AudioStartSecond,
-                AudioEndSecond = Form.AudioEndSecond,
-                Options = Form.Part == 2
-                    ? new List<ListeningQuestionOptionDto>
-                    {
-                        new() { Letter = "A", Text = Form.OptionA },
-                        new() { Letter = "B", Text = Form.OptionB },
-                        new() { Letter = "C", Text = Form.OptionC }
-                    }
-                    : new List<ListeningQuestionOptionDto>
-                    {
-                        new() { Letter = "A", Text = Form.OptionA },
-                        new() { Letter = "B", Text = Form.OptionB },
-                        new() { Letter = "C", Text = Form.OptionC },
-                        new() { Letter = "D", Text = Form.OptionD }
-                    }
-            }
+            QuestionNumber = Form.QuestionNumber,
+            QuestionText = Form.QuestionText,
+            ImageUrl = Form.ImageUrl,
+            CorrectOption = Form.CorrectOption,
+            AudioUrl = Form.AudioUrl,
+            UseExamFullAudio = Form.UseExamFullAudio,
+            AudioStartSecond = Form.AudioStartSecond,
+            AudioEndSecond = Form.AudioEndSecond,
+            Options = Form.Part == 2
+                ? new List<ListeningQuestionOptionDto>
+                {
+                    new() { Letter = "A", Text = Form.OptionA },
+                    new() { Letter = "B", Text = Form.OptionB },
+                    new() { Letter = "C", Text = Form.OptionC }
+                }
+                : new List<ListeningQuestionOptionDto>
+                {
+                    new() { Letter = "A", Text = Form.OptionA },
+                    new() { Letter = "B", Text = Form.OptionB },
+                    new() { Letter = "C", Text = Form.OptionC },
+                    new() { Letter = "D", Text = Form.OptionD }
+                }
         };
 
         try
         {
-            var result = await mediator.Send(cmd);
+            if (IsEditMode)
+            {
+                var updateResult = await mediator.Send(new UpdateListeningQuestionCommand
+                {
+                    ExamId = examId,
+                    QuestionId = Form.EditId!.Value,
+                    Part = Form.Part,
+                    Question = questionDto
+                });
+
+                if (updateResult.IsSuccess)
+                {
+                    TempData["SuccessMessage"] = $"Successfully updated Part {Form.Part} question number {Form.QuestionNumber}.";
+                    return RedirectToPage("/Admin/Exams/Edit", new { id = examId });
+                }
+
+                ErrorMessage = updateResult.Error ?? "Failed to update listening question.";
+                return Page();
+            }
+
+            var result = await mediator.Send(new CreateListeningQuestionCommand
+            {
+                ExamId = examId,
+                Part = Form.Part,
+                Question = questionDto
+            });
+
             if (result.IsSuccess)
             {
                 TempData["SuccessMessage"] = $"Successfully created Part {Form.Part} question number {Form.QuestionNumber}.";
@@ -236,6 +305,7 @@ public class ListeningQuestionModel(ISender mediator, IAppDbContext context, IFi
 
 public class ListeningQuestionFormModel
 {
+    public int? EditId { get; set; }
     public int Part { get; set; }
     public int QuestionNumber { get; set; }
     public string? QuestionText { get; set; }

@@ -2,16 +2,17 @@
 @model AcadPrep.WebUI.Pages.Admin.Exams.Questions.Part5Model
 @{
     Layout = "_ModeratorLayout";
-    ViewData["Title"] = "Add Part 5 Question";
+    var actionVerb = Model.IsEditMode ? "Edit" : "Create";
+    ViewData["Title"] = $"{actionVerb} Part 5 Question";
     var pageHeader = new QuestionPageHeaderViewModel {
         ExamId = Model.ExamId,
         ExamTitle = Model.ExamTitle,
-        Title = "Create Part 5 Question",
+        Title = $"{actionVerb} Part 5 Question",
         Subtitle = "Incomplete Sentences — fill in the blank with the best word or phrase.",
         PartBadge = "Part 5 · Reading",
         PartIcon = "edit_note",
         PartBadgeVariant = "tertiary",
-        BreadcrumbCurrent = "Add Part 5"
+        BreadcrumbCurrent = $"{actionVerb} Part 5"
     };
 }
 
@@ -26,6 +27,7 @@
 
         <!-- Left: Form -->
         <form method="post" class="lg:col-span-7 qc-form-card" novalidate>
+            <input type="hidden" asp-for="Form.EditId" />
 
             <!-- Section: Metadata -->
             <section class="qc-section">
@@ -52,60 +54,62 @@
                 </div>
             </section>
 
-            <!-- Section: Question Text -->
-            <section class="qc-section">
-                <div class="qc-section__header">
-                    <span class="material-symbols-outlined">subject</span>
-                    <div>
-                        <div class="qc-section__title">Question Text</div>
-                        <div class="qc-section__hint">Use <code class="text-primary font-semibold">___</code> to mark the blank</div>
+            <div class="qc-section-stack">
+                <!-- Section: Question Text -->
+                <section class="qc-section">
+                    <div class="qc-section__header">
+                        <span class="material-symbols-outlined">subject</span>
+                        <div>
+                            <div class="qc-section__title">Question Text</div>
+                            <div class="qc-section__hint">Use <code class="text-primary font-semibold">___</code> to mark the blank</div>
+                        </div>
                     </div>
-                </div>
-                <div class="flex justify-end mb-xs">
-                    <button type="button" onclick="insertBlank()" class="qc-chip-btn flex items-center gap-1">
-                        <span class="material-symbols-outlined text-[14px]">add</span>
-                        Insert Blank (___)
-                    </button>
-                </div>
-                <textarea asp-for="Form.QuestionText" id="inputQText" rows="3" placeholder="Example: The report ___ submitted before Friday." class="qc-textarea resize-none" required></textarea>
-            </section>
+                    <div class="flex justify-end mb-xs">
+                        <button type="button" onclick="insertBlank()" class="qc-chip-btn flex items-center gap-1">
+                            <span class="material-symbols-outlined text-[14px]">add</span>
+                            Insert Blank (___)
+                        </button>
+                    </div>
+                    <textarea asp-for="Form.QuestionText" id="inputQText" rows="3" placeholder="Example: The report ___ submitted before Friday." class="qc-textarea resize-none" required></textarea>
+                </section>
 
-            <!-- Section: Options -->
-            <section class="qc-section">
-                <div class="qc-section__header">
-                    <span class="material-symbols-outlined">check_circle</span>
-                    <div>
-                        <div class="qc-section__title">Answer Options</div>
-                        <div class="qc-section__hint">Select the radio button to mark the correct answer</div>
+                <!-- Section: Options -->
+                <section class="qc-section">
+                    <div class="qc-section__header">
+                        <span class="material-symbols-outlined">check_circle</span>
+                        <div>
+                            <div class="qc-section__title">Answer Options</div>
+                            <div class="qc-section__hint">Select the radio button to mark the correct answer</div>
+                        </div>
                     </div>
-                </div>
-                <div class="flex flex-col gap-sm">
-                    <div class="qc-option-row">
-                        <span class="qc-option-badge">A</span>
-                        <input asp-for="Form.OptionA" type="text" id="inputOptA" placeholder="Option A" required />
-                        <span class="qc-correct-label">Correct</span>
-                        <input type="radio" asp-for="Form.CorrectOption" value="A" id="radioCorrectA" checked />
+                    <div class="flex flex-col gap-sm">
+                        <div class="qc-option-row">
+                            <span class="qc-option-badge">A</span>
+                            <input asp-for="Form.OptionA" type="text" id="inputOptA" placeholder="Option A" required />
+                            <span class="qc-correct-label">Correct</span>
+                            <input type="radio" asp-for="Form.CorrectOption" value="A" id="radioCorrectA" checked />
+                        </div>
+                        <div class="qc-option-row">
+                            <span class="qc-option-badge">B</span>
+                            <input asp-for="Form.OptionB" type="text" id="inputOptB" placeholder="Option B" required />
+                            <span class="qc-correct-label">Correct</span>
+                            <input type="radio" asp-for="Form.CorrectOption" value="B" id="radioCorrectB" />
+                        </div>
+                        <div class="qc-option-row">
+                            <span class="qc-option-badge">C</span>
+                            <input asp-for="Form.OptionC" type="text" id="inputOptC" placeholder="Option C" required />
+                            <span class="qc-correct-label">Correct</span>
+                            <input type="radio" asp-for="Form.CorrectOption" value="C" id="radioCorrectC" />
+                        </div>
+                        <div class="qc-option-row">
+                            <span class="qc-option-badge">D</span>
+                            <input asp-for="Form.OptionD" type="text" id="inputOptD" placeholder="Option D" required />
+                            <span class="qc-correct-label">Correct</span>
+                            <input type="radio" asp-for="Form.CorrectOption" value="D" id="radioCorrectD" />
+                        </div>
                     </div>
-                    <div class="qc-option-row">
-                        <span class="qc-option-badge">B</span>
-                        <input asp-for="Form.OptionB" type="text" id="inputOptB" placeholder="Option B" required />
-                        <span class="qc-correct-label">Correct</span>
-                        <input type="radio" asp-for="Form.CorrectOption" value="B" id="radioCorrectB" />
-                    </div>
-                    <div class="qc-option-row">
-                        <span class="qc-option-badge">C</span>
-                        <input asp-for="Form.OptionC" type="text" id="inputOptC" placeholder="Option C" required />
-                        <span class="qc-correct-label">Correct</span>
-                        <input type="radio" asp-for="Form.CorrectOption" value="C" id="radioCorrectC" />
-                    </div>
-                    <div class="qc-option-row">
-                        <span class="qc-option-badge">D</span>
-                        <input asp-for="Form.OptionD" type="text" id="inputOptD" placeholder="Option D" required />
-                        <span class="qc-correct-label">Correct</span>
-                        <input type="radio" asp-for="Form.CorrectOption" value="D" id="radioCorrectD" />
-                    </div>
-                </div>
-            </section>
+                </section>
+            </div>
 
             <div class="qc-form-actions">
                 <a href="/Admin/Exams/Edit?id=@Model.ExamId" class="qc-btn-ghost">Cancel</a>
@@ -115,7 +119,7 @@
                 }
                 <button type="submit" class="qc-btn-primary">
                     <span class="material-symbols-outlined text-[18px]">save</span>
-                    Save Question
+                    @(Model.IsEditMode ? "Save Changes" : "Save Question")
                 </button>
             </div>
         </form>
