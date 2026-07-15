@@ -21,7 +21,13 @@
         </div>
     }
 
-    <form method="post" asp-page-handler="Update" enctype="multipart/form-data" class="space-y-lg" id="update-exam-form">
+    <form method="post"
+          asp-page-handler="Update"
+          asp-route-id="@Model.Exam.Id"
+          enctype="multipart/form-data"
+          class="space-y-lg"
+          id="update-exam-form">
+        <input type="hidden" name="id" value="@Model.Exam.Id" />
         <input type="hidden" asp-for="UpdateForm.Id" />
 
         <div class="space-y-xs">
@@ -106,7 +112,11 @@
 
     @if (!string.IsNullOrEmpty(Model.Exam.AudioUrl))
     {
-        <form method="post" asp-page-handler="RemoveAudio" id="remove-exam-audio-form" class="hidden">
+        <form method="post"
+              asp-page-handler="RemoveAudio"
+              asp-route-id="@Model.Exam.Id"
+              id="remove-exam-audio-form"
+              class="hidden">
             <input type="hidden" name="id" value="@Model.Exam.Id" />
         </form>
         <script>

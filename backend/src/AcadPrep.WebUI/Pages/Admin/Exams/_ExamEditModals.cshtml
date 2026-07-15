@@ -228,7 +228,7 @@
             </p>
         </div>
         
-        <form method="post" asp-page-handler="Delete" class="flex gap-sm justify-center mt-sm">
+        <form method="post" asp-page-handler="Delete" asp-route-id="@exam.Id" class="flex gap-sm justify-center mt-sm">
             <input type="hidden" name="id" value="@exam.Id" />
             <input type="hidden" id="deleteContentType" name="contentType" value="" />
             <input type="hidden" id="deleteTargetId" name="targetId" value="" />

@@ -50,8 +50,15 @@ public class EditModel(ISender mediator, IAppDbContext context, IFileStorageServ
 
     public async Task<IActionResult> OnPostUpdateAsync(int id)
     {
-        if (!await LoadExamAsync(id))
+        // Form posts can drop query-string id; fall back to the bound UpdateForm.Id.
+        if (id <= 0)
         {
+            id = UpdateForm.Id;
+        }
+
+        if (id <= 0 || !await LoadExamAsync(id))
+        {
+            ErrorMessage = "Exam not found or could not be updated.";
             return RedirectToPage("./Index");
         }
 
