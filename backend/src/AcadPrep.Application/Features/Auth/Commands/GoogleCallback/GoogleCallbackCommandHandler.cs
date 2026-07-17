@@ -56,7 +56,7 @@ internal sealed class GoogleCallbackCommandHandler(
         var defaultRole = await db.Roles
             .FirstOrDefaultAsync(r => r.RoleId == RoleConstants.DefaultUserRoleId, cancellationToken);
 
-        var roleName = defaultRole?.RoleName ?? "User";
+        var roleName = defaultRole?.RoleName ?? nameof(UserRole.Learner);
 
         var newUser = User.CreateFromGoogle(
             email:          request.Email,

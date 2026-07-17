@@ -4,8 +4,12 @@ using MediatR;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 
+using Microsoft.AspNetCore.Authorization;
+using Domain.Enums;
+
 namespace AcadPrep.WebUI.Pages.Admin.Achievements;
 
+[Authorize(Roles = nameof(UserRole.Admin))]
 public class CreateModel : PageModel
 {
     private readonly IMediator _mediator;

@@ -99,8 +99,16 @@
             transform: translateY(-50%);
             color: #787680;
             pointer-events: none;
+            z-index: 1;
         }
-        .input-field { padding-left: 2.75rem; }
+        .input-field {
+            box-sizing: border-box;
+            position: relative;
+            width: 100%;
+            padding-left: 2.75rem !important;
+        }
+        #password-input { padding-right: 2.75rem !important; }
+        #toggle-password { z-index: 1; }
 
         /* Fade-in animation */
         @@keyframes fadeUp {

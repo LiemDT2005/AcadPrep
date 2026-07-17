@@ -21,6 +21,8 @@ public interface IAppDbContext
     DbSet<SavedVocabulary> SavedVocabularies { get; }
     DbSet<StudyStreak> StudyStreaks { get; }
     DbSet<AuditLog> AuditLogs { get; }
+    DbSet<Notification> Notifications { get; }
+
     DbSet<Achievement> Achievements { get; }
     DbSet<UserAchievement> UserAchievements { get; }
     DbSet<QuestionGroup> QuestionGroups { get; }

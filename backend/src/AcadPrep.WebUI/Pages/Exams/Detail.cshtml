@@ -1,968 +1,584 @@
 @page "{id:int}"
 @model AcadPrep.WebUI.Pages.Exams.DetailModel
 @{
-    Layout = null;
+    ViewData["Title"] = Model.ExamDetail?.Title ?? "Exam Detail";
 }
-<!DOCTYPE html>
-<html class="light" lang="en">
-<head>
-    <meta charset="utf-8">
-    <meta content="width=device-width, initial-scale=1.0" name="viewport">
-    <title>@Model.ExamDetail?.Title | AcadPrep</title>
-    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&amp;display=swap" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
-    <style>
-        .material-symbols-outlined {
-            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
-            vertical-align: middle;
-        }
-        /* Custom Scrollbar */
-        ::-webkit-scrollbar { width: 8px; }
-        ::-webkit-scrollbar-track { background: #f1f1f1; }
-        ::-webkit-scrollbar-thumb { background: #c7c4d8; border-radius: 10px; }
-        ::-webkit-scrollbar-thumb:hover { background: #777587; }
-        .glass-card { background: rgba(255, 255, 255, 0.8); backdrop-filter: blur(12px); }
-        .custom-shadow { box-shadow: 0 4px 20px -2px rgba(30, 0, 169, 0.05); }
-    </style>
-    <script id="tailwind-config">
-        tailwind.config = {
-            darkMode: "class",
-            theme: {
-                extend: {
-                    "colors": {
-                        "surface-container-highest": "#e4e1ee",
-                        "primary-container": "#3525cd",
-                        "outline-variant": "#c7c4d8",
-                        "on-surface-variant": "#464555",
-                        "tertiary-container": "#005338",
-                        "surface-container-high": "#eae6f4",
-                        "surface": "#f9f9ff",
-                        "primary": "#1e00a9",
-                        "outline": "#777587",
-                        "inverse-primary": "#c3c0ff",
-                        "on-tertiary-fixed": "#002114",
-                        "on-secondary-fixed": "#341100",
-                        "secondary-container": "#ff8d4b",
-                        "on-tertiary-fixed-variant": "#005237",
-                        "on-secondary": "#ffffff",
-                        "surface-container-lowest": "#ffffff",
-                        "secondary-fixed": "#ffdbca",
-                        "primary-fixed-dim": "#c3c0ff",
-                        "on-surface": "#1b1b24",
-                        "on-secondary-container": "#6c2c00",
-                        "error-container": "#ffdad6",
-                        "on-primary-fixed": "#0f0069",
-                        "on-error": "#ffffff",
-                        "primary-fixed": "#e2dfff",
-                        "surface-dim": "#dcd8e5",
-                        "on-secondary-fixed-variant": "#783200",
-                        "surface-bright": "#fcf8ff",
-                        "surface-tint": "#4d44e3",
-                        "inverse-on-surface": "#f3effc",
-                        "tertiary-fixed-dim": "#8fd5b2",
-                        "on-primary-fixed-variant": "#3323cc",
-                        "background": "#fcf8ff",
-                        "surface-container": "#f0ecf9",
-                        "inverse-surface": "#302f39",
-                        "tertiary": "#005338",
-                        "on-primary": "#ffffff",
-                        "on-background": "#1b1b24",
-                        "secondary": "#9d4300",
-                        "on-primary-container": "#b1afff",
-                        "tertiary-fixed": "#abf2cd",
-                        "secondary-fixed-dim": "#ffb690",
-                        "surface-container-low": "#f5f2ff",
-                        "error": "#ba1a1a",
-                        "on-tertiary-container": "#80c5a3",
-                        "on-tertiary": "#ffffff",
-                        "surface-variant": "#e4e1ee",
-                        "on-error-container": "#93000a"
-                    },
-                    "borderRadius": {
-                        "DEFAULT": "0.25rem",
-                        "lg": "0.5rem",
-                        "xl": "0.75rem",
-                        "2xl": "16px",
-                        "full": "9999px"
-                    },
-                    "spacing": {
-                        "base_unit": "4px",
-                        "unit": "4px",
-                        "md": "16px",
-                        "margin-desktop": "40px",
-                        "lg": "24px",
-                        "margin-mobile": "16px",
-                        "xs": "4px",
-                        "3xl": "64px",
-                        "2xl": "48px",
-                        "sm": "8px",
-                        "gutter": "24px",
-                        "xl": "32px"
-                    },
-                    "fontFamily": {
-                        "body-lg": ["Inter"],
-                        "body-md": ["Inter"],
-                        "body-sm": ["Inter"],
-                        "label-md": ["Inter"],
-                        "headline-lg": ["Inter"],
-                        "display-lg": ["Inter"],
-                        "headline-md": ["Inter"],
-                        "label-sm": ["Inter"],
-                        "headline-sm": ["Inter"]
-                    },
-                }
-            }
-        }
-    </script>
-</head>
-<body class="bg-surface font-body-md text-on-surface">
 
-    <!-- Top Navigation Bar Header matching index page aesthetic -->
-    <header class="border-b border-outline-variant/30 bg-surface-container-lowest sticky top-0 z-50">
-        <div class="max-w-7xl mx-auto px-margin-desktop py-md flex items-center justify-between">
-            <div class="flex items-center gap-lg">
-                <a href="/Exams" class="font-display-lg text-primary text-headline-sm flex items-center gap-xs font-bold tracking-tight">
-                    <span>📚 AcadPrep</span>
-                </a>
-                <nav class="hidden md:flex items-center gap-md text-label-md font-bold text-on-surface-variant">
-                    <a href="/Courses" class="hover:text-primary transition-colors">Courses</a>
-                    <a href="/Exams" class="text-primary">Exams</a>
-                </nav>
+<style>
+    /* Custom Scrollbar */
+    ::-webkit-scrollbar { width: 8px; }
+    ::-webkit-scrollbar-track { background: #f1f1f1; }
+    ::-webkit-scrollbar-thumb { background: #c7c4d8; border-radius: 10px; }
+    ::-webkit-scrollbar-thumb:hover { background: #777587; }
+    .glass-card { background: rgba(255, 255, 255, 0.8); backdrop-filter: blur(12px); }
+    .custom-shadow { box-shadow: 0 4px 20px -2px rgba(30, 0, 169, 0.05); }
+</style>
+
+<!-- Breadcrumb Navigation -->
+<nav class="flex items-center gap-xs text-on-surface-variant mb-lg">
+    <a href="/Exams" class="text-label-sm font-label-sm uppercase tracking-wider hover:text-primary transition-colors">Exam Library</a>
+    <span class="material-symbols-outlined text-[16px]">chevron_right</span>
+    <span class="text-label-sm font-label-sm text-primary uppercase tracking-wider">@Model.ExamDetail?.Title</span>
+</nav>
+
+@if (Model.ExamDetail == null)
+{
+    <div class="bg-error-container text-on-error-container p-lg rounded-2xl flex items-center gap-md">
+        <span class="material-symbols-outlined text-[24px]">error</span>
+        <span class="text-body-md font-label-md">Failed to load exam details. Please go back and try again.</span>
+    </div>
+}
+else
+{
+    <!-- Hero Section -->
+    <section class="mb-xl bg-surface-container-lowest rounded-2xl p-xl shadow-sm border border-outline-variant/20">
+        <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-lg">
+            <div>
+                <div class="flex flex-wrap gap-2 mb-sm">
+                    <span class="bg-primary-container/10 text-primary-container px-3 py-1 rounded-full text-label-sm font-bold uppercase tracking-wider">TOEIC</span>
+                    <span class="bg-surface-container-highest text-on-surface-variant px-3 py-1 rounded-full text-label-sm font-bold">@Model.ExamDetail.SeriesName</span>
+                    <span class="bg-tertiary-container/10 text-tertiary-fixed-dim px-3 py-1 rounded-full text-label-sm font-bold">Year @Model.ExamDetail.Year</span>
+                </div>
+                <h1 class="font-headline-lg text-headline-lg text-on-surface mb-xs">@Model.ExamDetail.Title</h1>
             </div>
-            <div class="flex items-center gap-md">
-                @if (Model.IsLoggedIn)
+            <div class="flex gap-4 items-center">
+                <div class="text-right">
+                    <p class="text-label-sm text-on-surface-variant">Last updated</p>
+                    <p class="font-label-md font-bold text-on-surface">Oct 2024</p>
+                </div>
+                <div class="w-12 h-12 rounded-xl bg-primary/5 flex items-center justify-center">
+                    <span class="material-symbols-outlined text-primary">event_available</span>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Stats Bar -->
+        <div class="grid grid-cols-2 md:grid-cols-6 gap-lg mt-xl pt-xl border-t border-outline-variant/30">
+            <div class="flex flex-col">
+                <span class="text-on-surface-variant text-label-sm mb-1 flex items-center gap-1">
+                    <span class="material-symbols-outlined text-sm">schedule</span> @Model.ExamDetail.Duration mins
+                </span>
+                <span class="font-headline-sm text-headline-sm font-bold text-on-surface">Duration</span>
+            </div>
+            <div class="flex flex-col">
+                <span class="text-on-surface-variant text-label-sm mb-1 flex items-center gap-1">
+                    <span class="material-symbols-outlined text-sm">quiz</span> @Model.ExamDetail.TotalQuestions questions
+                </span>
+                <span class="font-headline-sm text-headline-sm font-bold text-on-surface">Questions</span>
+            </div>
+            <div class="flex flex-col">
+                <span class="text-on-surface-variant text-label-sm mb-1 flex items-center gap-1">
+                    <span class="material-symbols-outlined text-sm">layers</span> @Model.ExamDetail.Parts.Count parts
+                </span>
+                <span class="font-headline-sm text-headline-sm font-bold text-on-surface">Structure</span>
+            </div>
+            <div class="flex flex-col">
+                <span class="text-on-surface-variant text-label-sm mb-1 flex items-center gap-1">
+                    <span class="material-symbols-outlined text-sm">trending_up</span> @(Model.ExamDetail.TotalAttempts >= 1000 ? $"{(Model.ExamDetail.TotalAttempts / 1000.0):F1}k" : Model.ExamDetail.TotalAttempts.ToString()) Attempts
+                </span>
+                <span class="font-headline-sm text-headline-sm font-bold text-on-surface">Popularity</span>
+            </div>
+            <div class="flex flex-col">
+                <span class="text-on-surface-variant text-label-sm mb-1 flex items-center gap-1">
+                    <span class="material-symbols-outlined text-sm text-secondary">star</span> 4.8 Rating
+                </span>
+                <span class="font-headline-sm text-headline-sm font-bold text-on-surface">Feedback</span>
+            </div>
+            <div class="flex flex-col items-end">
+                <button class="bg-surface-container-high hover:bg-surface-container-highest text-primary p-2 rounded-lg transition-colors">
+                    <span class="material-symbols-outlined">share</span>
+                </button>
+            </div>
+        </div>
+    </section>
+
+    @if (Model.ExamDetail.AttemptHistory?.FirstOrDefault(a => !a.IsSubmitted) is { } inProgressAttempt)
+    {
+        <div class="mb-lg bg-secondary/10 border border-secondary/30 rounded-2xl p-lg flex flex-col md:flex-row md:items-center justify-between gap-md">
+            <div class="flex items-start gap-3">
+                <span class="material-symbols-outlined text-secondary text-2xl">history</span>
+                <div>
+                    <p class="font-headline-sm font-bold text-on-surface">Test in progress</p>
+                    <p class="text-body-sm text-on-surface-variant">
+                        @TimeSpan.FromSeconds(inProgressAttempt.RemainingTime).ToString(@"hh\:mm\:ss") remaining ·
+                        Started @inProgressAttempt.StartedAt.ToString("MMM dd, HH:mm")
+                    </p>
+                </div>
+            </div>
+            <div class="flex gap-2">
+                <button type="button" onclick="resumeTest(@inProgressAttempt.AttemptId)" class="px-5 py-2.5 rounded-xl bg-primary text-on-primary font-bold hover:bg-primary-container transition-colors">
+                    Resume Test
+                </button>
+            </div>
+        </div>
+    }
+
+    <div class="flex flex-col lg:flex-row gap-lg">
+        <!-- Left Main Area: Tabs & Cards -->
+        <div class="w-full lg:w-2/3">
+            <!-- Tab Headers -->
+            <div class="flex border-b border-outline-variant/30 mb-lg">
+                <button class="px-xl py-md text-primary font-bold border-b-2 border-primary transition-all flex items-center gap-2" id="tab-practice" onclick="switchTab('practice')">
+                    <span class="material-symbols-outlined">fitness_center</span> Practice Mode
+                </button>
+                <button class="px-xl py-md text-on-surface-variant hover:text-on-surface transition-all flex items-center gap-2" id="tab-fulltest" onclick="switchTab('fulltest')">
+                    <span class="material-symbols-outlined">timer</span> Full Test
+                </button>
+                <button class="px-xl py-md text-on-surface-variant hover:text-on-surface transition-all flex items-center gap-2" id="tab-info" onclick="switchTab('info')">
+                    <span class="material-symbols-outlined">info</span> Info
+                </button>
+            </div>
+
+            <!-- Tab Content: Practice (Active) -->
+            <div class="space-y-md" id="content-practice">
+                <!-- Part Selection Cards -->
+                @if (!Model.ExamDetail.Parts.Any())
                 {
-                    <div class="flex items-center gap-sm">
-                        <img class="w-8 h-8 rounded-full border border-outline-variant" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAoDUOYz2KcAQ4v01N98CsRrUic8DFOS96b1C0LozaXb0m-hfkSjv_PChiEfB1z16EMwZAmb3rVKB5UxDzlVo1VgL6Emdy_WmRiZEKrMlu_iXXSIik8-U8f22K9lxddCM1BJAXjgxaziav2Tu-x8zHPFfnkjRrSVT1kLz7TRfHmP2GYG1oWHhWJfEogEZqHvgpq6Gp-My9W4ibuHu12xr2iPFzftZm-SzjGLFaqtOmKB0TeK9xwn_eVsUZFTXq4qyM3SRQTsrliR4MU" alt="Profile">
-                        <span class="text-label-md font-bold text-on-surface hidden sm:inline">Minh Tran</span>
+                    <div class="bg-surface-container-low p-lg rounded-2xl border border-outline-variant/30 text-center">
+                        <span class="material-symbols-outlined text-4xl text-on-surface-variant mb-2">quiz</span>
+                        <p class="text-body-md text-on-surface-variant">This exam has no questions yet. Please choose another exam.</p>
                     </div>
                 }
                 else
                 {
-                    <a href="#" class="text-label-md font-bold text-primary hover:underline">Login</a>
-                    <a href="#" class="bg-primary text-on-primary px-4 py-2 rounded-xl text-label-md font-bold hover:bg-primary-container transition-all">Sign Up</a>
+                <p class="text-body-sm text-on-surface-variant mb-sm">Select the parts you want to practice (multiple parts allowed):</p>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-md" id="part-selection-grid">
+                    @foreach (var part in Model.ExamDetail.Parts)
+                    {
+                        var partIcon = part.PartNumber switch
+                        {
+                            1 => "photo_camera",
+                            2 => "question_answer",
+                            3 => "forum",
+                            4 => "volume_up",
+                            5 => "text_fields",
+                            6 => "edit_document",
+                            7 => "auto_stories",
+                            _ => "quiz"
+                        };
+                        
+                        var partDifficulty = part.PartNumber switch
+                        {
+                            1 => "Easy",
+                            2 => "Intermediate",
+                            3 => "Intermediate",
+                            4 => "Hard",
+                            5 => "Hard",
+                            6 => "Intermediate",
+                            7 => "Hard",
+                            _ => "Intermediate"
+                        };
+
+                        var difficultyColorClass = partDifficulty switch
+                        {
+                            "Easy" => "text-on-tertiary-fixed-variant",
+                            "Intermediate" => "text-on-secondary-fixed-variant",
+                            "Hard" => "text-error",
+                            _ => "text-on-surface-variant"
+                        };
+
+                        var partTime = part.PartNumber switch
+                        {
+                            1 => "10 mins",
+                            2 => "15 mins",
+                            3 => "20 mins",
+                            4 => "15 mins",
+                            5 => "10 mins",
+                            6 => "10 mins",
+                            7 => "55 mins",
+                            _ => "15 mins"
+                        };
+                        
+                        var description = part.PartNumber switch
+                        {
+                            1 => "Listen and select the best description for the image.",
+                            2 => "Choose the logical response to questions and statements.",
+                            3 => "Listen to short conversations and answer comprehension questions.",
+                            4 => "Listen to short talks/announcements and answer comprehension questions.",
+                            5 => "Fill in the blanks with appropriate grammar or vocabulary.",
+                            6 => "Complete the sentences in short texts/articles.",
+                            7 => "Read various texts and answer comprehension questions.",
+                            _ => "Answer questions for this section."
+                        };
+                        
+                        <div id="part-card-@part.PartNumber" class="part-card p-md bg-surface-container-lowest rounded-2xl border-2 border-outline-variant/30 transition-all flex flex-col gap-sm relative">
+                            <div class="flex items-start gap-md cursor-pointer select-none" onclick="togglePartCheckbox(@part.PartNumber)">
+                                <input type="checkbox" id="part-check-@part.PartNumber" data-part="@part.PartNumber" checked
+                                    class="part-checkbox shrink-0 w-5 h-5 mt-1 rounded border-outline-variant text-primary focus:ring-primary cursor-pointer"
+                                    onclick="event.stopPropagation(); togglePartCheckbox(@part.PartNumber, true)">
+                                
+                                <div class="flex-grow">
+                                    <h3 class="font-headline-sm text-headline-sm text-on-surface mb-xs flex items-center gap-xs">
+                                        <span class="material-symbols-outlined text-primary">@partIcon</span>
+                                        @part.PartName
+                                    </h3>
+                                    <div class="flex gap-2 mb-xs flex-wrap">
+                                        <span class="text-label-sm bg-surface-container px-2 py-0.5 rounded text-on-surface-variant font-bold">@part.QuestionCount Questions</span>
+                                        <span class="text-label-sm bg-surface-container px-2 py-0.5 rounded text-on-surface-variant">@partTime</span>
+                                    </div>
+                                    <p class="text-body-sm text-on-surface-variant mb-xs">@description</p>
+                                    <div class="flex items-center gap-1 text-label-sm @difficultyColorClass">
+                                        <span class="material-symbols-outlined text-xs">signal_cellular_alt</span>
+                                        @partDifficulty
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            @if (part.Tags.Any())
+                            {
+                                <details class="mt-xs pt-sm border-t border-outline-variant/20" onclick="event.stopPropagation();">
+                                    <summary class="text-label-sm text-primary cursor-pointer font-medium mb-xs">Filter by tag (@part.Tags.Count)</summary>
+                                    <div class="flex flex-wrap gap-xs max-h-32 overflow-y-auto">
+                                        @foreach (var tag in part.Tags.Take(12))
+                                        {
+                                            <label class="inline-flex items-center gap-1 bg-surface-container px-sm py-xs rounded-lg text-body-sm border border-outline-variant/30 cursor-pointer hover:border-primary/40">
+                                                <input type="checkbox" class="tag-checkbox w-3.5 h-3.5 text-primary rounded" value="@tag" data-parent-part="@part.PartNumber" onchange="syncParentPartCheckbox(@part.PartNumber)">
+                                                <span class="truncate max-w-[180px]">@tag</span>
+                                            </label>
+                                        }
+                                    </div>
+                                </details>
+                            }
+                        </div>
+                    }
+                </div>
                 }
+
+                <!-- Time Limit Dropdown -->
+                <div class="bg-surface-container-low p-lg rounded-2xl flex flex-col md:flex-row items-center justify-between gap-md border border-outline-variant/20">
+                    <div class="flex items-center gap-md">
+                        <span class="material-symbols-outlined text-primary-container text-[28px]">timer</span>
+                        <div>
+                            <h4 class="font-label-md font-bold text-on-surface">Time Limit</h4>
+                            <p class="text-body-sm text-on-surface-variant">The practice session will end when the time limit is reached.</p>
+                        </div>
+                    </div>
+                    <div class="flex items-center gap-2">
+                        <select id="customTimeLimit" class="bg-surface-container-lowest border border-outline-variant rounded-lg py-2 pl-3 pr-10 focus:ring-2 focus:ring-primary focus:border-primary">
+                            <option value="">No limit</option>
+                            <option value="15">15 minutes</option>
+                            <option value="30">30 minutes</option>
+                            <option value="45">45 minutes</option>
+                            <option value="60">60 minutes</option>
+                            <option value="90">90 minutes</option>
+                            <option value="120">120 minutes</option>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- Start Practice Button & Selection Status -->
+                <div class="sticky bottom-4 md:static flex flex-col gap-sm">
+                    <div class="text-body-sm text-on-surface-variant text-center md:text-left font-medium" id="selection-summary">
+                        7 Parts Selected | 7 Questions | ~10 mins
+                    </div>
+                    <button onclick="startPracticeSession()" class="w-full bg-secondary hover:bg-on-secondary-fixed-variant text-on-secondary font-headline-sm py-4 rounded-2xl shadow-lg shadow-secondary/20 transition-all active:scale-[0.98] flex items-center justify-center gap-2">
+                        START PRACTICE
+                        <span class="material-symbols-outlined">play_arrow</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Tab Content: Full Test (Hidden) -->
+            <div class="hidden space-y-md animate-in fade-in duration-300" id="content-fulltest">
+                <div class="bg-primary/5 rounded-2xl p-xl border border-primary/10">
+                    <div class="flex items-center gap-xl mb-xl">
+                        <div class="w-16 h-16 rounded-full bg-primary flex items-center justify-center text-on-primary">
+                            <span class="material-symbols-outlined text-3xl">psychology</span>
+                        </div>
+                        <div>
+                            <h3 class="font-headline-md text-headline-md text-primary">Full Test Simulation</h3>
+                            <p class="text-body-md text-on-surface-variant">Attempt the official 2-hour TOEIC exam sequence under exam conditions.</p>
+                        </div>
+                    </div>
+                    <ul class="space-y-md mb-xl">
+                        <li class="flex items-center gap-4 text-on-surface">
+                            <span class="material-symbols-outlined text-tertiary">check_circle</span>
+                            <span>200 Questions (100 Listening / 100 Reading)</span>
+                        </li>
+                        <li class="flex items-center gap-4 text-on-surface">
+                            <span class="material-symbols-outlined text-tertiary">check_circle</span>
+                            <span>120 Minutes strict countdown timer</span>
+                        </li>
+                        <li class="flex items-center gap-4 text-on-surface">
+                            <span class="material-symbols-outlined text-tertiary">check_circle</span>
+                            <span>Official TOEIC Flow - No pausing permitted</span>
+                        </li>
+                        <li class="flex items-center gap-4 text-on-surface">
+                            <span class="material-symbols-outlined text-tertiary">check_circle</span>
+                            <span>Audio played once per question (Parts 1-4)</span>
+                        </li>
+                    </ul>
+                    <button onclick="startFullTestSession()" class="w-full bg-primary hover:bg-primary-container text-on-primary font-headline-sm py-4 rounded-2xl shadow-xl shadow-primary/20 transition-all flex items-center justify-center gap-2">
+                        Start Full Test
+                        <span class="material-symbols-outlined">rocket_launch</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Tab Content: Info (Hidden) -->
+            <div class="hidden animate-in fade-in duration-300" id="content-info">
+                <div class="prose max-w-none text-on-surface-variant space-y-md">
+                    <p class="text-body-md leading-relaxed">
+                        @(string.IsNullOrWhiteSpace(Model.ExamDetail.Description) 
+                            ? "This official TOEIC practice test includes authentic materials designed to simulate the actual testing experience. Candidates should find a quiet room and prepare for a sustained 2-hour session." 
+                            : Model.ExamDetail.Description)
+                    </p>
+                    <h4 class="font-bold text-on-surface text-headline-sm mt-lg mb-sm">Exam Composition</h4>
+                    <table class="w-full text-left border-collapse border border-outline-variant/30 rounded-xl overflow-hidden shadow-sm">
+                        <thead class="bg-surface-container">
+                            <tr>
+                                <th class="p-md text-label-md font-bold text-on-surface">Section</th>
+                                <th class="p-md text-label-md font-bold text-on-surface">Part Name</th>
+                                <th class="p-md text-label-md font-bold text-on-surface">Questions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var part in Model.ExamDetail.Parts)
+                            {
+                                var partSectionName = part.PartNumber <= 4 ? "Listening" : "Reading";
+                                <tr class="border-b border-outline-variant/30 hover:bg-surface-container-low/30 transition-colors">
+                                    <td class="p-md text-body-sm font-bold text-on-surface">@partSectionName</td>
+                                    <td class="p-md text-body-sm">@part.PartName</td>
+                                    <td class="p-md text-body-sm font-medium">@part.QuestionCount</td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
             </div>
         </div>
-    </header>
 
-    <main class="max-w-7xl mx-auto px-margin-desktop py-xl">
-        <!-- Breadcrumb Navigation -->
-        <nav class="flex items-center gap-xs text-on-surface-variant mb-lg">
-            <a href="/Exams" class="text-label-sm font-label-sm uppercase tracking-wider hover:text-primary transition-colors">Exam Library</a>
-            <span class="material-symbols-outlined text-[16px]">chevron_right</span>
-            <span class="text-label-sm font-label-sm text-primary uppercase tracking-wider">@Model.ExamDetail?.Title</span>
-        </nav>
-
-        @if (Model.ExamDetail == null)
-        {
-            <div class="bg-error-container text-on-error-container p-lg rounded-2xl flex items-center gap-md">
-                <span class="material-symbols-outlined text-[24px]">error</span>
-                <span class="text-body-md font-label-md">Failed to load exam details. Please go back and try again.</span>
-            </div>
-        }
-        else
-        {
-            <!-- Hero Section -->
-            <section class="mb-xl bg-surface-container-lowest rounded-2xl p-xl shadow-sm border border-outline-variant/20">
-                <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-lg">
-                    <div>
-                        <div class="flex flex-wrap gap-2 mb-sm">
-                            <span class="bg-primary-container/10 text-primary-container px-3 py-1 rounded-full text-label-sm font-bold uppercase tracking-wider">TOEIC</span>
-                            <span class="bg-surface-container-highest text-on-surface-variant px-3 py-1 rounded-full text-label-sm font-bold">@Model.ExamDetail.SeriesName</span>
-                            <span class="bg-tertiary-container/10 text-tertiary-fixed-dim px-3 py-1 rounded-full text-label-sm font-bold">Year @Model.ExamDetail.Year</span>
-                        </div>
-                        <h1 class="font-headline-lg text-headline-lg text-on-surface mb-xs">@Model.ExamDetail.Title</h1>
-                    </div>
-                    <div class="flex gap-4 items-center">
-                        <div class="text-right">
-                            <p class="text-label-sm text-on-surface-variant">Last updated</p>
-                            <p class="font-label-md font-bold text-on-surface">Oct 2024</p>
-                        </div>
-                        <div class="w-12 h-12 rounded-xl bg-primary/5 flex items-center justify-center">
-                            <span class="material-symbols-outlined text-primary">event_available</span>
-                        </div>
-                    </div>
-                </div>
-                
-                <!-- Stats Bar -->
-                <div class="grid grid-cols-2 md:grid-cols-6 gap-lg mt-xl pt-xl border-t border-outline-variant/30">
-                    <div class="flex flex-col">
-                        <span class="text-on-surface-variant text-label-sm mb-1 flex items-center gap-1">
-                            <span class="material-symbols-outlined text-sm">schedule</span> @Model.ExamDetail.Duration mins
-                        </span>
-                        <span class="font-headline-sm text-headline-sm font-bold text-on-surface">Duration</span>
-                    </div>
-                    <div class="flex flex-col">
-                        <span class="text-on-surface-variant text-label-sm mb-1 flex items-center gap-1">
-                            <span class="material-symbols-outlined text-sm">quiz</span> @Model.ExamDetail.TotalQuestions questions
-                        </span>
-                        <span class="font-headline-sm text-headline-sm font-bold text-on-surface">Questions</span>
-                    </div>
-                    <div class="flex flex-col">
-                        <span class="text-on-surface-variant text-label-sm mb-1 flex items-center gap-1">
-                            <span class="material-symbols-outlined text-sm">layers</span> @Model.ExamDetail.Parts.Count parts
-                        </span>
-                        <span class="font-headline-sm text-headline-sm font-bold text-on-surface">Structure</span>
-                    </div>
-                    <div class="flex flex-col">
-                        <span class="text-on-surface-variant text-label-sm mb-1 flex items-center gap-1">
-                            <span class="material-symbols-outlined text-sm">trending_up</span> @(Model.ExamDetail.TotalAttempts >= 1000 ? $"{(Model.ExamDetail.TotalAttempts / 1000.0):F1}k" : Model.ExamDetail.TotalAttempts.ToString()) Attempts
-                        </span>
-                        <span class="font-headline-sm text-headline-sm font-bold text-on-surface">Popularity</span>
-                    </div>
-                    <div class="flex flex-col">
-                        <span class="text-on-surface-variant text-label-sm mb-1 flex items-center gap-1">
-                            <span class="material-symbols-outlined text-sm text-secondary">star</span> 4.8 Rating
-                        </span>
-                        <span class="font-headline-sm text-headline-sm font-bold text-on-surface">Feedback</span>
-                    </div>
-                    <div class="flex flex-col items-end">
-                        <button class="bg-surface-container-high hover:bg-surface-container-highest text-primary p-2 rounded-lg transition-colors">
-                            <span class="material-symbols-outlined">share</span>
-                        </button>
-                    </div>
-                </div>
-            </section>
-
-            @if (Model.ExamDetail.AttemptHistory?.FirstOrDefault(a => !a.IsSubmitted) is { } inProgressAttempt)
+        <!-- Right Sidebar: Premium Promotion vs Logged-In User Profile -->
+        <aside class="w-full lg:w-1/3 space-y-lg">
+            @if (Model.IsLoggedIn)
             {
-                <div class="mb-lg bg-secondary/10 border border-secondary/30 rounded-2xl p-lg flex flex-col md:flex-row md:items-center justify-between gap-md">
-                    <div class="flex items-start gap-3">
-                        <span class="material-symbols-outlined text-secondary text-2xl">history</span>
-                        <div>
-                            <p class="font-headline-sm font-bold text-on-surface">Test in progress</p>
-                            <p class="text-body-sm text-on-surface-variant">
-                                @TimeSpan.FromSeconds(inProgressAttempt.RemainingTime).ToString(@"hh\:mm\:ss") remaining ·
-                                Started @inProgressAttempt.StartedAt.ToString("MMM dd, HH:mm")
-                            </p>
+                <!-- Profile & Target Card -->
+                <div class="bg-primary-container text-on-primary-container p-lg rounded-2xl custom-shadow relative overflow-hidden">
+                    <div class="absolute -top-12 -right-12 w-32 h-32 bg-white/5 rounded-full blur-2xl"></div>
+                    <div class="relative z-10 flex flex-col gap-md">
+                        <div class="flex items-center gap-md">
+                            <img class="w-16 h-16 rounded-full border-2 border-white shadow-lg" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAoDUOYz2KcAQ4v01N98CsRrUic8DFOS96b1C0LozaXb0m-hfkSjv_PChiEfB1z16EMwZAmb3rVKB5UxDzlVo1VgL6Emdy_WmRiZEKrMlu_iXXSIik8-U8f22K9lxddCM1BJAXjgxaziav2Tu-x8zHPFfnkjRrSVT1kLz7TRfHmP2GYG1oWHhWJfEogEZqHvgpq6Gp-My9W4ibuHu12xr2iPFzftZm-SzjGLFaqtOmKB0TeK9xwn_eVsUZFTXq4qyM3SRQTsrliR4MU" alt="Avatar">
+                            <div>
+                                <h3 class="font-headline-sm text-white">Minh Tran</h3>
+                                <p class="text-label-sm text-on-primary-container/85">Premium Learner</p>
+                            </div>
+                        </div>
+                        <div class="grid grid-cols-2 gap-md mt-sm">
+                            <div class="bg-white/10 p-3 rounded-xl border border-white/20">
+                                <p class="text-[10px] uppercase font-bold text-white/70">Target Score</p>
+                                <p class="text-headline-sm text-white">850</p>
+                            </div>
+                            <div class="bg-white/10 p-3 rounded-xl border border-white/20">
+                                <p class="text-[10px] uppercase font-bold text-white/70">Exam Date</p>
+                                <p class="text-label-md text-white">Dec 15</p>
+                            </div>
+                        </div>
+                        <div class="flex justify-between items-center text-label-sm">
+                            <span>Progress to Goal</span>
+                            <span class="font-bold">45 Days Left</span>
+                        </div>
+                        <div class="w-full h-2 bg-white/20 rounded-full overflow-hidden">
+                            <div class="h-full bg-white w-3/4 rounded-full"></div>
                         </div>
                     </div>
-                    <div class="flex gap-2">
-                        <button type="button" onclick="resumeTest(@inProgressAttempt.AttemptId)" class="px-5 py-2.5 rounded-xl bg-primary text-on-primary font-bold hover:bg-primary-container transition-colors">
-                            Resume Test
-                        </button>
+                </div>
+
+                <!-- Performance Summary -->
+                <div class="bg-surface-container-lowest p-lg rounded-2xl custom-shadow border border-outline-variant/30">
+                    <div class="flex justify-between items-center mb-md">
+                        <h4 class="font-bold text-on-surface">Performance</h4>
+                        <span class="material-symbols-outlined text-primary">show_chart</span>
+                    </div>
+                    <div class="flex items-center gap-lg mb-lg">
+                        <div class="flex-1">
+                            <p class="text-label-sm text-on-surface-variant">Avg. Score</p>
+                            <p class="text-headline-md font-bold text-primary">720</p>
+                        </div>
+                        <div class="flex-1">
+                            <p class="text-label-sm text-on-surface-variant">Best</p>
+                            <p class="text-headline-md font-bold text-secondary">780</p>
+                        </div>
+                    </div>
+                    <!-- Small Sparkline Bar Chart -->
+                    <div class="w-full h-12 flex items-end gap-1">
+                        <div class="w-full h-[40%] bg-primary/20 rounded-t-sm hover:bg-primary transition-all"></div>
+                        <div class="w-full h-[55%] bg-primary/20 rounded-t-sm hover:bg-primary transition-all"></div>
+                        <div class="w-full h-[45%] bg-primary/20 rounded-t-sm hover:bg-primary transition-all"></div>
+                        <div class="w-full h-[70%] bg-primary/20 rounded-t-sm hover:bg-primary transition-all"></div>
+                        <div class="w-full h-[65%] bg-primary/20 rounded-t-sm hover:bg-primary transition-all"></div>
+                        <div class="w-full h-[85%] bg-primary/30 rounded-t-sm hover:bg-primary transition-all"></div>
+                        <div class="w-full h-[80%] bg-primary rounded-t-sm"></div>
                     </div>
                 </div>
-            }
 
-            <div class="flex flex-col lg:flex-row gap-lg">
-                <!-- Left Main Area: Tabs & Cards -->
-                <div class="w-full lg:w-2/3">
-                    <!-- Tab Headers -->
-                    <div class="flex border-b border-outline-variant/30 mb-lg">
-                        <button class="px-xl py-md text-primary font-bold border-b-2 border-primary transition-all flex items-center gap-2" id="tab-practice" onclick="switchTab('practice')">
-                            <span class="material-symbols-outlined">fitness_center</span> Practice Mode
-                        </button>
-                        <button class="px-xl py-md text-on-surface-variant hover:text-on-surface transition-all flex items-center gap-2" id="tab-fulltest" onclick="switchTab('fulltest')">
-                            <span class="material-symbols-outlined">timer</span> Full Test
-                        </button>
-                        <button class="px-xl py-md text-on-surface-variant hover:text-on-surface transition-all flex items-center gap-2" id="tab-info" onclick="switchTab('info')">
-                            <span class="material-symbols-outlined">info</span> Info
-                        </button>
-                    </div>                    <!-- Tab Content: Practice (Active) -->
-                    <div class="space-y-md" id="content-practice">
-                        <!-- Part Selection Cards -->
-                        @if (!Model.ExamDetail.Parts.Any())
+                <!-- AI Recommendation -->
+                <div class="bg-tertiary-container/10 border border-tertiary/20 p-md rounded-2xl">
+                    <div class="flex gap-3">
+                        <div class="w-10 h-10 rounded-full bg-tertiary text-white flex items-center justify-center shrink-0">
+                            <span class="material-symbols-outlined">psychology</span>
+                        </div>
+                        <div>
+                            <p class="text-label-sm font-bold text-tertiary uppercase tracking-tight">AI Recommendation</p>
+                            <p class="text-body-sm text-on-surface mt-1 leading-snug">"Improve Part 3 Listening accuracy by 15% to reach your target 850."</p>
+                            <button class="mt-2 text-primary font-bold text-label-sm flex items-center gap-1 hover:underline">
+                                View suggested drills <span class="material-symbols-outlined text-[14px]">arrow_forward</span>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Practice History -->
+                <div class="flex flex-col gap-sm">
+                    <div class="flex justify-between items-center px-1">
+                        <h4 class="font-bold text-on-surface">Practice History</h4>
+                        <button class="text-primary text-label-sm font-bold">View all</button>
+                    </div>
+                    <div class="space-y-sm">
+                        @if (Model.ExamDetail.AttemptHistory != null && Model.ExamDetail.AttemptHistory.Any())
                         {
-                            <div class="bg-surface-container-low p-lg rounded-2xl border border-outline-variant/30 text-center">
-                                <span class="material-symbols-outlined text-4xl text-on-surface-variant mb-2">quiz</span>
-                                <p class="text-body-md text-on-surface-variant">This exam has no questions yet. Please choose another exam.</p>
-                            </div>
+                            @foreach (var attempt in Model.ExamDetail.AttemptHistory)
+                            {
+                                var attemptType = attempt.IsSubmitted ? "Full Test" : "Practice";
+                                var attemptTime = attempt.CompletedAt.HasValue 
+                                    ? $"{(attempt.CompletedAt.Value - attempt.StartedAt).Minutes} mins" 
+                                    : "In Progress";
+                                
+                                <div class="bg-surface-container-lowest p-md rounded-xl border border-outline-variant/50 flex justify-between items-center hover:bg-surface-container-low transition-colors group">
+                                    <div class="flex gap-3 items-center">
+                                        <div class="w-10 h-10 rounded-lg bg-surface-container-high flex items-center justify-center text-primary">
+                                            <span class="material-symbols-outlined">@(attempt.IsSubmitted ? "timer" : "history")</span>
+                                        </div>
+                                        <div>
+                                            <p class="text-body-sm font-bold">@attemptType</p>
+                                            <p class="text-[10px] text-on-surface-variant uppercase">@attempt.StartedAt.ToString("MMM dd") • @attemptTime</p>
+                                        </div>
+                                    </div>
+                                    <div class="text-right">
+                                        <p class="text-label-md font-bold text-primary">@attempt.TotalScore/990</p>
+                                        <button class="text-[10px] font-bold text-primary opacity-0 group-hover:opacity-100 transition-opacity">Review</button>
+                                    </div>
+                                </div>
+                            }
                         }
                         else
                         {
-                        <p class="text-body-sm text-on-surface-variant mb-sm">Select the parts you want to practice (multiple parts allowed):</p>
-                        <div class="grid grid-cols-1 md:grid-cols-2 gap-md" id="part-selection-grid">
-                            @foreach (var part in Model.ExamDetail.Parts)
-                            {
-                                var partIcon = part.PartNumber switch
-                                {
-                                    1 => "photo_camera",
-                                    2 => "question_answer",
-                                    3 => "forum",
-                                    4 => "volume_up",
-                                    5 => "text_fields",
-                                    6 => "edit_document",
-                                    7 => "auto_stories",
-                                    _ => "quiz"
-                                };
-                                
-                                var partDifficulty = part.PartNumber switch
-                                {
-                                    1 => "Easy",
-                                    2 => "Intermediate",
-                                    3 => "Intermediate",
-                                    4 => "Hard",
-                                    5 => "Hard",
-                                    6 => "Intermediate",
-                                    7 => "Hard",
-                                    _ => "Intermediate"
-                                };
-
-                                var difficultyColorClass = partDifficulty switch
-                                {
-                                    "Easy" => "text-on-tertiary-fixed-variant",
-                                    "Intermediate" => "text-on-secondary-fixed-variant",
-                                    "Hard" => "text-error",
-                                    _ => "text-on-surface-variant"
-                                };
-
-                                var partTime = part.PartNumber switch
-                                {
-                                    1 => "10 mins",
-                                    2 => "15 mins",
-                                    3 => "20 mins",
-                                    4 => "15 mins",
-                                    5 => "10 mins",
-                                    6 => "10 mins",
-                                    7 => "55 mins",
-                                    _ => "15 mins"
-                                };
-                                
-                                var description = part.PartNumber switch
-                                {
-                                    1 => "Listen and select the best description for the image.",
-                                    2 => "Choose the logical response to questions and statements.",
-                                    3 => "Listen to short conversations and answer comprehension questions.",
-                                    4 => "Listen to short talks/announcements and answer comprehension questions.",
-                                    5 => "Fill in the blanks with appropriate grammar or vocabulary.",
-                                    6 => "Complete the sentences in short texts/articles.",
-                                    7 => "Read various texts and answer comprehension questions.",
-                                    _ => "Answer questions for this section."
-                                };
-                                
-                                <div id="part-card-@part.PartNumber" class="part-card p-md bg-surface-container-lowest rounded-2xl border-2 border-outline-variant/30 transition-all flex flex-col gap-sm relative">
-                                    <div class="flex items-start gap-md cursor-pointer select-none" onclick="togglePartCheckbox(@part.PartNumber)">
-                                        <input type="checkbox" id="part-check-@part.PartNumber" data-part="@part.PartNumber" checked
-                                            class="part-checkbox shrink-0 w-5 h-5 mt-1 rounded border-outline-variant text-primary focus:ring-primary cursor-pointer"
-                                            onclick="event.stopPropagation(); togglePartCheckbox(@part.PartNumber, true)">
-                                        
-                                        <div class="flex-grow">
-                                            <h3 class="font-headline-sm text-headline-sm text-on-surface mb-xs flex items-center gap-xs">
-                                                <span class="material-symbols-outlined text-primary">@partIcon</span>
-                                                @part.PartName
-                                            </h3>
-                                            <div class="flex gap-2 mb-xs flex-wrap">
-                                                <span class="text-label-sm bg-surface-container px-2 py-0.5 rounded text-on-surface-variant font-bold">@part.QuestionCount Questions</span>
-                                                <span class="text-label-sm bg-surface-container px-2 py-0.5 rounded text-on-surface-variant">@partTime</span>
-                                            </div>
-                                            <p class="text-body-sm text-on-surface-variant mb-xs">@description</p>
-                                            <div class="flex items-center gap-1 text-label-sm @difficultyColorClass">
-                                                <span class="material-symbols-outlined text-xs">signal_cellular_alt</span>
-                                                @partDifficulty
-                                            </div>
-                                        </div>
-                                    </div>
-                                    
-                                    @if (part.Tags.Any())
-                                    {
-                                        <details class="mt-xs pt-sm border-t border-outline-variant/20" onclick="event.stopPropagation();">
-                                            <summary class="text-label-sm text-primary cursor-pointer font-medium mb-xs">Filter by tag (@part.Tags.Count)</summary>
-                                            <div class="flex flex-wrap gap-xs max-h-32 overflow-y-auto">
-                                                @foreach (var tag in part.Tags.Take(12))
-                                                {
-                                                    <label class="inline-flex items-center gap-1 bg-surface-container px-sm py-xs rounded-lg text-body-sm border border-outline-variant/30 cursor-pointer hover:border-primary/40">
-                                                        <input type="checkbox" class="tag-checkbox w-3.5 h-3.5 text-primary rounded" value="@tag" data-parent-part="@part.PartNumber" onchange="syncParentPartCheckbox(@part.PartNumber)">
-                                                        <span class="truncate max-w-[180px]">@tag</span>
-                                                    </label>
-                                                }
-                                            </div>
-                                        </details>
-                                    }
-                                </div>
-                            }
-                        </div>
+                            <p class="text-body-sm text-on-surface-variant italic text-center py-4">No practice history yet.</p>
                         }
+                    </div>
+                </div>
 
-                        <!-- Time Limit Dropdown -->
-                        <div class="bg-surface-container-low p-lg rounded-2xl flex flex-col md:flex-row items-center justify-between gap-md border border-outline-variant/20">
-                            <div class="flex items-center gap-md">
-                                <span class="material-symbols-outlined text-primary-container text-[28px]">timer</span>
-                                <div>
-                                    <h4 class="font-label-md font-bold text-on-surface">Time Limit</h4>
-                                    <p class="text-body-sm text-on-surface-variant">The practice session will end when the time limit is reached.</p>
-                                </div>
-                            </div>
-                            <div class="flex items-center gap-2">
-                                <select id="customTimeLimit" class="bg-surface-container-lowest border border-outline-variant rounded-lg py-2 pl-3 pr-10 focus:ring-2 focus:ring-primary focus:border-primary">
-                                    <option value="">No limit</option>
-                                    <option value="15">15 minutes</option>
-                                    <option value="30">30 minutes</option>
-                                    <option value="45">45 minutes</option>
-                                    <option value="60">60 minutes</option>
-                                    <option value="90">90 minutes</option>
-                                    <option value="120">120 minutes</option>
-                                </select>
-                            </div>
-                        </div>
-
-                        <!-- Start Practice Button & Selection Status -->
-                        <div class="sticky bottom-4 md:static flex flex-col gap-sm">
-                            <div class="text-body-sm text-on-surface-variant text-center md:text-left font-medium" id="selection-summary">
-                                7 Parts Selected | 7 Questions | ~10 mins
-                            </div>
-                            <button onclick="startPracticeSession()" class="w-full bg-secondary hover:bg-on-secondary-fixed-variant text-on-secondary font-headline-sm py-4 rounded-2xl shadow-lg shadow-secondary/20 transition-all active:scale-[0.98] flex items-center justify-center gap-2">
-                                START PRACTICE
-                                <span class="material-symbols-outlined">play_arrow</span>
-                            </button>
+                <!-- Achievements -->
+                <div class="bg-surface-container-lowest p-lg rounded-2xl custom-shadow border border-outline-variant/30">
+                    <div class="flex justify-between items-center mb-md">
+                        <h4 class="font-bold text-on-surface">Achievements</h4>
+                        <div class="flex items-center gap-1 bg-secondary-fixed text-on-secondary-fixed px-2 py-0.5 rounded text-[10px] font-bold">
+                            <span class="material-symbols-outlined text-[14px]">bolt</span> 12 Day Streak
                         </div>
                     </div>
-
-                    <!-- Tab Content: Full Test (Hidden) -->
-                    <div class="hidden space-y-md animate-in fade-in duration-300" id="content-fulltest">
-                        <div class="bg-primary/5 rounded-2xl p-xl border border-primary/10">
-                            <div class="flex items-center gap-xl mb-xl">
-                                <div class="w-16 h-16 rounded-full bg-primary flex items-center justify-center text-on-primary">
-                                    <span class="material-symbols-outlined text-3xl">psychology</span>
+                    <div class="flex flex-col gap-md">
+                        <div class="flex items-center gap-sm">
+                            <div class="flex-1">
+                                <div class="flex justify-between text-[10px] mb-1">
+                                    <span class="font-bold uppercase text-on-surface-variant">Next Badge: Scholar II</span>
+                                    <span>2,450 / 3,000 XP</span>
                                 </div>
-                                <div>
-                                    <h3 class="font-headline-md text-headline-md text-primary">Full Test Simulation</h3>
-                                    <p class="text-body-md text-on-surface-variant">Attempt the official 2-hour TOEIC exam sequence under exam conditions.</p>
+                                <div class="w-full h-1.5 bg-outline-variant rounded-full">
+                                    <div class="h-full bg-secondary w-[80%] rounded-full"></div>
                                 </div>
                             </div>
-                            <ul class="space-y-md mb-xl">
-                                <li class="flex items-center gap-4 text-on-surface">
-                                    <span class="material-symbols-outlined text-tertiary">check_circle</span>
-                                    <span>200 Questions (100 Listening / 100 Reading)</span>
-                                </li>
-                                <li class="flex items-center gap-4 text-on-surface">
-                                    <span class="material-symbols-outlined text-tertiary">check_circle</span>
-                                    <span>120 Minutes strict countdown timer</span>
-                                </li>
-                                <li class="flex items-center gap-4 text-on-surface">
-                                    <span class="material-symbols-outlined text-tertiary">check_circle</span>
-                                    <span>Official TOEIC Flow - No pausing permitted</span>
-                                </li>
-                                <li class="flex items-center gap-4 text-on-surface">
-                                    <span class="material-symbols-outlined text-tertiary">check_circle</span>
-                                    <span>Audio played once per question (Parts 1-4)</span>
-                                </li>
-                            </ul>
-                            <button onclick="startFullTestSession()" class="w-full bg-primary hover:bg-primary-container text-on-primary font-headline-sm py-4 rounded-2xl shadow-xl shadow-primary/20 transition-all flex items-center justify-center gap-2">
-                                Start Full Test
-                                <span class="material-symbols-outlined">rocket_launch</span>
-                            </button>
+                        </div>
+                        <div class="flex gap-md justify-between">
+                            <div class="w-12 h-12 rounded-full bg-surface-container-high flex items-center justify-center grayscale">
+                                <span class="material-symbols-outlined text-primary">military_tech</span>
+                            </div>
+                            <div class="w-12 h-12 rounded-full bg-surface-container-high flex items-center justify-center border-2 border-primary">
+                                <span class="material-symbols-outlined text-primary">auto_awesome</span>
+                            </div>
+                            <div class="w-12 h-12 rounded-full bg-surface-container-high flex items-center justify-center border-2 border-secondary">
+                                <span class="material-symbols-outlined text-secondary">star</span>
+                            </div>
+                            <div class="w-12 h-12 rounded-full bg-surface-container-high flex items-center justify-center grayscale">
+                                <span class="material-symbols-outlined text-primary">emoji_events</span>
+                            </div>
                         </div>
                     </div>
-
-                    <!-- Tab Content: Info (Hidden) -->
-                    <div class="hidden animate-in fade-in duration-300" id="content-info">
-                        <div class="prose max-w-none text-on-surface-variant space-y-md">
-                            <p class="text-body-md leading-relaxed">
-                                @(string.IsNullOrWhiteSpace(Model.ExamDetail.Description) 
-                                    ? "This official TOEIC practice test includes authentic materials designed to simulate the actual testing experience. Candidates should find a quiet room and prepare for a sustained 2-hour session." 
-                                    : Model.ExamDetail.Description)
-                            </p>
-                            <h4 class="font-bold text-on-surface text-headline-sm mt-lg mb-sm">Exam Composition</h4>
-                            <table class="w-full text-left border-collapse border border-outline-variant/30 rounded-xl overflow-hidden shadow-sm">
-                                <thead class="bg-surface-container">
-                                    <tr>
-                                        <th class="p-md text-label-md font-bold text-on-surface">Section</th>
-                                        <th class="p-md text-label-md font-bold text-on-surface">Part Name</th>
-                                        <th class="p-md text-label-md font-bold text-on-surface">Questions</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    @foreach (var part in Model.ExamDetail.Parts)
-                                    {
-                                        var partSectionName = part.PartNumber <= 4 ? "Listening" : "Reading";
-                                        <tr class="border-b border-outline-variant/30 hover:bg-surface-container-low/30 transition-colors">
-                                            <td class="p-md text-body-sm font-bold text-on-surface">@partSectionName</td>
-                                            <td class="p-md text-body-sm">@part.PartName</td>
-                                            <td class="p-md text-body-sm font-medium">@part.QuestionCount</td>
-                                        </tr>
-                                    }
-                                </tbody>
-                            </table>
+                </div>
+            }
+            else
+            {
+                <!-- Premium Promotion Card -->
+                <div class="bg-primary p-xl rounded-2xl text-on-primary shadow-xl relative overflow-hidden">
+                    <!-- Atmospheric Effect -->
+                    <div class="absolute -top-12 -right-12 w-32 h-32 bg-primary-container/40 rounded-full blur-3xl"></div>
+                    <div class="absolute -bottom-12 -left-12 w-32 h-32 bg-secondary-container/20 rounded-full blur-3xl"></div>
+                    <div class="relative z-10">
+                        <h2 class="font-headline-md text-headline-md mb-md leading-tight text-[24px]">Unlock Personalized Learning</h2>
+                        <ul class="space-y-sm mb-xl">
+                            <li class="flex items-center gap-3 text-body-sm">
+                                <span class="material-symbols-outlined text-sm">bookmark_added</span> Save your test progress
+                            </li>
+                            <li class="flex items-center gap-3 text-body-sm">
+                                <span class="material-symbols-outlined text-sm">history</span> Full exam history &amp; logs
+                            </li>
+                            <li class="flex items-center gap-3 text-body-sm">
+                                <span class="material-symbols-outlined text-sm">insights</span> Performance analytics
+                            </li>
+                            <li class="flex items-center gap-3 text-body-sm">
+                                <span class="material-symbols-outlined text-sm">auto_stories</span> Vocabulary notebook
+                            </li>
+                            <li class="flex items-center gap-3 text-body-sm">
+                                <span class="material-symbols-outlined text-sm">error</span> Review incorrect answers
+                            </li>
+                            <li class="flex items-center gap-3 text-body-sm">
+                                <span class="material-symbols-outlined text-sm">bolt</span> Maintain your study streak
+                            </li>
+                        </ul>
+                        <div class="flex flex-col gap-3">
+                            <a href="/Account/Login" class="w-full bg-white text-primary font-bold py-3 rounded-xl hover:bg-surface-container-low transition-colors shadow-lg text-center" style="text-decoration:none;">Login to Continue</a>
+                            <a href="/Account/Register" class="w-full bg-transparent border border-white/30 text-white font-bold py-3 rounded-xl hover:bg-white/10 transition-colors text-center" style="text-decoration:none;">Create Account</a>
                         </div>
                     </div>
                 </div>
 
-                <!-- Right Sidebar: Premium Promotion vs Logged-In User Profile -->
-                <aside class="w-full lg:w-1/3 space-y-lg">
-                    @if (Model.IsLoggedIn)
-                    {
-                        <!-- Profile & Target Card -->
-                        <div class="bg-primary-container text-on-primary-container p-lg rounded-2xl custom-shadow relative overflow-hidden">
-                            <div class="absolute -top-12 -right-12 w-32 h-32 bg-white/5 rounded-full blur-2xl"></div>
-                            <div class="relative z-10 flex flex-col gap-md">
-                                <div class="flex items-center gap-md">
-                                    <img class="w-16 h-16 rounded-full border-2 border-white shadow-lg" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAoDUOYz2KcAQ4v01N98CsRrUic8DFOS96b1C0LozaXb0m-hfkSjv_PChiEfB1z16EMwZAmb3rVKB5UxDzlVo1VgL6Emdy_WmRiZEKrMlu_iXXSIik8-U8f22K9lxddCM1BJAXjgxaziav2Tu-x8zHPFfnkjRrSVT1kLz7TRfHmP2GYG1oWHhWJfEogEZqHvgpq6Gp-My9W4ibuHu12xr2iPFzftZm-SzjGLFaqtOmKB0TeK9xwn_eVsUZFTXq4qyM3SRQTsrliR4MU" alt="Avatar">
-                                    <div>
-                                        <h3 class="font-headline-sm text-white">Minh Tran</h3>
-                                        <p class="text-label-sm text-on-primary-container/85">Premium Learner</p>
-                                    </div>
-                                </div>
-                                <div class="grid grid-cols-2 gap-md mt-sm">
-                                    <div class="bg-white/10 p-3 rounded-xl border border-white/20">
-                                        <p class="text-[10px] uppercase font-bold text-white/70">Target Score</p>
-                                        <p class="text-headline-sm text-white">850</p>
-                                    </div>
-                                    <div class="bg-white/10 p-3 rounded-xl border border-white/20">
-                                        <p class="text-[10px] uppercase font-bold text-white/70">Exam Date</p>
-                                        <p class="text-label-md text-white">Dec 15</p>
-                                    </div>
-                                </div>
-                                <div class="flex justify-between items-center text-label-sm">
-                                    <span>Progress to Goal</span>
-                                    <span class="font-bold">45 Days Left</span>
-                                </div>
-                                <div class="w-full h-2 bg-white/20 rounded-full overflow-hidden">
-                                    <div class="h-full bg-white w-3/4 rounded-full"></div>
-                                </div>
-                            </div>
-                        </div>
+                <!-- Mini Progress Preview -->
+                <div class="bg-surface-container-low p-lg rounded-2xl border border-outline-variant/30">
+                    <h3 class="font-label-md font-bold mb-md text-on-surface">Community Progress</h3>
+                    <div class="flex items-center justify-between mb-2">
+                        <span class="text-body-sm text-on-surface-variant">Average Score</span>
+                        <span class="font-bold text-on-surface">642 / 990</span>
+                    </div>
+                    <div class="w-full h-2 bg-surface-container-high rounded-full overflow-hidden">
+                        <div class="h-full bg-primary" style="width: 65%;"></div>
+                    </div>
+                    <div class="mt-xl flex -space-x-2">
+                        <img class="w-8 h-8 rounded-full border-2 border-surface" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDtEHpXgV-zo_a-we1OrWe8pHhV0E_jxoGF0SmCe6sRH_5eTyXkBNFlvLSfHde9RfXAGAYsC26ASD1sRs__EDOwZ6a_T4RETizJK7YFc2mmFOUN6oDByaJ32i2cdeyd7WpeFNnZK6Kzt0XcVa6LEwkeQPXZCq9KAgFsVglhsFvICFNk5LMwPhxllXvtG6OnwxbQJw7ozoxCYjd1c81c1PL9G9UFsmxSZT2FVcNwccKMFzGYruxYUzzuXhsRGZIdtrwoV3IFpIxPfHzN" alt="User 1">
+                        <img class="w-8 h-8 rounded-full border-2 border-surface" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCnsc5VyDiato3WruIUZ0vxRK3y3IIfJtDgmXCqgy38YXCMo39WGuCg6Gr3cv-z6gIvuoPVbR0ddlnZGL9K76u1FystBgju5io0h3UgankqLmRpJpmz9qKtvwuzOB3KXMytqe6hjQ1VEHQMtTkg8z1AFDD1Q9zUW2Nj5JTolSByWAmafZ_jngc4M9k61tHHtg1RDcjpTKTZgI4IDe9EI5ltGhbBymytXfoW9PnJd8OEA-ax0n2rmxC-j6xoDtDZaNR4jB8v8s0Ke_mh" alt="User 2">
+                        <img class="w-8 h-8 rounded-full border-2 border-surface" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAmvgPvYG-ED1-rfhjaQ7rJI_2EDQe5ON9rGfyqE5aeMWdu-BN-mcinRLtEt62PiWLsJ0ghAEugzQAW-MrEdbaMcVHIOi0XyVRuFf4j88RIocD841ltlqx1kxJDYD-cH4m4X10E8D7CJLLpIyClG8HFq17fVJuJwuuZoEUY-RxXNOxFfU6IX62o2KPS2Fpoor8DltL6eirq_Oj6Cr4JKjXup3WohKIq5c7HVrB0qyjp1kNRNehjm4yfbg9fjsZWDCMvdYx_Qq_ulpr2" alt="User 3">
+                        <div class="w-8 h-8 rounded-full bg-surface-container-highest border-2 border-surface flex items-center justify-center text-[10px] font-bold text-on-surface-variant">+12k</div>
+                    </div>
+                    <p class="text-body-sm text-on-surface-variant mt-sm">@(Model.ExamDetail.TotalAttempts >= 1000 ? $"{(Model.ExamDetail.TotalAttempts):N0}" : Model.ExamDetail.TotalAttempts.ToString()) people took this test this month.</p>
+                </div>
+            }
+        </aside>
+    </div>
+}
 
-                        <!-- Performance Summary -->
-                        <div class="bg-surface-container-lowest p-lg rounded-2xl custom-shadow border border-outline-variant/30">
-                            <div class="flex justify-between items-center mb-md">
-                                <h4 class="font-bold text-on-surface">Performance</h4>
-                                <span class="material-symbols-outlined text-primary">show_chart</span>
-                            </div>
-                            <div class="flex items-center gap-lg mb-lg">
-                                <div class="flex-1">
-                                    <p class="text-label-sm text-on-surface-variant">Avg. Score</p>
-                                    <p class="text-headline-md font-bold text-primary">720</p>
-                                </div>
-                                <div class="flex-1">
-                                    <p class="text-label-sm text-on-surface-variant">Best</p>
-                                    <p class="text-headline-md font-bold text-secondary">780</p>
-                                </div>
-                            </div>
-                            <!-- Small Sparkline Bar Chart -->
-                            <div class="w-full h-12 flex items-end gap-1">
-                                <div class="w-full h-[40%] bg-primary/20 rounded-t-sm hover:bg-primary transition-all"></div>
-                                <div class="w-full h-[55%] bg-primary/20 rounded-t-sm hover:bg-primary transition-all"></div>
-                                <div class="w-full h-[45%] bg-primary/20 rounded-t-sm hover:bg-primary transition-all"></div>
-                                <div class="w-full h-[70%] bg-primary/20 rounded-t-sm hover:bg-primary transition-all"></div>
-                                <div class="w-full h-[65%] bg-primary/20 rounded-t-sm hover:bg-primary transition-all"></div>
-                                <div class="w-full h-[85%] bg-primary/30 rounded-t-sm hover:bg-primary transition-all"></div>
-                                <div class="w-full h-[80%] bg-primary rounded-t-sm"></div>
-                            </div>
-                        </div>
-
-                        <!-- AI Recommendation -->
-                        <div class="bg-tertiary-container/10 border border-tertiary/20 p-md rounded-2xl">
-                            <div class="flex gap-3">
-                                <div class="w-10 h-10 rounded-full bg-tertiary text-white flex items-center justify-center shrink-0">
-                                    <span class="material-symbols-outlined">psychology</span>
-                                </div>
-                                <div>
-                                    <p class="text-label-sm font-bold text-tertiary uppercase tracking-tight">AI Recommendation</p>
-                                    <p class="text-body-sm text-on-surface mt-1 leading-snug">"Improve Part 3 Listening accuracy by 15% to reach your target 850."</p>
-                                    <button class="mt-2 text-primary font-bold text-label-sm flex items-center gap-1 hover:underline">
-                                        View suggested drills <span class="material-symbols-outlined text-[14px]">arrow_forward</span>
-                                    </button>
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- Practice History -->
-                        <div class="flex flex-col gap-sm">
-                            <div class="flex justify-between items-center px-1">
-                                <h4 class="font-bold text-on-surface">Practice History</h4>
-                                <button class="text-primary text-label-sm font-bold">View all</button>
-                            </div>
-                            <div class="space-y-sm">
-                                @if (Model.ExamDetail.AttemptHistory != null && Model.ExamDetail.AttemptHistory.Any())
-                                {
-                                    @foreach (var attempt in Model.ExamDetail.AttemptHistory)
-                                    {
-                                        var attemptType = attempt.IsSubmitted ? "Full Test" : "Practice";
-                                        var attemptTime = attempt.CompletedAt.HasValue 
-                                            ? $"{(attempt.CompletedAt.Value - attempt.StartedAt).Minutes} mins" 
-                                            : "In Progress";
-                                        
-                                        <div class="bg-surface-container-lowest p-md rounded-xl border border-outline-variant/50 flex justify-between items-center hover:bg-surface-container-low transition-colors group">
-                                            <div class="flex gap-3 items-center">
-                                                <div class="w-10 h-10 rounded-lg bg-surface-container-high flex items-center justify-center text-primary">
-                                                    <span class="material-symbols-outlined">@(attempt.IsSubmitted ? "timer" : "history")</span>
-                                                </div>
-                                                <div>
-                                                    <p class="text-body-sm font-bold">@attemptType</p>
-                                                    <p class="text-[10px] text-on-surface-variant uppercase">@attempt.StartedAt.ToString("MMM dd") • @attemptTime</p>
-                                                </div>
-                                            </div>
-                                            <div class="text-right">
-                                                <p class="text-label-md font-bold text-primary">@attempt.TotalScore/990</p>
-                                                <button class="text-[10px] font-bold text-primary opacity-0 group-hover:opacity-100 transition-opacity">Review</button>
-                                            </div>
-                                        </div>
-                                    }
-                                }
-                                else
-                                {
-                                    <p class="text-body-sm text-on-surface-variant italic text-center py-4">No practice history yet.</p>
-                                }
-                            </div>
-                        </div>
-
-                        <!-- Achievements -->
-                        <div class="bg-surface-container-lowest p-lg rounded-2xl custom-shadow border border-outline-variant/30">
-                            <div class="flex justify-between items-center mb-md">
-                                <h4 class="font-bold text-on-surface">Achievements</h4>
-                                <div class="flex items-center gap-1 bg-secondary-fixed text-on-secondary-fixed px-2 py-0.5 rounded text-[10px] font-bold">
-                                    <span class="material-symbols-outlined text-[14px]">bolt</span> 12 Day Streak
-                                </div>
-                            </div>
-                            <div class="flex flex-col gap-md">
-                                <div class="flex items-center gap-sm">
-                                    <div class="flex-1">
-                                        <div class="flex justify-between text-[10px] mb-1">
-                                            <span class="font-bold uppercase text-on-surface-variant">Next Badge: Scholar II</span>
-                                            <span>2,450 / 3,000 XP</span>
-                                        </div>
-                                        <div class="w-full h-1.5 bg-outline-variant rounded-full">
-                                            <div class="h-full bg-secondary w-[80%] rounded-full"></div>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="flex gap-md justify-between">
-                                    <div class="w-12 h-12 rounded-full bg-surface-container-high flex items-center justify-center grayscale">
-                                        <span class="material-symbols-outlined text-primary">military_tech</span>
-                                    </div>
-                                    <div class="w-12 h-12 rounded-full bg-surface-container-high flex items-center justify-center border-2 border-primary">
-                                        <span class="material-symbols-outlined text-primary">auto_awesome</span>
-                                    </div>
-                                    <div class="w-12 h-12 rounded-full bg-surface-container-high flex items-center justify-center border-2 border-secondary">
-                                        <span class="material-symbols-outlined text-secondary">star</span>
-                                    </div>
-                                    <div class="w-12 h-12 rounded-full bg-surface-container-high flex items-center justify-center grayscale">
-                                        <span class="material-symbols-outlined text-primary">emoji_events</span>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    }
-                    else
-                    {
-                        <!-- Premium Promotion Card -->
-                        <div class="bg-primary p-xl rounded-2xl text-on-primary shadow-xl relative overflow-hidden">
-                            <!-- Atmospheric Effect -->
-                            <div class="absolute -top-12 -right-12 w-32 h-32 bg-primary-container/40 rounded-full blur-3xl"></div>
-                            <div class="absolute -bottom-12 -left-12 w-32 h-32 bg-secondary-container/20 rounded-full blur-3xl"></div>
-                            <div class="relative z-10">
-                                <h2 class="font-headline-md text-headline-md mb-md leading-tight text-[24px]">Unlock Personalized Learning</h2>
-                                <ul class="space-y-sm mb-xl">
-                                    <li class="flex items-center gap-3 text-body-sm">
-                                        <span class="material-symbols-outlined text-sm">bookmark_added</span> Save your test progress
-                                    </li>
-                                    <li class="flex items-center gap-3 text-body-sm">
-                                        <span class="material-symbols-outlined text-sm">history</span> Full exam history &amp; logs
-                                    </li>
-                                    <li class="flex items-center gap-3 text-body-sm">
-                                        <span class="material-symbols-outlined text-sm">insights</span> Performance analytics
-                                    </li>
-                                    <li class="flex items-center gap-3 text-body-sm">
-                                        <span class="material-symbols-outlined text-sm">auto_stories</span> Vocabulary notebook
-                                    </li>
-                                    <li class="flex items-center gap-3 text-body-sm">
-                                        <span class="material-symbols-outlined text-sm">error</span> Review incorrect answers
-                                    </li>
-                                    <li class="flex items-center gap-3 text-body-sm">
-                                        <span class="material-symbols-outlined text-sm">bolt</span> Maintain your study streak
-                                    </li>
-                                </ul>
-                                <div class="flex flex-col gap-3">
-                                    <button class="w-full bg-white text-primary font-bold py-3 rounded-xl hover:bg-surface-container-low transition-colors shadow-lg">Login to Continue</button>
-                                    <button class="w-full bg-transparent border border-white/30 text-white font-bold py-3 rounded-xl hover:bg-white/10 transition-colors">Create Account</button>
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- Mini Progress Preview -->
-                        <div class="bg-surface-container-low p-lg rounded-2xl border border-outline-variant/30">
-                            <h3 class="font-label-md font-bold mb-md text-on-surface">Community Progress</h3>
-                            <div class="flex items-center justify-between mb-2">
-                                <span class="text-body-sm text-on-surface-variant">Average Score</span>
-                                <span class="font-bold text-on-surface">642 / 990</span>
-                            </div>
-                            <div class="w-full h-2 bg-surface-container-high rounded-full overflow-hidden">
-                                <div class="h-full bg-primary" style="width: 65%;"></div>
-                            </div>
-                            <div class="mt-xl flex -space-x-2">
-                                <img class="w-8 h-8 rounded-full border-2 border-surface" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDtEHpXgV-zo_a-we1OrWe8pHhV0E_jxoGF0SmCe6sRH_5eTyXkBNFlvLSfHde9RfXAGAYsC26ASD1sRs__EDOwZ6a_T4RETizJK7YFc2mmFOUN6oDByaJ32i2cdeyd7WpeFNnZK6Kzt0XcVa6LEwkeQPXZCq9KAgFsVglhsFvICFNk5LMwPhxllXvtG6OnwxbQJw7ozoxCYjd1c81c1PL9G9UFsmxSZT2FVcNwccKMFzGYruxYUzzuXhsRGZIdtrwoV3IFpIxPfHzN" alt="User 1">
-                                <img class="w-8 h-8 rounded-full border-2 border-surface" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCnsc5VyDiato3WruIUZ0vxRK3y3IIfJtDgmXCqgy38YXCMo39WGuCg6Gr3cv-z6gIvuoPVbR0ddlnZGL9K76u1FystBgju5io0h3UgankqLmRpJpmz9qKtvwuzOB3KXMytqe6hjQ1VEHQMtTkg8z1AFDD1Q9zUW2Nj5JTolSByWAmafZ_jngc4M9k61tHHtg1RDcjpTKTZgI4IDe9EI5ltGhbBymytXfoW9PnJd8OEA-ax0n2rmxC-j6xoDtDZaNR4jB8v8s0Ke_mh" alt="User 2">
-                                <img class="w-8 h-8 rounded-full border-2 border-surface" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAmvgPvYG-ED1-rfhjaQ7rJI_2EDQe5ON9rGfyqE5aeMWdu-BN-mcinRLtEt62PiWLsJ0ghAEugzQAW-MrEdbaMcVHIOi0XyVRuFf4j88RIocD841ltlqx1kxJDYD-cH4m4X10E8D7CJLLpIyClG8HFq17fVJuJwuuZoEUY-RxXNOxFfU6IX62o2KPS2Fpoor8DltL6eirq_Oj6Cr4JKjXup3WohKIq5c7HVrB0qyjp1kNRNehjm4yfbg9fjsZWDCMvdYx_Qq_ulpr2" alt="User 3">
-                                <div class="w-8 h-8 rounded-full bg-surface-container-highest border-2 border-surface flex items-center justify-center text-[10px] font-bold text-on-surface-variant">+12k</div>
-                            </div>
-                            <p class="text-body-sm text-on-surface-variant mt-sm">@(Model.ExamDetail.TotalAttempts >= 1000 ? $"{(Model.ExamDetail.TotalAttempts):N0}" : Model.ExamDetail.TotalAttempts.ToString()) people took this test this month.</p>
-                        </div>
-                    }
-                </aside>
-            </div>
-        }
-    </main>
-    <!-- Footer -->
-    <footer class="bg-surface-container-lowest border-t border-outline-variant/30 mt-3xl">
-        <div class="max-w-7xl mx-auto px-margin-desktop py-xl text-center text-on-surface-variant text-body-sm">
-            <p>&copy; @DateTime.Now.Year AcadPrep. All rights reserved.</p>
-        </div>
-    </footer>
-
+@section Scripts {
     <script>
-        // Track selected parts for practice
-        let partsData = {};
-
-        @if (Model.ExamDetail != null)
-        {
-            @foreach (var part in Model.ExamDetail.Parts)
-            {
-                <text>partsData[@part.PartNumber] = { questionCount: @part.QuestionCount, partName: "@part.PartName" };</text>
-            }
-        }
-
-        // Tự động cập nhật tóm tắt khi trang vừa tải — mặc định tick tất cả Part
-        document.addEventListener('DOMContentLoaded', () => {
-            document.querySelectorAll('input.part-checkbox').forEach(cb => {
-                if (!cb.hasAttribute('data-initialized')) {
-                    cb.checked = true;
-                    cb.setAttribute('data-initialized', 'true');
-                }
-                syncPartCardStyle(parseInt(cb.getAttribute('data-part')));
-            });
-            updateSummary();
-        });
-
-        function syncPartCardStyle(partNumber) {
-            const card = document.getElementById('part-card-' + partNumber);
-            const partCheck = document.getElementById('part-check-' + partNumber);
-            if (!card || !partCheck) return;
-            if (partCheck.checked) {
-                card.classList.add('border-primary', 'bg-primary/5');
-                card.classList.remove('border-outline-variant/30');
-            } else {
-                card.classList.remove('border-primary', 'bg-primary/5');
-                card.classList.add('border-outline-variant/30');
-            }
-        }
-
-        function switchTab(tabName) {
-            // Hide all tab contents
-            document.getElementById('content-practice').classList.add('hidden');
-            document.getElementById('content-fulltest').classList.add('hidden');
-            document.getElementById('content-info').classList.add('hidden');
-            
-            // Remove active styles from all buttons
-            const buttons = ['practice', 'fulltest', 'info'];
-            buttons.forEach(btn => {
-                const el = document.getElementById('tab-' + btn);
-                if (el) {
-                    el.classList.remove('text-primary', 'font-bold', 'border-b-2', 'border-primary');
-                    el.classList.add('text-on-surface-variant');
-                }
-            });
-            
-            // Show selected content
-            const activeContent = document.getElementById('content-' + tabName);
-            if (activeContent) {
-                activeContent.classList.remove('hidden');
-            }
-            
-            // Add active styles to selected button
-            const activeEl = document.getElementById('tab-' + tabName);
-            if (activeEl) {
-                activeEl.classList.add('text-primary', 'font-bold', 'border-b-2', 'border-primary');
-                activeEl.classList.remove('text-on-surface-variant');
-            }
-        }
-
-        // Xử lý Checkbox: Click card tự động tick check Part
-        function togglePartCheckbox(partNumber, isCheckboxClicked = false) {
-            const partCheck = document.getElementById('part-check-' + partNumber);
-            if (!partCheck) return;
-
-            // Nếu không phải click trực tiếp vào checkbox thì ta đảo trạng thái checkbox
-            if (!isCheckboxClicked) {
-                partCheck.checked = !partCheck.checked;
-            }
-
-            // Đồng bộ bật/tắt toàn bộ checkbox nhãn con thuộc Part đó
-            const tagChecks = document.querySelectorAll(`input.tag-checkbox[data-parent-part="${partNumber}"]`);
-            tagChecks.forEach(cb => {
-                cb.checked = partCheck.checked;
-            });
-
-            syncPartCardStyle(partNumber);
-            updateSummary();
-        }
-
-        // Khi thay đổi checkbox nhãn con, nếu không có nhãn con nào được chọn thì tắt checkbox Part cha
-        function syncParentPartCheckbox(partNumber) {
-            const partCheck = document.getElementById('part-check-' + partNumber);
-            if (!partCheck) return;
-
-            const tagChecks = document.querySelectorAll(`input.tag-checkbox[data-parent-part="${partNumber}"]`);
-            const anyTagChecked = Array.from(tagChecks).some(cb => cb.checked);
-
-            // Chọn tag → bật Part cha; bỏ hết tag → giữ nguyên trạng thái Part (luyện cả Part)
-            if (anyTagChecked) {
-                partCheck.checked = true;
-            }
-
-            syncPartCardStyle(partNumber);
-            updateSummary();
-        }
-
-        function updateSummary() {
-            let totalQuestions = 0;
-            let estimatedMins = 0;
-            let selectedPartsCount = 0;
-
-            const partCheckboxes = document.querySelectorAll('input.part-checkbox');
-            partCheckboxes.forEach(cb => {
-                if (cb.checked) {
-                    selectedPartsCount++;
-                    const partNum = parseInt(cb.getAttribute('data-part'));
-                    const part = partsData[partNum];
-                    if (part) {
-                        totalQuestions += part.questionCount;
-                        if (partNum <= 4) {
-                            estimatedMins += Math.ceil((part.questionCount * 45) / 60);
-                        } else {
-                            estimatedMins += part.questionCount; 
-                        }
+        window.EXAM_CONFIG = {
+            examId: @(Model.ExamDetail?.Id ?? 0),
+            inProgressAttemptId: @(Model.ExamDetail?.AttemptHistory?.FirstOrDefault(a => !a.IsSubmitted)?.AttemptId.ToString() ?? "null"),
+            partsData: {
+                @if (Model.ExamDetail != null)
+                {
+                    @foreach (var part in Model.ExamDetail.Parts)
+                    {
+                        @Html.Raw($"\"{part.PartNumber}\": {{ questionCount: {part.QuestionCount}, partName: \"{part.PartName}\" }},")
                     }
                 }
-            });
-
-            const summaryText = selectedPartsCount === 0
-                ? 'No parts selected — please select at least one part'
-                : `${selectedPartsCount} Parts Selected | ${totalQuestions} Questions | ~${estimatedMins} mins`;
-            document.getElementById('selection-summary').innerText = summaryText;
-        }
-
-        async function startPracticeSession() {
-            const examId = @(Model.ExamDetail?.Id ?? 0);
-            
-            // Thu thập các Part được tích chọn
-            const selectedParts = [];
-            document.querySelectorAll('input.part-checkbox:checked').forEach(cb => {
-                selectedParts.push(parseInt(cb.getAttribute('data-part')));
-            });
-
-            // Thu thập các Tag được tích chọn
-            const selectedTags = [];
-            document.querySelectorAll('input.tag-checkbox:checked').forEach(cb => {
-                selectedTags.push(cb.value);
-            });
-
-            // Lấy thời gian giới hạn
-            const timeLimitVal = document.getElementById('customTimeLimit').value;
-            const timeLimitMinutes = timeLimitVal ? parseInt(timeLimitVal) : null;
-
-            if (selectedParts.length === 0) {
-                alert("Please select at least one part to practice.");
-                return;
             }
-
-            const payload = {
-                examId: examId,
-                selectedPartNumbers: selectedParts,
-                selectedTags: selectedTags,
-                timeLimitMinutes: timeLimitMinutes
-            };
-
-            const btn = document.querySelector('button[onclick="startPracticeSession()"]');
-            btn.disabled = true;
-            btn.innerHTML = `<span class="animate-spin inline-block w-4 h-4 border-2 border-current border-t-transparent rounded-full mr-2"></span> Starting...`;
-
-            try {
-                const response = await fetch('?handler=StartPractice', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify(payload)
-                });
-
-                const result = await response.json();
-                if (result.success) {
-                    // Chuyển hướng sang trang làm bài chi tiết với SessionId vừa nhận
-                    window.location.href = `/Exams/Practice?sessionId=${result.sessionId}`;
-                } else {
-                    alert("Error: " + result.error);
-                    btn.disabled = false;
-                    btn.innerHTML = `START PRACTICE <span class="material-symbols-outlined">play_arrow</span>`;
-                }
-            } catch (err) {
-                console.error(err);
-                alert("A connection error occurred. Please try again later.");
-                btn.disabled = false;
-                btn.innerHTML = `START PRACTICE <span class="material-symbols-outlined">play_arrow</span>`;
-            }
-        }
-
-        const inProgressAttemptId = @(Model.ExamDetail?.AttemptHistory?.FirstOrDefault(a => !a.IsSubmitted)?.AttemptId.ToString() ?? "null");
-
-        function clearAttemptLocalProgress(attemptId) {
-            if (!attemptId) return;
-            try {
-                localStorage.removeItem(`acadprep-exam-${attemptId}`);
-            } catch { /* ignore */ }
-        }
-
-        async function postStartFullTest(examId, startNewAttempt) {
-            const response = await fetch('?handler=StartFullTest', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ examId, startNewAttempt })
-            });
-            return response.json();
-        }
-
-        async function startFullTestSession() {
-            const confirmed = confirm(
-                'Start Full Test?\n\n' +
-                '• 120-minute countdown timer\n' +
-                '• Audio P1-4: no rewind or pause\n' +
-                '• Score is recorded only when you submit or time runs out'
-            );
-            if (!confirmed) return;
-
-            let startNewAttempt = false;
-            if (inProgressAttemptId) {
-                const abandon = confirm(
-                    'You already have an unfinished test.\n\n' +
-                    'Start a NEW attempt? Your previous progress will be permanently discarded.\n\n' +
-                    'Tip: Cancel and use "Resume Test" if you want to continue the current attempt.'
-                );
-                if (!abandon) return;
-                startNewAttempt = true;
-            }
-
-            const examId = @(Model.ExamDetail?.Id ?? 0);
-            try {
-                let result = await postStartFullTest(examId, startNewAttempt);
-
-                // Race / stale page: server still has an in-progress attempt
-                if (!result.success && result.inProgressAttemptId && !startNewAttempt) {
-                    const abandon = confirm(
-                        (result.error || 'You have an unfinished test.') + '\n\n' +
-                        'Start a NEW attempt? Your previous progress will be permanently discarded.\n\n' +
-                        'Tip: Cancel and use "Resume Test" if you want to continue.'
-                    );
-                    if (!abandon) return;
-                    result = await postStartFullTest(examId, true);
-                }
-
-                if (result.success) {
-                    clearAttemptLocalProgress(result.abandonedAttemptId || inProgressAttemptId);
-                    window.location.href = `/Exams/Take?attemptId=${result.attemptId}`;
-                } else {
-                    alert('Error: ' + (result.error || 'Could not start the test.'));
-                }
-            } catch (err) {
-                console.error(err);
-                alert('A connection error occurred.');
-            }
-        }
-
-        function resumeTest(attemptId) {
-            window.location.href = `/Exams/Take?attemptId=${attemptId}`;
-        }
+        };
     </script>
-</body>
-</html>
+    <script src="/js/exam-detail.js" asp-append-version="true"></script>
+}
+

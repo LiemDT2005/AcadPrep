@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using WebUI.Middlewares;
+using Domain.Enums;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -46,7 +47,30 @@ if (isGoogleAuthConfigured)
 
 // 2. Register Controllers & Razor Pages
 builder.Services.AddControllers();
-builder.Services.AddRazorPages();
+builder.Services.AddRazorPages(options =>
+{
+    // 1. Chỉ cho phép Admin hoặc Moderator truy cập thư mục /Admin
+    options.Conventions.AuthorizeFolder("/Admin", "RequireAdminOrModeratorRole");
+
+    // 2. Yêu cầu đăng nhập đối với các thư mục chức năng cá nhân
+    options.Conventions.AuthorizeFolder("/Vocabulary");
+    options.Conventions.AuthorizeFolder("/Performance");
+    options.Conventions.AuthorizePage("/Exams/Take");
+    options.Conventions.AuthorizePage("/Exams/Practice");
+    options.Conventions.AuthorizePage("/Exams/Results");
+
+    // 3. Cho phép truy cập công khai không cần đăng nhập
+    options.Conventions.AllowAnonymousToPage("/Exams/Index");
+    options.Conventions.AllowAnonymousToPage("/Exams/Detail");
+    options.Conventions.AllowAnonymousToPage("/Performance/Leaderboard");
+});
+
+builder.Services.AddAuthorization(options =>
+{
+    options.AddPolicy("RequireAdminRole", policy => policy.RequireRole(nameof(UserRole.Admin)));
+    options.AddPolicy("RequireAdminOrModeratorRole", policy => 
+        policy.RequireRole(nameof(UserRole.Admin), nameof(UserRole.Moderator)));
+});
 
 builder.Services.Configure<Microsoft.AspNetCore.Http.Features.FormOptions>(options =>
 {
@@ -130,6 +154,6 @@ app.MapControllers();
 app.MapRazorPages();
 
 // Redirect root to /Exams
-app.MapGet("/", () => Results.Redirect("/Exams"));
+app.MapGet("/", () => Results.Redirect("/Index"));
 
 app.Run();

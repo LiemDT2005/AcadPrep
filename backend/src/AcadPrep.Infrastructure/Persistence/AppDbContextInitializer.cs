@@ -45,8 +45,9 @@ public class AppDbContextInitializer
         {
             _logger.LogInformation("Seeding Roles...");
             _context.Roles.AddRange(
-                new Role { RoleName = "Admin" },
-                new Role { RoleName = "Learner" }
+                new Role { RoleName = nameof(UserRole.Admin) },
+                new Role { RoleName = nameof(UserRole.Learner) },
+                new Role { RoleName = nameof(UserRole.Moderator) }
             );
             await _context.SaveChangesAsync();
         }
@@ -55,7 +56,9 @@ public class AppDbContextInitializer
         if (!_context.Users.Any())
         {
             _logger.LogInformation("Seeding Users...");
-            var learnerRole = await _context.Roles.FirstOrDefaultAsync(r => r.RoleName == "Learner");
+            var learnerRole = await _context.Roles.FirstOrDefaultAsync(r => r.RoleName == nameof(UserRole.Learner));
+            var moderatorRole = await _context.Roles.FirstOrDefaultAsync(r => r.RoleName == nameof(UserRole.Moderator));
+            
             if (learnerRole != null)
             {
                 var learnerUser = User.Create(
@@ -66,8 +69,21 @@ public class AppDbContextInitializer
                     DateTime.UtcNow);
                 learnerUser.Activate();
                 _context.Users.Add(learnerUser);
-                await _context.SaveChangesAsync();
             }
+
+            if (moderatorRole != null)
+            {
+                var moderatorUser = User.Create(
+                    "moderator@test.com",
+                    "Nguyen Van Moderator",
+                    _passwordHasher.Hash("Password123!"),
+                    moderatorRole.RoleId,
+                    DateTime.UtcNow);
+                moderatorUser.Activate();
+                _context.Users.Add(moderatorUser);
+            }
+
+            await _context.SaveChangesAsync();
         }
 
         // 3. Seed ExamSeries

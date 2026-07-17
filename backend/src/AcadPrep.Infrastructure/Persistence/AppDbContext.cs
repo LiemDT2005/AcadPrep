@@ -23,6 +23,8 @@ public class AppDbContext(DbContextOptions<AppDbContext> options)
     public DbSet<SavedVocabulary> SavedVocabularies => Set<SavedVocabulary>();
     public DbSet<StudyStreak> StudyStreaks => Set<StudyStreak>();
     public DbSet<AuditLog> AuditLogs => Set<AuditLog>();
+    public DbSet<Notification> Notifications => Set<Notification>();
+
     public DbSet<Achievement> Achievements => Set<Achievement>();
     public DbSet<UserAchievement> UserAchievements => Set<UserAchievement>();
     public DbSet<QuestionGroup> QuestionGroups => Set<QuestionGroup>();

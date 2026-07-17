@@ -15,7 +15,7 @@ public class ActiveExamDto
 {
     public int Id { get; set; }
     public string ExamTitle { get; set; } = string.Empty;
-    public string StatusText { get; set; } = string.Empty; // e.g. "Còn 35 phút, Part 5"
+    public string StatusText { get; set; } = string.Empty; // e.g. "35 min left · Part 5"
     public int ProgressPercentage { get; set; }
 }
 

@@ -7,11 +7,13 @@ using AcadPrep.Application.Features.Vocabulary.Queries.GetSavedVocabularies;
 using AcadPrep.Application.Features.Vocabulary.Commands.RateVocabulary;
 using AcadPrep.Application.Features.Vocabulary.Queries.GetReviewFlashcards;
 using MediatR;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 
 namespace AcadPrep.WebUI.Pages.Vocabulary;
 
+[Authorize]
 public class ReviewModel : PageModel
 {
     private readonly IMediator _mediator;
@@ -27,10 +29,9 @@ public class ReviewModel : PageModel
 
     public async Task<IActionResult> OnGetAsync(int pageNumber = 1)
     {
-        if (string.IsNullOrEmpty(_currentUserService.UserId) || !int.TryParse(_currentUserService.UserId, out int userId))
+        if (!int.TryParse(_currentUserService.UserId, out int userId))
         {
-            // For testing purposes, hardcode userId = 1 if not logged in
-            userId = 2;
+            return Unauthorized();
         }
 
         DueFlashcards = (await _mediator.Send(new GetReviewFlashcardsQuery(userId, pageNumber, 10))).Data;
@@ -40,9 +41,9 @@ public class ReviewModel : PageModel
 
     public async Task<IActionResult> OnPostRateAsync(int vocabularyId, bool isRemembered)
     {
-        if (string.IsNullOrEmpty(_currentUserService.UserId) || !int.TryParse(_currentUserService.UserId, out int userId))
+        if (!int.TryParse(_currentUserService.UserId, out int userId))
         {
-            userId = 2;
+            return Unauthorized();
         }
 
         await _mediator.Send(new RateVocabularyCommand(userId, vocabularyId, isRemembered));
@@ -50,5 +51,3 @@ public class ReviewModel : PageModel
         return RedirectToPage();
     }
 }
-
-

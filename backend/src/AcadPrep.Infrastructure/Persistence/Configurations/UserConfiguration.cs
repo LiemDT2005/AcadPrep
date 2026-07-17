@@ -37,6 +37,11 @@ public class UserConfiguration : IEntityTypeConfiguration<User>
             .HasMaxLength(150)
             .IsRequired();
 
+        builder.Property(x => x.AvatarUrl)
+            .HasMaxLength(500)
+            .IsUnicode(false)
+            .IsRequired(false);
+
         builder.Property(x => x.Status)
             .HasMaxLength(50)
             .IsUnicode(false)

@@ -1,6 +1,7 @@
 using AcadPrep.Application.Common.Models;
 using Application.Features.Auth.Commands.GoogleCallback;
 using Application.Features.Auth.Commands.Login;
+using Domain.Enums;
 using MediatR;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
@@ -57,7 +58,7 @@ public class GoogleCallbackModel(ISender mediator) : PageModel
         // Phát cookie xác thực — concern của Presentation layer
         await SignInUserAsync(dto);
 
-        return LocalRedirect(returnUrl ?? "/");
+        return LocalRedirect(GetPostLoginDestination(returnUrl, dto.Role));
     }
 
     // ── Helpers ─────────────────────────────────────────────────────────────
@@ -79,5 +80,22 @@ public class GoogleCallbackModel(ISender mediator) : PageModel
             CookieAuthenticationDefaults.AuthenticationScheme,
             principal,
             new AuthenticationProperties { IsPersistent = true });
+    }
+
+    private string GetPostLoginDestination(string? returnUrl, string role)
+    {
+        if (!string.IsNullOrWhiteSpace(returnUrl)
+            && Url.IsLocalUrl(returnUrl)
+            && returnUrl is not ("/" or "/Index"))
+        {
+            return returnUrl;
+        }
+
+        return role switch
+        {
+            nameof(UserRole.Admin) => "/Admin/Dashboard",
+            nameof(UserRole.Moderator) => "/Admin/Exams",
+            _ => "/Performance/Dashboard"
+        };
     }
 }

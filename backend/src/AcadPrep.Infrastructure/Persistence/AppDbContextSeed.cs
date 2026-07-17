@@ -23,8 +23,9 @@ public static class AppDbContextSeed
         if (!context.Roles.Any())
         {
             context.Roles.AddRange(
-                new Role { RoleName = "Admin" },
-                new Role { RoleName = "User" }
+                new Role { RoleName = nameof(UserRole.Admin) },
+                new Role { RoleName = nameof(UserRole.Learner) },
+                new Role { RoleName = nameof(UserRole.Moderator) }
             );
             await context.SaveChangesAsync();
         }
@@ -32,13 +33,15 @@ public static class AppDbContextSeed
         // ── 2. Users ──
         if (!context.Users.Any())
         {
-            var adminRole = context.Roles.First(r => r.RoleName == "Admin");
-            var userRole  = context.Roles.First(r => r.RoleName == "User");
+            var adminRole = context.Roles.First(r => r.RoleName == nameof(UserRole.Admin));
+            var userRole  = context.Roles.First(r => r.RoleName == nameof(UserRole.Learner));
+            var moderatorRole = context.Roles.First(r => r.RoleName == nameof(UserRole.Moderator));
 
             var now = DateTime.UtcNow;
             var defaultHash = passwordHasher.Hash("Password123!");
             // Sử dụng User.Create() factory vì User có private setters
             var adminUser   = User.Create("admin@acadprep.com",    "Admin User",    defaultHash, adminRole.RoleId, now); adminUser.Activate();
+            var moderatorUser = User.Create("moderator@acadprep.com", "Moderator User", defaultHash, moderatorRole.RoleId, now); moderatorUser.Activate();
             var testUser    = User.Create("user@acadprep.com",     "Test User",     defaultHash, userRole.RoleId,  now);  testUser.Activate();
             var hanaUser    = User.Create("hana@acadprep.com",     "Hana Nguyen",   defaultHash, userRole.RoleId,  now);  hanaUser.Activate();
             var minhUser    = User.Create("minh@acadprep.com",     "Minh Tran",     defaultHash, userRole.RoleId,  now);  minhUser.Activate();
@@ -55,11 +58,32 @@ public static class AppDbContextSeed
             var maiUser     = User.Create("maiphuong@acadprep.com","Mai Phuong",    defaultHash, userRole.RoleId,  now);  maiUser.Activate();
             var tungUser    = User.Create("thanhtung@acadprep.com","Thanh Tung",    defaultHash, userRole.RoleId,  now);  tungUser.Activate();
 
-            context.Users.AddRange(
-                adminUser, testUser, hanaUser, minhUser, inactiveUser,
+            var seededUsers = new[]
+            {
+                adminUser, moderatorUser, testUser, hanaUser, minhUser, inactiveUser,
                 hoangUser, lananhUser, duyliemUser, tuananhUser, thuthaoUser,
-                quanghuyUser, bichUser, namUser, maiUser, tungUser);
+                quanghuyUser, bichUser, namUser, maiUser, tungUser
+            };
 
+            foreach (var user in seededUsers)
+            {
+                user.UpdateAvatar(BuildSeedAvatarUrl(user.FullName));
+            }
+
+            context.Users.AddRange(seededUsers);
+            await context.SaveChangesAsync();
+        }
+
+        // Backfill avatar cho database đã có dữ liệu từ các lần seed trước.
+        var usersMissingAvatar = await context.Users
+            .Where(user => user.AvatarUrl == null)
+            .ToListAsync();
+        foreach (var user in usersMissingAvatar)
+        {
+            user.UpdateAvatar(BuildSeedAvatarUrl(user.FullName));
+        }
+        if (usersMissingAvatar.Count > 0)
+        {
             await context.SaveChangesAsync();
         }
 
@@ -418,6 +442,11 @@ public static class AppDbContextSeed
             7 => ("Reading Comprehension", "Đọc hiểu email"),
             _ => ("General", "Khác")
         };
+    }
+
+    private static string BuildSeedAvatarUrl(string fullName)
+    {
+        return $"https://api.dicebear.com/9.x/initials/svg?seed={Uri.EscapeDataString(fullName)}";
     }
 }
 

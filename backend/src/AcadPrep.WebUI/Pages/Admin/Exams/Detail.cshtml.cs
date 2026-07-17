@@ -5,8 +5,12 @@ using MediatR;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 
+using Microsoft.AspNetCore.Authorization;
+using Domain.Enums;
+
 namespace AcadPrep.WebUI.Pages.Admin.Exams;
 
+[Authorize(Roles = nameof(UserRole.Admin) + "," + nameof(UserRole.Moderator))]
 public class DetailModel(ISender mediator) : PageModel
 {
     public ExamDetailDto Exam { get; set; } = null!;

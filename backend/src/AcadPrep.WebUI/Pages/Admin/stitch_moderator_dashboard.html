@@ -1,0 +1,566 @@
+<!DOCTYPE html><html class="light" lang="en"><head>
+<meta charset="utf-8">
+<meta content="width=device-width, initial-scale=1.0" name="viewport">
+<title>Moderator Dashboard - AcadPrep</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+<script id="tailwind-config">
+  tailwind.config = {
+    darkMode: "class",
+    theme: {
+      extend: {
+        "colors": {
+                "error-container": "#ffdad6",
+                "surface-container-low": "#f5f2ff",
+                "tertiary-container": "#005338",
+                "on-surface": "#1b1b24",
+                "surface-container": "#f0ecf9",
+                "secondary-fixed-dim": "#ffb690",
+                "secondary": "#9d4300",
+                "outline-variant": "#c7c4d8",
+                "tertiary-fixed": "#abf2cd",
+                "surface-dim": "#dcd8e5",
+                "secondary-container": "#ff8d4b",
+                "tertiary": "#005338",
+                "surface-variant": "#e4e1ee",
+                "inverse-on-surface": "#f3effc",
+                "primary-fixed-dim": "#c3c0ff",
+                "on-tertiary-container": "#80c5a3",
+                "primary-container": "#3525cd",
+                "surface-container-highest": "#e4e1ee",
+                "secondary-fixed": "#ffdbca",
+                "on-secondary-container": "#6c2c00",
+                "on-secondary": "#ffffff",
+                "surface-tint": "#4d44e3",
+                "surface-bright": "#fcf8ff",
+                "surface-container-lowest": "#ffffff",
+                "on-primary-container": "#b1afff",
+                "on-error": "#ffffff",
+                "on-primary-fixed": "#0f0069",
+                "tertiary-fixed-dim": "#8fd5b2",
+                "on-background": "#1b1b24",
+                "primary-fixed": "#e2dfff",
+                "on-tertiary-fixed": "#002114",
+                "surface-container-high": "#eae6f4",
+                "on-surface-variant": "#464555",
+                "inverse-surface": "#302f39",
+                "primary": "#1e00a9",
+                "on-tertiary-fixed-variant": "#005237",
+                "on-primary": "#ffffff",
+                "outline": "#777587",
+                "background": "#fcf8ff",
+                "error": "#ba1a1a",
+                "on-secondary-fixed": "#341100",
+                "on-primary-fixed-variant": "#3323cc",
+                "on-secondary-fixed-variant": "#783200",
+                "on-tertiary": "#ffffff",
+                "inverse-primary": "#c3c0ff",
+                "surface": "#f9f9ff",
+                "on-error-container": "#93000a"
+        },
+        "borderRadius": {
+                "DEFAULT": "0.25rem",
+                "lg": "0.5rem",
+                "xl": "0.75rem",
+                "full": "9999px"
+        },
+        "spacing": {
+                "xs": "4px",
+                "unit": "4px",
+                "base_unit": "4px",
+                "2xl": "48px",
+                "margin-mobile": "16px",
+                "gutter": "24px",
+                "sm": "8px",
+                "margin-desktop": "40px",
+                "3xl": "64px",
+                "xl": "32px",
+                "md": "16px",
+                "lg": "24px"
+        },
+        "fontFamily": {
+                "body-lg": [
+                        "Inter"
+                ],
+                "label-sm": [
+                        "Inter"
+                ],
+                "headline-sm": [
+                        "Inter"
+                ],
+                "body-sm": [
+                        "Inter"
+                ],
+                "headline-md": [
+                        "Inter"
+                ],
+                "display-lg": [
+                        "Inter"
+                ],
+                "headline-lg": [
+                        "Inter"
+                ],
+                "body-md": [
+                        "Inter"
+                ],
+                "label-md": [
+                        "Inter"
+                ],
+                "headline-lg-mobile": [
+                        "Inter"
+                ]
+        },
+        "fontSize": {
+                "body-lg": [
+                        "18px",
+                        {
+                                "lineHeight": "28px",
+                                "fontWeight": "400"
+                        }
+                ],
+                "label-sm": [
+                        "12px",
+                        {
+                                "lineHeight": "16px",
+                                "fontWeight": "600"
+                        }
+                ],
+                "headline-sm": [
+                        "20px",
+                        {
+                                "lineHeight": "28px",
+                                "fontWeight": "600"
+                        }
+                ],
+                "body-sm": [
+                        "14px",
+                        {
+                                "lineHeight": "20px",
+                                "fontWeight": "400"
+                        }
+                ],
+                "headline-md": [
+                        "24px",
+                        {
+                                "lineHeight": "32px",
+                                "fontWeight": "600"
+                        }
+                ],
+                "display-lg": [
+                        "48px",
+                        {
+                                "lineHeight": "56px",
+                                "letterSpacing": "-0.02em",
+                                "fontWeight": "700"
+                        }
+                ],
+                "headline-lg": [
+                        "32px",
+                        {
+                                "lineHeight": "40px",
+                                "letterSpacing": "-0.01em",
+                                "fontWeight": "700"
+                        }
+                ],
+                "body-md": [
+                        "16px",
+                        {
+                                "lineHeight": "24px",
+                                "fontWeight": "400"
+                        }
+                ],
+                "label-md": [
+                        "14px",
+                        {
+                                "lineHeight": "20px",
+                                "letterSpacing": "0.01em",
+                                "fontWeight": "500"
+                        }
+                ],
+                "headline-lg-mobile": [
+                        "28px",
+                        {
+                                "lineHeight": "36px",
+                                "letterSpacing": "-0.01em",
+                                "fontWeight": "700"
+                        }
+                ]
+        }
+},
+    },
+  }
+</script>
+<style>
+  body {
+    background-color: theme('colors.surface');
+  }
+</style>
+</head>
+<body class="flex h-screen overflow-hidden bg-surface text-on-surface">
+<!-- SideNavBar -->
+<aside class="hidden md:flex flex-col h-screen w-64 fixed left-0 top-0 bg-surface-container dark:bg-surface-container border-r border-outline-variant z-20">
+<div class="p-md border-b border-outline-variant">
+<span class="font-headline-md text-headline-md font-bold text-primary dark:text-primary-fixed-dim block mb-sm">AcadPrep Moderator<br></span>
+<div class="flex items-center gap-sm mt-sm">
+<img alt="Moderator Profile Avatar" class="w-10 h-10 rounded-full object-cover" data-alt="A professional headshot of a male moderator named Jordan Smith. He has short hair and a welcoming smile, set against a clean, neutral background. The lighting is soft and professional, conveying a trustworthy academic persona within a corporate setting." src="https://lh3.googleusercontent.com/aida-public/AB6AXuCmkF1bnCELqugUtJUPmZ8Q84oX5e3kE2prDFwO_AgUbBIHPSyfU11oinBNUtB_bsqjqiazmKXfGLU1bBZnhqKbpeRt4PFXw23SBgcUokuyUNgwXigDRegC9nddR8tDY4ptic5X2nqVQ22tozznanEcbHeYDMWB6xVcLf87_hVjVyGl_G0ySRCMT22UV_ArVWUEcEvBNm3qTrvf1GtE8466IoFzW8fmS7lvKezb4APhCFqCgVuRsZfo7HHzw4J4eX56qs0ShbkLKuUS">
+<div>
+<div class="font-label-md text-label-md text-on-surface">Jordan Smith</div>
+<div class="font-label-sm text-label-sm text-on-surface-variant">TOEIC Moderator</div>
+</div>
+</div>
+</div>
+<nav class="flex-1 overflow-y-auto py-md flex flex-col gap-sm">
+<div class="px-md mb-xs font-label-sm text-label-sm text-on-surface-variant uppercase tracking-wider">Overview</div>
+<a class="flex items-center gap-sm px-md py-sm bg-primary-fixed text-on-primary-fixed-variant border-l-4 border-primary font-bold cursor-pointer active:scale-95 transition-transform" href="#">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">dashboard</span>
+<span class="font-label-md text-label-md">Dashboard</span>
+</a>
+<div class="px-md mt-sm mb-xs font-label-sm text-label-sm text-on-surface-variant uppercase tracking-wider">Content Management</div>
+<!-- Exams Group -->
+<div class="group">
+<button class="w-full flex items-center justify-between px-md py-sm text-on-surface-variant hover:bg-surface-container-high transition-colors duration-200 cursor-pointer">
+<div class="flex items-center gap-sm">
+<span class="material-symbols-outlined">quiz</span>
+<span class="font-label-md text-label-md">Exams</span>
+</div>
+<span class="material-symbols-outlined text-sm">expand_more</span>
+</button>
+<div class="hidden group-hover:block pl-[44px] pr-md pb-sm">
+<a class="block py-xs text-on-surface-variant hover:text-primary font-body-sm text-body-sm" href="#">All Exams</a>
+<a class="block py-xs text-on-surface-variant hover:text-primary font-body-sm text-body-sm" href="#">+ Create Exam</a>
+</div>
+</div>
+<!-- Question Bank Group -->
+<div class="group">
+<button class="w-full flex items-center justify-between px-md py-sm text-on-surface-variant hover:bg-surface-container-high transition-colors duration-200 cursor-pointer">
+<div class="flex items-center gap-sm">
+<span class="material-symbols-outlined">description</span>
+<span class="font-label-md text-label-md">Question Bank</span>
+</div>
+<span class="material-symbols-outlined text-sm">expand_more</span>
+</button>
+<div class="hidden group-hover:block pl-[44px] pr-md pb-sm">
+<a class="block py-xs text-on-surface-variant hover:text-primary font-body-sm text-body-sm" href="#">All Questions</a>
+<a class="block py-xs text-on-surface-variant hover:text-primary font-body-sm text-body-sm" href="#">+ Add Question</a>
+</div>
+</div>
+<!-- Reading Passages Group -->
+<div class="group">
+<button class="w-full flex items-center justify-between px-md py-sm text-on-surface-variant hover:bg-surface-container-high transition-colors duration-200 cursor-pointer">
+<div class="flex items-center gap-sm">
+<span class="material-symbols-outlined">menu_book</span>
+<span class="font-label-md text-label-md">Reading Passages</span>
+</div>
+<span class="material-symbols-outlined text-sm">expand_more</span>
+</button>
+<div class="hidden group-hover:block pl-[44px] pr-md pb-sm">
+<a class="block py-xs text-on-surface-variant hover:text-primary font-body-sm text-body-sm" href="#">All Passages</a>
+<a class="block py-xs text-on-surface-variant hover:text-primary font-body-sm text-body-sm" href="#">+ Add Passage</a>
+</div>
+</div>
+<div class="px-md mt-sm mb-xs font-label-sm text-label-sm text-on-surface-variant uppercase tracking-wider">System</div>
+<a class="flex items-center gap-sm px-md py-sm text-on-surface-variant hover:bg-surface-container-high transition-colors duration-200 cursor-pointer active:scale-95 transition-transform" href="#">
+<span class="material-symbols-outlined">notifications</span>
+<span class="font-label-md text-label-md">Notifications</span>
+</a>
+<a class="flex items-center gap-sm px-md py-sm text-on-surface-variant hover:bg-surface-container-high transition-colors duration-200 cursor-pointer active:scale-95 transition-transform" href="#">
+<span class="material-symbols-outlined">arrow_back</span>
+<span class="font-label-md text-label-md">Back to Site</span>
+</a>
+</nav>
+<div class="p-md border-t border-outline-variant">
+<button class="w-full bg-primary text-on-primary py-sm px-md rounded font-label-md text-label-md flex justify-center items-center gap-xs hover:bg-primary/90 transition-colors">
+<span class="material-symbols-outlined text-sm">add</span>
+            Create New Exam
+        </button>
+</div>
+</aside>
+<!-- Main Area Wrapper -->
+<div class="flex-1 flex flex-col md:ml-64 h-screen">
+<!-- TopNavBar -->
+<header class="flex justify-between items-center h-16 px-md bg-surface dark:bg-surface border-b border-outline-variant w-full z-10 shrink-0">
+<div class="flex items-center gap-md">
+<h1 class="font-headline-sm text-headline-sm text-primary dark:text-primary-fixed-dim font-bold">Content Overview</h1>
+<span class="bg-primary-fixed text-on-primary-fixed-variant px-2 py-1 rounded-full font-label-sm text-label-sm">Moderator</span>
+</div>
+<div class="flex items-center gap-md">
+<span class="font-label-sm text-label-sm text-on-surface-variant hidden sm:inline-block">Last login: Today 08:32</span>
+<div class="flex items-center gap-sm">
+<button class="text-on-surface-variant hover:text-primary transition-colors cursor-pointer transition-all">
+<span class="material-symbols-outlined">notifications</span>
+</button>
+<button class="text-on-surface-variant hover:text-primary transition-colors cursor-pointer transition-all">
+<span class="material-symbols-outlined">dark_mode</span>
+</button>
+<button class="text-on-surface-variant hover:text-primary transition-colors cursor-pointer transition-all">
+<span class="material-symbols-outlined">account_circle</span>
+</button>
+</div>
+</div>
+</header>
+<!-- Main Content Canvas -->
+<main class="flex-1 overflow-y-auto p-margin-mobile md:p-gutter">
+<div class="max-w-7xl mx-auto flex flex-col gap-xl">
+<!-- 1. STATS ROW (Bento Grid Style) -->
+<section class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-md">
+<div class="bg-surface-container-lowest rounded-xl p-md border border-outline-variant/30 shadow-sm relative overflow-hidden group">
+<div class="absolute top-0 right-0 -mr-4 -mt-4 w-24 h-24 bg-primary-fixed rounded-full opacity-20 group-hover:scale-110 transition-transform duration-500"></div>
+<div class="flex justify-between items-start mb-sm relative z-10">
+<span class="font-label-md text-label-md text-on-surface-variant">Total Exams</span>
+<span class="material-symbols-outlined text-primary">quiz</span>
+</div>
+<div class="flex items-end gap-sm relative z-10">
+<span class="font-display-lg text-display-lg text-on-surface">52</span>
+<span class="font-label-sm text-label-sm text-tertiary pb-2">+3 this week</span>
+</div>
+</div>
+<div class="bg-surface-container-lowest rounded-xl p-md border border-outline-variant/30 shadow-sm relative overflow-hidden group">
+<div class="absolute top-0 right-0 -mr-4 -mt-4 w-24 h-24 bg-primary-fixed rounded-full opacity-20 group-hover:scale-110 transition-transform duration-500"></div>
+<div class="flex justify-between items-start mb-sm relative z-10">
+<span class="font-label-md text-label-md text-on-surface-variant">Total Questions</span>
+<span class="material-symbols-outlined text-primary">description</span>
+</div>
+<div class="flex items-end gap-sm relative z-10">
+<span class="font-display-lg text-display-lg text-on-surface">1,840</span>
+<span class="font-body-sm text-body-sm text-on-surface-variant pb-2">Across 7 Parts</span>
+</div>
+</div>
+<div class="bg-surface-container-lowest rounded-xl p-md border border-outline-variant/30 shadow-sm relative overflow-hidden group">
+<div class="absolute top-0 right-0 -mr-4 -mt-4 w-24 h-24 bg-primary-fixed rounded-full opacity-20 group-hover:scale-110 transition-transform duration-500"></div>
+<div class="flex justify-between items-start mb-sm relative z-10">
+<span class="font-label-md text-label-md text-on-surface-variant">Reading Passages</span>
+<span class="material-symbols-outlined text-primary">menu_book</span>
+</div>
+<div class="flex items-end gap-sm relative z-10">
+<span class="font-display-lg text-display-lg text-on-surface">38</span>
+<span class="font-body-sm text-body-sm text-on-surface-variant pb-2">12 linked vocab</span>
+</div>
+</div>
+<div class="bg-secondary-fixed rounded-xl p-md border border-secondary-fixed-dim shadow-sm relative overflow-hidden group">
+<div class="absolute top-0 right-0 -mr-4 -mt-4 w-24 h-24 bg-secondary-container rounded-full opacity-20 group-hover:scale-110 transition-transform duration-500"></div>
+<div class="flex justify-between items-start mb-sm relative z-10">
+<span class="font-label-md text-label-md text-on-secondary-fixed-variant">Drafts / Pending</span>
+<span class="material-symbols-outlined text-secondary">pending_actions</span>
+</div>
+<div class="flex items-end gap-sm relative z-10">
+<span class="font-display-lg text-display-lg text-on-secondary-fixed">5</span>
+<span class="font-label-sm text-label-sm text-secondary pb-2">Needs review</span>
+</div>
+</div>
+</section>
+<!-- 2. QUICK ACTIONS -->
+<section class="flex flex-wrap gap-sm">
+<button class="bg-primary hover:bg-primary/90 text-on-primary font-label-md text-label-md py-2 px-4 rounded-lg flex items-center gap-xs transition-colors">
+<span class="material-symbols-outlined text-sm">add</span>
+                    Create Exam
+                </button>
+<button class="bg-surface-container-lowest border border-outline-variant hover:bg-surface-container text-primary font-label-md text-label-md py-2 px-4 rounded-lg flex items-center gap-xs transition-colors">
+<span class="material-symbols-outlined text-sm">add</span>
+                    Add Question
+                </button>
+<button class="bg-surface-container-lowest border border-outline-variant hover:bg-surface-container text-primary font-label-md text-label-md py-2 px-4 rounded-lg flex items-center gap-xs transition-colors">
+<span class="material-symbols-outlined text-sm">add</span>
+                    New Passage
+                </button>
+</section>
+<div class="grid grid-cols-1 lg:grid-cols-3 gap-xl">
+<!-- Main Column (Left) -->
+<div class="lg:col-span-2 flex flex-col gap-xl">
+<!-- 3. RECENT EXAMS TABLE -->
+<section class="bg-surface-container-lowest rounded-xl shadow-sm overflow-hidden border border-outline-variant/30">
+<div class="px-md py-sm border-b border-outline-variant/50 flex justify-between items-center bg-surface-container/30">
+<h2 class="font-headline-sm text-headline-sm text-on-surface">Recent Exams</h2>
+<button class="text-primary hover:underline font-label-sm text-label-sm">View All</button>
+</div>
+<div class="overflow-x-auto">
+<table class="w-full text-left border-collapse">
+<thead>
+<tr class="bg-surface-container-lowest border-b border-outline-variant">
+<th class="px-md py-sm font-label-sm text-label-sm text-on-surface-variant font-semibold">Exam Name</th>
+<th class="px-md py-sm font-label-sm text-label-sm text-on-surface-variant font-semibold">Parts</th>
+<th class="px-md py-sm font-label-sm text-label-sm text-on-surface-variant font-semibold">Questions</th>
+<th class="px-md py-sm font-label-sm text-label-sm text-on-surface-variant font-semibold">Status</th>
+<th class="px-md py-sm font-label-sm text-label-sm text-on-surface-variant font-semibold">Last Updated</th>
+<th class="px-md py-sm font-label-sm text-label-sm text-on-surface-variant font-semibold text-right">Actions</th>
+</tr>
+</thead>
+<tbody class="divide-y divide-outline-variant/50">
+<tr class="hover:bg-surface-container-lowest transition-colors group">
+<td class="px-md py-sm font-body-sm text-body-sm text-on-surface font-medium">TOEIC Practice Test A1</td>
+<td class="px-md py-sm font-body-sm text-body-sm text-on-surface-variant">1-7</td>
+<td class="px-md py-sm font-body-sm text-body-sm text-on-surface-variant">200</td>
+<td class="px-md py-sm">
+<span class="bg-tertiary-fixed text-on-tertiary-fixed-variant px-2 py-1 rounded-full font-label-sm text-label-sm">Published</span>
+</td>
+<td class="px-md py-sm font-body-sm text-body-sm text-on-surface-variant">Oct 24, 2023</td>
+<td class="px-md py-sm text-right">
+<div class="flex items-center justify-end gap-sm opacity-0 group-hover:opacity-100 transition-opacity">
+<button class="text-on-surface-variant hover:text-primary"><span class="material-symbols-outlined text-sm">edit</span></button>
+<button class="text-on-surface-variant hover:text-error"><span class="material-symbols-outlined text-sm">delete</span></button>
+</div>
+</td>
+</tr>
+<tr class="hover:bg-surface-container-lowest transition-colors group">
+<td class="px-md py-sm font-body-sm text-body-sm text-on-surface font-medium">Listening Mastery Part 3</td>
+<td class="px-md py-sm font-body-sm text-body-sm text-on-surface-variant">3</td>
+<td class="px-md py-sm font-body-sm text-body-sm text-on-surface-variant">39</td>
+<td class="px-md py-sm">
+<span class="bg-secondary-fixed text-on-secondary-fixed-variant px-2 py-1 rounded-full font-label-sm text-label-sm">Draft</span>
+</td>
+<td class="px-md py-sm font-body-sm text-body-sm text-on-surface-variant">Oct 23, 2023</td>
+<td class="px-md py-sm text-right">
+<div class="flex items-center justify-end gap-sm opacity-0 group-hover:opacity-100 transition-opacity">
+<button class="text-on-surface-variant hover:text-primary"><span class="material-symbols-outlined text-sm">edit</span></button>
+<button class="text-on-surface-variant hover:text-error"><span class="material-symbols-outlined text-sm">delete</span></button>
+</div>
+</td>
+</tr>
+<tr class="hover:bg-surface-container-lowest transition-colors group">
+<td class="px-md py-sm font-body-sm text-body-sm text-on-surface font-medium">Reading Comprehension Q4</td>
+<td class="px-md py-sm font-body-sm text-body-sm text-on-surface-variant">7</td>
+<td class="px-md py-sm font-body-sm text-body-sm text-on-surface-variant">54</td>
+<td class="px-md py-sm">
+<span class="bg-tertiary-fixed text-on-tertiary-fixed-variant px-2 py-1 rounded-full font-label-sm text-label-sm">Published</span>
+</td>
+<td class="px-md py-sm font-body-sm text-body-sm text-on-surface-variant">Oct 20, 2023</td>
+<td class="px-md py-sm text-right">
+<div class="flex items-center justify-end gap-sm opacity-0 group-hover:opacity-100 transition-opacity">
+<button class="text-on-surface-variant hover:text-primary"><span class="material-symbols-outlined text-sm">edit</span></button>
+<button class="text-on-surface-variant hover:text-error"><span class="material-symbols-outlined text-sm">delete</span></button>
+</div>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</section>
+<!-- 4. QUESTION BANK PREVIEW -->
+<section class="bg-surface-container-lowest rounded-xl shadow-sm overflow-hidden border border-outline-variant/30">
+<div class="px-md py-sm border-b border-outline-variant/50 flex justify-between items-center bg-surface-container/30">
+<h2 class="font-headline-sm text-headline-sm text-on-surface">Question Bank Preview</h2>
+<button class="text-primary hover:underline font-label-sm text-label-sm">View All</button>
+</div>
+<ul class="divide-y divide-outline-variant/50">
+<li class="px-md py-sm hover:bg-surface-container-lowest transition-colors flex items-center justify-between group">
+<div class="flex items-start gap-sm flex-1">
+<span class="mt-1 bg-surface-container-high text-on-surface-variant px-2 py-0.5 rounded text-xs font-semibold">Part 5</span>
+<div>
+<p class="font-body-sm text-body-sm text-on-surface line-clamp-1">The board of directors _______ approved the new budget proposal during the morning session.</p>
+<div class="flex gap-4 mt-1 font-label-sm text-label-sm text-on-surface-variant">
+<span class="">Added by J. Smith</span>
+<span class="">Oct 24</span>
+</div>
+</div>
+</div>
+<button class="text-on-surface-variant hover:text-primary opacity-0 group-hover:opacity-100 transition-opacity p-2"><span class="material-symbols-outlined text-sm">edit</span></button>
+</li>
+<li class="px-md py-sm hover:bg-surface-container-lowest transition-colors flex items-center justify-between group">
+<div class="flex items-start gap-sm flex-1">
+<span class="mt-1 bg-surface-container-high text-on-surface-variant px-2 py-0.5 rounded text-xs font-semibold">Part 2</span>
+<div>
+<p class="font-body-sm text-body-sm text-on-surface line-clamp-1">When is the marketing seminar supposed to begin?</p>
+<div class="flex gap-4 mt-1 font-label-sm text-label-sm text-on-surface-variant">
+<span class="">Added by A. Lee</span>
+<span class="">Oct 23</span>
+</div>
+</div>
+</div>
+<button class="text-on-surface-variant hover:text-primary opacity-0 group-hover:opacity-100 transition-opacity p-2"><span class="material-symbols-outlined text-sm">edit</span></button>
+</li>
+<li class="px-md py-sm hover:bg-surface-container-lowest transition-colors flex items-center justify-between group">
+<div class="flex items-start gap-sm flex-1">
+<span class="mt-1 bg-surface-container-high text-on-surface-variant px-2 py-0.5 rounded text-xs font-semibold">Part 7</span>
+<div>
+<p class="font-body-sm text-body-sm text-on-surface line-clamp-1">What is the main purpose of the memo regarding the new software update?</p>
+<div class="flex gap-4 mt-1 font-label-sm text-label-sm text-on-surface-variant">
+<span class="">Added by J. Smith</span>
+<span class="">Oct 22</span>
+</div>
+</div>
+</div>
+<button class="text-on-surface-variant hover:text-primary opacity-0 group-hover:opacity-100 transition-opacity p-2"><span class="material-symbols-outlined text-sm">edit</span></button>
+</li>
+</ul>
+</section>
+</div>
+<!-- Secondary Column (Right) -->
+<div class="flex flex-col gap-xl">
+<!-- 5. READING PASSAGES PREVIEW -->
+<section class="bg-surface-container-lowest rounded-xl shadow-sm overflow-hidden border border-outline-variant/30">
+<div class="px-md py-sm border-b border-outline-variant/50 bg-surface-container/30">
+<h2 class="font-headline-sm text-headline-sm text-on-surface">Recent Passages</h2>
+</div>
+<div class="p-0">
+<div class="flex items-center justify-between px-md py-sm border-b border-outline-variant/50 hover:bg-surface-container-lowest group">
+<div>
+<p class="font-label-md text-label-md text-on-surface font-medium truncate w-40">Tech Conference Memo</p>
+<p class="font-body-sm text-body-sm text-on-surface-variant">5 linked Qs</p>
+</div>
+<div class="flex items-center gap-sm">
+<span class="bg-tertiary-fixed text-on-tertiary-fixed-variant px-2 py-1 rounded-full text-xs font-medium">Active</span>
+<button class="text-on-surface-variant hover:text-primary opacity-0 group-hover:opacity-100"><span class="material-symbols-outlined text-sm">edit</span></button>
+</div>
+</div>
+<div class="flex items-center justify-between px-md py-sm border-b border-outline-variant/50 hover:bg-surface-container-lowest group">
+<div>
+<p class="font-label-md text-label-md text-on-surface font-medium truncate w-40">Flight Delay Notice</p>
+<p class="font-body-sm text-body-sm text-on-surface-variant">3 linked Qs</p>
+</div>
+<div class="flex items-center gap-sm">
+<span class="bg-secondary-fixed text-on-secondary-fixed-variant px-2 py-1 rounded-full text-xs font-medium">Draft</span>
+<button class="text-on-surface-variant hover:text-primary opacity-0 group-hover:opacity-100"><span class="material-symbols-outlined text-sm">edit</span></button>
+</div>
+</div>
+<div class="flex items-center justify-between px-md py-sm hover:bg-surface-container-lowest group">
+<div>
+<p class="font-label-md text-label-md text-on-surface font-medium truncate w-40">Employee Policy Update</p>
+<p class="font-body-sm text-body-sm text-on-surface-variant">7 linked Qs</p>
+</div>
+<div class="flex items-center gap-sm">
+<span class="bg-tertiary-fixed text-on-tertiary-fixed-variant px-2 py-1 rounded-full text-xs font-medium">Active</span>
+<button class="text-on-surface-variant hover:text-primary opacity-0 group-hover:opacity-100"><span class="material-symbols-outlined text-sm">edit</span></button>
+</div>
+</div>
+</div>
+</section>
+<!-- 6. NOTIFICATIONS -->
+<section class="bg-surface-container-lowest rounded-xl shadow-sm overflow-hidden border border-outline-variant/30">
+<div class="px-md py-sm border-b border-outline-variant/50 flex justify-between items-center bg-surface-container/30">
+<h2 class="font-headline-sm text-headline-sm text-on-surface">Notifications</h2>
+<button class="text-primary hover:underline font-label-sm text-label-sm">Mark all read</button>
+</div>
+<ul class="divide-y divide-outline-variant/50">
+<li class="px-md py-sm flex gap-sm items-start hover:bg-surface-container-lowest transition-colors bg-primary-fixed/20">
+<span class="material-symbols-outlined text-primary mt-1 text-base">info</span>
+<div>
+<p class="font-body-sm text-body-sm text-on-surface font-medium">System Update Scheduled</p>
+<p class="font-body-sm text-body-sm text-on-surface-variant mt-0.5">Downtime expected tonight at 2 AM EST.</p>
+<p class="font-label-sm text-label-sm text-on-surface-variant mt-1 opacity-70">1 hour ago</p>
+</div>
+</li>
+<li class="px-md py-sm flex gap-sm items-start hover:bg-surface-container-lowest transition-colors">
+<span class="material-symbols-outlined text-secondary mt-1 text-base">check_circle</span>
+<div>
+<p class="font-body-sm text-body-sm text-on-surface">Exam "TOEIC Practice Test A1" published.</p>
+<p class="font-label-sm text-label-sm text-on-surface-variant mt-1 opacity-70">Yesterday</p>
+</div>
+</li>
+<li class="px-md py-sm flex gap-sm items-start hover:bg-surface-container-lowest transition-colors">
+<span class="material-symbols-outlined text-on-surface-variant mt-1 text-base">person_add</span>
+<div>
+<p class="font-body-sm text-body-sm text-on-surface">New contributor A. Lee added to team.</p>
+<p class="font-label-sm text-label-sm text-on-surface-variant mt-1 opacity-70">Oct 23</p>
+</div>
+</li>
+</ul>
+</section>
+</div>
+</div>
+</div>
+</main>
+</div>
+
+
+</body></html>

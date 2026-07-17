@@ -1,14 +1,16 @@
-﻿using System.Collections.Generic;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using AcadPrep.Application.Features.Performance.DTOs;
 using AcadPrep.Application.Features.Performance.Queries.GetAchievements;
 using Application.Common.Interfaces;
 using MediatR;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 
 namespace AcadPrep.WebUI.Pages.Performance;
 
+[Authorize]
 public class AchievementsModel : PageModel
 {
     private readonly IMediator _mediator;
@@ -24,9 +26,9 @@ public class AchievementsModel : PageModel
 
     public async Task<IActionResult> OnGetAsync()
     {
-        if (string.IsNullOrEmpty(_currentUserService.UserId) || !int.TryParse(_currentUserService.UserId, out int parsedUserId))
+        if (!int.TryParse(_currentUserService.UserId, out int parsedUserId))
         {
-            parsedUserId = 1; // Fallback
+            return Unauthorized();
         }
 
         Achievements = (await _mediator.Send(new GetAchievementsQuery(parsedUserId))).Data!;
@@ -34,5 +36,3 @@ public class AchievementsModel : PageModel
         return Page();
     }
 }
-
-

@@ -11,6 +11,7 @@ public class User : BaseEntity<int>, IAuditable
     public string Email { get; private set; } = null!;
     public string? PasswordHash { get; private set; }
     public string FullName { get; private set; } = null!;
+    public string? AvatarUrl { get; private set; }
     public string? GoogleId { get; private set; }
     public UserStatus Status { get; private set; } = UserStatus.Active;
     public int RoleId { get; private set; }
@@ -25,6 +26,8 @@ public class User : BaseEntity<int>, IAuditable
     public virtual ICollection<StudyStreak> StudyStreaks { get; set; } = new List<StudyStreak>();
     public virtual ICollection<UserAchievement> UserAchievements { get; set; } = new List<UserAchievement>();
     public virtual ICollection<AuditLog> AuditLogs { get; set; } = new List<AuditLog>();
+    public virtual ICollection<Notification> Notifications { get; set; } = new List<Notification>();
+
 
     /// <summary>
     /// Factory: tạo User đăng nhập bằng email/password (PasswordHash được set sau khi hash).
@@ -85,5 +88,22 @@ public class User : BaseEntity<int>, IAuditable
     public void AssignRole(int roleId)
     {
         RoleId = roleId;
+    }
+
+    public void UpdateAvatar(string? avatarUrl)
+    {
+        AvatarUrl = string.IsNullOrWhiteSpace(avatarUrl) ? null : avatarUrl.Trim();
+    }
+
+    public void UpdateFullName(string fullName)
+    {
+        ArgumentException.ThrowIfNullOrWhiteSpace(fullName);
+        FullName = fullName.Trim();
+    }
+
+    public void ChangePassword(string passwordHash)
+    {
+        ArgumentException.ThrowIfNullOrWhiteSpace(passwordHash);
+        PasswordHash = passwordHash;
     }
 }

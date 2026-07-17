@@ -1,4 +1,19 @@
 @page
+@if (User.Identity?.IsAuthenticated == true)
+{
+    if (User.IsInRole("Admin"))
+    {
+        Response.Redirect("/Admin/Dashboard");
+    }
+    else if (User.IsInRole("Moderator"))
+    {
+        Response.Redirect("/Admin/Exams");
+    }
+    else
+    {
+        Response.Redirect("/Performance/Dashboard");
+    }
+}
 @{
     ViewData["Title"] = "Home page";
 }

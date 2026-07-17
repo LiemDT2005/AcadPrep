@@ -3,11 +3,13 @@ using System.Threading.Tasks;
 using AcadPrep.Application.Features.Performance.Queries.GetLeaderboard;
 using Application.Common.Interfaces;
 using MediatR;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 
 namespace AcadPrep.WebUI.Pages.Performance;
 
+[AllowAnonymous]
 public class LeaderboardModel : PageModel
 {
     private readonly IMediator _mediator;
@@ -26,9 +28,11 @@ public class LeaderboardModel : PageModel
 
     public async Task<IActionResult> OnGetAsync()
     {
-        if (string.IsNullOrEmpty(_currentUserService.UserId) || !int.TryParse(_currentUserService.UserId, out int parsedUserId))
+        // Leaderboard is public (UC-4), but if user is logged in, use their ID for highlighting
+        int parsedUserId = 0;
+        if (!string.IsNullOrEmpty(_currentUserService.UserId))
         {
-            parsedUserId = 2; // Fallback to Test User
+            int.TryParse(_currentUserService.UserId, out parsedUserId);
         }
 
         // Default SortBy to "Score" if invalid value is provided

@@ -82,51 +82,135 @@
     </script>
 </head>
 <body>
-    <!-- TopNavBar (Guest State from Stitch) -->
-    <header class="sticky top-0 z-50 bg-surface-container-lowest border-b border-outline-variant w-full h-[64px] mb-4 font-[Inter]">
-        <div class="flex justify-between items-center w-full px-margin-desktop max-w-7xl mx-auto h-full">
-            <!-- Brand Logo -->
-            <a class="flex items-center gap-sm group" href="/" style="text-decoration:none;">
-                <span class="material-symbols-outlined text-primary text-[28px]" style="font-variation-settings: 'FILL' 1;">school</span>
-                <span class="text-[20px] font-bold text-primary-container leading-[28px]">AcadPrep</span>
-            </a>
-            <!-- Navigation Links -->
-            <nav class="hidden md:flex items-center h-full gap-lg">
-                <a class="h-full flex items-center px-sm text-[16px] text-on-surface-variant font-medium hover:text-primary transition-colors" href="/Performance/Dashboard" style="text-decoration:none;">Dashboard</a>
-                <a class="h-full flex items-center px-sm text-[16px] text-on-surface-variant font-medium hover:text-primary transition-colors" href="/Performance/Achievements" style="text-decoration:none;">Achievements</a>
-                <a class="h-full flex items-center px-sm text-[16px] text-on-surface-variant font-medium hover:text-primary transition-colors" href="/Vocabulary/Notebook" style="text-decoration:none;">Vocabulary</a>
-                <a class="h-full flex items-center px-sm text-[16px] text-on-surface-variant font-medium hover:text-primary transition-colors" href="/Admin/Dashboard" style="text-decoration:none;">Admin</a>
-            </nav>
-            <!-- Trailing Actions -->
-            <div class="flex items-center gap-md">
-                @if (User.Identity?.IsAuthenticated == true)
-                {
-                    <form method="post" asp-page="/Account/Logout" class="inline">
-                        @Html.AntiForgeryToken()
-                        <button type="submit"
-                                class="hidden sm:inline-flex items-center justify-center px-md py-sm rounded-lg border border-outline-variant text-on-surface text-[14px] font-medium hover:bg-surface-container-low transition-colors duration-100">
-                            Đăng xuất
-                        </button>
-                    </form>
-                }
-                else
-                {
+    <!-- Header section -->
+    @if (User.Identity?.IsAuthenticated == true)
+    {
+        <!-- Authenticated Header (Deep Indigo) from Stitch -->
+        <header class="sticky top-0 z-50 w-full bg-primary text-on-primary shadow-lg font-[Inter] mb-4">
+            <div class="max-w-7xl mx-auto flex justify-between items-center h-16 px-margin-mobile md:px-margin-desktop">
+                <div class="flex items-center gap-xl">
+                    <a href="/Performance/Dashboard" class="flex items-center gap-sm group text-white hover:opacity-90" style="text-decoration:none;">
+                        <span class="material-symbols-outlined text-[28px]" style="font-variation-settings: 'FILL' 1;">school</span>
+                        <span class="text-[20px] font-extrabold tracking-tight">AcadPrep</span>
+                    </a>
+                    <nav class="hidden md:flex items-center gap-lg">
+                        <a class="font-label-md text-label-md text-white hover:opacity-100 transition-opacity" href="/Performance/Dashboard" style="text-decoration:none;">Home</a>
+                        <a class="font-label-md text-label-md text-white opacity-80 hover:opacity-100 transition-opacity" href="/Exams" style="text-decoration:none;">Exams</a>
+                        <a class="font-label-md text-label-md text-white opacity-80 hover:opacity-100 transition-opacity" href="/Vocabulary/Notebook" style="text-decoration:none;">Vocabulary</a>
+                        <a class="font-label-md text-label-md text-white opacity-80 hover:opacity-100 transition-opacity" href="/Performance/Leaderboard" style="text-decoration:none;">Leaderboard</a>
+                        @if (User.IsInRole("Admin"))
+                        {
+                            <a class="font-label-md text-label-md text-white opacity-80 hover:opacity-100 transition-opacity" href="/Admin/Dashboard" style="text-decoration:none;">Admin</a>
+                        }
+                        else if (User.IsInRole("Moderator"))
+                        {
+                            <a class="font-label-md text-label-md text-white opacity-80 hover:opacity-100 transition-opacity" href="/Admin/Exams" style="text-decoration:none;">CMS</a>
+                        }
+                    </nav>
+                </div>
+                <div class="flex items-center gap-md">
+                    <button class="p-2 rounded-full hover:bg-white/10 transition-colors relative bg-transparent border-0 text-white flex items-center">
+                        <span class="material-symbols-outlined">notifications</span>
+                        <span class="absolute top-2 right-2 w-2 h-2 bg-[#ffc107] rounded-full border-2 border-primary"></span>
+                    </button>
+                    <div class="flex items-center gap-sm pl-md border-l border-white/20">
+                        @await Component.InvokeAsync("ProfileAvatar", new { variant = "learner" })
+                        <form method="post" asp-page="/Account/Logout" class="inline m-0">
+                            @Html.AntiForgeryToken()
+                            <button type="submit" class="flex items-center border-0 bg-transparent p-2 text-white transition-opacity hover:opacity-80" title="Sign out">
+                                <span class="material-symbols-outlined text-[20px]">logout</span>
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </header>
+    }
+    else
+    {
+        <!-- Guest Header from Stitch -->
+        <header class="sticky top-0 z-50 bg-surface-container-lowest border-b border-outline-variant w-full h-[64px] font-[Inter] mb-4">
+            <div class="flex justify-between items-center w-full px-margin-mobile md:px-margin-desktop max-w-7xl mx-auto h-full">
+                <!-- Brand Logo -->
+                <a class="flex items-center gap-sm group" href="/" style="text-decoration:none;">
+                    <span class="material-symbols-outlined text-primary text-[28px]" style="font-variation-settings: 'FILL' 1;">school</span>
+                    <span class="text-[20px] font-bold text-primary-container leading-[28px]">AcadPrep</span>
+                </a>
+                <!-- Navigation Links -->
+                <nav class="hidden md:flex items-center h-full gap-lg">
+                    <a class="h-full flex items-center px-sm text-[16px] text-primary-container font-medium border-b-2 border-primary-container relative top-[1px] hover:text-primary transition-colors" href="/" style="text-decoration:none;">Home</a>
+                    <a class="h-full flex items-center px-sm text-[16px] text-on-surface-variant font-medium hover:text-primary transition-colors" href="/Exams" style="text-decoration:none;">Exams</a>
+                    <a class="h-full flex items-center px-sm text-[16px] text-on-surface-variant font-medium hover:text-primary transition-colors" href="/Vocabulary/Notebook" style="text-decoration:none;">Vocabulary</a>
+                    <a class="h-full flex items-center px-sm text-[16px] text-on-surface-variant font-medium hover:text-primary transition-colors" href="/Performance/Leaderboard" style="text-decoration:none;">Leaderboard</a>
+                </nav>
+                <!-- Trailing Actions -->
+                <div class="flex items-center gap-md">
                     <a href="/Account/Login"
                        class="hidden sm:inline-flex items-center justify-center px-md py-sm rounded-lg border border-outline-variant text-on-surface text-[14px] font-medium hover:bg-surface-container-low transition-colors duration-100"
                        style="text-decoration:none;">Log In</a>
                     <a href="/Account/Register"
                        class="inline-flex items-center justify-center px-md py-sm rounded-lg bg-primary-container text-white text-[14px] font-medium hover:opacity-90 active:scale-95 transition-all duration-100 shadow-sm border-0"
                        style="text-decoration:none;">Get Started</a>
-                }
-                <button class="md:hidden flex items-center justify-center text-on-surface-variant hover:text-primary transition-colors p-sm bg-transparent border-0"><span class="material-symbols-outlined">menu</span></button>
+                    <button class="md:hidden flex items-center justify-center text-on-surface-variant hover:text-primary transition-colors p-sm bg-transparent border-0"><span class="material-symbols-outlined">menu</span></button>
+                </div>
+            </div>
+        </header>
+    }
+    
+    <main role="main" class="flex-grow w-full max-w-7xl mx-auto px-margin-mobile md:px-margin-desktop py-md md:py-xl font-[Inter]">
+        @RenderBody()
+    </main>
+
+    <!-- Stitch Footer -->
+    <footer class="bg-surface-container border-t border-outline-variant pt-2xl pb-xl font-[Inter]">
+        <div class="max-w-7xl mx-auto px-margin-mobile md:px-margin-desktop grid grid-cols-2 md:grid-cols-4 gap-2xl">
+            <div class="col-span-2 md:col-span-1 space-y-md">
+                <h3 class="text-headline-sm font-extrabold text-primary">AcadPrep</h3>
+                <p class="text-body-sm text-on-surface-variant">An AI-powered exam prep platform that helps you reach your TOEIC goals faster with realistic practice and smart review tools.</p>
+                <div class="flex gap-md">
+                    <span class="material-symbols-outlined text-outline cursor-pointer hover:text-primary transition-colors">public</span>
+                    <span class="material-symbols-outlined text-outline cursor-pointer hover:text-primary transition-colors">alternate_email</span>
+                    <span class="material-symbols-outlined text-outline cursor-pointer hover:text-primary transition-colors">share</span>
+                </div>
+            </div>
+            <div class="space-y-md">
+                <h4 class="text-label-md font-bold uppercase text-on-surface">Company</h4>
+                <nav class="flex flex-col gap-sm">
+                    <a class="text-body-sm text-on-surface-variant hover:text-primary transition-colors" href="#" style="text-decoration:none;">About</a>
+                    <a class="text-body-sm text-on-surface-variant hover:text-primary transition-colors" href="#" style="text-decoration:none;">Careers</a>
+                    <a class="text-body-sm text-on-surface-variant hover:text-primary transition-colors" href="#" style="text-decoration:none;">Partners</a>
+                </nav>
+            </div>
+            <div class="space-y-md">
+                <h4 class="text-label-md font-bold uppercase text-on-surface">Resources</h4>
+                <nav class="flex flex-col gap-sm">
+                    <a class="text-body-sm text-on-surface-variant hover:text-primary transition-colors" href="/Exams" style="text-decoration:none;">Exam library</a>
+                    <a class="text-body-sm text-on-surface-variant hover:text-primary transition-colors" href="#" style="text-decoration:none;">Study blog</a>
+                    <a class="text-body-sm text-on-surface-variant hover:text-primary transition-colors" href="/Vocabulary/Notebook" style="text-decoration:none;">TOEIC vocabulary</a>
+                </nav>
+            </div>
+            <div class="space-y-md">
+                <h4 class="text-label-md font-bold uppercase text-on-surface">Support</h4>
+                <nav class="flex flex-col gap-sm">
+                    <a class="text-body-sm text-on-surface-variant hover:text-primary transition-colors" href="#" style="text-decoration:none;">Help center</a>
+                    <a class="text-body-sm text-on-surface-variant hover:text-primary transition-colors" href="#" style="text-decoration:none;">Payment guide</a>
+                    <a class="text-body-sm text-on-surface-variant hover:text-primary transition-colors" href="#" style="text-decoration:none;">Report an issue</a>
+                </nav>
             </div>
         </div>
-    </header>
-    
-    <div class="container">
-        <main role="main" class="pb-5">
-            @RenderBody()
-        </main>
+        <div class="max-w-7xl mx-auto px-margin-mobile md:px-margin-desktop mt-2xl pt-lg border-t border-outline-variant flex flex-col md:flex-row justify-between items-center gap-md">
+            <p class="text-label-sm text-outline">© 2024 AcadPrep Academic Platform. All rights reserved.</p>
+            <div class="flex gap-xl">
+                <a class="text-label-sm text-outline hover:underline" href="#" style="text-decoration:none;">Privacy policy</a>
+                <a class="text-label-sm text-outline hover:underline" href="#" style="text-decoration:none;">Terms of use</a>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Stitch Support Bar -->
+    <div class="w-full bg-[#ba1a1a] text-white py-2 flex justify-center items-center gap-sm">
+        <span class="material-symbols-outlined text-[18px]">support_agent</span>
+        <span class="text-label-sm font-bold uppercase tracking-wide">24/7 technical support (Hotline: 1900 xxxx)</span>
     </div>
 
     <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mdb-ui-kit/7.1.0/mdb.umd.min.js"></script>

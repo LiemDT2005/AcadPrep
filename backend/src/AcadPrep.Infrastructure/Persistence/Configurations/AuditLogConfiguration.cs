@@ -4,9 +4,9 @@ using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 namespace Infrastructure.Persistence.Configurations;
 
-public class AuditLogConfiguration : IEntityTypeConfiguration<Notifiactions>
+public class AuditLogConfiguration : IEntityTypeConfiguration<AuditLog>
 {
-    public void Configure(EntityTypeBuilder<Notifiactions> builder)
+    public void Configure(EntityTypeBuilder<AuditLog> builder)
     {
         builder.ToTable("AUDITLOGS");
 
@@ -31,7 +31,6 @@ public class AuditLogConfiguration : IEntityTypeConfiguration<Notifiactions>
         builder.Property(x => x.Timestamp)
             .HasDefaultValueSql("GETDATE()");
 
-        // Relationships
         builder.HasOne(x => x.User)
             .WithMany(u => u.AuditLogs)
             .HasForeignKey(x => x.UserId)

@@ -1,13 +1,17 @@
+using System.Collections.Generic;
+using System.Threading.Tasks;
 using AcadPrep.Application.Features.Practice.Commands.SubmitPractice;
 using AcadPrep.Application.Features.Practice.Queries.GetPracticeSession;
 using Application.Common.Interfaces;
 using MediatR;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.EntityFrameworkCore;
 
 namespace AcadPrep.WebUI.Pages.Exams;
 
+[Authorize]
 [IgnoreAntiforgeryToken]
 public class PracticeModel : PageModel
 {
@@ -34,7 +38,10 @@ public class PracticeModel : PageModel
             return RedirectToPage("/Exams/Index");
         }
 
-        var userId = ResolveUserId();
+        if (!int.TryParse(_currentUserService.UserId, out int userId))
+        {
+            return Unauthorized();
+        }
 
         var existing = await _context.PracticeSessions
             .AsNoTracking()
@@ -65,6 +72,11 @@ public class PracticeModel : PageModel
 
     public async Task<IActionResult> OnPostSubmitAsync([FromBody] SubmitPracticeRequest request)
     {
+        if (!int.TryParse(_currentUserService.UserId, out int userId))
+        {
+            return Unauthorized();
+        }
+
         var answers = new Dictionary<int, string>();
         if (request.Answers is not null)
         {
@@ -78,7 +90,7 @@ public class PracticeModel : PageModel
         }
 
         var result = await _mediator.Send(new SubmitPracticeCommand(
-            request.SessionId, ResolveUserId(), answers));
+            request.SessionId, userId, answers));
 
         if (result.IsSuccess && result.Data is not null)
         {
@@ -95,16 +107,6 @@ public class PracticeModel : PageModel
         }
 
         return new JsonResult(new { success = false, error = result.Error });
-    }
-
-    private int ResolveUserId()
-    {
-        if (!string.IsNullOrEmpty(_currentUserService.UserId) && int.TryParse(_currentUserService.UserId, out int id))
-        {
-            return id;
-        }
-
-        return 2;
     }
 
     public class SubmitPracticeRequest

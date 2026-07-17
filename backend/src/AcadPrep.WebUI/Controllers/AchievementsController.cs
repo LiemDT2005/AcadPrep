@@ -4,10 +4,13 @@ using Application.Common.Interfaces;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
+using Microsoft.AspNetCore.Authorization;
+
 namespace AcadPrep.WebUI.Controllers;
 
 [ApiController]
 [Route("api/[controller]")]
+[Authorize]
 public class AchievementsController : ControllerBase
 {
     private readonly IAppDbContext _context;
@@ -23,12 +26,9 @@ public class AchievementsController : ControllerBase
     public async Task<IActionResult> GetUnnotifiedAchievements()
     {
         var userIdStr = _currentUserService.UserId;
-        // Since we don't have proper Auth set up in the code base based on my research,
-        // Let's fallback to User ID 2 (Test User) for demonstration purposes if auth is missing
-        int userId = 2; 
-        if (int.TryParse(userIdStr, out int parsedId))
+        if (!int.TryParse(userIdStr, out int userId))
         {
-            userId = parsedId;
+            return Unauthorized();
         }
 
         var unnotified = await _context.UserAchievements
@@ -50,10 +50,9 @@ public class AchievementsController : ControllerBase
     public async Task<IActionResult> MarkAsNotified([FromBody] int achievementId)
     {
         var userIdStr = _currentUserService.UserId;
-        int userId = 2; // Fallback
-        if (int.TryParse(userIdStr, out int parsedId))
+        if (!int.TryParse(userIdStr, out int userId))
         {
-            userId = parsedId;
+            return Unauthorized();
         }
 
         var userAchievement = await _context.UserAchievements

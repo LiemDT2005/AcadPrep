@@ -1,65 +1,138 @@
 @page
 @model AcadPrep.WebUI.Pages.Admin.DashboardModel
 @{
+    Layout = "_AdminLayout";
     ViewData["Title"] = "Admin Dashboard";
 }
 
-<div class="max-w-[1400px] mx-auto flex flex-col gap-xl">
-    <!-- KPI Row -->
-    <section class="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-5 gap-md">
-        <!-- KPI 1 -->
-        <div class="bg-surface-container-lowest rounded-lg border-t-4 border-t-primary p-md flex flex-col gap-xs shadow-sm">
-            <span class="text-[14px] font-medium text-on-surface-variant">Total Users</span>
-            <div class="flex items-baseline gap-sm">
-                <span class="text-[32px] font-bold text-on-surface">@Model.Stats.TotalUsers</span>
-            </div>
+<div class="max-w-[1280px] mx-auto flex min-h-full flex-col gap-lg">
+    <header class="flex flex-col gap-md border-b border-outline-variant pb-md md:flex-row md:items-end md:justify-between">
+        <div>
+            <p class="mb-xs text-[12px] font-semibold uppercase tracking-[0.12em] text-primary">Platform intelligence</p>
+            <h2 class="text-[32px] font-bold leading-10 text-on-surface">System overview</h2>
+            <p class="mt-sm text-[16px] text-on-surface-variant">
+                Monitor learner activity, exam performance, and content across AcadPrep.
+            </p>
         </div>
-        <!-- KPI 2 -->
-        <div class="bg-surface-container-lowest rounded-lg border-t-4 border-t-primary p-md flex flex-col gap-xs shadow-sm">
-            <span class="text-[14px] font-medium text-on-surface-variant">Active Users (7 Days)</span>
-            <div class="flex items-baseline gap-sm">
-                <span class="text-[32px] font-bold text-on-surface">@Model.Stats.ActiveUsers</span>
-            </div>
+        <div class="flex flex-wrap gap-sm">
+            <a href="/Admin/Report"
+               class="inline-flex items-center gap-xs rounded-lg border border-outline-variant bg-surface-container-lowest px-md py-sm text-[14px] font-medium text-on-surface transition-colors hover:bg-surface-container-low">
+                <span class="material-symbols-outlined text-[18px]">analytics</span>
+                View reports
+            </a>
+            <a href="/Admin/Exams"
+               class="inline-flex items-center gap-xs rounded-lg bg-primary px-md py-sm text-[14px] font-medium text-on-primary shadow-sm transition-colors hover:bg-surface-tint">
+                <span class="material-symbols-outlined text-[18px]">edit_document</span>
+                Manage content
+            </a>
         </div>
-        <!-- KPI 3 -->
-        <div class="bg-surface-container-lowest rounded-lg border-t-4 border-t-primary p-md flex flex-col gap-xs shadow-sm">
-            <span class="text-[14px] font-medium text-on-surface-variant">New Registrations (30d)</span>
-            <div class="flex items-baseline gap-sm">
-                <span class="text-[32px] font-bold text-on-surface">@Model.Stats.NewRegistrations</span>
+    </header>
+
+    <section class="grid grid-cols-1 gap-md sm:grid-cols-2 xl:grid-cols-5" aria-label="Platform statistics">
+        <article class="rounded-xl border border-outline-variant bg-surface-container-lowest p-lg shadow-sm">
+            <div class="flex items-start justify-between">
+                <p class="text-[14px] font-medium text-on-surface-variant">Total users</p>
+                <span class="material-symbols-outlined text-secondary-container">group</span>
             </div>
-        </div>
-        <!-- KPI 4 -->
-        <div class="bg-surface-container-lowest rounded-lg border-t-4 border-t-primary p-md flex flex-col gap-xs shadow-sm">
-            <span class="text-[14px] font-medium text-on-surface-variant">Total Exams Completed</span>
-            <div class="flex items-baseline gap-sm">
-                <span class="text-[32px] font-bold text-on-surface">@Model.Stats.TotalExamsTaken</span>
+            <p class="mt-xl text-[36px] font-bold leading-none text-on-surface">@Model.Stats.TotalUsers.ToString("N0")</p>
+            <p class="mt-sm text-[12px] font-semibold text-on-surface-variant">All registered accounts</p>
+        </article>
+
+        <article class="rounded-xl border border-outline-variant bg-surface-container-lowest p-lg shadow-sm">
+            <div class="flex items-start justify-between">
+                <p class="text-[14px] font-medium text-on-surface-variant">Active learners</p>
+                <span class="material-symbols-outlined text-tertiary">local_fire_department</span>
             </div>
-        </div>
-        <!-- KPI 5 -->
-        <div class="bg-surface-container-lowest rounded-lg border-t-4 border-t-primary p-md flex flex-col gap-xs shadow-sm">
-            <span class="text-[14px] font-medium text-on-surface-variant">Avg TOEIC Score</span>
-            <div class="flex items-baseline gap-sm">
-                <span class="text-[32px] font-bold text-on-surface">@Model.Stats.AverageToeicScore.ToString("F0")</span>
+            <p class="mt-xl text-[36px] font-bold leading-none text-on-surface">@Model.Stats.ActiveUsers.ToString("N0")</p>
+            <p class="mt-sm text-[12px] font-semibold text-tertiary">Active during the last 7 days</p>
+        </article>
+
+        <article class="rounded-xl border border-outline-variant bg-surface-container-lowest p-lg shadow-sm">
+            <div class="flex items-start justify-between">
+                <p class="text-[14px] font-medium text-on-surface-variant">New registrations</p>
+                <span class="material-symbols-outlined text-primary">person_add</span>
             </div>
-        </div>
+            <p class="mt-xl text-[36px] font-bold leading-none text-on-surface">@Model.Stats.NewRegistrations.ToString("N0")</p>
+            <p class="mt-sm text-[12px] font-semibold text-on-surface-variant">Created during the last 30 days</p>
+        </article>
+
+        <article class="rounded-xl border border-outline-variant bg-surface-container-lowest p-lg shadow-sm">
+            <div class="flex items-start justify-between">
+                <p class="text-[14px] font-medium text-on-surface-variant">Completed exams</p>
+                <span class="material-symbols-outlined text-primary">assignment_turned_in</span>
+            </div>
+            <p class="mt-xl text-[36px] font-bold leading-none text-on-surface">@Model.Stats.TotalExamsTaken.ToString("N0")</p>
+            <p class="mt-sm text-[12px] font-semibold text-on-surface-variant">Submitted attempts platform-wide</p>
+        </article>
+
+        <article class="rounded-xl border border-secondary-fixed-dim bg-secondary-fixed p-lg shadow-sm sm:col-span-2 xl:col-span-1">
+            <div class="flex items-start justify-between">
+                <p class="text-[14px] font-medium text-on-secondary-fixed-variant">Average TOEIC score</p>
+                <span class="material-symbols-outlined text-secondary">workspace_premium</span>
+            </div>
+            <p class="mt-xl text-[36px] font-bold leading-none text-on-secondary-fixed">@Model.Stats.AverageToeicScore.ToString("F0")</p>
+            <p class="mt-sm text-[12px] font-semibold text-on-secondary-fixed-variant">Across submitted attempts</p>
+        </article>
     </section>
 
-    <!-- Content Row -->
-    <section class="grid grid-cols-1 lg:grid-cols-2 gap-md mt-4">
-        <div class="bg-surface-container-lowest rounded-lg p-md shadow-sm min-h-[200px] flex flex-col">
-            <h3 class="text-[20px] font-semibold text-on-surface mb-md">Quick Actions</h3>
-            <div class="flex gap-md">
-                <a href="/Admin/Report" class="inline-flex items-center justify-center px-md py-sm rounded-lg border border-outline-variant text-on-surface text-[14px] font-medium hover:bg-surface-container-low transition-colors duration-100" style="text-decoration:none;">
-                    View Progress Reports
+    <section class="grid flex-1 grid-cols-1 gap-md lg:grid-cols-3">
+        <article class="overflow-hidden rounded-xl border border-outline-variant bg-surface-container-lowest shadow-sm lg:col-span-2">
+            <div class="flex items-center justify-between border-b border-outline-variant bg-surface-bright p-lg">
+                <div>
+                    <h3 class="text-[20px] font-semibold text-on-surface">Management center</h3>
+                    <p class="mt-xs text-[14px] text-on-surface-variant">Shortcuts to key administration areas</p>
+                </div>
+                <span class="material-symbols-outlined text-primary">space_dashboard</span>
+            </div>
+            <div class="grid grid-cols-1 gap-md p-lg md:grid-cols-3">
+                <a href="/Admin/Report" class="group rounded-xl border border-outline-variant p-md transition-all hover:-translate-y-0.5 hover:border-primary hover:shadow-md">
+                    <span class="material-symbols-outlined rounded-lg bg-primary-fixed p-sm text-primary">monitoring</span>
+                    <h4 class="mt-md font-semibold text-on-surface group-hover:text-primary">Progress reports</h4>
+                    <p class="mt-xs text-[13px] leading-5 text-on-surface-variant">Review learner progress and engagement.</p>
                 </a>
-                <a href="/Admin/ExamStats" class="inline-flex items-center justify-center px-md py-sm rounded-lg border border-outline-variant text-on-surface text-[14px] font-medium hover:bg-surface-container-low transition-colors duration-100" style="text-decoration:none;">
-                    View Exam Statistics
+                <a href="/Admin/ExamStats" class="group rounded-xl border border-outline-variant p-md transition-all hover:-translate-y-0.5 hover:border-primary hover:shadow-md">
+                    <span class="material-symbols-outlined rounded-lg bg-primary-fixed p-sm text-primary">query_stats</span>
+                    <h4 class="mt-md font-semibold text-on-surface group-hover:text-primary">Exam statistics</h4>
+                    <p class="mt-xs text-[13px] leading-5 text-on-surface-variant">Inspect scores and exam completion data.</p>
                 </a>
-                <a href="/Admin/Exams" class="inline-flex items-center justify-center px-md py-sm rounded-lg bg-primary-container text-white text-[14px] font-medium hover:opacity-90 transition-all duration-100 shadow-sm" style="text-decoration:none;">
-                    Manage Exams
+                <a href="/Admin/Achievements/Index" class="group rounded-xl border border-outline-variant p-md transition-all hover:-translate-y-0.5 hover:border-primary hover:shadow-md">
+                    <span class="material-symbols-outlined rounded-lg bg-secondary-fixed p-sm text-secondary">military_tech</span>
+                    <h4 class="mt-md font-semibold text-on-surface group-hover:text-primary">Achievements</h4>
+                    <p class="mt-xs text-[13px] leading-5 text-on-surface-variant">Create and maintain learner badges.</p>
                 </a>
             </div>
-        </div>
+        </article>
+
+        <aside class="flex flex-col rounded-xl border border-outline-variant bg-surface-container-lowest p-lg shadow-sm">
+            <div class="flex items-center justify-between">
+                <h3 class="text-[20px] font-semibold text-on-surface">System snapshot</h3>
+                <span class="material-symbols-outlined text-tertiary">health_and_safety</span>
+            </div>
+            <div class="mt-lg space-y-lg">
+                <div>
+                    <div class="mb-xs flex justify-between text-[12px] font-semibold text-on-surface-variant">
+                        <span>Learner activity</span>
+                        <span>@Model.ActiveUserRate.ToString("F0")%</span>
+                    </div>
+                    <div class="h-2 overflow-hidden rounded-full bg-surface-container-high">
+                        <div class="h-full rounded-full bg-tertiary-fixed-dim" style="width: @Model.ActiveUserRate.ToString("F0", System.Globalization.CultureInfo.InvariantCulture)%"></div>
+                    </div>
+                </div>
+                <div>
+                    <div class="mb-xs flex justify-between text-[12px] font-semibold text-on-surface-variant">
+                        <span>New-user share</span>
+                        <span>@Model.NewUserRate.ToString("F0")%</span>
+                    </div>
+                    <div class="h-2 overflow-hidden rounded-full bg-surface-container-high">
+                        <div class="h-full rounded-full bg-secondary-container" style="width: @Model.NewUserRate.ToString("F0", System.Globalization.CultureInfo.InvariantCulture)%"></div>
+                    </div>
+                </div>
+            </div>
+            <div class="mt-auto rounded-lg bg-surface-container-low p-md">
+                <p class="text-[13px] leading-5 text-on-surface-variant">
+                    Statistics are calculated from the latest account activity and submitted exam attempts.
+                </p>
+            </div>
+        </aside>
     </section>
 </div>
-

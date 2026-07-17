@@ -1,14 +1,17 @@
+using System.Threading.Tasks;
 using AcadPrep.Application.Features.FullTest.Commands.SaveAnswer;
 using AcadPrep.Application.Features.FullTest.Commands.SaveProgress;
 using AcadPrep.Application.Features.FullTest.Commands.SubmitTest;
 using AcadPrep.Application.Features.FullTest.Queries.GetTestSession;
 using Application.Common.Interfaces;
 using MediatR;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 
 namespace AcadPrep.WebUI.Pages.Exams;
 
+[Authorize]
 [IgnoreAntiforgeryToken]
 public class TakeModel : PageModel
 {
@@ -33,7 +36,11 @@ public class TakeModel : PageModel
             return RedirectToPage("/Exams/Index");
         }
 
-        var userId = ResolveUserId();
+        if (!int.TryParse(_currentUserService.UserId, out int userId))
+        {
+            return Unauthorized();
+        }
+
         var result = await _mediator.Send(new GetTestSessionQuery(AttemptId.Value, userId));
 
         if (!result.IsSuccess || result.Data is null)
@@ -48,24 +55,39 @@ public class TakeModel : PageModel
 
     public async Task<IActionResult> OnPostSaveAnswerAsync([FromBody] SaveAnswerRequest request)
     {
+        if (!int.TryParse(_currentUserService.UserId, out int userId))
+        {
+            return Unauthorized();
+        }
+
         var result = await _mediator.Send(new SaveAnswerCommand(
-            request.AttemptId, ResolveUserId(), request.QuestionId, request.SelectedOption));
+            request.AttemptId, userId, request.QuestionId, request.SelectedOption));
 
         return new JsonResult(new { success = result.IsSuccess, error = result.Error });
     }
 
     public async Task<IActionResult> OnPostSaveProgressAsync([FromBody] SaveProgressRequest request)
     {
+        if (!int.TryParse(_currentUserService.UserId, out int userId))
+        {
+            return Unauthorized();
+        }
+
         var result = await _mediator.Send(new SaveProgressCommand(
-            request.AttemptId, ResolveUserId(), request.RemainingSeconds));
+            request.AttemptId, userId, request.RemainingSeconds));
 
         return new JsonResult(new { success = result.IsSuccess, error = result.Error });
     }
 
     public async Task<IActionResult> OnPostSubmitAsync([FromBody] SubmitRequest request)
     {
+        if (!int.TryParse(_currentUserService.UserId, out int userId))
+        {
+            return Unauthorized();
+        }
+
         var result = await _mediator.Send(new SubmitTestCommand(
-            request.AttemptId, ResolveUserId(), request.RemainingSeconds));
+            request.AttemptId, userId, request.RemainingSeconds));
 
         if (result.IsSuccess && result.Data is not null)
         {
@@ -80,16 +102,6 @@ public class TakeModel : PageModel
         }
 
         return new JsonResult(new { success = false, error = result.Error });
-    }
-
-    private int ResolveUserId()
-    {
-        if (!string.IsNullOrEmpty(_currentUserService.UserId) && int.TryParse(_currentUserService.UserId, out int id))
-        {
-            return id;
-        }
-
-        return 2;
     }
 
     public class SaveAnswerRequest

@@ -6,8 +6,11 @@ using MediatR;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 
+using Microsoft.AspNetCore.Authorization;
+
 namespace AcadPrep.WebUI.Pages.Vocabulary;
 
+[Authorize]
 public class VocabularyDetailModel : PageModel
 {
     private readonly IMediator _mediator;

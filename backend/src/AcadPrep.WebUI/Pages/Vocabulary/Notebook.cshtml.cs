@@ -4,11 +4,13 @@ using AcadPrep.Application.Common.Models;
 using AcadPrep.Application.Features.Vocabulary.Queries.GetSavedVocabularies;
 using AcadPrep.Application.Features.Vocabulary.Commands.RemoveVocabulary;
 using MediatR;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 
 namespace AcadPrep.WebUI.Pages.Vocabulary;
 
+[Authorize]
 public class NotebookModel : PageModel
 {
     private readonly IMediator _mediator;
@@ -30,9 +32,9 @@ public class NotebookModel : PageModel
 
     public async Task<IActionResult> OnGetAsync()
     {
-        if (string.IsNullOrEmpty(_currentUserService.UserId) || !int.TryParse(_currentUserService.UserId, out int userId))
+        if (!int.TryParse(_currentUserService.UserId, out int userId))
         {
-            userId = 2; // Fallback for test
+            return Unauthorized();
         }
 
         SavedVocabularies = (await _mediator.Send(new GetSavedVocabulariesQuery(userId, PageNumber, 10, SearchTerm))).Data!;
@@ -42,9 +44,9 @@ public class NotebookModel : PageModel
 
     public async Task<IActionResult> OnPostDeleteAsync(int vocabularyId)
     {
-        if (string.IsNullOrEmpty(_currentUserService.UserId) || !int.TryParse(_currentUserService.UserId, out int userId))
+        if (!int.TryParse(_currentUserService.UserId, out int userId))
         {
-            userId = 2;
+            return Unauthorized();
         }
 
         var result = (await _mediator.Send(new RemoveVocabularyCommand(userId, vocabularyId))).Data!;
@@ -65,20 +67,15 @@ public class NotebookModel : PageModel
 
     public async Task<IActionResult> OnPostCreateAsync()
     {
-        if (!ModelState.IsValid)
+        if (!int.TryParse(_currentUserService.UserId, out int userId))
         {
-            // Reload page data
-            if (string.IsNullOrEmpty(_currentUserService.UserId) || !int.TryParse(_currentUserService.UserId, out int userIdFallback))
-            {
-                userIdFallback = 2;
-            }
-            SavedVocabularies = (await _mediator.Send(new GetSavedVocabulariesQuery(userIdFallback, PageNumber, 10, SearchTerm))).Data!;
-            return Page();
+            return Unauthorized();
         }
 
-        if (string.IsNullOrEmpty(_currentUserService.UserId) || !int.TryParse(_currentUserService.UserId, out int userId))
+        if (!ModelState.IsValid)
         {
-            userId = 2; // Fallback for test
+            SavedVocabularies = (await _mediator.Send(new GetSavedVocabulariesQuery(userId, PageNumber, 10, SearchTerm))).Data!;
+            return Page();
         }
 
         CreateCommand.UserId = userId;
@@ -95,5 +92,3 @@ public class NotebookModel : PageModel
         return RedirectToPage(new { PageNumber, SearchTerm });
     }
 }
-
-

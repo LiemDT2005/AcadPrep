@@ -9,14 +9,19 @@ using AdminGetExamDetailQuery = AcadPrep.Application.Features.Admin.Exams.Querie
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
+using Microsoft.AspNetCore.Authorization;
+using Domain.Enums;
+
 namespace WebUI.Controllers;
 
+[Authorize(Roles = nameof(UserRole.Admin) + "," + nameof(UserRole.Moderator))]
 public class ExamsController : ApiControllerBase
 {
     /// <summary>
     /// Lấy danh sách đề thi (Có phân trang, tìm kiếm và lọc) - UC-3.1
     /// </summary>
     [HttpGet]
+    [AllowAnonymous]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     public async Task<IActionResult> GetList([FromQuery] GetExamListQuery query)
@@ -53,6 +58,7 @@ public class ExamsController : ApiControllerBase
     /// Lấy thông tin chi tiết một đề thi kèm lịch sử làm bài - UC-3.2
     /// </summary>
     [HttpGet("{id:int}")]
+    [AllowAnonymous]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]

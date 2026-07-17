@@ -13,8 +13,12 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.EntityFrameworkCore;
 
+using Microsoft.AspNetCore.Authorization;
+using Domain.Enums;
+
 namespace AcadPrep.WebUI.Pages.Admin.Exams.Questions;
 
+[Authorize(Roles = nameof(UserRole.Admin) + "," + nameof(UserRole.Moderator))]
 public class ListeningQuestionModel(ISender mediator, IAppDbContext context, IFileStorageService fileStorage) : PageModel
 {
     public int ExamId { get; set; }

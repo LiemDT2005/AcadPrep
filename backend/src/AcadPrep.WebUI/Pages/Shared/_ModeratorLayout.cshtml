@@ -122,17 +122,13 @@
     <aside class="hidden md:flex flex-col h-screen w-64 fixed left-0 top-0 bg-surface-container border-r border-outline-variant z-20">
         <div class="p-md border-b border-outline-variant">
             <span class="font-headline-md text-headline-md font-bold text-primary block mb-sm">AcadPrep CMS</span>
-            <div class="flex items-center gap-sm mt-sm">
-                <img alt="Moderator Profile Avatar" class="w-10 h-10 rounded-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCmkF1bnCELqugUtJUPmZ8Q84oX5e3kE2prDFwO_AgUbBIHPSyfU11oinBNUtB_bsqjqiazmKXfGLU1bBZnhqKbpeRt4PFXw23SBgcUokuyUNgwXigDRegC9nddR8tDY4ptic5X2nqVQ22tozznanEcbHeYDMWB6xVcLf87_hVjVyGl_G0ySRCMT22UV_ArVWUEcEvBNm3qTrvf1GtE8466IoFzW8fmS7lvKezb4APhCFqCgVuRsZfo7HHzw4J4eX56qs0ShbkLKuUS">
-                <div>
-                    <div class="font-label-md text-label-md text-on-surface">Jordan Smith</div>
-                    <div class="font-label-sm text-label-sm text-on-surface-variant">TOEIC Moderator</div>
-                </div>
+            <div class="mt-sm">
+                @await Component.InvokeAsync("ProfileAvatar", new { variant = "moderator" })
             </div>
         </div>
         <nav class="flex-1 overflow-y-auto py-md flex flex-col gap-sm">
             <div class="px-md mb-xs font-label-sm text-label-sm text-on-surface-variant uppercase tracking-wider">Overview</div>
-            <a class="flex items-center gap-sm px-md py-sm text-on-surface-variant hover:bg-surface-container-high transition-colors duration-200 cursor-pointer" href="/Courses">
+            <a class="flex items-center gap-sm px-md py-sm bg-primary-fixed text-on-primary-fixed-variant border-l-4 border-primary font-bold transition-colors duration-200 cursor-pointer" href="/Admin/Exams">
                 <span class="material-symbols-outlined">dashboard</span>
                 <span class="font-label-md text-label-md">Dashboard</span>
             </a>
@@ -174,7 +170,7 @@
                 <span class="material-symbols-outlined">notifications</span>
                 <span class="font-label-md text-label-md">Notifications</span>
             </a>
-            <a class="flex items-center gap-sm px-md py-sm text-on-surface-variant hover:bg-surface-container-high transition-colors duration-200 cursor-pointer" href="/Courses">
+            <a class="flex items-center gap-sm px-md py-sm text-on-surface-variant hover:bg-surface-container-high transition-colors duration-200 cursor-pointer" href="/">
                 <span class="material-symbols-outlined">arrow_back</span>
                 <span class="font-label-md text-label-md">Back to Site</span>
             </a>
@@ -191,7 +187,6 @@
                 <span class="bg-primary-fixed text-on-primary-fixed-variant px-2 py-1 rounded-full font-label-sm text-label-sm">Moderator</span>
             </div>
             <div class="flex items-center gap-md">
-                <span class="font-label-sm text-label-sm text-on-surface-variant hidden sm:inline-block">Last login: Today 08:32</span>
                 <div class="flex items-center gap-sm">
                     <button class="text-on-surface-variant hover:text-primary transition-colors cursor-pointer p-1">
                         <span class="material-symbols-outlined">notifications</span>
@@ -199,9 +194,9 @@
                     <button class="text-on-surface-variant hover:text-primary transition-colors cursor-pointer p-1">
                         <span class="material-symbols-outlined">dark_mode</span>
                     </button>
-                    <button class="text-on-surface-variant hover:text-primary transition-colors cursor-pointer p-1">
+                    <a href="/Account/Profile" class="text-on-surface-variant hover:text-primary transition-colors cursor-pointer p-1" title="Open profile">
                         <span class="material-symbols-outlined">account_circle</span>
-                    </button>
+                    </a>
                 </div>
             </div>
         </header>

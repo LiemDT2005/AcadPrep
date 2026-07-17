@@ -6,8 +6,12 @@ using MediatR;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 
+using Microsoft.AspNetCore.Authorization;
+using Domain.Enums;
+
 namespace AcadPrep.WebUI.Pages.Admin;
 
+[Authorize(Roles = nameof(UserRole.Admin))]
 public class ExamStatsModel : PageModel
 {
     private readonly IMediator _mediator;

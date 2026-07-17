@@ -4,8 +4,12 @@ using MediatR;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 
+using Microsoft.AspNetCore.Authorization;
+using Domain.Enums;
+
 namespace AcadPrep.WebUI.Pages.Admin;
 
+[Authorize(Roles = nameof(UserRole.Admin))]
 public class DashboardModel : PageModel
 {
     private readonly IMediator _mediator;
@@ -16,6 +20,8 @@ public class DashboardModel : PageModel
     }
 
     public UserStatsDto Stats { get; set; } = new();
+    public double ActiveUserRate => CalculateRate(Stats.ActiveUsers, Stats.TotalUsers);
+    public double NewUserRate => CalculateRate(Stats.NewRegistrations, Stats.TotalUsers);
 
     public async Task<IActionResult> OnGetAsync()
     {
@@ -25,6 +31,16 @@ public class DashboardModel : PageModel
             Stats = result.Data;
         }
         return Page();
+    }
+
+    private static double CalculateRate(int value, int total)
+    {
+        if (total <= 0)
+        {
+            return 0;
+        }
+
+        return Math.Clamp(value * 100d / total, 0, 100);
     }
 }
 

@@ -154,7 +154,7 @@
                <button class="w-10 h-10 rounded-full hover:bg-surface-container-low transition-colors flex items-center justify-center text-on-surface-variant cursor-pointer relative">
                <span class="material-symbols-outlined">notifications</span>
                </button>
-               <span class="material-symbols-outlined text-primary text-[32px]">account_circle</span>
+               @await Component.InvokeAsync("ProfileAvatar", new { variant = "admin" })
             </div>
          </header>
          <!-- Scrollable Canvas -->

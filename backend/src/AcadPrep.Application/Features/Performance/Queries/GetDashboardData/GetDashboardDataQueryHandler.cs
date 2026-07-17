@@ -38,11 +38,12 @@ public class GetDashboardDataQueryHandler : IRequestHandler<GetDashboardDataQuer
             int answered = attempt.AttemptAnswers.Count;
             int progress = totalQuestions > 0 ? (int)((double)answered / totalQuestions * 100) : 0;
             
+            var remainingMinutes = Math.Max(0, attempt.RemainingTime / 60);
             result.ActiveExams.Add(new ActiveExamDto
             {
                 Id = attempt.Id,
                 ExamTitle = attempt.Exam.Title ?? "Unknown Exam",
-                StatusText = $"Còn {attempt.RemainingTime} phút, Đã làm {progress}%",
+                StatusText = $"{remainingMinutes} min left · {progress}% completed",
                 ProgressPercentage = progress
             });
         }
@@ -59,7 +60,7 @@ public class GetDashboardDataQueryHandler : IRequestHandler<GetDashboardDataQuer
         {
             result.RecentActivities.Add(new ActivityLogDto
             {
-                Description = $"Đã làm đề {exam.Exam.Title} - Đạt {exam.TotalScore} điểm.",
+                Description = $"Completed {exam.Exam.Title} — scored {exam.TotalScore}.",
                 CreatedAt = exam.CompletedAt.Value,
                 ColorType = "primary",
                 TimeAgo = GetTimeAgo(exam.CompletedAt.Value)
@@ -76,7 +77,7 @@ public class GetDashboardDataQueryHandler : IRequestHandler<GetDashboardDataQuer
         {
             result.RecentActivities.Add(new ActivityLogDto
             {
-                Description = $"Đã lưu {recentVocabs.Count} từ vựng mới.",
+                Description = $"Saved {recentVocabs.Count} new vocabulary words.",
                 CreatedAt = recentVocabs.First().DateSaved,
                 ColorType = "tertiary",
                 TimeAgo = GetTimeAgo(recentVocabs.First().DateSaved)
@@ -143,9 +144,9 @@ public class GetDashboardDataQueryHandler : IRequestHandler<GetDashboardDataQuer
     private string GetTimeAgo(DateTime dt)
     {
         var span = DateTime.UtcNow - dt;
-        if (span.Days > 0) return $"{span.Days} ngày trước";
-        if (span.Hours > 0) return $"{span.Hours} giờ trước";
-        if (span.Minutes > 0) return $"{span.Minutes} phút trước";
-        return "Vừa xong";
+        if (span.Days > 0) return $"{span.Days}d ago";
+        if (span.Hours > 0) return $"{span.Hours}h ago";
+        if (span.Minutes > 0) return $"{span.Minutes}m ago";
+        return "Just now";
     }
 }

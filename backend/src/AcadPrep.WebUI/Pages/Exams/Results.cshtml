@@ -1,19 +1,12 @@
 @page
 @model AcadPrep.WebUI.Pages.Exams.ResultsModel
 @{
-    Layout = null;
+    ViewData["Title"] = "Results";
     var title = Model.IsPractice ? "Practice complete!" : "Test complete!";
     var scoreLabel = Model.IsPractice ? "Correct answers" : "Total Score";
 }
-<!DOCTYPE html>
-<html class="light" lang="en">
-<head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Results | AcadPrep</title>
-    <partial name="Shared/_ExamTestAssets" />
-</head>
-<body class="bg-surface min-h-screen flex items-center justify-center p-4">
+
+<div class="min-h-[60vh] flex items-center justify-center p-4">
     <div class="max-w-lg w-full text-center space-y-8">
         <div class="space-y-2">
             <span class="material-symbols-outlined text-5xl text-primary">celebration</span>
@@ -45,5 +38,4 @@
             </a>
         </div>
     </div>
-</body>
-</html>
+</div>

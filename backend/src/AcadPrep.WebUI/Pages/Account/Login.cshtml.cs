@@ -1,5 +1,6 @@
 using AcadPrep.Application.Common.Models;
 using Application.Features.Auth.Commands.Login;
+using Domain.Enums;
 using FluentValidation;
 using MediatR;
 using Microsoft.AspNetCore.Authentication;
@@ -33,10 +34,11 @@ public class LoginModel(ISender mediator) : PageModel
 
     public IActionResult OnGet(string? returnUrl = null)
     {
-        // Nếu đã đăng nhập → redirect về Home
+        // Người dùng đã đăng nhập được đưa về đúng khu vực theo role.
         if (User.Identity?.IsAuthenticated == true)
         {
-            return RedirectToPage("/Index");
+            var role = User.FindFirstValue(ClaimTypes.Role);
+            return LocalRedirect(GetDefaultDestination(role));
         }
 
         ViewData["ReturnUrl"] = returnUrl;
@@ -83,7 +85,7 @@ public class LoginModel(ISender mediator) : PageModel
         // Nhánh 3: Đăng nhập thành công → dựng ClaimsPrincipal và phát cookie
         await SignInUserAsync(dto);
 
-        return LocalRedirect(returnUrl ?? "/");
+        return LocalRedirect(GetPostLoginDestination(returnUrl, dto.Role));
     }
 
     /// <summary>
@@ -132,5 +134,32 @@ public class LoginModel(ISender mediator) : PageModel
             CookieAuthenticationDefaults.AuthenticationScheme,
             principal,
             new AuthenticationProperties { IsPersistent = true });
+    }
+
+    private string GetPostLoginDestination(string? returnUrl, string role)
+    {
+        if (!string.IsNullOrWhiteSpace(returnUrl)
+            && Url.IsLocalUrl(returnUrl)
+            && !IsDefaultLanding(returnUrl))
+        {
+            return returnUrl;
+        }
+
+        return GetDefaultDestination(role);
+    }
+
+    private static bool IsDefaultLanding(string returnUrl)
+    {
+        return returnUrl is "/" or "/Index";
+    }
+
+    private static string GetDefaultDestination(string? role)
+    {
+        return role switch
+        {
+            nameof(UserRole.Admin) => "/Admin/Dashboard",
+            nameof(UserRole.Moderator) => "/Admin/Exams",
+            _ => "/Performance/Dashboard"
+        };
     }
 }

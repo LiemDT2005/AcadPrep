@@ -1,10 +1,13 @@
+using System.Threading.Tasks;
 using Application.Common.Interfaces;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.EntityFrameworkCore;
 
 namespace AcadPrep.WebUI.Pages.Exams;
 
+[Authorize]
 public class ResultsModel : PageModel
 {
     private readonly IAppDbContext _context;
@@ -33,7 +36,10 @@ public class ResultsModel : PageModel
 
     public async Task<IActionResult> OnGetAsync()
     {
-        var userId = ResolveUserId();
+        if (!int.TryParse(_currentUserService.UserId, out int userId))
+        {
+            return Unauthorized();
+        }
 
         if (SessionId.HasValue)
         {
@@ -92,15 +98,5 @@ public class ResultsModel : PageModel
         ReadingMax = session.ReadingTotal;
         ExamId = session.ExamId;
         return Page();
-    }
-
-    private int ResolveUserId()
-    {
-        if (!string.IsNullOrEmpty(_currentUserService.UserId) && int.TryParse(_currentUserService.UserId, out int id))
-        {
-            return id;
-        }
-
-        return 2;
     }
 }
