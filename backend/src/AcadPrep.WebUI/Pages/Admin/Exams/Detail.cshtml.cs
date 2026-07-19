@@ -10,7 +10,7 @@ using Domain.Enums;
 
 namespace AcadPrep.WebUI.Pages.Admin.Exams;
 
-[Authorize(Roles = nameof(UserRole.Admin) + "," + nameof(UserRole.Moderator))]
+[Authorize(Roles = nameof(UserRole.Moderator))]
 public class DetailModel(ISender mediator) : PageModel
 {
     public ExamDetailDto Exam { get; set; } = null!;

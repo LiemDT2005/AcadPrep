@@ -13,7 +13,7 @@ public class Exam : BaseEntity<int>, IAuditable, ISoftDeletable
     public DateTime? LastModifiedAt { get; set; }
     
     public string? AudioUrl { get; set; } // File > 45 phút
-    public ExamStatus Status { get; set; } = ExamStatus.Draft; // Draft, Published, Archived
+    public ExamStatus Status { get; set; } = ExamStatus.Draft; // Draft, Published
 
     public int ExamSeriesId { get; set; }
     public virtual ExamSeries ExamSeries { get; set; } = null!;

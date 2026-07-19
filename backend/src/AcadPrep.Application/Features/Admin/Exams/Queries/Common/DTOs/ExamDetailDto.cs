@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using Domain.Enums;
 
 namespace AcadPrep.Application.Features.Admin.Exams.Queries.Common.DTOs;
 
@@ -13,6 +14,7 @@ public class ExamDetailDto
     public string? ExamSeriesName { get; set; }
     public string? AudioUrl { get; set; }
     public bool IsDeleted { get; set; }
+    public ExamStatus Status { get; set; }
     public DateTime CreatedAt { get; set; }
     public DateTime? LastModifiedAt { get; set; }
     public int AttemptCount { get; set; }

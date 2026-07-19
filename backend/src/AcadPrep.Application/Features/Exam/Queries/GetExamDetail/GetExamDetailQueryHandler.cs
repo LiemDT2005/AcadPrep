@@ -3,8 +3,10 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Application.Common.Interfaces;
+using AcadPrep.Application.Common.Caching;
 using AcadPrep.Application.Common.Models;
 using Application.Features.Exam.Queries.GetExamDetail;
+using Domain.Enums;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 
@@ -17,7 +19,8 @@ internal sealed class GetExamDetailQueryHandler(IAppDbContext context, ICacheSer
         GetExamDetailQuery request, CancellationToken cancellationToken)
     {
         // 1. Tạo Cache Key động chứa cả UserId để tránh cache chéo lịch sử làm bài giữa các User
-        var cacheKey = $"ExamDetail_{request.Id}_U_{request.UserId ?? 0}";
+        var detailVersion = await cache.GetVersionAsync(CacheKeys.ExamDetailVersion(request.Id), cancellationToken);
+        var cacheKey = $"ExamDetail_{request.Id}_v{detailVersion}_U_{request.UserId ?? 0}";
 
         // 2. Thử lấy dữ liệu từ Redis cache trước
         var cached = await cache.GetAsync<GetExamDetailDto>(cacheKey, cancellationToken);
@@ -29,7 +32,7 @@ internal sealed class GetExamDetailQueryHandler(IAppDbContext context, ICacheSer
         // 3. Truy vấn thông tin đề thi cơ bản từ SQL Server
         var exam = await context.Exams
             .AsNoTracking()
-            .Where(e => e.Id == request.Id && !e.IsDeleted)
+            .Where(e => e.Id == request.Id && !e.IsDeleted && e.Status == ExamStatus.Published)
             .Select(e => new
             {
                 e.Id,

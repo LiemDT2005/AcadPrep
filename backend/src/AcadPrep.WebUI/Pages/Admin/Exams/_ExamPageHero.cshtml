@@ -30,11 +30,18 @@
                                 Hidden
                             </span>
                         }
-                        else
+                        else if (exam.Status == ExamStatus.Published)
                         {
                             <span class="bg-tertiary-fixed text-on-tertiary-fixed-variant px-2 py-0.5 rounded-full font-label-sm text-label-sm flex items-center gap-xs">
                                 <span class="material-symbols-outlined text-xs">visibility</span>
-                                Public
+                                Published
+                            </span>
+                        }
+                        else
+                        {
+                            <span class="bg-secondary-container text-on-secondary-container px-2 py-0.5 rounded-full font-label-sm text-label-sm flex items-center gap-xs">
+                                <span class="material-symbols-outlined text-xs">edit_note</span>
+                                Draft
                             </span>
                         }
                     </div>

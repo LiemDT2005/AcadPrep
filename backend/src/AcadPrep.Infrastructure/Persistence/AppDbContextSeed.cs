@@ -1,6 +1,7 @@
 using System;
 using System.Linq;
 using System.Threading.Tasks;
+using Domain.Constants;
 using Domain.Entities;
 using Domain.Enums;
 using Microsoft.EntityFrameworkCore;
@@ -42,7 +43,7 @@ public static class AppDbContextSeed
             // Sử dụng User.Create() factory vì User có private setters
             var adminUser   = User.Create("admin@acadprep.com",    "Admin User",    defaultHash, adminRole.RoleId, now); adminUser.Activate();
             var moderatorUser = User.Create("moderator@acadprep.com", "Moderator User", defaultHash, moderatorRole.RoleId, now); moderatorUser.Activate();
-            var testUser    = User.Create("user@acadprep.com",     "Test User",     defaultHash, userRole.RoleId,  now);  testUser.Activate();
+            var testUser    = User.Create("liemdt.ce190697@gmail.com",     "Test User",     defaultHash, userRole.RoleId,  now);  testUser.Activate();
             var hanaUser    = User.Create("hana@acadprep.com",     "Hana Nguyen",   defaultHash, userRole.RoleId,  now);  hanaUser.Activate();
             var minhUser    = User.Create("minh@acadprep.com",     "Minh Tran",     defaultHash, userRole.RoleId,  now);  minhUser.Activate();
             // inactive user — không gọi Activate() → giữ nguyên Status = Inactive
@@ -426,6 +427,123 @@ public static class AppDbContextSeed
                 );
                 await context.SaveChangesAsync();
             }
+        }
+
+        // ── 10. Notifications (UC-15) ──
+        if (!context.Notifications.Any())
+        {
+            var testUser = context.Users.FirstOrDefault(u => u.Email == "liemdt.ce190697@gmail.com");
+            var moderator = context.Users.FirstOrDefault(u => u.Email == "moderator@acadprep.com");
+            var admin = context.Users.FirstOrDefault(u => u.Email == "admin@acadprep.com");
+            var now = DateTime.UtcNow;
+
+            if (testUser != null)
+            {
+                context.Notifications.AddRange(
+                    new Notification
+                    {
+                        UserId = testUser.Id,
+                        Title = "Kết quả bài thi đã sẵn sàng",
+                        Message = "Bài thi 'ETS TOEIC 2025 Test 1' đã được chấm xong. Điểm của bạn: 720/990. Nhấn để xem chi tiết.",
+                        Type = NotificationType.ExamResultReady,
+                        LinkUrl = "/Exams/Results",
+                        IsRead = false,
+                        CreatedAt = now.AddHours(-2)
+                    },
+                    new Notification
+                    {
+                        UserId = testUser.Id,
+                        Title = "Bạn vừa mở khóa danh hiệu mới!",
+                        Message = "Chúc mừng! Bạn đã đạt danh hiệu 'Streak Master' cho chuỗi 7 ngày học liên tục.",
+                        Type = NotificationType.AchievementUnlocked,
+                        LinkUrl = "/Performance/Achievements",
+                        IsRead = false,
+                        CreatedAt = now.AddHours(-20)
+                    },
+                    new Notification
+                    {
+                        UserId = testUser.Id,
+                        Title = "Đến hạn ôn tập từ vựng",
+                        Message = "Bạn có 12 từ vựng đến hạn ôn tập hôm nay. Ôn ngay để ghi nhớ lâu hơn nhé!",
+                        Type = NotificationType.VocabReviewDue,
+                        LinkUrl = "/Vocabulary/Review",
+                        IsRead = false,
+                        CreatedAt = now.AddDays(-1)
+                    },
+                    new Notification
+                    {
+                        UserId = testUser.Id,
+                        Title = "Giữ vững chuỗi ngày học",
+                        Message = "Bạn chưa học hôm nay. Hãy hoàn thành một hoạt động trước 23:59 để giữ chuỗi 12 ngày!",
+                        Type = NotificationType.StreakReminder,
+                        LinkUrl = "/Performance/Dashboard",
+                        IsRead = true,
+                        CreatedAt = now.AddDays(-2)
+                    },
+                    new Notification
+                    {
+                        UserId = testUser.Id,
+                        Title = "Chào mừng đến với AcadPrep!",
+                        Message = "Tài khoản của bạn đã được kích hoạt thành công. Bắt đầu hành trình chinh phục TOEIC ngay hôm nay.",
+                        Type = NotificationType.AccountWelcome,
+                        LinkUrl = "/Account/Profile",
+                        IsRead = true,
+                        CreatedAt = now.AddDays(-30)
+                    }
+                );
+            }
+
+            if (moderator != null)
+            {
+                context.Notifications.Add(new Notification
+                {
+                    UserId = moderator.Id,
+                    Title = "Bạn đã được cấp quyền Moderator",
+                    Message = "Tài khoản của bạn hiện có quyền quản trị nội dung (CMS). Bạn có thể quản lý đề thi và câu hỏi.",
+                    Type = NotificationType.AccountRoleChanged,
+                    LinkUrl = null,
+                    IsRead = false,
+                    CreatedAt = now.AddDays(-3)
+                });
+            }
+
+            if (admin != null)
+            {
+                context.Notifications.AddRange(
+                    new Notification
+                    {
+                        UserId = admin.Id,
+                        Title = "Người dùng mới đăng ký",
+                        Message = "Tài khoản mới 'Hana Nguyen' (hana@acadprep.com) vừa kích hoạt thành công.",
+                        Type = NotificationType.AdminNewUserRegistered,
+                        LinkUrl = "/Admin/Accounts",
+                        IsRead = false,
+                        CreatedAt = now.AddHours(-5)
+                    },
+                    new Notification
+                    {
+                        UserId = admin.Id,
+                        Title = "Đề thi mới được tạo",
+                        Message = "Đề thi 'Luyện Đề TOEIC Đề 3' vừa được tạo và đang ở trạng thái nháp (Draft).",
+                        Type = NotificationType.AdminExamCreated,
+                        LinkUrl = "/Admin/Exams",
+                        IsRead = false,
+                        CreatedAt = now.AddDays(-1)
+                    },
+                    new Notification
+                    {
+                        UserId = admin.Id,
+                        Title = "Phân quyền tài khoản đã thay đổi",
+                        Message = "Tài khoản 'Moderator User' (moderator@acadprep.com) đã được đổi sang quyền Moderator.",
+                        Type = NotificationType.AdminAccountRoleChanged,
+                        LinkUrl = "/Admin/Accounts",
+                        IsRead = true,
+                        CreatedAt = now.AddDays(-3)
+                    }
+                );
+            }
+
+            await context.SaveChangesAsync();
         }
     }
 

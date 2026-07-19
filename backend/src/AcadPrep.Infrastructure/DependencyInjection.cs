@@ -67,6 +67,9 @@ public static class DependencyInjection
         // Register OTP issuer
         services.AddScoped<IOtpIssuer, OtpIssuer>();
 
+        // Register Notification service (điểm chung tạo thông báo cho UC-15)
+        services.AddScoped<INotificationService, NotificationService>();
+
         return services;
     }
 }

@@ -1,4 +1,5 @@
 using System;
+using Domain.Enums;
 
 namespace AcadPrep.Application.Features.Admin.Exams.Queries.Common.DTOs;
 
@@ -9,6 +10,7 @@ public class AdminExamDto
     public string? Description { get; set; }
     public int Duration { get; set; }
     public bool IsDeleted { get; set; }
+    public ExamStatus Status { get; set; }
     public DateTime CreatedAt { get; set; }
     public int AttemptCount { get; set; }
 }

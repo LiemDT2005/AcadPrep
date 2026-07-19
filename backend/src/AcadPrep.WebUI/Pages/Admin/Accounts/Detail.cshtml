@@ -1,0 +1,376 @@
+@page
+@model AcadPrep.WebUI.Pages.Admin.Accounts.DetailModel
+@{
+    ViewData["Title"] = "Account Detail";
+}
+
+<div class="max-w-[1280px] mx-auto flex flex-col gap-lg">
+    <!-- Breadcrumb & Actions Header -->
+    <header class="flex flex-col gap-md border-b border-outline-variant pb-md md:flex-row md:items-center md:justify-between">
+        <div>
+            <div class="flex items-center gap-xs text-[13px] text-on-surface-variant mb-xs">
+                <a href="/Admin/Accounts" class="hover:text-primary transition-colors">Accounts</a>
+                <span class="material-symbols-outlined text-[16px]">chevron_right</span>
+                <span class="font-medium text-on-surface">@Model.Account?.FullName</span>
+            </div>
+            <h2 class="text-[32px] font-bold leading-10 text-on-surface">Account Detail</h2>
+        </div>
+        <div class="flex items-center gap-sm">
+            <a href="/Admin/Accounts" class="inline-flex items-center gap-xs rounded-lg border border-outline-variant bg-surface-container-lowest px-md py-sm text-[14px] font-medium text-on-surface transition-colors hover:bg-surface-container-low">
+                <span class="material-symbols-outlined text-[18px]">arrow_back</span>
+                Back to List
+            </a>
+            @if (Model.Account != null && !Model.Account.IsMasterAdmin)
+            {
+                <button type="button" onclick="openRoleModal()"
+                        class="inline-flex items-center gap-xs rounded-lg border border-outline-variant bg-surface-container-lowest px-md py-sm text-[14px] font-medium text-on-surface transition-colors hover:bg-surface-container-low cursor-pointer">
+                    <span class="material-symbols-outlined text-[18px]">shield</span>
+                    Change Role
+                </button>
+                @if (Model.Account.Status == "Active")
+                {
+                    <button type="button" onclick="openStatusModal('Suspended')"
+                            class="inline-flex items-center gap-xs rounded-lg bg-error px-md py-sm text-[14px] font-medium text-on-error shadow-sm hover:bg-error/90 transition-colors cursor-pointer">
+                        <span class="material-symbols-outlined text-[18px]">lock</span>
+                        Suspend Account
+                    </button>
+                }
+                else
+                {
+                    <button type="button" onclick="openStatusModal('Active')"
+                            class="inline-flex items-center gap-xs rounded-lg bg-emerald-600 px-md py-sm text-[14px] font-medium text-white shadow-sm hover:bg-emerald-700 transition-colors cursor-pointer">
+                        <span class="material-symbols-outlined text-[18px]">lock_open</span>
+                        Activate Account
+                    </button>
+                }
+            }
+        </div>
+    </header>
+
+    @if (TempData["SuccessMessage"] != null)
+    {
+        <div class="flex items-center gap-sm rounded-lg border border-green-200 bg-green-50 px-md py-sm text-[14px] text-green-800">
+            <span class="material-symbols-outlined text-green-600">check_circle</span>
+            @TempData["SuccessMessage"]
+        </div>
+    }
+    @if (TempData["ErrorMessage"] != null)
+    {
+        <div class="flex items-center gap-sm rounded-lg border border-red-200 bg-red-50 px-md py-sm text-[14px] text-red-800">
+            <span class="material-symbols-outlined text-red-600">error</span>
+            @TempData["ErrorMessage"]
+        </div>
+    }
+
+    @if (Model.Account != null)
+    {
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-lg">
+            <!-- Left Side: Profile Summary & Actions -->
+            <div class="flex flex-col gap-lg">
+                <!-- User Card -->
+                <div class="rounded-xl border border-outline-variant bg-surface-container-lowest p-lg shadow-sm flex flex-col items-center text-center">
+                    <img src="@(Model.Account.AvatarUrl ?? $"https://api.dicebear.com/9.x/initials/svg?seed={Uri.EscapeDataString(Model.Account.FullName)}")"
+                         alt="@Model.Account.FullName" class="w-24 h-24 rounded-full border-4 border-surface-container-high shadow-inner bg-surface-container-high object-cover mb-md" />
+                    
+                    <h3 class="text-[20px] font-bold text-on-surface flex items-center justify-center gap-xs">
+                        @Model.Account.FullName
+                        @if (Model.Account.IsMasterAdmin)
+                        {
+                            <span class="inline-flex items-center gap-[2px] rounded-full bg-amber-100 px-2 py-[1px] text-[10px] font-bold text-amber-700">
+                                <span class="material-symbols-outlined text-[12px]" style="font-variation-settings: 'FILL' 1;">shield_person</span>
+                                Master
+                            </span>
+                        }
+                    </h3>
+                    <p class="text-[14px] text-on-surface-variant mt-xs">@Model.Account.Email</p>
+
+                    <div class="flex flex-wrap gap-xs justify-center mt-md">
+                        @{
+                            var chipClasses = Model.Account.RoleName switch
+                            {
+                                "Admin" => "bg-primary/10 text-primary",
+                                "Moderator" => "bg-orange-500/10 text-orange-600",
+                                _ => "bg-gray-500/10 text-gray-600"
+                            };
+                            var (statusDot, statusText, statusColor, statusBg) = Model.Account.Status switch
+                            {
+                                "Active" => ("bg-emerald-500", "Active", "text-emerald-700", "bg-emerald-500/10"),
+                                "Suspended" => ("bg-red-500", "Suspended", "text-red-700", "bg-red-500/10"),
+                                _ => ("bg-gray-400", "Inactive", "text-gray-600", "bg-gray-500/10")
+                            };
+                        }
+                        <span class="rounded-full px-3 py-[3px] text-[12px] font-semibold @chipClasses">@Model.Account.RoleName</span>
+                        <span class="rounded-full px-3 py-[3px] text-[12px] font-semibold flex items-center gap-[4px] @statusBg @statusColor">
+                            <span class="w-1.5 h-1.5 rounded-full @statusDot"></span>
+                            @statusText
+                        </span>
+                    </div>
+
+                    <div class="w-full border-t border-outline-variant/30 my-lg pt-lg flex flex-col gap-sm text-left">
+                        <div class="flex justify-between text-[13px]">
+                            <span class="text-on-surface-variant">User ID</span>
+                            <span class="font-semibold text-on-surface">#@Model.Account.Id</span>
+                        </div>
+                        <div class="flex justify-between text-[13px]">
+                            <span class="text-on-surface-variant">Login Type</span>
+                            <span class="font-semibold text-on-surface">@(string.IsNullOrEmpty(Model.Account.GoogleId) ? "Email/Password" : "Google SSO")</span>
+                        </div>
+                        <div class="flex justify-between text-[13px]">
+                            <span class="text-on-surface-variant">Created At</span>
+                            <span class="font-semibold text-on-surface">@Model.Account.CreatedAt.ToString("dd/MM/yyyy HH:mm")</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Learning Profile Stats -->
+                <div class="rounded-xl border border-outline-variant bg-surface-container-lowest p-lg shadow-sm flex flex-col gap-md">
+                    <h4 class="text-[16px] font-bold text-on-surface">Learning Progress</h4>
+                    <div class="grid grid-cols-3 gap-sm mt-xs">
+                        <div class="rounded-lg bg-surface-container-low p-sm text-center">
+                            <span class="material-symbols-outlined text-primary text-[20px]">assignment_turned_in</span>
+                            <p class="text-[20px] font-bold text-on-surface mt-xs">@Model.Account.ExamsTaken</p>
+                            <p class="text-[10px] text-on-surface-variant uppercase font-semibold mt-[2px]">Exams</p>
+                        </div>
+                        <div class="rounded-lg bg-surface-container-low p-sm text-center">
+                            <span class="material-symbols-outlined text-secondary text-[20px]">workspace_premium</span>
+                            <p class="text-[20px] font-bold text-on-surface mt-xs">@Model.Account.AverageScore.ToString("F0")</p>
+                            <p class="text-[10px] text-on-surface-variant uppercase font-semibold mt-[2px]">Avg Score</p>
+                        </div>
+                        <div class="rounded-lg bg-surface-container-low p-sm text-center">
+                            <span class="material-symbols-outlined text-tertiary text-[20px]">local_fire_department</span>
+                            <p class="text-[20px] font-bold text-on-surface mt-xs">@Model.Account.CurrentStreak</p>
+                            <p class="text-[10px] text-on-surface-variant uppercase font-semibold mt-[2px]">Streak</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Right Side: Learning History / Audit Logs -->
+            <div class="lg:col-span-2 flex flex-col gap-lg">
+                <!-- Activity History / Exam Attempts -->
+                <div class="rounded-xl border border-outline-variant bg-surface-container-lowest p-lg shadow-sm flex flex-col gap-md">
+                    <div class="flex items-center justify-between">
+                        <h4 class="text-[18px] font-bold text-on-surface">Recent Exam Attempts</h4>
+                        <span class="material-symbols-outlined text-on-surface-variant">history</span>
+                    </div>
+
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-left">
+                            <thead>
+                                <tr class="border-b border-outline-variant/50 text-[12px] font-semibold text-on-surface-variant">
+                                    <th class="pb-sm">Exam Title</th>
+                                    <th class="pb-sm">Score</th>
+                                    <th class="pb-sm">Date</th>
+                                    <th class="pb-sm text-right">Status</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @if (Model.RecentAttempts != null && Model.RecentAttempts.Any())
+                                {
+                                    @foreach (var attempt in Model.RecentAttempts)
+                                    {
+                                        <tr class="border-b border-outline-variant/30 text-[14px]">
+                                            <td class="py-md font-medium text-on-surface">@attempt.ExamTitle</td>
+                                            <td class="py-md font-semibold text-primary">@attempt.TotalScore <span class="text-[11px] text-on-surface-variant font-normal">/ 990</span></td>
+                                            <td class="py-md text-on-surface-variant">@attempt.CompletedAt?.ToString("dd/MM/yyyy HH:mm")</td>
+                                            <td class="py-md text-right">
+                                                <span class="inline-block rounded-full bg-emerald-500/10 text-emerald-700 px-2 py-[2px] text-[11px] font-semibold">Completed</span>
+                                            </td>
+                                        </tr>
+                                    }
+                                }
+                                else
+                                {
+                                    <tr>
+                                        <td colspan="4" class="py-lg text-center text-on-surface-variant text-[14px] italic">No exam attempts found for this user.</td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Account Security & Settings Details -->
+                <div class="rounded-xl border border-outline-variant bg-surface-container-lowest p-lg shadow-sm flex flex-col gap-md">
+                    <h4 class="text-[18px] font-bold text-on-surface">Account Security & Provider Details</h4>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-md text-[14px]">
+                        <div class="p-sm rounded-lg border border-outline-variant/30">
+                            <p class="text-on-surface-variant text-[12px] font-semibold uppercase">Provider</p>
+                            <div class="flex items-center gap-xs mt-[4px]">
+                                <span class="material-symbols-outlined text-[18px]">key</span>
+                                <span class="font-medium text-on-surface">@(string.IsNullOrEmpty(Model.Account.GoogleId) ? "AcadPrep Local Database" : "Google Authentication Service")</span>
+                            </div>
+                        </div>
+                        <div class="p-sm rounded-lg border border-outline-variant/30">
+                            <p class="text-on-surface-variant text-[12px] font-semibold uppercase">Google ID Reference</p>
+                            <p class="font-medium text-on-surface mt-[4px] font-mono text-[13px]">@(Model.Account.GoogleId ?? "N/A (Traditional sign-up)")</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    }
+</div>
+
+@if (Model.Account != null && !Model.Account.IsMasterAdmin)
+{
+    <!-- Status Modal -->
+    <div id="status-modal" class="hidden fixed inset-0 z-50 bg-on-surface/40 backdrop-blur-sm flex items-center justify-center opacity-0 transition-opacity duration-300 pointer-events-none">
+        <div id="status-modal-content" class="bg-surface-container-lowest border border-outline-variant/30 rounded-2xl shadow-2xl p-lg max-w-md w-full flex flex-col gap-md transform scale-95 opacity-0 transition-all duration-300 ease-out mx-margin-mobile">
+            <div class="flex flex-col items-center gap-sm text-center">
+                <span id="status-modal-icon" class="material-symbols-outlined text-[48px]"></span>
+                <h3 id="status-modal-title" class="text-[20px] font-bold text-on-surface"></h3>
+                <p id="status-modal-message" class="text-[14px] text-on-surface-variant"></p>
+            </div>
+            <form method="post" asp-page-handler="UpdateStatus">
+                <input type="hidden" name="newStatus" id="status-new-val" />
+                <div class="flex justify-end gap-sm mt-sm border-t border-outline-variant/10 pt-md">
+                    <button type="button" onclick="closeStatusModal()"
+                            class="border border-outline-variant hover:bg-surface-container text-on-surface-variant font-medium text-[14px] py-2 px-4 rounded-lg transition-colors cursor-pointer">
+                        Cancel
+                    </button>
+                    <button type="submit" id="status-confirm-btn"
+                            class="font-medium text-[14px] py-2 px-5 rounded-lg transition-colors cursor-pointer">
+                        Confirm
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Role Modal -->
+    <div id="role-modal" class="hidden fixed inset-0 z-50 bg-on-surface/40 backdrop-blur-sm flex items-center justify-center opacity-0 transition-opacity duration-300 pointer-events-none">
+        <div id="role-modal-content" class="bg-surface-container-lowest border border-outline-variant/30 rounded-2xl shadow-2xl p-lg max-w-lg w-full flex flex-col gap-md transform scale-95 opacity-0 transition-all duration-300 ease-out mx-margin-mobile">
+            <div>
+                <h3 class="text-[20px] font-bold text-on-surface">Assign Role</h3>
+                <p class="text-[14px] text-on-surface-variant mt-xs">Update role and privileges for @Model.Account.FullName</p>
+            </div>
+            <form method="post" asp-page-handler="AssignRole">
+                <div class="flex flex-col gap-sm">
+                    @foreach (var role in Model.AvailableRoles)
+                    {
+                        <label class="role-option flex items-center gap-md p-md rounded-xl border border-outline-variant cursor-pointer hover:bg-surface-container-low transition-colors">
+                            <input type="radio" name="newRoleId" value="@role.RoleId" @(role.RoleId == Model.Account.RoleId ? "checked" : "") class="accent-primary w-4 h-4" />
+                            @{
+                                var (roleIcon, roleAccent) = role.RoleName switch
+                                {
+                                    "Admin" => ("admin_panel_settings", "text-primary bg-primary/10"),
+                                    "Moderator" => ("shield", "text-orange-600 bg-orange-500/10"),
+                                    _ => ("person", "text-gray-600 bg-gray-500/10")
+                                };
+                                var roleDescription = role.RoleName switch
+                                {
+                                    "Admin" => "Full system management, accounts and configuration.",
+                                    "Moderator" => "Content moderator. Can manage exams and questions.",
+                                    _ => "Regular user. Can study, take exams and view results."
+                                };
+                            }
+                            <span class="material-symbols-outlined p-sm rounded-lg @roleAccent" style="font-variation-settings: 'FILL' 1;">@roleIcon</span>
+                            <div class="flex-1">
+                                <p class="text-[14px] font-semibold text-on-surface">@role.RoleName</p>
+                                <p class="text-[12px] text-on-surface-variant mt-[2px]">@roleDescription</p>
+                            </div>
+                        </label>
+                    }
+                </div>
+                <div class="flex justify-end gap-sm mt-md border-t border-outline-variant/10 pt-md">
+                    <button type="button" onclick="closeRoleModal()"
+                            class="border border-outline-variant hover:bg-surface-container text-on-surface-variant font-medium text-[14px] py-2 px-4 rounded-lg transition-colors cursor-pointer">
+                        Cancel
+                    </button>
+                    <button type="submit"
+                            class="bg-primary hover:bg-surface-tint text-on-primary font-medium text-[14px] py-2 px-5 rounded-lg transition-colors cursor-pointer">
+                        Save Changes
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        function openStatusModal(newStatus) {
+            const modal = document.getElementById('status-modal');
+            const content = document.getElementById('status-modal-content');
+            const icon = document.getElementById('status-modal-icon');
+            const title = document.getElementById('status-modal-title');
+            const message = document.getElementById('status-modal-message');
+            const btn = document.getElementById('status-confirm-btn');
+
+            document.getElementById('status-new-val').value = newStatus;
+
+            if (newStatus === 'Suspended') {
+                icon.textContent = 'lock';
+                icon.className = 'material-symbols-outlined text-[48px] text-error';
+                title.textContent = 'Suspend Account';
+                message.textContent = 'Are you sure you want to suspend this user account? The user will no longer be able to log in.';
+                btn.className = 'bg-error hover:bg-error/90 text-on-error font-medium text-[14px] py-2 px-5 rounded-lg transition-colors cursor-pointer';
+                btn.textContent = 'Confirm Suspend';
+            } else {
+                icon.textContent = 'lock_open';
+                icon.className = 'material-symbols-outlined text-[48px] text-emerald-600';
+                title.textContent = 'Activate Account';
+                message.textContent = 'Are you sure you want to reactivate this user account?';
+                btn.className = 'bg-emerald-600 hover:bg-emerald-700 text-white font-medium text-[14px] py-2 px-5 rounded-lg transition-colors cursor-pointer';
+                btn.textContent = 'Confirm Activate';
+            }
+
+            modal.classList.remove('hidden', 'pointer-events-none');
+            setTimeout(() => {
+                modal.classList.add('opacity-100');
+                content.classList.remove('scale-95', 'opacity-0');
+                content.classList.add('scale-100', 'opacity-100');
+            }, 10);
+        }
+
+        function closeStatusModal() {
+            const modal = document.getElementById('status-modal');
+            const content = document.getElementById('status-modal-content');
+            content.classList.remove('scale-100', 'opacity-100');
+            content.classList.add('scale-95', 'opacity-0');
+            modal.classList.remove('opacity-100');
+            setTimeout(() => { modal.classList.add('hidden', 'pointer-events-none'); }, 300);
+        }
+
+        function openRoleModal() {
+            const modal = document.getElementById('role-modal');
+            const content = document.getElementById('role-modal-content');
+            
+            // Highlight selected
+            document.querySelectorAll('.role-option input[type="radio"]').forEach(radio => {
+                const label = radio.closest('.role-option');
+                if (radio.checked) {
+                    label.classList.add('border-primary', 'bg-primary-fixed/30');
+                } else {
+                    label.classList.remove('border-primary', 'bg-primary-fixed/30');
+                }
+            });
+
+            modal.classList.remove('hidden', 'pointer-events-none');
+            setTimeout(() => {
+                modal.classList.add('opacity-100');
+                content.classList.remove('scale-95', 'opacity-0');
+                content.classList.add('scale-100', 'opacity-100');
+            }, 10);
+        }
+
+        function closeRoleModal() {
+            const modal = document.getElementById('role-modal');
+            const content = document.getElementById('role-modal-content');
+            content.classList.remove('scale-100', 'opacity-100');
+            content.classList.add('scale-95', 'opacity-0');
+            modal.classList.remove('opacity-100');
+            setTimeout(() => { modal.classList.add('hidden', 'pointer-events-none'); }, 300);
+        }
+
+        document.querySelectorAll('.role-option input[type="radio"]').forEach(radio => {
+            radio.addEventListener('change', () => {
+                document.querySelectorAll('.role-option').forEach(opt => {
+                    opt.classList.remove('border-primary', 'bg-primary-fixed/30');
+                });
+                if (radio.checked) {
+                    radio.closest('.role-option').classList.add('border-primary', 'bg-primary-fixed/30');
+                }
+            });
+        });
+    </script>
+}

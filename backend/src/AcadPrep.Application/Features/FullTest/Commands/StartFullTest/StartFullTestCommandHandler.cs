@@ -1,6 +1,7 @@
 using AcadPrep.Application.Common.Models;
 using Application.Common.Interfaces;
 using Domain.Entities;
+using Domain.Enums;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 
@@ -21,11 +22,11 @@ public class StartFullTestCommandHandler : IRequestHandler<StartFullTestCommand,
     {
         var exam = await _context.Exams
             .AsNoTracking()
-            .FirstOrDefaultAsync(e => e.Id == request.ExamId && !e.IsDeleted, cancellationToken);
+            .FirstOrDefaultAsync(e => e.Id == request.ExamId && !e.IsDeleted && e.Status == ExamStatus.Published, cancellationToken);
 
         if (exam is null)
         {
-            return Result<StartFullTestResultDto>.Failure("Exam not found or has been deleted.");
+            return Result<StartFullTestResultDto>.Failure("Exam not found or is not available.");
         }
 
         var inProgress = await _context.ExamAttempts

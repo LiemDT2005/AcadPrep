@@ -2,13 +2,14 @@ using System;
 using System.Threading;
 using System.Threading.Tasks;
 using Application.Common.Interfaces;
+using AcadPrep.Application.Common.Caching;
 using AcadPrep.Application.Common.Models;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 
 namespace AcadPrep.Application.Features.Admin.Exams.Commands.RestoreExam;
 
-internal sealed class RestoreExamCommandHandler(IAppDbContext context)
+internal sealed class RestoreExamCommandHandler(IAppDbContext context, ICacheService cache)
     : IRequestHandler<RestoreExamCommand, Result>
 {
     public async Task<Result> Handle(RestoreExamCommand request, CancellationToken cancellationToken)
@@ -33,6 +34,9 @@ internal sealed class RestoreExamCommandHandler(IAppDbContext context)
         {
             return Result.Failure("Could not restore the exam.");
         }
+
+        await cache.BumpVersionAsync(CacheKeys.ExamListVersion, cancellationToken);
+        await cache.BumpVersionAsync(CacheKeys.ExamDetailVersion(exam.Id), cancellationToken);
 
         return Result.Success();
     }

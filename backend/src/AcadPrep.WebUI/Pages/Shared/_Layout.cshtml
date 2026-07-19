@@ -11,7 +11,7 @@
         body { background-color: #f8f9fa; }
         .navbar { box-shadow: 0 2px 4px rgba(0,0,0,.08); }
     </style>
-    <!-- Tailwind CSS (Stitch UI) -->
+    <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet"/>
     <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
@@ -85,7 +85,7 @@
     <!-- Header section -->
     @if (User.Identity?.IsAuthenticated == true)
     {
-        <!-- Authenticated Header (Deep Indigo) from Stitch -->
+        <!-- Authenticated Header (Deep Indigo) -->
         <header class="sticky top-0 z-50 w-full bg-primary text-on-primary shadow-lg font-[Inter] mb-4">
             <div class="max-w-7xl mx-auto flex justify-between items-center h-16 px-margin-mobile md:px-margin-desktop">
                 <div class="flex items-center gap-xl">
@@ -109,10 +109,7 @@
                     </nav>
                 </div>
                 <div class="flex items-center gap-md">
-                    <button class="p-2 rounded-full hover:bg-white/10 transition-colors relative bg-transparent border-0 text-white flex items-center">
-                        <span class="material-symbols-outlined">notifications</span>
-                        <span class="absolute top-2 right-2 w-2 h-2 bg-[#ffc107] rounded-full border-2 border-primary"></span>
-                    </button>
+                    @await Component.InvokeAsync("NotificationBell")
                     <div class="flex items-center gap-sm pl-md border-l border-white/20">
                         @await Component.InvokeAsync("ProfileAvatar", new { variant = "learner" })
                         <form method="post" asp-page="/Account/Logout" class="inline m-0">
@@ -128,7 +125,7 @@
     }
     else
     {
-        <!-- Guest Header from Stitch -->
+        <!-- Guest Header-->
         <header class="sticky top-0 z-50 bg-surface-container-lowest border-b border-outline-variant w-full h-[64px] font-[Inter] mb-4">
             <div class="flex justify-between items-center w-full px-margin-mobile md:px-margin-desktop max-w-7xl mx-auto h-full">
                 <!-- Brand Logo -->
@@ -161,7 +158,7 @@
         @RenderBody()
     </main>
 
-    <!-- Stitch Footer -->
+    <!-- Footer -->
     <footer class="bg-surface-container border-t border-outline-variant pt-2xl pb-xl font-[Inter]">
         <div class="max-w-7xl mx-auto px-margin-mobile md:px-margin-desktop grid grid-cols-2 md:grid-cols-4 gap-2xl">
             <div class="col-span-2 md:col-span-1 space-y-md">
@@ -207,7 +204,7 @@
         </div>
     </footer>
 
-    <!-- Stitch Support Bar -->
+    <!-- Support Bar -->
     <div class="w-full bg-[#ba1a1a] text-white py-2 flex justify-center items-center gap-sm">
         <span class="material-symbols-outlined text-[18px]">support_agent</span>
         <span class="text-label-sm font-bold uppercase tracking-wide">24/7 technical support (Hotline: 1900 xxxx)</span>

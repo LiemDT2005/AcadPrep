@@ -67,4 +67,36 @@ public class RedisCacheService : ICacheService
             System.Console.WriteLine($"[Cache Warning] Redis remove failed: {ex.Message}");
         }
     }
+
+    public async Task<long> GetVersionAsync(string versionKey, CancellationToken cancellationToken = default)
+    {
+        try
+        {
+            var value = await _cache.GetStringAsync(versionKey, cancellationToken);
+            if (!string.IsNullOrEmpty(value) && long.TryParse(value, out var version))
+            {
+                return version;
+            }
+        }
+        catch (Exception ex)
+        {
+            System.Console.WriteLine($"[Cache Warning] Redis get version failed: {ex.Message}");
+        }
+
+        return 0;
+    }
+
+    public async Task BumpVersionAsync(string versionKey, CancellationToken cancellationToken = default)
+    {
+        try
+        {
+            // Dùng tick UTC để đảm bảo giá trị tăng dần và không cần thao tác tăng nguyên tử.
+            var newVersion = DateTime.UtcNow.Ticks;
+            await _cache.SetStringAsync(versionKey, newVersion.ToString(), cancellationToken);
+        }
+        catch (Exception ex)
+        {
+            System.Console.WriteLine($"[Cache Warning] Redis bump version failed: {ex.Message}");
+        }
+    }
 }

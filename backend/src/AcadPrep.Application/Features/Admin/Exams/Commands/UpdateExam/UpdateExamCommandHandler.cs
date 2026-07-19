@@ -2,13 +2,14 @@ using System;
 using System.Threading;
 using System.Threading.Tasks;
 using Application.Common.Interfaces;
+using AcadPrep.Application.Common.Caching;
 using AcadPrep.Application.Common.Models;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 
 namespace AcadPrep.Application.Features.Admin.Exams.Commands.UpdateExam;
 
-internal sealed class UpdateExamCommandHandler(IAppDbContext context)
+internal sealed class UpdateExamCommandHandler(IAppDbContext context, ICacheService cache)
     : IRequestHandler<UpdateExamCommand, Result<Unit>>
 {
     public async Task<Result<Unit>> Handle(UpdateExamCommand request, CancellationToken cancellationToken)
@@ -62,6 +63,9 @@ internal sealed class UpdateExamCommandHandler(IAppDbContext context)
         }
 
         await context.SaveChangesAsync(cancellationToken);
+
+        await cache.BumpVersionAsync(CacheKeys.ExamListVersion, cancellationToken);
+        await cache.BumpVersionAsync(CacheKeys.ExamDetailVersion(exam.Id), cancellationToken);
 
         return Result<Unit>.Success(Unit.Value);
     }

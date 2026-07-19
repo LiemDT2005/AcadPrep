@@ -1,6 +1,8 @@
+using System;
 using System.Threading.Tasks;
 using Application.Features.Exam.Queries.GetExamDetail;
 using Application.Features.Exam.Queries.GetExamList;
+using AcadPrep.Application.Features.Admin.Exams.Commands.ChangeExamStatus;
 using AcadPrep.Application.Features.Admin.Exams.Commands.CreateExam;
 using AcadPrep.Application.Features.Admin.Exams.Commands.RestoreExam;
 using AcadPrep.Application.Features.Admin.Exams.Commands.SoftDeleteExam;
@@ -14,7 +16,7 @@ using Domain.Enums;
 
 namespace WebUI.Controllers;
 
-[Authorize(Roles = nameof(UserRole.Admin) + "," + nameof(UserRole.Moderator))]
+[Authorize(Roles = nameof(UserRole.Moderator))]
 public class ExamsController : ApiControllerBase
 {
     /// <summary>
@@ -130,6 +132,29 @@ public class ExamsController : ApiControllerBase
     }
 
     /// <summary>
+    /// Đổi trạng thái đề thi (Draft / Published)
+    /// </summary>
+    [HttpPost("{id:int}/status")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    public async Task<IActionResult> ChangeStatus(int id, [FromBody] ChangeExamStatusRequest request)
+    {
+        if (!Enum.TryParse<ExamStatus>(request.Status, ignoreCase: true, out var status))
+        {
+            return BadRequest(new { error = "Invalid exam status." });
+        }
+
+        var result = await Mediator.Send(new ChangeExamStatusCommand { Id = id, Status = status });
+
+        if (!result.IsSuccess)
+        {
+            return BadRequest(result);
+        }
+
+        return Ok(result);
+    }
+
+    /// <summary>
     /// Khôi phục một đề thi đã bị ẩn
     /// </summary>
     [HttpPost("{id:int}/restore")]
@@ -146,4 +171,9 @@ public class ExamsController : ApiControllerBase
 
         return Ok(result);
     }
+}
+
+public class ChangeExamStatusRequest
+{
+    public string Status { get; set; } = string.Empty;
 }

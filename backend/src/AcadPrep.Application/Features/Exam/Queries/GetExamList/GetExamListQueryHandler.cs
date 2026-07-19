@@ -1,6 +1,8 @@
+using AcadPrep.Application.Common.Caching;
 using AcadPrep.Application.Common.Models;
 using Application.Common.Interfaces;
 using Application.Features.Exam.Queries.Common.DTOs;
+using Domain.Enums;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 
@@ -12,7 +14,8 @@ internal sealed class GetExamListQueryHandler(IAppDbContext context, ICacheServi
     public async Task<Result<GetExamListResponse>> Handle(GetExamListQuery request,
         CancellationToken cancellationToken)
     {
-        var cacheKey = $"ExamList_S:{request.Search ?? ""}_Sr:{request.SeriesName ?? "All"}_Y:{request.Year?.ToString() ?? "All"}_P:{request.PageIndex}_Sz:{request.PageSize}";
+        var listVersion = await cache.GetVersionAsync(CacheKeys.ExamListVersion, cancellationToken);
+        var cacheKey = $"ExamList_v{listVersion}_S:{request.Search ?? ""}_Sr:{request.SeriesName ?? "All"}_Y:{request.Year?.ToString() ?? "All"}_P:{request.PageIndex}_Sz:{request.PageSize}";
 
         var cached = await cache.GetAsync<GetExamListResponse>(cacheKey, cancellationToken);
         //Cache hit
@@ -45,7 +48,8 @@ internal sealed class GetExamListQueryHandler(IAppDbContext context, ICacheServi
         var yearFilters = new List<string> { "All" };
         yearFilters.AddRange(years);
 
-        var query = context.Exams.AsNoTracking().Where(e => !e.IsDeleted);
+        var query = context.Exams.AsNoTracking()
+            .Where(e => !e.IsDeleted && e.Status == ExamStatus.Published);
         
         if (!string.IsNullOrWhiteSpace(request.Search))
         {

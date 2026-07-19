@@ -27,6 +27,7 @@ internal sealed class GetAdminExamListQueryHandler(IAppDbContext context)
                 Description = x.Description,
                 Duration = x.Duration,
                 IsDeleted = x.IsDeleted,
+                Status = x.Status,
                 CreatedAt = x.CreatedAt,
                 AttemptCount = x.ExamAttempts.Count()
             })

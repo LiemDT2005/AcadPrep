@@ -47,6 +47,7 @@ internal sealed class GetExamDetailQueryHandler(IAppDbContext context)
                 : null,
             AudioUrl = exam.AudioUrl,
             IsDeleted = exam.IsDeleted,
+            Status = exam.Status,
             CreatedAt = exam.CreatedAt,
             LastModifiedAt = exam.LastModifiedAt,
             AttemptCount = exam.ExamAttempts.Count,

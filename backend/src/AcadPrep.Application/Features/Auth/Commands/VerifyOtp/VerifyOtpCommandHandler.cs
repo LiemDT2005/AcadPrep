@@ -1,7 +1,9 @@
 using AcadPrep.Application.Common.Models;
 using Application.Common.Constants;
 using Application.Common.Interfaces;
+using Domain.Constants;
 using Domain.Entities;
+using Domain.Enums;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 
@@ -14,6 +16,7 @@ namespace Application.Features.Auth.Commands.VerifyOtp;
 internal sealed class VerifyOtpCommandHandler(
     IAppDbContext db,
     ICacheService cache,
+    INotificationService notificationService,
     TimeProvider timeProvider)
     : IRequestHandler<VerifyOtpCommand, Result<VerifyOtpResultDto>>
 {
@@ -70,6 +73,7 @@ internal sealed class VerifyOtpCommandHandler(
         }
 
         // ── Bước 4a/4b: Tạo hoặc kích hoạt User ─────────────────────────────
+        User activatedUser;
         if (!entry.IsReactivation)
         {
             // 4a: Đăng ký mới — User.Create → Status = Inactive → Activate
@@ -82,6 +86,7 @@ internal sealed class VerifyOtpCommandHandler(
 
             newUser.Activate();
             db.Users.Add(newUser);
+            activatedUser = newUser;
         }
         else
         {
@@ -92,6 +97,7 @@ internal sealed class VerifyOtpCommandHandler(
             if (existingUser is not null)
             {
                 existingUser.Activate();
+                activatedUser = existingUser;
             }
             else
             {
@@ -106,7 +112,31 @@ internal sealed class VerifyOtpCommandHandler(
         // ── Bước 4d: Xoá OTP khỏi cache ──────────────────────────────────────
         await cache.RemoveAsync(otpKey, cancellationToken);
 
-        // ── Bước 4e: Trả kết quả ─────────────────────────────────────────────
+        // ── Bước 4e: Gửi thông báo chào mừng (UC-15) ─────────────────────────
+        var isReactivation = entry.IsReactivation;
+        await notificationService.CreateAsync(
+            userId: activatedUser.Id,
+            title: isReactivation ? "Chào mừng bạn quay lại!" : "Chào mừng đến với AcadPrep!",
+            message: isReactivation
+                ? "Tài khoản của bạn đã được kích hoạt lại. Tiếp tục hành trình chinh phục TOEIC ngay hôm nay."
+                : "Tài khoản của bạn đã được kích hoạt thành công. Bắt đầu hành trình chinh phục TOEIC ngay hôm nay.",
+            type: NotificationType.AccountWelcome,
+            linkUrl: "/Account/Profile",
+            cancellationToken: cancellationToken);
+
+        // ── Bước 4f: Cảnh báo cho Admin khi có người dùng mới đăng ký ─────────
+        if (!isReactivation)
+        {
+            await notificationService.CreateForRoleAsync(
+                roleName: nameof(UserRole.Admin),
+                title: "Người dùng mới đăng ký",
+                message: $"Tài khoản mới '{activatedUser.FullName}' ({activatedUser.Email}) vừa kích hoạt thành công.",
+                type: NotificationType.AdminNewUserRegistered,
+                linkUrl: "/Admin/Accounts",
+                cancellationToken: cancellationToken);
+        }
+
+        // ── Bước 4g: Trả kết quả ─────────────────────────────────────────────
         return Result<VerifyOtpResultDto>.Success(new VerifyOtpResultDto(request.Email));
     }
 }

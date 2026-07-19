@@ -1,6 +1,7 @@
 using System.ComponentModel.DataAnnotations;
 using System.Security.Claims;
 using Application.Common.Interfaces;
+using Domain.Constants;
 using Domain.Entities;
 using Domain.Enums;
 using Microsoft.AspNetCore.Authentication;
@@ -25,17 +26,20 @@ public class ProfileModel : PageModel
     private readonly ICurrentUserService _currentUserService;
     private readonly IPasswordHasher _passwordHasher;
     private readonly IServiceProvider _serviceProvider;
+    private readonly INotificationService _notificationService;
 
     public ProfileModel(
         IAppDbContext context,
         ICurrentUserService currentUserService,
         IPasswordHasher passwordHasher,
-        IServiceProvider serviceProvider)
+        IServiceProvider serviceProvider,
+        INotificationService notificationService)
     {
         _context = context;
         _currentUserService = currentUserService;
         _passwordHasher = passwordHasher;
         _serviceProvider = serviceProvider;
+        _notificationService = notificationService;
     }
 
     public UserProfileViewModel Profile { get; private set; } = new();
@@ -150,6 +154,14 @@ public class ProfileModel : PageModel
 
         user.ChangePassword(_passwordHasher.Hash(PasswordInput.NewPassword!));
         await _context.SaveChangesAsync();
+
+        // Thông báo bảo mật cho chủ tài khoản (UC-15)
+        await _notificationService.CreateAsync(
+            userId: user.Id,
+            title: "Mật khẩu đã được thay đổi",
+            message: "Mật khẩu tài khoản của bạn vừa được thay đổi thành công. Nếu không phải bạn thực hiện, hãy đổi lại mật khẩu ngay.",
+            type: NotificationType.SecurityPasswordChanged,
+            linkUrl: "/Account/Profile?tab=password");
 
         TempData["ProfileSuccess"] = "Password changed successfully.";
         return RedirectToPage(new { tab = "password" });

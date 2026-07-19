@@ -166,7 +166,7 @@
             </div>
 
             <div class="px-md mt-sm mb-xs font-label-sm text-label-sm text-on-surface-variant uppercase tracking-wider">System</div>
-            <a class="flex items-center gap-sm px-md py-sm text-on-surface-variant hover:bg-surface-container-high transition-colors duration-200 cursor-pointer" href="#">
+            <a class="flex items-center gap-sm px-md py-sm text-on-surface-variant hover:bg-surface-container-high transition-colors duration-200 cursor-pointer" href="/Notifications">
                 <span class="material-symbols-outlined">notifications</span>
                 <span class="font-label-md text-label-md">Notifications</span>
             </a>
@@ -188,9 +188,7 @@
             </div>
             <div class="flex items-center gap-md">
                 <div class="flex items-center gap-sm">
-                    <button class="text-on-surface-variant hover:text-primary transition-colors cursor-pointer p-1">
-                        <span class="material-symbols-outlined">notifications</span>
-                    </button>
+                    @await Component.InvokeAsync("NotificationBell", new { variant = "dark" })
                     <button class="text-on-surface-variant hover:text-primary transition-colors cursor-pointer p-1">
                         <span class="material-symbols-outlined">dark_mode</span>
                     </button>

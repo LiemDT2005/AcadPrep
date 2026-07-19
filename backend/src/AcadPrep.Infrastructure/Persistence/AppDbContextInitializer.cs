@@ -232,7 +232,6 @@ public class AppDbContextInitializer
                 foreach (var exam in orphanExams)
                 {
                     exam.ExamSeriesId = defaultSeries.Id;
-                    exam.Status = ExamStatus.Published;
                 }
                 await _context.SaveChangesAsync();
             }
@@ -250,7 +249,6 @@ public class AppDbContextInitializer
             _logger.LogInformation("Seeding Questions for {Count} exam(s)...", examsNeedingQuestions.Count);
             foreach (var exam in examsNeedingQuestions)
             {
-                exam.Status = ExamStatus.Published;
                 exam.AudioUrl = SampleListeningAudioUrl;
                 var questions = BuildToeicQuestions(exam.Id);
                 _context.Questions.AddRange(questions);

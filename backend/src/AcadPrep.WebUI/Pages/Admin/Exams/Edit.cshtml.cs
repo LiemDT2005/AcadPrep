@@ -19,7 +19,7 @@ using Domain.Enums;
 
 namespace AcadPrep.WebUI.Pages.Admin.Exams;
 
-[Authorize(Roles = nameof(UserRole.Admin) + "," + nameof(UserRole.Moderator))]
+[Authorize(Roles = nameof(UserRole.Moderator))]
 public class EditModel(ISender mediator, IAppDbContext context, IFileStorageService fileStorage) : PageModel
 {
     public ExamDetailDto Exam { get; set; } = null!;

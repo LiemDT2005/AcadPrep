@@ -1,6 +1,7 @@
 using AcadPrep.Application.Common.Models;
 using Application.Common.Interfaces;
 using Domain.Entities;
+using Domain.Enums;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 using System;
@@ -24,10 +25,10 @@ public class StartPracticeCommandHandler : IRequestHandler<StartPracticeCommand,
     public async Task<Result<int>> Handle(StartPracticeCommand request, CancellationToken cancellationToken)
     {
         // 1. Kiểm tra đề thi tồn tại
-        var examExists = await _context.Exams.AnyAsync(e => e.Id == request.ExamId && !e.IsDeleted, cancellationToken);
+        var examExists = await _context.Exams.AnyAsync(e => e.Id == request.ExamId && !e.IsDeleted && e.Status == ExamStatus.Published, cancellationToken);
         if (!examExists)
         {
-            return Result<int>.Failure("Exam not found or has been deleted.");
+            return Result<int>.Failure("Exam not found or is not available.");
         }
 
         // 2. Query danh sách câu hỏi thuộc đề thi

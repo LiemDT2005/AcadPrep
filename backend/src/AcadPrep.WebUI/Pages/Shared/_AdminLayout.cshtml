@@ -134,12 +134,15 @@
                Exam Stats
                </a>
             </li>
+            @if (User.IsInRole("Admin"))
+            {
             <li>
-               <a class="flex items-center gap-md px-md py-sm rounded-lg transition-colors duration-200 text-[14px] font-medium text-surface-variant hover:bg-surface-variant hover:text-on-surface-variant" href="/">
-               <span class="material-symbols-outlined text-[20px]">exit_to_app</span>
-               Back to App
+               <a class="flex items-center gap-md px-md py-sm rounded-lg transition-colors duration-200 text-[14px] font-medium @GetActiveClasses("/Admin/Accounts")" href="/Admin/Accounts">
+               <span class="material-symbols-outlined text-[20px]">manage_accounts</span>
+               Account Management
                </a>
             </li>
+            }
          </ul>
       </nav>
       <!-- Main Content Wrapper -->
@@ -151,9 +154,7 @@
             </div>
             <div class="flex items-center gap-md">
                <span class="bg-secondary-container text-on-secondary px-sm py-xs rounded-full text-[12px] font-semibold">Admin Role</span>
-               <button class="w-10 h-10 rounded-full hover:bg-surface-container-low transition-colors flex items-center justify-center text-on-surface-variant cursor-pointer relative">
-               <span class="material-symbols-outlined">notifications</span>
-               </button>
+               @await Component.InvokeAsync("NotificationBell", new { variant = "dark" })
                @await Component.InvokeAsync("ProfileAvatar", new { variant = "admin" })
             </div>
          </header>

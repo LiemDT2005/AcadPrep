@@ -207,14 +207,12 @@
                             </div>
                         </div>
 
-                        <!-- Hover Action (Expanding) -->
-                        <div class="max-h-0 group-hover:max-h-[60px] transition-all duration-300 ease-in-out overflow-hidden">
-                            <div class="pt-md">
-                                <a asp-page="/Exams/Detail" asp-route-id="@exam.Id" class="w-full py-[10px] bg-primary text-on-primary rounded-lg font-label-md text-label-md transition-opacity duration-300 opacity-0 group-hover:opacity-100 text-center flex items-center justify-center gap-xs hover:bg-primary-container hover:text-on-primary-container shadow-md">
-                                    View Details
-                                    <span class="material-symbols-outlined text-[18px]">arrow_forward</span>
-                                </a>
-                            </div>
+                        <!-- Primary Action -->
+                        <div class="pt-md mt-auto">
+                            <a asp-page="/Exams/Detail" asp-route-id="@exam.Id" class="w-full py-[10px] bg-primary text-on-primary rounded-lg font-label-md text-label-md text-center flex items-center justify-center gap-xs hover:bg-primary-container hover:text-on-primary-container shadow-md transition-colors">
+                                View Details
+                                <span class="material-symbols-outlined text-[18px]">arrow_forward</span>
+                            </a>
                         </div>
                     </div>
                     

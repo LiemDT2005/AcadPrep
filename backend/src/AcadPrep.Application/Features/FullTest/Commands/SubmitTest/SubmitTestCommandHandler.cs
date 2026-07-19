@@ -1,6 +1,7 @@
 using AcadPrep.Application.Common.Models;
 using AcadPrep.Application.Common.Utils;
 using Application.Common.Interfaces;
+using Domain.Constants;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 
@@ -9,10 +10,12 @@ namespace AcadPrep.Application.Features.FullTest.Commands.SubmitTest;
 public class SubmitTestCommandHandler : IRequestHandler<SubmitTestCommand, Result<SubmitTestResultDto>>
 {
     private readonly IAppDbContext _context;
+    private readonly INotificationService _notificationService;
 
-    public SubmitTestCommandHandler(IAppDbContext context)
+    public SubmitTestCommandHandler(IAppDbContext context, INotificationService notificationService)
     {
         _context = context;
+        _notificationService = notificationService;
     }
 
     public async Task<Result<SubmitTestResultDto>> Handle(SubmitTestCommand request, CancellationToken cancellationToken)
@@ -79,6 +82,20 @@ public class SubmitTestCommandHandler : IRequestHandler<SubmitTestCommand, Resul
         attempt.CompletedAt = DateTime.UtcNow;
 
         await _context.SaveChangesAsync(cancellationToken);
+
+        // Thông báo kết quả bài thi cho học viên (UC-15)
+        var examTitle = await _context.Exams
+            .Where(e => e.Id == attempt.ExamId)
+            .Select(e => e.Title)
+            .FirstOrDefaultAsync(cancellationToken) ?? "bài thi";
+
+        await _notificationService.CreateAsync(
+            userId: attempt.UserId,
+            title: "Kết quả bài thi đã sẵn sàng",
+            message: $"Bài thi '{examTitle}' đã được chấm xong. Điểm của bạn: {attempt.TotalScore}/990. Nhấn để xem chi tiết.",
+            type: NotificationType.ExamResultReady,
+            linkUrl: $"/Exams/Results?attemptId={attempt.Id}",
+            cancellationToken: cancellationToken);
 
         return Result<SubmitTestResultDto>.Success(new SubmitTestResultDto
         {
