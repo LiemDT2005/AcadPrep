@@ -7,6 +7,7 @@ public class UpdateListeningGroupDto
 {
     public int Part { get; set; }
     public required string Name { get; set; }
+    public string? Explanation { get; set; }
     public ListeningGroupMediaDto Media { get; set; } = new();
     public List<UpdateListeningGroupQuestionDto> Questions { get; set; } = new();
 }

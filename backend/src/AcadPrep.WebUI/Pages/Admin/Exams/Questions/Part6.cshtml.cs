@@ -69,6 +69,7 @@ public class Part6Model(ISender mediator, IAppDbContext context, IFileStorageSer
 
             Form.PassageContent = passage.Content;
             Form.ImageUrl = passage.ImageUrl;
+            Form.Explanation = passage.Explanation ?? string.Empty;
             Form.PassageInputMode = !string.IsNullOrWhiteSpace(passage.ImageUrl) ? "image" : "text";
 
             foreach (var q in questions)
@@ -228,7 +229,8 @@ public class Part6Model(ISender mediator, IAppDbContext context, IFileStorageSer
                     Passage = new TextCompletionPassageDto
                     {
                         Content = Form.PassageInputMode == "text" ? Form.PassageContent : null,
-                        ImageUrl = imageUrl
+                        ImageUrl = imageUrl,
+                        Explanation = Form.Explanation
                     },
                     Questions = Form.Questions.Select(q => new UpdateTextCompletionQuestionDto
                     {
@@ -264,7 +266,8 @@ public class Part6Model(ISender mediator, IAppDbContext context, IFileStorageSer
                 Passage = new TextCompletionPassageDto
                 {
                     Content = Form.PassageInputMode == "text" ? Form.PassageContent : null,
-                    ImageUrl = imageUrl
+                    ImageUrl = imageUrl,
+                    Explanation = Form.Explanation
                 },
                 Questions = Form.Questions.Select(q => new TextCompletionQuestionDto
                 {
@@ -297,6 +300,8 @@ public class Part6FormModel
     public int? PassageId { get; set; }
     public string PassageInputMode { get; set; } = "text";
     public string? PassageContent { get; set; }
+    [System.ComponentModel.DataAnnotations.Required(ErrorMessage = "Passage explanation is required.")]
+    public string Explanation { get; set; } = string.Empty;
     public string? ImageUrl { get; set; }
     public IFormFile? ImageFile { get; set; }
     public List<Part6QuestionFormItem> Questions { get; set; } = new();

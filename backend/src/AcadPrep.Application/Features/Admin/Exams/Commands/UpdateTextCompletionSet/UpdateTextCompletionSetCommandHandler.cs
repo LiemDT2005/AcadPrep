@@ -102,6 +102,7 @@ internal sealed class UpdateTextCompletionSetCommandHandler(IAppDbContext contex
 
         passage.Content = dto.Passage.Content?.Trim();
         passage.ImageUrl = dto.Passage.ImageUrl?.Trim();
+        passage.Explanation = string.IsNullOrWhiteSpace(dto.Passage.Explanation) ? null : dto.Passage.Explanation.Trim();
 
         foreach (var qDto in dto.Questions)
         {

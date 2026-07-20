@@ -104,6 +104,12 @@
                     <input asp-for="Form.ImageUrl" type="hidden" id="passageImageUrlField" />
                 </div>
 
+                <div class="flex flex-col gap-2xs">
+                    <label asp-for="Form.Explanation" class="font-label-md text-label-md text-on-surface font-semibold">Passage Explanation <span class="text-error">*</span></label>
+                    <textarea asp-for="Form.Explanation" rows="3" placeholder="Shared explanation for all 4 questions in this passage..." class="qc-textarea resize-none" required></textarea>
+                    <p class="font-body-xs text-on-surface-variant">Shown for the whole Part 6 set after students submit.</p>
+                </div>
+
                 <!-- Nav -->
                 <div class="qc-form-actions justify-between">
                     <a href="/Admin/Exams/Edit?id=@Model.ExamId" class="qc-btn-ghost">Cancel</a>

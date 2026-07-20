@@ -3,6 +3,7 @@ using Application.Common.Interfaces;
 using AcadPrep.Application.Common.Models;
 using AcadPrep.Application.Features.Vocabulary.Queries.GetSavedVocabularies;
 using AcadPrep.Application.Features.Vocabulary.Commands.RemoveVocabulary;
+using AcadPrep.Application.Features.Vocabulary.Commands.UpdateVocabulary;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -64,6 +65,51 @@ public class NotebookModel : PageModel
 
     [BindProperty]
     public AcadPrep.Application.Features.Vocabulary.Commands.CreateVocabulary.CreateVocabularyCommand CreateCommand { get; set; } = new();
+
+    [BindProperty]
+    public EditVocabularyInput EditInput { get; set; } = new();
+
+    public async Task<IActionResult> OnPostEditAsync()
+    {
+        if (!int.TryParse(_currentUserService.UserId, out int userId))
+        {
+            return Unauthorized();
+        }
+
+        if (string.IsNullOrWhiteSpace(EditInput.Word) || string.IsNullOrWhiteSpace(EditInput.Meaning))
+        {
+            ModelState.AddModelError("", "Word and Meaning are required.");
+            SavedVocabularies = (await _mediator.Send(new GetSavedVocabulariesQuery(userId, PageNumber, 10, SearchTerm))).Data!;
+            return Page();
+        }
+
+        var result = await _mediator.Send(new UpdateVocabularyCommand(
+            userId,
+            EditInput.VocabularyId,
+            EditInput.Word,
+            EditInput.Phonetic,
+            EditInput.Meaning,
+            EditInput.Example
+        ));
+
+        if (!result.IsSuccess)
+        {
+            ModelState.AddModelError("", result.Error ?? "Failed to update vocabulary.");
+            SavedVocabularies = (await _mediator.Send(new GetSavedVocabulariesQuery(userId, PageNumber, 10, SearchTerm))).Data!;
+            return Page();
+        }
+
+        return RedirectToPage(new { PageNumber, SearchTerm });
+    }
+
+    public class EditVocabularyInput
+    {
+        public int VocabularyId { get; set; }
+        public string Word { get; set; } = string.Empty;
+        public string? Phonetic { get; set; }
+        public string Meaning { get; set; } = string.Empty;
+        public string? Example { get; set; }
+    }
 
     public async Task<IActionResult> OnPostCreateAsync()
     {

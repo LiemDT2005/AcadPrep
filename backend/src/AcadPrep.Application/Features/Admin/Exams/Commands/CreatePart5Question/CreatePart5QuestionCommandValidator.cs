@@ -20,6 +20,9 @@ public class CreatePart5QuestionCommandValidator : AbstractValidator<CreatePart5
             RuleFor(x => x.Question.QuestionText)
                 .NotEmpty().WithMessage("Question text cannot be empty.");
 
+            RuleFor(x => x.Question.Explanation)
+                .NotEmpty().WithMessage("Explanation is required.");
+
             RuleFor(x => x.Question.CorrectOption)
                 .NotEmpty().WithMessage("Correct option is required.")
                 .Must(x => x == "A" || x == "B" || x == "C" || x == "D")

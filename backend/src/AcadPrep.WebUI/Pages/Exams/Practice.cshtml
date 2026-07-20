@@ -17,28 +17,33 @@
 </head>
 <body class="bg-surface font-body-md text-on-surface h-screen overflow-hidden flex flex-col">
 
-    <header class="shrink-0 z-40 bg-[#1a237e] text-white shadow-md">
-        <div class="px-4 py-2.5 flex flex-wrap items-center justify-between gap-3">
+    <header class="shrink-0 z-40 w-full bg-primary text-on-primary shadow-lg font-[Inter]">
+        <div class="px-4 md:px-6 h-16 flex flex-wrap items-center justify-between gap-3">
             <div class="flex items-center gap-3 min-w-0">
-                <button id="btn-sidebar-toggle" type="button" class="shrink-0 w-10 h-10 rounded-lg bg-white/10 hover:bg-white/20 flex items-center justify-center" title="Question list" aria-label="Toggle question list">
+                <button id="btn-sidebar-toggle" type="button" class="shrink-0 w-10 h-10 rounded-lg bg-white/10 hover:bg-white/20 flex items-center justify-center transition-opacity" title="Question list" aria-label="Toggle question list">
                     <span class="material-symbols-outlined">menu</span>
                 </button>
-                <span class="shrink-0 px-2.5 py-1 rounded-md bg-[#ff8d4b] text-[#5c2e00] text-label-sm font-bold uppercase tracking-wide">Practice</span>
+                <a href="/Performance/Dashboard" class="hidden sm:flex items-center gap-1.5 text-white hover:opacity-90 shrink-0" style="text-decoration:none;">
+                    <span class="material-symbols-outlined text-[24px]" style="font-variation-settings: 'FILL' 1;">school</span>
+                    <span class="text-[18px] font-extrabold tracking-tight">AcadPrep</span>
+                </a>
+                <span class="hidden sm:inline text-white/30">|</span>
+                <span class="shrink-0 px-2.5 py-1 rounded-md bg-white/15 text-white text-label-sm font-bold uppercase tracking-wide">Practice</span>
                 <h1 class="font-headline-sm font-semibold truncate text-white/95">@session.ExamTitle</h1>
             </div>
             <div class="flex items-center gap-3">
-                <span id="current-part-label" class="text-body-sm text-white/80 hidden sm:inline">Part @session.SelectedParts.FirstOrDefault()</span>
+                <span id="current-part-label" class="text-label-md text-white/80 hidden sm:inline">Part @session.SelectedParts.FirstOrDefault()</span>
                 @if (session.TimeLimitMinutes.HasValue)
                 {
-                    <span id="exam-timer" class="font-mono text-lg font-bold tabular-nums bg-[#4fc3f7] text-[#0d47a1] px-3 py-1.5 rounded-md">--:--</span>
+                    <span id="exam-timer" class="font-mono text-lg font-bold tabular-nums bg-white text-primary px-3 py-1.5 rounded-lg shadow-sm">--:--</span>
                 }
-                <button id="btn-submit" type="button" class="bg-[#ff6d00] hover:bg-[#e65100] text-white font-label-sm font-bold px-5 py-2.5 rounded-lg flex items-center gap-1">
+                <button id="btn-submit" type="button" class="bg-white text-primary hover:bg-white/90 font-label-md font-bold px-5 py-2.5 rounded-lg flex items-center gap-1 shadow-sm transition-all">
                     <span class="material-symbols-outlined text-lg">send</span> Submit
                 </button>
-                <button id="btn-exit" type="button" class="text-body-sm text-white/80 hover:text-white" data-exit-url="/Exams/Detail/@session.ExamId">Exit</button>
+                <button id="btn-exit" type="button" class="text-label-md text-white/80 hover:text-white hover:opacity-100 transition-opacity" data-exit-url="/Exams/Detail/@session.ExamId">Exit</button>
             </div>
         </div>
-        <div class="px-4 pb-2 flex flex-wrap gap-1.5">
+        <div class="px-4 md:px-6 pb-2.5 flex flex-wrap gap-1.5">
             @foreach (var p in session.SelectedParts)
             {
                 <span class="px-2 py-0.5 rounded-md bg-white/15 text-white text-label-sm font-bold">Part @p</span>
@@ -64,8 +69,8 @@
         <main class="flex-1 min-w-0 min-h-0 overflow-y-auto relative">
             <div id="exam-workspace" class="h-full flex flex-col p-4 md:p-6 gap-4">
                 <div class="flex items-center justify-between shrink-0">
-                    <span id="question-label" class="text-label-sm font-bold text-secondary">Question 1</span>
-                    <span class="px-3 py-1 rounded-md bg-[#ff6d00] text-white text-label-sm font-bold tabular-nums">
+                    <span id="question-label" class="text-label-sm font-bold text-primary">Question 1</span>
+                    <span class="px-3 py-1 rounded-md bg-primary text-on-primary text-label-sm font-bold tabular-nums">
                         <span id="answered-count-badge">0</span>/<span id="total-q-num">@session.Questions.Count</span>
                     </span>
                 </div>
@@ -74,12 +79,12 @@
                     @* Hidden media element — clip progress is shown via custom segment controls *@
                     <audio id="exam-audio" class="hidden" preload="auto" controlsList="nodownload noplaybackrate"></audio>
                     <div id="audio-player-ui" class="flex items-center gap-3">
-                        <button id="audio-play-btn" type="button" class="shrink-0 w-11 h-11 rounded-full bg-secondary text-on-secondary flex items-center justify-center hover:opacity-90" title="Play / Pause" aria-label="Play or pause audio segment">
+                        <button id="audio-play-btn" type="button" class="shrink-0 w-11 h-11 rounded-full bg-primary text-on-primary flex items-center justify-center hover:opacity-90" title="Play / Pause" aria-label="Play or pause audio segment">
                             <span id="audio-play-icon" class="material-symbols-outlined text-[28px]">play_arrow</span>
                         </button>
                         <div class="flex-1 min-w-0">
                             <div id="audio-progress-track" class="h-2 rounded-full bg-outline-variant/40 cursor-pointer relative" role="slider" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0" tabindex="0" title="Seek within segment">
-                                <div id="audio-progress-fill" class="absolute inset-y-0 left-0 rounded-full bg-secondary w-0"></div>
+                                <div id="audio-progress-fill" class="absolute inset-y-0 left-0 rounded-full bg-primary w-0"></div>
                             </div>
                             <div class="flex items-center justify-between mt-1.5 gap-2">
                                 <span id="audio-time-current" class="text-body-sm font-mono text-on-surface-variant tabular-nums">00:00</span>
@@ -93,6 +98,10 @@
 
                 <section class="flex-1 min-h-0 grid grid-cols-1 lg:grid-cols-2 gap-0 rounded-xl border border-outline-variant/30 overflow-hidden bg-surface-container-lowest">
                     <div class="p-5 md:p-6 min-h-[200px] overflow-y-auto border-b lg:border-b-0 lg:border-r-4 lg:border-r-secondary/40">
+                        <div class="mb-3 inline-flex items-center gap-2 rounded-full bg-tertiary-container/40 px-3 py-1 text-[12px] text-on-surface-variant">
+                            <span class="material-symbols-outlined text-[16px] text-tertiary">gesture_select</span>
+                            Select a word in the passage to save it to vocabulary.
+                        </div>
                         <div id="question-image-wrap" class="hidden mb-4">
                             <img id="question-image" alt="Question" class="max-h-80 rounded-lg mx-auto" />
                         </div>
@@ -106,7 +115,7 @@
                         <span class="material-symbols-outlined">arrow_back</span> Prev
                     </button>
                     <span class="text-body-sm font-medium">Q <span id="current-q-num">1</span> / <span id="total-q-num-nav">@session.Questions.Count</span></span>
-                    <button id="btn-next" type="button" class="flex items-center gap-1 px-4 py-2.5 rounded-xl bg-secondary text-on-secondary font-medium hover:bg-secondary-container">
+                    <button id="btn-next" type="button" class="flex items-center gap-1 px-4 py-2.5 rounded-xl bg-primary text-on-primary font-medium hover:opacity-90">
                         Next <span class="material-symbols-outlined">arrow_forward</span>
                     </button>
                 </div>
@@ -120,7 +129,7 @@
             <p class="text-body-sm text-on-surface-variant">Your answers will be graded and you'll see the results.</p>
             <div class="flex gap-3">
                 <button data-close-submit type="button" class="flex-1 py-3 rounded-xl border font-medium">Continue practicing</button>
-                <button data-confirm-submit type="button" class="flex-1 py-3 rounded-xl bg-secondary text-on-secondary font-bold">Submit</button>
+                <button data-confirm-submit type="button" class="flex-1 py-3 rounded-xl bg-primary text-on-primary font-bold">Submit</button>
             </div>
         </div>
     </div>
@@ -135,6 +144,13 @@
             </div>
         </div>
     </div>
+
+    <button id="selection-vocab-button" type="button" class="hidden fixed z-50 items-center gap-2 rounded-full bg-primary px-4 py-2 text-sm font-semibold text-on-primary shadow-xl hover:opacity-95">
+        <span class="material-symbols-outlined text-[18px]">playlist_add</span>
+        Add to vocab
+    </button>
+
+    <div id="vocab-toast" class="hidden fixed bottom-4 right-4 z-50 max-w-sm rounded-2xl bg-surface-container-high px-4 py-3 text-sm text-on-surface shadow-xl border border-outline-variant/30"></div>
 
     <script>
         window.examSessionConfig = {

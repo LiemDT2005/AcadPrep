@@ -71,7 +71,8 @@ internal sealed class CreatePart5QuestionCommandHandler(IAppDbContext context)
             QuestionText = dto.QuestionText?.Trim(),
             CorrectOption = correctOptionEnum,
             QuestionType = dto.QuestionType?.Trim(),
-            TopicTag = dto.TopicTag?.Trim()
+            TopicTag = dto.TopicTag?.Trim(),
+            Explanation = string.IsNullOrWhiteSpace(dto.Explanation) ? null : dto.Explanation.Trim()
         };
 
         foreach (var optDto in dto.Options)

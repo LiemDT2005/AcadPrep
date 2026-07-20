@@ -94,7 +94,8 @@ internal sealed class CreateReadingSetCommandHandler(IAppDbContext context)
         var group = new QuestionGroup
         {
             ExamId = request.ExamId,
-            Name = dto.Name.Trim()
+            Name = dto.Name.Trim(),
+            Explanation = string.IsNullOrWhiteSpace(dto.Explanation) ? null : dto.Explanation.Trim()
         };
 
         context.QuestionGroups.Add(group);

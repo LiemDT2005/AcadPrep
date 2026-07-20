@@ -1,9 +1,11 @@
 using System.ComponentModel.DataAnnotations;
 using System.Security.Claims;
+using AcadPrep.Application.Features.Performance.Queries.GetExamAttempts;
 using Application.Common.Interfaces;
 using Domain.Constants;
 using Domain.Entities;
 using Domain.Enums;
+using MediatR;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authorization;
@@ -27,25 +29,29 @@ public class ProfileModel : PageModel
     private readonly IPasswordHasher _passwordHasher;
     private readonly IServiceProvider _serviceProvider;
     private readonly INotificationService _notificationService;
+    private readonly IMediator _mediator;
 
     public ProfileModel(
         IAppDbContext context,
         ICurrentUserService currentUserService,
         IPasswordHasher passwordHasher,
         IServiceProvider serviceProvider,
-        INotificationService notificationService)
+        INotificationService notificationService,
+        IMediator mediator)
     {
         _context = context;
         _currentUserService = currentUserService;
         _passwordHasher = passwordHasher;
         _serviceProvider = serviceProvider;
         _notificationService = notificationService;
+        _mediator = mediator;
     }
 
     public UserProfileViewModel Profile { get; private set; } = new();
     public bool IsStaff { get; private set; }
     public bool CanChangePassword { get; private set; }
     public string ActiveTab { get; private set; } = "overview";
+    public ExamAttemptsResultDto ExamAttempts { get; private set; } = new();
 
     [BindProperty]
     public EditProfileInput ProfileInput { get; set; } = new();
@@ -235,6 +241,9 @@ public class ProfileModel : PageModel
         }
 
         ProfileInput.FullName = user.FullName;
+
+        var attemptsResult = await _mediator.Send(new GetExamAttemptsQuery(user.Id));
+        ExamAttempts = attemptsResult.Data ?? new ExamAttemptsResultDto();
     }
 
     private async Task RefreshAuthenticationCookieAsync(User user)
@@ -265,7 +274,7 @@ public class ProfileModel : PageModel
 
     private static string NormalizeTab(string? tab)
     {
-        return tab is "edit" or "password" ? tab : "overview";
+        return tab is "edit" or "password" or "attempts" ? tab : "overview";
     }
 }
 

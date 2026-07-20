@@ -36,6 +36,9 @@ public class QuestionGroupConfiguration : IEntityTypeConfiguration<QuestionGroup
             .IsUnicode(false)
             .IsRequired(false);
 
+        builder.Property(x => x.Explanation)
+            .IsRequired(false);
+
         builder.Property(x => x.ExamId)
             .IsRequired();
 

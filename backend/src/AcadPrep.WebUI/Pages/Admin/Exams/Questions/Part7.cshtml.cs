@@ -60,6 +60,7 @@ public class Part7Model(ISender mediator, IAppDbContext context, IFileStorageSer
             }
 
             Form.Name = group.Name;
+            Form.Explanation = group.Explanation ?? string.Empty;
 
             foreach (var p in group.Passages.OrderBy(x => x.DisplayOrder))
             {
@@ -225,6 +226,7 @@ public class Part7Model(ISender mediator, IAppDbContext context, IFileStorageSer
                     Set = new UpdateReadingSetDto
                     {
                         Name = Form.Name,
+                        Explanation = Form.Explanation,
                         Passages = commandPassages.Select(p => new UpdateReadingPassageDto
                         {
                             Id = p.Id,
@@ -265,6 +267,7 @@ public class Part7Model(ISender mediator, IAppDbContext context, IFileStorageSer
                 Set = new CreateReadingSetDto
                 {
                     Name = Form.Name,
+                    Explanation = Form.Explanation,
                     Passages = commandPassages.Select(p => new ReadingPassageDto
                     {
                         Content = p.Content,
@@ -312,6 +315,8 @@ public class Part7FormModel
 {
     public int? GroupId { get; set; }
     public string Name { get; set; } = string.Empty;
+    [System.ComponentModel.DataAnnotations.Required(ErrorMessage = "Set explanation is required.")]
+    public string Explanation { get; set; } = string.Empty;
     public List<Part7PassageFormItem> Passages { get; set; } = new();
     public List<Part7QuestionFormItem> Questions { get; set; } = new();
 }

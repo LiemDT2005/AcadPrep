@@ -81,6 +81,7 @@ public class ListeningModel(ISender mediator, IAppDbContext context, IFileStorag
             }
 
             Form.Name = group.Name;
+            Form.Explanation = group.Explanation ?? string.Empty;
             Form.ImageUrl = group.ImageUrl;
             Form.AudioUrl = group.AudioUrl;
             Form.AudioStartSecond = group.AudioStartSecond;
@@ -273,6 +274,7 @@ public class ListeningModel(ISender mediator, IAppDbContext context, IFileStorag
                     {
                         Part = Form.Part,
                         Name = Form.Name,
+                        Explanation = Form.Explanation,
                         Media = new ListeningGroupMediaDto
                         {
                             AudioUrl = groupAudioUrl,
@@ -316,6 +318,7 @@ public class ListeningModel(ISender mediator, IAppDbContext context, IFileStorag
                 {
                     Part = Form.Part,
                     Name = Form.Name,
+                    Explanation = Form.Explanation,
                     Media = new ListeningGroupMediaDto
                     {
                         AudioUrl = groupAudioUrl,
@@ -371,6 +374,8 @@ public class ListeningFormModel
     public int? GroupId { get; set; }
     public int Part { get; set; }
     public string Name { get; set; } = string.Empty;
+    [System.ComponentModel.DataAnnotations.Required(ErrorMessage = "Group explanation is required.")]
+    public string Explanation { get; set; } = string.Empty;
     public bool UseExamFullAudio { get; set; }
     public string? AudioUrl { get; set; }
     public int? AudioStartSecond { get; set; }

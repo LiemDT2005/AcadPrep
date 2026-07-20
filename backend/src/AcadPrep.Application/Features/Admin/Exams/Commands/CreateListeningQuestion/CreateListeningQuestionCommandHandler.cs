@@ -112,6 +112,7 @@ internal sealed class CreateListeningQuestionCommandHandler(IAppDbContext contex
             ImageUrl = dto.ImageUrl?.Trim(),
             CorrectOption = correctOptionEnum,
             QuestionGroupId = null,
+            Explanation = string.IsNullOrWhiteSpace(dto.Explanation) ? null : dto.Explanation.Trim(),
             AudioUrl = !dto.UseExamFullAudio ? dto.AudioUrl?.Trim() : null,
             AudioStartSecond = dto.UseExamFullAudio ? dto.AudioStartSecond : null,
             AudioEndSecond = dto.UseExamFullAudio ? dto.AudioEndSecond : null

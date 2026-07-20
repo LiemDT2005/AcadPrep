@@ -7,6 +7,7 @@ public class ListeningQuestionInputDto
     public int QuestionNumber { get; set; }
     public string? QuestionText { get; set; }
     public string? ImageUrl { get; set; }
+    public string? Explanation { get; set; }
     public required string CorrectOption { get; set; }
     public List<ListeningQuestionOptionDto> Options { get; set; } = new();
 

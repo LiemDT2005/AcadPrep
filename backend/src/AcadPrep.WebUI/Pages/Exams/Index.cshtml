@@ -18,6 +18,31 @@
     .transition-interaction:active {
         transform: scale(0.98);
     }
+    .exam-card {
+        transition: transform 0.28s cubic-bezier(0.4, 0, 0.2, 1),
+                    box-shadow 0.28s cubic-bezier(0.4, 0, 0.2, 1),
+                    border-color 0.28s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+    .exam-card:hover {
+        transform: translateY(-8px) scale(1.02);
+        box-shadow: 0 22px 45px -24px rgba(30, 0, 169, 0.35);
+    }
+    .exam-card-action {
+        max-height: 0;
+        opacity: 0;
+        overflow: hidden;
+        transform: translateY(10px);
+        transition: max-height 0.28s cubic-bezier(0.4, 0, 0.2, 1),
+                    opacity 0.2s ease,
+                    transform 0.28s cubic-bezier(0.4, 0, 0.2, 1),
+                    padding-top 0.28s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+    .exam-card:hover .exam-card-action {
+        max-height: 80px;
+        opacity: 1;
+        transform: translateY(0);
+        padding-top: 1rem;
+    }
 </style>
 
 <main class="max-w-7xl mx-auto px-margin-mobile md:px-margin-desktop py-xl">
@@ -147,7 +172,7 @@
             @foreach (var exam in Model.Exams)
             {
                 <!-- Exam Card -->
-                <div class="bg-surface-container-lowest rounded-xl border border-outline-variant flex flex-col hover:border-primary hover:shadow-lg transition-all duration-300 soft-shadow group overflow-hidden relative">
+                <div class="exam-card bg-surface-container-lowest rounded-xl border border-outline-variant flex flex-col hover:border-primary soft-shadow group overflow-hidden relative">
                     <!-- Accent Top Bar -->
                     <div class="h-1 w-full bg-gradient-to-r from-primary to-secondary-container"></div>
                     
@@ -208,7 +233,7 @@
                         </div>
 
                         <!-- Primary Action -->
-                        <div class="pt-md mt-auto">
+                        <div class="exam-card-action mt-auto">
                             <a asp-page="/Exams/Detail" asp-route-id="@exam.Id" class="w-full py-[10px] bg-primary text-on-primary rounded-lg font-label-md text-label-md text-center flex items-center justify-center gap-xs hover:bg-primary-container hover:text-on-primary-container shadow-md transition-colors">
                                 View Details
                                 <span class="material-symbols-outlined text-[18px]">arrow_forward</span>

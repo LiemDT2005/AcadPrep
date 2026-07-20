@@ -12,7 +12,10 @@ public class QuestionGroup : BaseEntity<int>
     public int? AudioStartSecond { get; set; } // Giây bắt đầu trên file Exam.AudioUrl
     public int? AudioEndSecond { get; set; } // Giây kết thúc trên file Exam.AudioUrl
     
-    public string? ImageUrl { get; set; } 
+    public string? ImageUrl { get; set; }
+
+    /// <summary>Shared explanation for Parts 3, 4, 7 question groups.</summary>
+    public string? Explanation { get; set; }
     
     public int ExamId { get; set; }
     

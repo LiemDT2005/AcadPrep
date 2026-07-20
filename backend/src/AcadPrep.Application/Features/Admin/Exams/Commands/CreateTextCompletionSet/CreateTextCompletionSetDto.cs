@@ -12,6 +12,7 @@ public class TextCompletionPassageDto
 {
     public string? Content { get; set; }
     public string? ImageUrl { get; set; }
+    public string? Explanation { get; set; }
 }
 
 public class TextCompletionQuestionDto

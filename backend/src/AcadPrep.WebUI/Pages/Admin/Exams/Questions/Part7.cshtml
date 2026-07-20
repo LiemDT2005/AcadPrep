@@ -63,6 +63,12 @@
                 </div>
 
                 <div class="flex flex-col gap-2xs">
+                    <label asp-for="Form.Explanation" class="font-label-md text-label-md text-on-surface font-semibold">Set Explanation <span class="text-error">*</span></label>
+                    <textarea asp-for="Form.Explanation" rows="3" placeholder="Shared explanation for all questions in this reading set..." class="border border-outline rounded-lg p-2.5 bg-surface text-on-surface focus:outline-none focus:border-primary font-body-md w-full resize-none" required></textarea>
+                    <p class="font-body-xs text-on-surface-variant">Shown for the whole Part 7 set after students submit.</p>
+                </div>
+
+                <div class="flex flex-col gap-2xs">
                     <label class="font-label-md text-label-md text-on-surface font-semibold">Number of Passages (1-3 passages)</label>
                     <div class="flex gap-sm mt-xs">
                         <button type="button" onclick="setPassageCount(1)" id="btnCount1" class="flex-1 py-3 rounded-lg border font-label-md text-label-md transition-all border-primary bg-primary/10 text-primary font-bold shadow-sm" @(Model.IsEditMode ? "disabled" : null)>

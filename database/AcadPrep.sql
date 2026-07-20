@@ -60,6 +60,7 @@ CREATE TABLE PASSAGES (
     PassageId INT IDENTITY(1,1),
     Content NVARCHAR(MAX) NULL,
     ImageUrl VARCHAR(500) NULL,
+    Explanation NVARCHAR(MAX) NULL, -- Lời giải chung cho set Part 6
     DisplayOrder INT NOT NULL DEFAULT 1,
     ExamId INT NOT NULL,
     QuestionGroupId INT NULL, -- Bắt buộc với Part 7 (1-3 đoạn / phần đọc), NULL với Part 6
@@ -89,6 +90,7 @@ CREATE TABLE QUESTIONS (
     QuestionText NVARCHAR(MAX),
     AudioUrl VARCHAR(500), -- File âm thanh cho Listening Parts (BR-03)
     CorrectOption CHAR(1) NOT NULL, -- A, B, C, D
+    Explanation NVARCHAR(MAX) NULL, -- Lời giải thích đáp án (UC-10.1)
     ExamId INT NOT NULL,
     PassageId INT NULL, -- Có thể NULL nếu thuộc Part 1-5, bắt buộc có nếu thuộc Part 6-7 (BR-17)
     CONSTRAINT PK_QUESTIONS PRIMARY KEY (QuestionId),
