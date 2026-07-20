@@ -12,7 +12,7 @@ var builder = WebApplication.CreateBuilder(args);
 
 // 1. Register Clean Architecture Layer Services
 builder.Services.AddApplicationServices();
-builder.Services.AddInfrastructureServices(builder.Configuration);
+builder.Services.AddInfrastructureServices(builder.Configuration, builder.Environment);
 
 // 2. Cookie + Google OAuth Authentication
 var googleClientId     = builder.Configuration["Authentication:Google:ClientId"];
