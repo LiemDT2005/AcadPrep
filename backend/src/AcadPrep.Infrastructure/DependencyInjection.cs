@@ -4,12 +4,16 @@ using Infrastructure.Services;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
 
 namespace Infrastructure;
 
 public static class DependencyInjection
 {
-    public static IServiceCollection AddInfrastructureServices(this IServiceCollection services, IConfiguration configuration)
+    public static IServiceCollection AddInfrastructureServices(
+        this IServiceCollection services,
+        IConfiguration configuration,
+        IHostEnvironment environment)
     {
         var connectionString = configuration.GetConnectionString("DefaultConnection");
 
@@ -58,11 +62,22 @@ public static class DependencyInjection
 
         // Register AI generation service
         services.AddScoped<IAiGenerationService, MockAiGenerationService>();
-        
+
         // Register Cloudinary storage service
         services.AddScoped<IFileStorageService, CloudinaryStorageService>();
-        // Register Email service (mock — swap for real SMTP/SendGrid in production)
-        services.AddScoped<IEmailService, MockEmailService>();
+
+        // Register Email service: MockEmailService ở Development, SmtpEmailService ở Production
+        if (environment.IsDevelopment())
+        {
+            services.AddScoped<IEmailService, MockEmailService>();
+        }
+        else
+        {
+            services.AddScoped<IEmailService, SmtpEmailService>();
+        }
+
+        // Bind SmtpSettings từ configuration (cần thiết cho SmtpEmailService)
+        services.Configure<SmtpSettings>(configuration.GetSection("Smtp"));
 
         // Register OTP issuer
         services.AddScoped<IOtpIssuer, OtpIssuer>();
