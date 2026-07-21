@@ -23,7 +23,7 @@ public class User : BaseEntity<int>, IAuditable
     public virtual StudyStreak? StudyStreak { get; set; }
     public virtual ICollection<ExamAttempt> ExamAttempts { get; set; } = new List<ExamAttempt>();
     public virtual ICollection<SavedVocabulary> SavedVocabularies { get; set; } = new List<SavedVocabulary>();
-    public virtual ICollection<StudyStreak> StudyStreaks { get; set; } = new List<StudyStreak>();
+
     public virtual ICollection<UserAchievement> UserAchievements { get; set; } = new List<UserAchievement>();
     public virtual ICollection<AuditLog> AuditLogs { get; set; } = new List<AuditLog>();
     public virtual ICollection<Notification> Notifications { get; set; } = new List<Notification>();

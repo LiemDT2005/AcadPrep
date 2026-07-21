@@ -19,6 +19,9 @@
                 </div>
                 <button type="submit" class="bg-surface-container-high text-on-surface px-md py-sm rounded-lg font-label-md text-label-md hover:bg-surface-container-highest border border-outline-variant transition-colors shadow-sm">Search</button>
             </form>
+            <a href="/Vocabulary/Review" class="w-full sm:w-auto bg-tertiary text-white px-md py-sm rounded-lg font-label-md text-label-md hover:bg-tertiary/90 transition-colors shadow-sm flex items-center justify-center gap-xs" style="text-decoration:none;">
+                <span class="material-symbols-outlined text-[18px]">psychology</span> Review Now
+            </a>
             <button type="button" onclick="document.getElementById('addWordModal').classList.remove('hidden')" class="w-full sm:w-auto bg-primary text-white px-md py-sm rounded-lg font-label-md text-label-md hover:bg-primary/90 transition-colors shadow-sm flex items-center justify-center gap-xs">
                 <span class="material-symbols-outlined text-[18px]">add</span> Add Word
             </button>
@@ -73,6 +76,9 @@
                                     </span>
                                 </td>
                                 <td class="p-md text-right">
+                                    <a href="/Vocabulary/VocabularyDetail?vocabularyId=@item.VocabularyId" class="text-primary hover:text-primary-container hover:bg-primary/10 p-xs rounded transition-colors inline-block mr-xs" title="View Context">
+                                        <span class="material-symbols-outlined text-[20px]">info</span>
+                                    </a>
                                     <form method="post" asp-page-handler="Delete" onsubmit="return confirm('Are you sure you want to remove this word?');" class="inline">
                                         <input type="hidden" name="vocabularyId" value="@item.VocabularyId" />
                                         <input type="hidden" name="PageNumber" value="@Model.PageNumber" />
