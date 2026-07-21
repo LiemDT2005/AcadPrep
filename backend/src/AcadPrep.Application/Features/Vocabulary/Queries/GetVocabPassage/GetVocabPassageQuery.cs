@@ -4,5 +4,5 @@ using MediatR;
 
 namespace AcadPrep.Application.Features.Vocabulary.Queries.GetVocabPassage;
 
-public record GetVocabPassageQuery(int VocabularyId) : IRequest<Result<List<VocabPassageDto>>>;
+public record GetVocabPassageQuery(int VocabularyId) : IRequest<Result<VocabContextDto?>>;
 

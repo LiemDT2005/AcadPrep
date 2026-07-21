@@ -1,54 +1,137 @@
 @page
 @model AcadPrep.WebUI.Pages.Vocabulary.DictionarySearchModel
 @{
-    ViewData["Title"] = "Dictionary Search";
+    ViewData["Title"] = "Dictionary";
 }
 
-<div class="container mt-5">
-    <h2>Dictionary Search</h2>
-    
-    <form method="get" class="mb-4 form-inline">
-        <div class="input-group">
-            <input type="text" class="form-control" name="Keyword" value="@Model.Keyword" placeholder="Enter word to look up..." required />
-            <div class="input-group-append">
-                <button type="submit" class="btn btn-primary">Search</button>
+<div class="max-w-[900px] mx-auto py-2xl px-margin-mobile md:px-margin-desktop">
+    <div class="mb-xl flex flex-col md:flex-row md:justify-between md:items-end gap-md">
+        <div>
+            <h2 class="font-headline-md text-headline-md text-on-surface mb-sm">Dictionary</h2>
+            <p class="font-body-md text-body-md text-on-surface-variant">Look up word meanings, phonetics, and examples from the vocabulary database.</p>
+        </div>
+    </div>
+
+    <div class="flex flex-wrap gap-sm mb-lg">
+        <span class="inline-flex items-center gap-xs px-md py-xs rounded-lg bg-primary-container/30 border border-primary/20 text-label-md font-medium text-primary">
+            <span class="material-symbols-outlined text-[16px]">menu_book</span> Dictionary
+        </span>
+        <a href="/Vocabulary/Notebook" class="inline-flex items-center gap-xs px-md py-xs rounded-lg border border-outline-variant text-label-md font-medium text-on-surface-variant hover:bg-surface-container transition-colors" style="text-decoration:none;">
+            <span class="material-symbols-outlined text-[16px]">book</span> Notebook
+        </a>
+        <a href="/Vocabulary/Review" class="inline-flex items-center gap-xs px-md py-xs rounded-lg border border-outline-variant text-label-md font-medium text-on-surface-variant hover:bg-surface-container transition-colors" style="text-decoration:none;">
+            <span class="material-symbols-outlined text-[16px]">psychology</span> Flashcards
+        </a>
+    </div>
+
+    <form method="get" class="mb-xl">
+        <div class="bg-surface-container-lowest border border-surface-variant rounded-xl p-md shadow-sm">
+            <label for="keyword-input" class="block font-label-sm text-label-sm text-on-surface-variant mb-sm">Search for a word</label>
+            <div class="flex flex-col sm:flex-row gap-sm">
+                <div class="relative flex-1">
+                    <span class="material-symbols-outlined absolute left-sm top-1/2 -translate-y-1/2 text-on-surface-variant">search</span>
+                    <input id="keyword-input" type="text" name="Keyword" value="@Model.Keyword" placeholder="e.g. ubiquitous, negotiate, deadline..." required
+                           class="w-full pl-10 pr-sm py-sm rounded-lg border border-outline-variant bg-surface-container-lowest text-on-surface font-body-md text-body-md focus:border-primary focus:ring-1 focus:ring-primary outline-none transition-all" />
+                </div>
+                <button type="submit" class="bg-primary text-on-primary px-lg py-sm rounded-lg font-label-md text-label-md hover:bg-primary/90 transition-colors shadow-sm flex items-center justify-center gap-xs">
+                    <span class="material-symbols-outlined text-[18px]">travel_explore</span> Look up
+                </button>
             </div>
         </div>
     </form>
 
+    @if (!string.IsNullOrEmpty(Model.SaveMessage))
+    {
+        var isSaved = Model.SaveMessage == "saved";
+        <div class="mb-lg flex items-start gap-sm rounded-xl border px-md py-sm @(isSaved ? "bg-tertiary-container/30 border-tertiary-container text-on-surface" : "bg-secondary-container/30 border-secondary-container text-on-surface")">
+            <span class="material-symbols-outlined text-[20px] mt-[1px] @(isSaved ? "text-tertiary" : "text-secondary")">@(isSaved ? "bookmark_added" : "bookmark")</span>
+            <p class="font-body-sm text-body-sm">
+                @(isSaved ? "Word saved to your notebook. You can review it in flashcards anytime." : "This word is already in your notebook.")
+            </p>
+        </div>
+    }
+
     @if (Model.HasSearched)
     {
-        if (Model.Vocabulary == null)
+        if (Model.Vocabulary is null)
         {
-            <div class="alert alert-warning">
-                <h4>Word not found in database</h4>
-                <p>We couldn't find a definition for "@Model.Keyword".</p>
+            <div class="bg-secondary-container/30 border border-secondary-container rounded-xl p-xl text-center">
+                <span class="material-symbols-outlined text-[48px] text-secondary mb-md">search_off</span>
+                <h3 class="font-headline-sm text-headline-sm text-on-surface mb-sm">No results for "@Model.Keyword"</h3>
+                <p class="font-body-md text-body-md text-on-surface-variant mb-lg max-w-md mx-auto">
+                    This word isn't in the dictionary yet. Try another spelling, or save words while practicing to build your notebook.
+                </p>
+                <a href="/Vocabulary/Notebook" class="inline-flex items-center gap-sm bg-primary text-on-primary px-lg py-sm rounded-lg font-label-md hover:bg-primary/90 transition-colors shadow-sm" style="text-decoration:none;">
+                    <span class="material-symbols-outlined text-[18px]">book</span> Go to Notebook
+                </a>
             </div>
         }
         else
         {
-            <div class="card mb-3">
-                <div class="card-body">
-                    <h1 class="display-4">@Model.Vocabulary.Word</h1>
-                    @if (!string.IsNullOrEmpty(Model.Vocabulary.Phonetic))
-                    {
-                        <h4 class="text-secondary">@Model.Vocabulary.Phonetic</h4>
-                    }
-                    <hr />
-                    <h5>Definition:</h5>
-                    <p class="lead">@Model.Vocabulary.Meaning</p>
+            <div class="bg-surface-container-lowest border border-surface-variant rounded-2xl shadow-sm overflow-hidden">
+                <div class="bg-gradient-to-br from-primary-container/40 to-surface-container-low p-xl border-b border-surface-variant">
+                    <div class="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-md">
+                        <div>
+                            <span class="inline-flex items-center gap-xs px-sm py-[2px] rounded-full bg-primary/10 text-primary font-label-sm text-label-sm mb-sm">
+                                <span class="material-symbols-outlined text-[14px]">translate</span> Definition
+                            </span>
+                            <h1 class="font-display-md text-display-md text-primary">@Model.Vocabulary.Word</h1>
+                            @if (!string.IsNullOrEmpty(Model.Vocabulary.Phonetic))
+                            {
+                                <p class="font-body-md text-body-md text-on-surface-variant italic mt-xs">@Model.Vocabulary.Phonetic</p>
+                            }
+                        </div>
+                        <div class="flex flex-wrap gap-sm shrink-0">
+                            @if (Model.IsSavedInNotebook)
+                            {
+                                <span class="inline-flex items-center gap-xs px-md py-sm rounded-lg bg-tertiary-container/30 border border-tertiary/20 text-tertiary font-label-md text-label-md">
+                                    <span class="material-symbols-outlined text-[18px]">bookmark</span> In notebook
+                                </span>
+                            }
+                            else
+                            {
+                                <form method="post" asp-page-handler="Save">
+                                    <input type="hidden" name="vocabularyId" value="@Model.Vocabulary.VocabularyId" />
+                                    <button type="submit" class="inline-flex items-center gap-xs px-md py-sm rounded-lg bg-tertiary text-white font-label-md text-label-md hover:bg-tertiary/90 transition-colors shadow-sm">
+                                        <span class="material-symbols-outlined text-[18px]">bookmark_add</span> Save to notebook
+                                    </button>
+                                </form>
+                            }
+                            <a asp-page="./VocabularyDetail" asp-route-vocabularyId="@Model.Vocabulary.VocabularyId"
+                               class="inline-flex items-center gap-xs px-md py-sm rounded-lg border border-outline-variant text-on-surface font-label-md text-label-md hover:bg-surface-container transition-colors" style="text-decoration:none;">
+                                <span class="material-symbols-outlined text-[18px]">article</span> View context
+                            </a>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="p-xl space-y-lg">
+                    <div>
+                        <h3 class="font-label-md text-label-md text-on-surface-variant uppercase tracking-wide mb-sm">Meaning</h3>
+                        <p class="font-headline-sm text-headline-sm text-on-surface">@Model.Vocabulary.Meaning</p>
+                    </div>
 
                     @if (!string.IsNullOrEmpty(Model.Vocabulary.Example))
                     {
-                        <h5 class="mt-3">Example:</h5>
-                        <p class="font-italic">"@Model.Vocabulary.Example"</p>
+                        <div>
+                            <h3 class="font-label-md text-label-md text-on-surface-variant uppercase tracking-wide mb-sm">Example</h3>
+                            <div class="bg-surface-container rounded-xl p-md border border-outline-variant/30">
+                                <p class="font-body-md text-body-md text-on-surface italic">"@Model.Vocabulary.Example"</p>
+                            </div>
+                        </div>
                     }
-
-                    <div class="mt-4">
-                        <a asp-page="./VocabularyDetail" asp-route-vocabularyId="@Model.Vocabulary.VocabularyId" class="btn btn-info">View context passage</a>
-                    </div>
                 </div>
             </div>
         }
+    }
+    else
+    {
+        <div class="bg-surface-container-low border border-dashed border-outline-variant rounded-xl p-xl text-center">
+            <span class="material-symbols-outlined text-[40px] text-on-surface-variant/60 mb-md">spellcheck</span>
+            <h3 class="font-headline-sm text-headline-sm text-on-surface mb-sm">Start with a word</h3>
+            <p class="font-body-md text-body-md text-on-surface-variant max-w-md mx-auto">
+                Enter an English word above to see its definition. Words you save during practice also appear in your notebook.
+            </p>
+        </div>
     }
 </div>

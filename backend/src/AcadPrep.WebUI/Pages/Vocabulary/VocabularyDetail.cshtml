@@ -1,31 +1,71 @@
 @page "{vocabularyId:int}"
 @model AcadPrep.WebUI.Pages.Vocabulary.VocabularyDetailModel
 @{
-    ViewData["Title"] = "Vocabulary Context Passage";
+    ViewData["Title"] = $"{Model.Context?.Word ?? "Word"} — Context";
+    var context = Model.Context!;
 }
 
-<div class="container mt-5">
-    <h2>Context Passage</h2>
-    <hr />
+<div class="max-w-[900px] mx-auto py-2xl px-margin-mobile md:px-margin-desktop">
+    <div class="mb-lg">
+        <a asp-page="./DictionarySearch" asp-route-Keyword="@context.Word"
+           class="inline-flex items-center gap-xs text-label-md font-medium text-on-surface-variant hover:text-primary transition-colors" style="text-decoration:none;">
+            <span class="material-symbols-outlined text-[18px]">arrow_back</span> Back to Dictionary
+        </a>
+    </div>
 
-    @if (Model.Passages == null || !Model.Passages.Any())
+    <div class="mb-xl">
+        <span class="inline-flex items-center gap-xs px-sm py-[2px] rounded-full bg-tertiary-container/30 text-tertiary font-label-sm text-label-sm mb-sm">
+            <span class="material-symbols-outlined text-[14px]">article</span> Context passage
+        </span>
+        <h2 class="font-headline-md text-headline-md text-on-surface mb-xs">@context.Word</h2>
+        @if (!string.IsNullOrEmpty(context.Phonetic))
+        {
+            <p class="font-body-md text-body-md text-on-surface-variant italic">@context.Phonetic</p>
+        }
+        <p class="font-body-md text-body-md text-on-surface-variant mt-sm">@context.Meaning</p>
+    </div>
+
+    @if (!context.Passages.Any())
     {
-        <div class="alert alert-info">
-            <h4>No specific context passage available</h4>
-            <p>We don't have any reading passages associated with this vocabulary word yet.</p>
+        <div class="bg-secondary-container/30 border border-secondary-container rounded-xl p-xl text-center">
+            <span class="material-symbols-outlined text-[48px] text-secondary mb-md">description</span>
+            <h3 class="font-headline-sm text-headline-sm text-on-surface mb-sm">No context passage yet</h3>
+            <p class="font-body-md text-body-md text-on-surface-variant mb-lg max-w-md mx-auto">
+                We don't have a reading passage linked to <strong class="text-on-surface">@context.Word</strong> yet. Check back later or explore other saved words.
+            </p>
+            <a asp-page="./DictionarySearch" asp-route-Keyword="@context.Word"
+               class="inline-flex items-center gap-sm bg-primary text-on-primary px-lg py-sm rounded-lg font-label-md hover:bg-primary/90 transition-colors shadow-sm" style="text-decoration:none;">
+                <span class="material-symbols-outlined text-[18px]">menu_book</span> Back to Dictionary
+            </a>
         </div>
     }
     else
     {
-        <div class="list-group mb-4">
-            @foreach (var passage in Model.Passages)
+        <div class="space-y-md">
+            @for (var i = 0; i < context.Passages.Count; i++)
             {
-                <div class="list-group-item">
-                    <p class="mb-1" style="white-space: pre-wrap;">@passage.Content</p>
-                </div>
+                var passage = context.Passages[i];
+                <article class="bg-surface-container-lowest border border-surface-variant rounded-xl shadow-sm overflow-hidden">
+                    <div class="px-md py-sm bg-surface-container-high border-b border-surface-variant flex items-center gap-xs">
+                        <span class="material-symbols-outlined text-[16px] text-primary">format_quote</span>
+                        <span class="font-label-sm text-label-sm text-on-surface-variant">Passage @(i + 1)</span>
+                    </div>
+                    <div class="p-lg">
+                        <p class="font-body-md text-body-md text-on-surface whitespace-pre-wrap leading-relaxed">@passage.Content</p>
+                    </div>
+                </article>
             }
         </div>
-    }
 
-    <a asp-page="./DictionarySearch" class="btn btn-secondary mt-3">Back to Dictionary</a>
+        <div class="mt-xl flex flex-wrap gap-sm">
+            <a asp-page="./DictionarySearch" asp-route-Keyword="@context.Word"
+               class="inline-flex items-center gap-xs px-md py-sm rounded-lg border border-outline-variant text-on-surface font-label-md hover:bg-surface-container transition-colors" style="text-decoration:none;">
+                <span class="material-symbols-outlined text-[18px]">menu_book</span> Look up another word
+            </a>
+            <a href="/Vocabulary/Notebook"
+               class="inline-flex items-center gap-xs px-md py-sm rounded-lg bg-primary text-on-primary font-label-md hover:bg-primary/90 transition-colors shadow-sm" style="text-decoration:none;">
+                <span class="material-symbols-outlined text-[18px]">book</span> Open notebook
+            </a>
+        </div>
+    }
 </div>

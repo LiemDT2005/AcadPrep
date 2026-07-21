@@ -9,7 +9,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace AcadPrep.Application.Features.Vocabulary.Queries.GetVocabPassage;
 
-public class GetVocabPassageQueryHandler : IRequestHandler<GetVocabPassageQuery, Result<List<VocabPassageDto>>>
+public class GetVocabPassageQueryHandler : IRequestHandler<GetVocabPassageQuery, Result<VocabContextDto?>>
 {
     private readonly IAppDbContext _context;
 
@@ -18,9 +18,27 @@ public class GetVocabPassageQueryHandler : IRequestHandler<GetVocabPassageQuery,
         _context = context;
     }
 
-    public async Task<Result<List<VocabPassageDto>>> Handle(GetVocabPassageQuery request, CancellationToken cancellationToken)
+    public async Task<Result<VocabContextDto?>> Handle(GetVocabPassageQuery request, CancellationToken cancellationToken)
     {
-        var passages = await _context.VocabPassages
+        var vocabulary = await _context.Vocabularies
+            .AsNoTracking()
+            .Where(v => v.Id == request.VocabularyId)
+            .Select(v => new VocabContextDto
+            {
+                VocabularyId = v.Id,
+                Word = v.Word,
+                Phonetic = v.Phonetic,
+                Meaning = v.Meaning,
+                Example = v.Example
+            })
+            .FirstOrDefaultAsync(cancellationToken);
+
+        if (vocabulary is null)
+        {
+            return null;
+        }
+
+        vocabulary.Passages = await _context.VocabPassages
             .AsNoTracking()
             .Where(p => p.VocabularyId == request.VocabularyId)
             .Select(p => new VocabPassageDto
@@ -31,7 +49,7 @@ public class GetVocabPassageQueryHandler : IRequestHandler<GetVocabPassageQuery,
             })
             .ToListAsync(cancellationToken);
 
-        return passages;
+        return vocabulary;
     }
 }
 
