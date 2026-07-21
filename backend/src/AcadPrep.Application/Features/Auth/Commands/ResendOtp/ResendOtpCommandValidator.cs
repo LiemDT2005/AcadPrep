@@ -11,7 +11,7 @@ public sealed class ResendOtpCommandValidator : AbstractValidator<ResendOtpComma
     public ResendOtpCommandValidator()
     {
         RuleFor(x => x.Email)
-            .NotEmpty().WithMessage("Email không được để trống.")
-            .EmailAddress().WithMessage("Địa chỉ email không hợp lệ.");
+            .NotEmpty().WithMessage("Email cannot be empty.")
+            .EmailAddress().WithMessage("Invalid email format.");
     }
 }

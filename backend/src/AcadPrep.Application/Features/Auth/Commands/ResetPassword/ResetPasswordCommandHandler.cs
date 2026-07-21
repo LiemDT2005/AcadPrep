@@ -37,7 +37,7 @@ internal sealed class ResetPasswordCommandHandler(
         if (cachedEntry is null || cachedEntry.OtpCode != request.OtpCode)
         {
             return Result<bool>.Failure(
-                "Mã OTP không hợp lệ hoặc đã hết hạn. Vui lòng yêu cầu gửi lại mã mới.");
+                "The OTP code is invalid or has expired. Please request a new code.");
         }
 
         // ── Bước 3: Tìm user theo email (có tracking để EF ghi nhận thay đổi) ─
@@ -48,7 +48,7 @@ internal sealed class ResetPasswordCommandHandler(
         {
             // Trường hợp bất thường: OTP tồn tại nhưng user không còn trong DB.
             return Result<bool>.Failure(
-                "Không tìm thấy tài khoản tương ứng với email này.");
+                "No account found associated with this email.");
         }
 
         // ── Bước 4: Kiểm tra user.Status == Active ────────────────────────────
@@ -57,7 +57,7 @@ internal sealed class ResetPasswordCommandHandler(
         if (user.Status != UserStatus.Active)
         {
             return Result<bool>.Failure(
-                "Tài khoản không khả dụng để đặt lại mật khẩu.");
+                "This account is not eligible for password reset.");
         }
 
         // ── Bước 5: Hash password mới qua IPasswordHasher (BCrypt work factor 12) ─

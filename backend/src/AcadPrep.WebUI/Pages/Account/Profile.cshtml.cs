@@ -164,8 +164,8 @@ public class ProfileModel : PageModel
         // Thông báo bảo mật cho chủ tài khoản (UC-15)
         await _notificationService.CreateAsync(
             userId: user.Id,
-            title: "Mật khẩu đã được thay đổi",
-            message: "Mật khẩu tài khoản của bạn vừa được thay đổi thành công. Nếu không phải bạn thực hiện, hãy đổi lại mật khẩu ngay.",
+            title: "Password changed successfully",
+            message: "Your account password has been changed successfully. If this was not you, please secure your account immediately.",
             type: NotificationType.SecurityPasswordChanged,
             linkUrl: "/Account/Profile?tab=password");
 

@@ -6,6 +6,7 @@ using MediatR;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication.Google;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using System.Security.Claims;
@@ -21,14 +22,13 @@ public class GoogleCallbackModel(ISender mediator) : PageModel
 {
     public async Task<IActionResult> OnGetAsync(string? returnUrl = null)
     {
-        // Lấy kết quả xác thực từ Google OAuth middleware
-        var authenticateResult = await HttpContext.AuthenticateAsync(GoogleDefaults.AuthenticationScheme);
+        var authenticateResult = await HttpContext.AuthenticateAsync("GoogleTempCookie");
 
         if (!authenticateResult.Succeeded)
         {
             // Xác thực Google thất bại hoặc user hủy → redirect về trang Login kèm thông báo
             return RedirectToPage("/Account/Login",
-                new { error = "Đăng nhập bằng Google thất bại. Vui lòng thử lại." });
+                new { error = "Google login failed. Please try again." });
         }
 
         var principal = authenticateResult.Principal;
@@ -41,7 +41,7 @@ public class GoogleCallbackModel(ISender mediator) : PageModel
         if (string.IsNullOrWhiteSpace(email) || string.IsNullOrWhiteSpace(googleId))
         {
             return RedirectToPage("/Account/Login",
-                new { error = "Không thể lấy thông tin từ tài khoản Google." });
+                new { error = "Could not retrieve information from Google account." });
         }
 
         var command = new GoogleCallbackCommand(email, googleId, fullName);
@@ -55,8 +55,8 @@ public class GoogleCallbackModel(ISender mediator) : PageModel
 
         var dto = result.Data!;
 
-        // Phát cookie xác thực — concern của Presentation layer
         await SignInUserAsync(dto);
+        await HttpContext.SignOutAsync("GoogleTempCookie");
 
         return LocalRedirect(GetPostLoginDestination(returnUrl, dto.Role));
     }

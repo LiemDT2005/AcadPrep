@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Security.Claims;
 using System.Threading.Tasks;
 using AcadPrep.Application.Common.Models;
 using AcadPrep.Application.Features.Admin.Accounts.DTOs;
@@ -30,6 +31,7 @@ public class IndexModel : PageModel
 
     public PaginatedList<AccountListItemDto>? Accounts { get; set; }
     public List<Role> AvailableRoles { get; set; } = new();
+    public int CurrentAdminId { get; private set; }
 
     [BindProperty(SupportsGet = true)]
     public int PageNumber { get; set; } = 1;
@@ -62,13 +64,16 @@ public class IndexModel : PageModel
         // Load roles for assign role dropdown
         AvailableRoles = await _context.Roles.ToListAsync();
 
+        // Expose current admin ID so the view can hide self-management controls
+        CurrentAdminId = int.TryParse(User.FindFirstValue(ClaimTypes.NameIdentifier), out var aid) ? aid : 0;
+
         return Page();
     }
 
     public async Task<IActionResult> OnPostUpdateStatusAsync(int userId, string newStatus)
     {
         // Get current admin user ID (assuming ClaimTypes.NameIdentifier or equivalent is set)
-        int currentAdminId = 1; // Default fallback or fetch from User identity
+        int currentAdminId = int.TryParse(User.FindFirstValue(ClaimTypes.NameIdentifier), out var id1) ? id1 : 0;
 
         var result = await _mediator.Send(new UpdateAccountStatusCommand(userId, newStatus, currentAdminId));
         if (result.IsSuccess)
@@ -85,7 +90,7 @@ public class IndexModel : PageModel
 
     public async Task<IActionResult> OnPostAssignRoleAsync(int userId, int newRoleId)
     {
-        int currentAdminId = 1; // Default fallback or fetch from User identity
+        int currentAdminId = int.TryParse(User.FindFirstValue(ClaimTypes.NameIdentifier), out var id2) ? id2 : 0;
 
         var result = await _mediator.Send(new AssignRoleCommand(userId, newRoleId, currentAdminId));
         if (result.IsSuccess)

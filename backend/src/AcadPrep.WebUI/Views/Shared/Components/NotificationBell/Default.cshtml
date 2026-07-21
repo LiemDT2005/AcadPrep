@@ -23,17 +23,17 @@
     string RelativeTime(DateTime createdUtc)
     {
         var span = DateTime.UtcNow - createdUtc;
-        if (span.TotalSeconds < 60) return "vừa xong";
-        if (span.TotalMinutes < 60) return $"{(int)span.TotalMinutes} phút trước";
-        if (span.TotalHours < 24) return $"{(int)span.TotalHours} giờ trước";
-        if (span.TotalDays < 7) return $"{(int)span.TotalDays} ngày trước";
+        if (span.TotalSeconds < 60) return "just now";
+        if (span.TotalMinutes < 60) return $"{(int)span.TotalMinutes} minutes ago";
+        if (span.TotalHours < 24) return $"{(int)span.TotalHours} hours ago";
+        if (span.TotalDays < 7) return $"{(int)span.TotalDays} days ago";
         return createdUtc.ToLocalTime().ToString("dd/MM/yyyy");
     }
 }
 
 <div class="relative" id="notif-bell-root">
     @Html.AntiForgeryToken()
-    <button type="button" onclick="toggleNotifBell(event)" title="Thông báo"
+    <button type="button" onclick="toggleNotifBell(event)" title="Notifications"
             class="w-10 h-10 rounded-full transition-colors relative bg-transparent border-0 flex items-center justify-center cursor-pointer @buttonClasses">
         <span class="material-symbols-outlined">notifications</span>
         <span id="notif-bell-badge"
@@ -47,7 +47,7 @@
          class="hidden absolute right-0 mt-2 w-[360px] max-w-[calc(100vw-32px)] rounded-2xl border border-outline-variant bg-surface-container-lowest shadow-2xl z-[60] overflow-hidden text-on-surface">
         <!-- Header -->
         <div class="flex items-center justify-between px-md py-sm border-b border-outline-variant">
-            <p class="text-[14px] font-bold text-on-surface">Thông báo</p>
+            <p class="text-[14px] font-bold text-on-surface">Notifications</p>
             <span id="notif-panel-count"
                   class="inline-flex items-center justify-center min-w-[20px] h-[20px] rounded-full bg-primary/10 px-1.5 text-[11px] font-bold text-primary @(Model.UnreadCount > 0 ? "" : "hidden")">@Model.UnreadCount</span>
         </div>
@@ -58,7 +58,7 @@
             {
                 <div class="flex flex-col items-center justify-center gap-xs px-md py-lg text-center">
                     <span class="material-symbols-outlined text-[32px] text-outline">notifications_off</span>
-                    <p class="text-[13px] text-on-surface-variant">Chưa có thông báo nào</p>
+                    <p class="text-[13px] text-on-surface-variant">No notifications yet</p>
                 </div>
             }
             else
@@ -90,7 +90,7 @@
         <a href="/Notifications"
            class="flex items-center justify-center gap-xs px-md py-sm text-[13px] font-semibold text-primary hover:bg-surface-container-low transition-colors border-t border-outline-variant" style="text-decoration:none;">
             <span class="material-symbols-outlined text-[16px]">list</span>
-            Xem tất cả
+            View all
         </a>
     </div>
 </div>

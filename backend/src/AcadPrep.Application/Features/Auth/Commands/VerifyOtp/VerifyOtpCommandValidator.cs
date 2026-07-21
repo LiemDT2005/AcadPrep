@@ -10,11 +10,11 @@ public sealed class VerifyOtpCommandValidator : AbstractValidator<VerifyOtpComma
     public VerifyOtpCommandValidator()
     {
         RuleFor(x => x.Email)
-            .NotEmpty().WithMessage("Email không được để trống.")
-            .EmailAddress().WithMessage("Địa chỉ email không hợp lệ.");
+            .NotEmpty().WithMessage("Email cannot be empty.")
+            .EmailAddress().WithMessage("Invalid email format.");
 
         RuleFor(x => x.OtpCode)
-            .NotEmpty().WithMessage("Vui lòng nhập mã OTP.")
-            .Matches(@"^\d{6}$").WithMessage("Mã OTP phải gồm đúng 6 chữ số.");
+            .NotEmpty().WithMessage("Please enter the OTP code.")
+            .Matches(@"^\d{6}$").WithMessage("The OTP code must be exactly 6 digits.");
     }
 }

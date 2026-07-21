@@ -43,13 +43,31 @@ public class ForgotPasswordModel(ISender mediator) : PageModel
     /// <summary>Thông báo lỗi hiển thị trên form (null = không hiển thị).</summary>
     public string? ErrorMessage { get; private set; }
 
-    /// <summary>Hiển thị Step 1 — form nhập email.</summary>
-    public IActionResult OnGet()
+    /// <summary>Hiển thị Step 1 (nhập email) hoặc Step 2 (nhập OTP) dựa vào query parameter.</summary>
+    public IActionResult OnGet(int step = 1)
     {
         // Nếu đã đăng nhập → redirect về Home
         if (User.Identity?.IsAuthenticated == true)
         {
             return RedirectToPage("/Index");
+        }
+
+        if (step == 2)
+        {
+            var emailFromSession = TempData.Peek("ForgotPassword_Email") as string;
+
+            if (string.IsNullOrWhiteSpace(emailFromSession))
+            {
+                // Không có session hợp lệ → về Step 1
+                return RedirectToPage(new { step = 1 });
+            }
+
+            Email = emailFromSession;
+            SuccessMessage = TempData.Peek("ForgotPassword_Message") as string;
+            TempData.Keep("ForgotPassword_Email");
+            TempData.Keep("ForgotPassword_Message");
+            Step = 2;
+            return Page();
         }
 
         Step = 1;
@@ -134,29 +152,9 @@ public class ForgotPasswordModel(ISender mediator) : PageModel
         }
 
         // Đặt lại mật khẩu thành công → về trang Login
-        TempData["Login_SuccessMessage"] = "Mật khẩu đã được đặt lại thành công. Vui lòng đăng nhập với mật khẩu mới.";
+        TempData["Login_SuccessMessage"] = "Password reset successfully. Please log in with your new password.";
         return RedirectToPage("/Account/Login");
     }
 
-    /// <summary>
-    /// GET handler cho step=2 — hiển thị form nhập OTP + mật khẩu mới.
-    /// Email được lấy từ TempData (được set ở OnPostSendOtpAsync).
-    /// </summary>
-    public IActionResult OnGetStep2()
-    {
-        var emailFromSession = TempData.Peek("ForgotPassword_Email") as string;
 
-        if (string.IsNullOrWhiteSpace(emailFromSession))
-        {
-            // Không có session hợp lệ → về Step 1
-            return RedirectToPage();
-        }
-
-        Email = emailFromSession;
-        SuccessMessage = TempData.Peek("ForgotPassword_Message") as string;
-        TempData.Keep("ForgotPassword_Email");
-        TempData.Keep("ForgotPassword_Message");
-        Step = 2;
-        return Page();
-    }
 }

@@ -103,7 +103,7 @@ public class LoginModel(ISender mediator) : PageModel
             return RedirectToPage("/Account/Login", new
             {
                 returnUrl,
-                error = "Google login chưa được cấu hình. Vui lòng đăng nhập bằng email/mật khẩu."
+                error = "Google login is not configured. Please log in with email/password."
             });
         }
 

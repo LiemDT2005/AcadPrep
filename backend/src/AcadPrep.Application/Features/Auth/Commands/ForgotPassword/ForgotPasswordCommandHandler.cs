@@ -25,7 +25,7 @@ internal sealed class ForgotPasswordCommandHandler(
     private static readonly TimeSpan OtpTtl = TimeSpan.FromMinutes(5);
 
     private const string AntiEnumerationMessage =
-        "Nếu email của bạn tồn tại trong hệ thống, một mã OTP đã được gửi. Vui lòng kiểm tra hộp thư đến (và thư mục Spam).";
+        "If your email exists in the system, an OTP code has been sent. Please check your inbox (and Spam folder).";
 
     public async Task<Result<ForgotPasswordResultDto>> Handle(
         ForgotPasswordCommand request,

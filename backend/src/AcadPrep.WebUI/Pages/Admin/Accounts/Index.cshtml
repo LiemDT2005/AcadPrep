@@ -132,9 +132,8 @@
                             </td>
                             <!-- Created Date -->
                             <td class="px-md py-sm text-[13px] text-on-surface-variant">@account.CreatedAt.ToString("dd/MM/yyyy")</td>
-                            <!-- Actions -->
                             <td class="px-md py-sm text-right">
-                                @if (!account.IsMasterAdmin)
+                                @if (!account.IsMasterAdmin && account.Id != Model.CurrentAdminId)
                                 {
                                     <div class="flex items-center justify-end gap-xs">
                                         <a href="/Admin/Accounts/Detail?id=@account.Id" title="View Detail"
@@ -159,6 +158,16 @@
                                                 <span class="material-symbols-outlined text-[18px]">lock_open</span>
                                             </button>
                                         }
+                                    </div>
+                                }
+                                else if (account.Id == Model.CurrentAdminId)
+                                {
+                                    <div class="flex items-center justify-end gap-xs">
+                                        <a href="/Admin/Accounts/Detail?id=@account.Id" title="View Detail"
+                                           class="inline-flex items-center justify-center w-8 h-8 rounded-lg hover:bg-surface-container-low text-on-surface-variant hover:text-primary transition-colors">
+                                            <span class="material-symbols-outlined text-[18px]">visibility</span>
+                                        </a>
+                                        <span class="text-[12px] text-outline italic">You</span>
                                     </div>
                                 }
                                 else

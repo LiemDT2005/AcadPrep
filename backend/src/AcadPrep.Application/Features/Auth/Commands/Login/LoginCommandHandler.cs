@@ -28,19 +28,19 @@ internal sealed class LoginCommandHandler(
         // Bước 4a: Không tìm thấy email → thất bại generic (không tiết lộ email tồn tại hay không)
         if (user is null)
         {
-            return Result<LoginResultDto>.Failure("Email hoặc mật khẩu không chính xác.");
+            return Result<LoginResultDto>.Failure("Invalid email or password.");
         }
 
         // Bước 4b: PasswordHash null (tài khoản Google-only) hoặc verify sai → thất bại generic
         if (string.IsNullOrEmpty(user.PasswordHash) || !passwordHasher.Verify(user.PasswordHash, request.Password))
         {
-            return Result<LoginResultDto>.Failure("Email hoặc mật khẩu không chính xác.");
+            return Result<LoginResultDto>.Failure("Invalid email or password.");
         }
 
         // Bước 5: Tìm thấy + verify đúng nhưng tài khoản bị khóa
         if (user.Status == UserStatus.Suspended)
         {
-            return Result<LoginResultDto>.Failure("Tài khoản của bạn đã bị khóa. Vui lòng liên hệ hỗ trợ.");
+            return Result<LoginResultDto>.Failure("Your account has been suspended. Please contact support.");
         }
 
         // Bước 6: Tài khoản chưa xác minh — phát OTP reactivation, trả Success với RequiresVerification = true
@@ -56,7 +56,7 @@ internal sealed class LoginCommandHandler(
             if (!issued)
             {
                 return Result<LoginResultDto>.Failure(
-                    "Bạn đã nhập sai OTP quá số lần cho phép. Vui lòng thử lại sau 15 phút.");
+                    "You have entered the wrong OTP too many times. Please try again after 15 minutes.");
             }
 
             return Result<LoginResultDto>.Success(new LoginResultDto(

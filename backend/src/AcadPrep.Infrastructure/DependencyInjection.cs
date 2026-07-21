@@ -69,15 +69,8 @@ public static class DependencyInjection
         // Register Cloudinary storage service
         services.AddScoped<IFileStorageService, CloudinaryStorageService>();
 
-        // Register Email service: MockEmailService ở Development, SmtpEmailService ở Production
-        if (environment.IsDevelopment())
-        {
-            services.AddScoped<IEmailService, MockEmailService>();
-        }
-        else
-        {
-            services.AddScoped<IEmailService, SmtpEmailService>();
-        }
+        // Register Email service: Luôn dùng SmtpEmailService kể cả ở Development để test gửi mail thật
+        services.AddScoped<IEmailService, SmtpEmailService>();
 
         // Bind SmtpSettings từ configuration (cần thiết cho SmtpEmailService)
         services.Configure<SmtpSettings>(configuration.GetSection("Smtp"));
