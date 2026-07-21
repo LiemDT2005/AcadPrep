@@ -116,6 +116,7 @@ internal sealed class UpdateListeningQuestionCommandHandler(IAppDbContext contex
         question.QuestionText = dto.QuestionText?.Trim();
         question.ImageUrl = dto.ImageUrl?.Trim();
         question.CorrectOption = correctOptionEnum;
+        question.Explanation = string.IsNullOrWhiteSpace(dto.Explanation) ? null : dto.Explanation.Trim();
         question.AudioUrl = !dto.UseExamFullAudio ? dto.AudioUrl?.Trim() : null;
         question.AudioStartSecond = dto.UseExamFullAudio ? dto.AudioStartSecond : null;
         question.AudioEndSecond = dto.UseExamFullAudio ? dto.AudioEndSecond : null;

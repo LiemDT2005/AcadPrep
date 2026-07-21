@@ -5,9 +5,19 @@
 }
 
 <div class="max-w-5xl mx-auto py-2xl px-margin-mobile md:px-margin-desktop">
-    <div class="mb-xl">
-        <h2 class="font-headline-md text-headline-md text-on-surface mb-sm">Tiến độ điểm số</h2>
-        <p class="font-body-md text-body-md text-on-surface-variant">Theo dõi sự cải thiện qua từng bài thi.</p>
+    <div class="mb-xl flex flex-col md:flex-row md:items-end md:justify-between gap-md">
+        <div>
+            <h2 class="font-headline-md text-headline-md text-on-surface mb-sm">Tiến độ điểm số</h2>
+            <p class="font-body-md text-body-md text-on-surface-variant">Theo dõi sự cải thiện qua từng bài thi.</p>
+        </div>
+        <div class="flex flex-wrap gap-sm">
+            <a href="/Performance/ExamAttempts" class="inline-flex items-center gap-xs px-md py-xs rounded-lg border border-outline-variant text-label-md font-medium hover:bg-surface-container">
+                <span class="material-symbols-outlined text-[16px]">list_alt</span> All attempts
+            </a>
+            <a href="/Performance/IncorrectAnswers" class="inline-flex items-center gap-xs px-md py-xs rounded-lg border border-outline-variant text-label-md font-medium hover:bg-surface-container">
+                <span class="material-symbols-outlined text-[16px]">error</span> Incorrect answers
+            </a>
+        </div>
     </div>
 
     @if (!Model.ProgressData.HasSufficientData)

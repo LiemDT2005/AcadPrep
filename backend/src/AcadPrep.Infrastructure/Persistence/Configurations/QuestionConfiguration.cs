@@ -50,6 +50,9 @@ public class QuestionConfiguration : IEntityTypeConfiguration<Question>
             .HasConversion<string>()
             .IsRequired();
 
+        builder.Property(x => x.Explanation)
+            .IsRequired(false);
+
         builder.Property(x => x.ExamId)
             .IsRequired();
 

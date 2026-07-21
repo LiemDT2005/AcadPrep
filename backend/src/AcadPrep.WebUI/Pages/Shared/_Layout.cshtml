@@ -86,7 +86,7 @@
     @if (User.Identity?.IsAuthenticated == true)
     {
         <!-- Authenticated Header (Deep Indigo) -->
-        <header class="sticky top-0 z-50 w-full bg-primary text-on-primary shadow-lg font-[Inter] mb-4">
+        <header class="sticky top-0 z-50 w-full bg-primary text-on-primary shadow-lg font-[Inter] @(ViewData["FullWidthContent"] as bool? == true ? "mb-0" : "mb-4")">
             <div class="max-w-7xl mx-auto flex justify-between items-center h-16 px-margin-mobile md:px-margin-desktop">
                 <div class="flex items-center gap-xl">
                     <a href="/Performance/Dashboard" class="flex items-center gap-sm group text-white hover:opacity-90" style="text-decoration:none;">
@@ -156,11 +156,15 @@
         </header>
     }
     
-    <main role="main" class="flex-grow w-full max-w-7xl mx-auto px-margin-mobile md:px-margin-desktop py-md md:py-xl font-[Inter]">
+    <main role="main" class="@(ViewData["FullWidthContent"] as bool? == true
+        ? "flex-grow w-full font-[Inter]"
+        : "flex-grow w-full max-w-7xl mx-auto px-margin-mobile md:px-margin-desktop py-md md:py-xl font-[Inter]")">
         @RenderBody()
     </main>
 
     <!-- Footer -->
+    @if (ViewData["FullWidthContent"] as bool? != true)
+    {
     <footer class="bg-surface-container border-t border-outline-variant pt-2xl pb-xl font-[Inter]">
         <div class="max-w-7xl mx-auto px-margin-mobile md:px-margin-desktop grid grid-cols-2 md:grid-cols-4 gap-2xl">
             <div class="col-span-2 md:col-span-1 space-y-md">
@@ -211,6 +215,7 @@
         <span class="material-symbols-outlined text-[18px]">support_agent</span>
         <span class="text-label-sm font-bold uppercase tracking-wide">24/7 technical support (Hotline: 1900 xxxx)</span>
     </div>
+    }
 
     <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mdb-ui-kit/7.1.0/mdb.umd.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>

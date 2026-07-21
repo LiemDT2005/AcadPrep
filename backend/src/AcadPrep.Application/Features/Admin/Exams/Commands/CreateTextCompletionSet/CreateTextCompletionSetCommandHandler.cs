@@ -101,6 +101,7 @@ internal sealed class CreateTextCompletionSetCommandHandler(IAppDbContext contex
             ExamId = request.ExamId,
             Content = dto.Passage.Content?.Trim(),
             ImageUrl = dto.Passage.ImageUrl?.Trim(),
+            Explanation = string.IsNullOrWhiteSpace(dto.Passage.Explanation) ? null : dto.Passage.Explanation.Trim(),
             DisplayOrder = nextDisplayOrder,
             QuestionGroupId = null // Part 6 has no QuestionGroup
         };

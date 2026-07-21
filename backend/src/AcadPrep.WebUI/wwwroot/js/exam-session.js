@@ -64,6 +64,8 @@
     const sidebarEl = document.getElementById('question-sidebar');
     const sidebarBackdrop = document.getElementById('sidebar-backdrop');
     const navHintEl = document.getElementById('nav-hint');
+    const selectionVocabButton = document.getElementById('selection-vocab-button');
+    const vocabToast = document.getElementById('vocab-toast');
 
     let segmentStopHandler = null;
     let endedHandler = null;
@@ -75,6 +77,9 @@
     /** @type {{ start: number, end: number|null, duration: number|null }|null} */
     let activeSegment = null;
     let practiceSegmentReady = false;
+    let selectedVocabWord = '';
+    let selectionHideTimer = null;
+    let toastHideTimer = null;
 
     if (!questions.length) return;
 
@@ -207,6 +212,143 @@
             .replace(/>/g, '&gt;')
             .replace(/"/g, '&quot;')
             .replace(/'/g, '&#39;');
+    }
+
+    function normalizeSelectedWord(value) {
+        const parts = String(value || '')
+            .match(/[A-Za-z]+(?:['’-][A-Za-z]+)?/g);
+
+        return (parts || []).slice(0, 3).join(' ').trim();
+    }
+
+    function clearTextSelection() {
+        const selection = window.getSelection?.();
+        if (selection && selection.rangeCount > 0) {
+            selection.removeAllRanges();
+        }
+    }
+
+    function hideSelectionButton() {
+        if (selectionHideTimer) {
+            clearTimeout(selectionHideTimer);
+            selectionHideTimer = null;
+        }
+        selectionVocabButton?.classList.add('hidden');
+        selectionVocabButton?.classList.remove('flex');
+        selectedVocabWord = '';
+    }
+
+    function scheduleSelectionButtonHide() {
+        if (selectionHideTimer) {
+            clearTimeout(selectionHideTimer);
+        }
+        selectionHideTimer = setTimeout(() => {
+            hideSelectionButton();
+        }, 120);
+    }
+
+    function showToast(message, isError = false) {
+        if (!vocabToast) return;
+        if (toastHideTimer) {
+            clearTimeout(toastHideTimer);
+        }
+        vocabToast.textContent = message;
+        vocabToast.classList.remove('hidden', 'bg-surface-container-high', 'text-on-surface', 'bg-error', 'text-on-primary');
+        vocabToast.classList.add(isError ? 'bg-error' : 'bg-surface-container-high');
+        vocabToast.classList.add(isError ? 'text-on-primary' : 'text-on-surface');
+        toastHideTimer = setTimeout(() => {
+            vocabToast.classList.add('hidden');
+        }, 2800);
+    }
+
+    function getSelectionAnchorRect() {
+        const selection = window.getSelection?.();
+        if (!selection || selection.rangeCount === 0 || selection.isCollapsed) {
+            return null;
+        }
+
+        const range = selection.getRangeAt(0);
+        const rect = range.getBoundingClientRect();
+        if (rect.width > 0 || rect.height > 0) {
+            return rect;
+        }
+
+        const rects = range.getClientRects();
+        return rects.length ? rects[0] : null;
+    }
+
+    function isSelectionInsideAllowedArea(selection) {
+        if (!selection || selection.rangeCount === 0) return false;
+        const range = selection.getRangeAt(0);
+        const anchor = range.commonAncestorContainer;
+        const target = anchor.nodeType === Node.ELEMENT_NODE ? anchor : anchor.parentElement;
+        if (!target) return false;
+
+        return !!target.closest('#question-text');
+    }
+
+    function updateSelectionButton() {
+        if (mode !== 'practice' || !selectionVocabButton) return;
+
+        const selection = window.getSelection?.();
+        if (!selection || selection.isCollapsed || !isSelectionInsideAllowedArea(selection)) {
+            hideSelectionButton();
+            return;
+        }
+
+        const word = normalizeSelectedWord(selection.toString());
+        if (!word) {
+            hideSelectionButton();
+            return;
+        }
+
+        const rect = getSelectionAnchorRect();
+        if (!rect) {
+            hideSelectionButton();
+            return;
+        }
+
+        selectedVocabWord = word;
+        selectionVocabButton.classList.remove('hidden');
+        selectionVocabButton.classList.add('flex');
+        selectionVocabButton.style.left = `${Math.min(window.innerWidth - 220, Math.max(16, rect.left + window.scrollX))}px`;
+        selectionVocabButton.style.top = `${Math.max(16, rect.top + window.scrollY - 52)}px`;
+    }
+
+    async function addSelectedVocabulary() {
+        const word = normalizeSelectedWord(selectedVocabWord || window.getSelection?.().toString());
+        if (!word) {
+            showToast('Please select a valid word first.', true);
+            return;
+        }
+
+        hideSelectionButton();
+        showToast(`Saving "${word}"...`);
+
+        try {
+            const res = await fetch('?handler=AddVocabulary', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ keyword: word })
+            });
+            const result = await res.json();
+
+            if (!result.success) {
+                showToast(result.error || 'Unable to save this word.', true);
+                return;
+            }
+
+            if (result.status === 'already_saved') {
+                showToast(`"${result.word || word}" is already in your notebook.`);
+            } else {
+                const meaning = result.meaning ? ` — ${result.meaning}` : '';
+                showToast(`Saved "${result.word || word}"${meaning}`);
+            }
+            clearTextSelection();
+        } catch (error) {
+            console.error(error);
+            showToast('Unable to save this word right now.', true);
+        }
     }
 
     function renderPassagesHtml(passages) {
@@ -761,6 +903,8 @@
     }
 
     function renderQuestion() {
+        hideSelectionButton();
+        clearTextSelection();
         const unit = getCurrentUnit();
         currentIndex = unit.start;
         const head = questions[unit.start];
@@ -1221,6 +1365,37 @@
             const exitBtn = document.getElementById('btn-exit');
             window.location.href = exitBtn?.dataset?.exitUrl || `/Exams/Detail/${config.examId}`;
         }
+    });
+
+    selectionVocabButton?.addEventListener('mousedown', (e) => e.preventDefault());
+    selectionVocabButton?.addEventListener('click', addSelectedVocabulary);
+    questionTextEl?.addEventListener('mouseup', () => setTimeout(updateSelectionButton, 0));
+    questionTextEl?.addEventListener('touchend', () => setTimeout(updateSelectionButton, 0));
+    questionTextEl?.addEventListener('keyup', () => setTimeout(updateSelectionButton, 0));
+    selectionVocabButton?.addEventListener('blur', scheduleSelectionButtonHide);
+    selectionVocabButton?.addEventListener('mouseenter', () => {
+        if (selectionHideTimer) {
+            clearTimeout(selectionHideTimer);
+            selectionHideTimer = null;
+        }
+    });
+    selectionVocabButton?.addEventListener('mouseleave', scheduleSelectionButtonHide);
+
+    document.addEventListener('selectionchange', () => {
+        if (mode !== 'practice') return;
+        setTimeout(updateSelectionButton, 0);
+    });
+    document.addEventListener('click', (e) => {
+        if (!(e.target instanceof Element)) {
+            hideSelectionButton();
+            return;
+        }
+
+        if (e.target.closest('#selection-vocab-button') || e.target.closest('#question-text')) {
+            return;
+        }
+
+        hideSelectionButton();
     });
 
     window.addEventListener('beforeunload', (e) => {

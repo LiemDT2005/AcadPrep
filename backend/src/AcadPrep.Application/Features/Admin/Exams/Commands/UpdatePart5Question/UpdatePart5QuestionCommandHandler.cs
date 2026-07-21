@@ -72,6 +72,7 @@ internal sealed class UpdatePart5QuestionCommandHandler(IAppDbContext context)
         question.CorrectOption = correctOptionEnum;
         question.QuestionType = dto.QuestionType?.Trim();
         question.TopicTag = dto.TopicTag?.Trim();
+        question.Explanation = string.IsNullOrWhiteSpace(dto.Explanation) ? null : dto.Explanation.Trim();
 
         context.QuestionOptions.RemoveRange(question.QuestionOptions);
         question.QuestionOptions.Clear();

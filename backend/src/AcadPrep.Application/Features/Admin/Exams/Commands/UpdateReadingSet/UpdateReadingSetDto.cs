@@ -6,6 +6,7 @@ namespace AcadPrep.Application.Features.Admin.Exams.Commands.UpdateReadingSet;
 public class UpdateReadingSetDto
 {
     public required string Name { get; set; }
+    public string? Explanation { get; set; }
     public List<UpdateReadingPassageDto> Passages { get; set; } = new();
     public List<UpdateReadingQuestionDto> Questions { get; set; } = new();
 }

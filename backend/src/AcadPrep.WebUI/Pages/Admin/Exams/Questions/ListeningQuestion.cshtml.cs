@@ -82,6 +82,7 @@ public class ListeningQuestionModel(ISender mediator, IAppDbContext context, IFi
 
             Form.QuestionNumber = question.QuestionNumber;
             Form.QuestionText = question.QuestionText;
+            Form.Explanation = question.Explanation ?? string.Empty;
             Form.ImageUrl = question.ImageUrl;
             Form.AudioUrl = question.AudioUrl;
             Form.AudioStartSecond = question.AudioStartSecond;
@@ -225,6 +226,7 @@ public class ListeningQuestionModel(ISender mediator, IAppDbContext context, IFi
         {
             QuestionNumber = Form.QuestionNumber,
             QuestionText = Form.QuestionText,
+            Explanation = Form.Explanation,
             ImageUrl = Form.ImageUrl,
             CorrectOption = Form.CorrectOption,
             AudioUrl = Form.AudioUrl,
@@ -313,6 +315,8 @@ public class ListeningQuestionFormModel
     public int Part { get; set; }
     public int QuestionNumber { get; set; }
     public string? QuestionText { get; set; }
+    [System.ComponentModel.DataAnnotations.Required(ErrorMessage = "Explanation is required.")]
+    public string Explanation { get; set; } = string.Empty;
     public string CorrectOption { get; set; } = "A";
     public string OptionA { get; set; } = string.Empty;
     public string OptionB { get; set; } = string.Empty;

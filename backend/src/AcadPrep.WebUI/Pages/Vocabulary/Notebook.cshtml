@@ -75,10 +75,14 @@
                                         @item.NextReviewDate.ToString("MMM dd, yyyy")
                                     </span>
                                 </td>
-                                <td class="p-md text-right">
-                                    <a href="/Vocabulary/VocabularyDetail?vocabularyId=@item.VocabularyId" class="text-primary hover:text-primary-container hover:bg-primary/10 p-xs rounded transition-colors inline-block mr-xs" title="View Context">
+                                <td class="p-md text-right flex items-center justify-end gap-xs">
+                                    <a href="/Vocabulary/VocabularyDetail?vocabularyId=@item.VocabularyId" class="text-primary hover:text-primary-container hover:bg-primary/10 p-xs rounded transition-colors inline-block" title="View Context">
                                         <span class="material-symbols-outlined text-[20px]">info</span>
                                     </a>
+                                    <button type="button" class="text-primary hover:bg-primary/10 p-xs rounded transition-colors" title="Edit"
+                                        onclick="openEditModal(@item.VocabularyId, '@item.Word.Replace("'", "\\'")','@(item.Phonetic?.Replace("'", "\\'") ?? "")','@item.Meaning.Replace("'", "\\'")','@(item.Example?.Replace("'", "\\'") ?? "")')">
+                                        <span class="material-symbols-outlined text-[20px]">edit</span>
+                                    </button>
                                     <form method="post" asp-page-handler="Delete" onsubmit="return confirm('Are you sure you want to remove this word?');" class="inline">
                                         <input type="hidden" name="vocabularyId" value="@item.VocabularyId" />
                                         <input type="hidden" name="PageNumber" value="@Model.PageNumber" />
@@ -166,3 +170,63 @@
         </div>
     </div>
 </div>
+
+<!-- Edit Word Modal -->
+<div id="editWordModal" class="hidden fixed inset-0 z-50 flex items-center justify-center p-4">
+    <div class="absolute inset-0 bg-on-surface/40 backdrop-blur-sm" onclick="document.getElementById('editWordModal').classList.add('hidden')"></div>
+    <div class="bg-surface-container-lowest w-full max-w-md rounded-2xl shadow-xl relative z-10 overflow-hidden flex flex-col max-h-[90vh]">
+        <div class="px-lg py-md border-b border-outline-variant flex items-center justify-between bg-surface-container-low/50 shrink-0">
+            <h3 class="text-[18px] font-semibold text-on-surface flex items-center gap-sm">
+                <span class="material-symbols-outlined text-primary">edit</span>
+                Edit Word
+            </h3>
+            <button type="button" onclick="document.getElementById('editWordModal').classList.add('hidden')" class="text-on-surface-variant hover:text-on-surface hover:bg-surface-variant p-xs rounded-full transition-colors">
+                <span class="material-symbols-outlined">close</span>
+            </button>
+        </div>
+
+        <div class="p-lg overflow-y-auto flex-1">
+            <form method="post" asp-page-handler="Edit" class="flex flex-col gap-md">
+                <input type="hidden" id="edit-vocab-id" name="EditInput.VocabularyId" />
+                <input type="hidden" name="PageNumber" value="@Model.PageNumber" />
+                <input type="hidden" name="SearchTerm" value="@Model.SearchTerm" />
+
+                <div class="flex flex-col gap-xs">
+                    <label class="text-label-md font-semibold text-on-surface-variant">Word <span class="text-error">*</span></label>
+                    <input id="edit-word" name="EditInput.Word" class="w-full px-md py-sm rounded-lg bg-surface border border-outline-variant text-on-surface focus:border-primary focus:ring-1 focus:ring-primary outline-none transition-all" required />
+                </div>
+
+                <div class="flex flex-col gap-xs">
+                    <label class="text-label-md font-semibold text-on-surface-variant">Phonetic</label>
+                    <input id="edit-phonetic" name="EditInput.Phonetic" class="w-full px-md py-sm rounded-lg bg-surface border border-outline-variant text-on-surface focus:border-primary focus:ring-1 focus:ring-primary outline-none transition-all" />
+                </div>
+
+                <div class="flex flex-col gap-xs">
+                    <label class="text-label-md font-semibold text-on-surface-variant">Meaning <span class="text-error">*</span></label>
+                    <textarea id="edit-meaning" name="EditInput.Meaning" class="w-full px-md py-sm rounded-lg bg-surface border border-outline-variant text-on-surface focus:border-primary focus:ring-1 focus:ring-primary outline-none transition-all" rows="2" required></textarea>
+                </div>
+
+                <div class="flex flex-col gap-xs">
+                    <label class="text-label-md font-semibold text-on-surface-variant">Example Sentence</label>
+                    <textarea id="edit-example" name="EditInput.Example" class="w-full px-md py-sm rounded-lg bg-surface border border-outline-variant text-on-surface focus:border-primary focus:ring-1 focus:ring-primary outline-none transition-all" rows="2"></textarea>
+                </div>
+
+                <div class="flex justify-end gap-sm mt-sm pt-md border-t border-outline-variant">
+                    <button type="button" onclick="document.getElementById('editWordModal').classList.add('hidden')" class="px-md py-sm rounded-lg font-medium text-[14px] text-on-surface-variant hover:bg-surface-variant transition-colors">Cancel</button>
+                    <button type="submit" class="px-md py-sm rounded-lg font-medium text-[14px] bg-primary text-on-primary hover:bg-primary/90 transition-all shadow-sm">Update Word</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+    function openEditModal(vocabId, word, phonetic, meaning, example) {
+        document.getElementById('edit-vocab-id').value = vocabId;
+        document.getElementById('edit-word').value = word;
+        document.getElementById('edit-phonetic').value = phonetic;
+        document.getElementById('edit-meaning').value = meaning;
+        document.getElementById('edit-example').value = example;
+        document.getElementById('editWordModal').classList.remove('hidden');
+    }
+</script>

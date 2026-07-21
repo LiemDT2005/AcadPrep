@@ -24,6 +24,9 @@ public class PassageConfiguration : IEntityTypeConfiguration<Passage>
             .IsUnicode(false)
             .IsRequired(false);
 
+        builder.Property(x => x.Explanation)
+            .IsRequired(false);
+
         builder.Property(x => x.DisplayOrder)
             .IsRequired()
             .HasDefaultValue(1);

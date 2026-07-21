@@ -124,6 +124,7 @@ internal sealed class UpdateListeningGroupCommandHandler(IAppDbContext context)
         }
 
         group.Name = dto.Name.Trim();
+        group.Explanation = string.IsNullOrWhiteSpace(dto.Explanation) ? null : dto.Explanation.Trim();
         group.ImageUrl = dto.Media.ImageUrl?.Trim();
         group.AudioUrl = !dto.Media.UseExamFullAudio ? dto.Media.AudioUrl?.Trim() : null;
         group.AudioStartSecond = dto.Media.UseExamFullAudio ? dto.Media.AudioStartSecond : null;

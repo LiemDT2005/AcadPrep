@@ -114,6 +114,7 @@ internal sealed class CreateListeningGroupCommandHandler(IAppDbContext context)
         {
             ExamId = request.ExamId,
             Name = dto.Name.Trim(),
+            Explanation = string.IsNullOrWhiteSpace(dto.Explanation) ? null : dto.Explanation.Trim(),
             ImageUrl = dto.Media.ImageUrl?.Trim(),
             AudioUrl = !dto.Media.UseExamFullAudio ? dto.Media.AudioUrl?.Trim() : null,
             AudioStartSecond = dto.Media.UseExamFullAudio ? dto.Media.AudioStartSecond : null,

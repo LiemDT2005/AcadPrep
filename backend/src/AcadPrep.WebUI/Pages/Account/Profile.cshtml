@@ -84,6 +84,10 @@
                    class="whitespace-nowrap border-b-2 px-5 py-3 text-sm font-semibold transition @(Model.ActiveTab == "overview" ? "border-primary text-primary" : "border-transparent text-on-surface-variant hover:text-primary")">
                     Overview
                 </a>
+                <a href="?tab=attempts"
+                   class="whitespace-nowrap border-b-2 px-5 py-3 text-sm font-semibold transition @(Model.ActiveTab == "attempts" ? "border-primary text-primary" : "border-transparent text-on-surface-variant hover:text-primary")">
+                    Exam Attempts
+                </a>
                 <a href="?tab=edit"
                    class="whitespace-nowrap border-b-2 px-5 py-3 text-sm font-semibold transition @(Model.ActiveTab == "edit" ? "border-primary text-primary" : "border-transparent text-on-surface-variant hover:text-primary")">
                     Edit profile
@@ -145,28 +149,108 @@
                         </article>
 
                         <article class="rounded-xl border border-outline-variant bg-surface-container-lowest p-6 shadow-sm">
-                            <div class="flex items-center gap-3">
-                                <span class="material-symbols-outlined text-primary">lock</span>
-                                <h3 class="text-lg font-bold text-on-surface">Password</h3>
+                            <div class="flex items-center justify-between gap-3">
+                                <div class="flex items-center gap-3">
+                                    <span class="material-symbols-outlined text-primary">assignment</span>
+                                    <h3 class="text-lg font-bold text-on-surface">Exam attempts</h3>
+                                </div>
+                                <a href="?tab=attempts" class="text-sm font-semibold text-primary hover:underline">View all</a>
                             </div>
-                            @if (Model.CanChangePassword)
+                            @if (!Model.ExamAttempts.Attempts.Any())
                             {
                                 <p class="mt-4 text-sm leading-6 text-on-surface-variant">
-                                    Keep your account secure by using a unique password that you do not use on other services.
+                                    No submitted full tests yet. Complete an exam to see your scores here.
                                 </p>
-                                <a href="?tab=password" class="mt-6 inline-flex items-center gap-2 rounded-lg border border-primary px-4 py-2.5 text-sm font-semibold text-primary transition hover:bg-primary-fixed">
-                                    <span class="material-symbols-outlined text-[18px]">password</span>
-                                    Change password
+                                <a href="/Exams" class="mt-6 inline-flex items-center gap-2 rounded-lg border border-primary px-4 py-2.5 text-sm font-semibold text-primary transition hover:bg-primary-fixed">
+                                    <span class="material-symbols-outlined text-[18px]">quiz</span>
+                                    Browse exams
                                 </a>
                             }
                             else
                             {
-                                <p class="mt-4 text-sm leading-6 text-on-surface-variant">
-                                    This account signs in with Google. Password changes are not available for this account.
-                                </p>
+                                <ul class="mt-4 space-y-3">
+                                    @foreach (var attempt in Model.ExamAttempts.Attempts.Take(3))
+                                    {
+                                        <li class="flex items-center justify-between gap-3 rounded-lg border border-outline-variant/60 px-3 py-2.5">
+                                            <div class="min-w-0">
+                                                <p class="truncate text-sm font-semibold text-on-surface">@attempt.ExamTitle</p>
+                                                <p class="text-xs text-on-surface-variant">@((attempt.CompletedAt ?? attempt.StartedAt).ToLocalTime().ToString("dd/MM/yyyy HH:mm"))</p>
+                                            </div>
+                                            <div class="shrink-0 text-right">
+                                                <p class="text-sm font-bold text-primary">@attempt.TotalScore</p>
+                                                <a href="/Exams/Review?attemptId=@attempt.AttemptId" class="text-xs font-semibold text-primary hover:underline">Review</a>
+                                            </div>
+                                        </li>
+                                    }
+                                </ul>
                             }
                         </article>
                     </div>
+                </div>
+            }
+            else if (Model.ActiveTab == "attempts")
+            {
+                <div class="space-y-5">
+                    <div class="flex flex-wrap items-end justify-between gap-3">
+                        <div>
+                            <h2 class="text-xl font-bold text-on-surface">Exam attempts</h2>
+                            <p class="mt-1 text-sm text-on-surface-variant">Submitted full-test attempts with listening, reading, and total scores.</p>
+                        </div>
+                        <a href="/Performance/ExamAttempts" class="text-sm font-semibold text-primary hover:underline">Open full page</a>
+                    </div>
+
+                    @if (!Model.ExamAttempts.Attempts.Any())
+                    {
+                        <div class="rounded-xl border border-outline-variant bg-surface-container-lowest p-10 text-center shadow-sm">
+                            <span class="material-symbols-outlined text-[48px] text-on-surface-variant mb-3">assignment</span>
+                            <h3 class="text-lg font-bold text-on-surface mb-2">No attempts yet</h3>
+                            <p class="text-sm text-on-surface-variant mb-5">Submit a full test to see your attempt history here.</p>
+                            <a href="/Exams" class="inline-flex items-center gap-2 rounded-lg bg-primary px-4 py-2.5 text-sm font-semibold text-white transition hover:opacity-90">
+                                <span class="material-symbols-outlined text-[18px]">quiz</span>
+                                Take a test
+                            </a>
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="rounded-xl border border-outline-variant bg-surface-container-lowest shadow-sm overflow-hidden">
+                            <div class="overflow-x-auto">
+                                <table class="w-full text-left border-collapse">
+                                    <thead class="bg-surface-container-high border-b border-outline-variant text-on-surface-variant text-xs font-semibold uppercase tracking-wide">
+                                        <tr>
+                                            <th class="p-4">Exam</th>
+                                            <th class="p-4">Date</th>
+                                            <th class="p-4 text-right">Listening</th>
+                                            <th class="p-4 text-right">Reading</th>
+                                            <th class="p-4 text-right">Total</th>
+                                            <th class="p-4 text-right">Action</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody class="divide-y divide-outline-variant text-sm">
+                                        @foreach (var attempt in Model.ExamAttempts.Attempts)
+                                        {
+                                            <tr class="hover:bg-surface-container-low transition-colors">
+                                                <td class="p-4">
+                                                    <a href="/Exams/Detail/@attempt.ExamId" class="font-semibold text-on-surface hover:text-primary">@attempt.ExamTitle</a>
+                                                </td>
+                                                <td class="p-4 text-on-surface-variant">
+                                                    @((attempt.CompletedAt ?? attempt.StartedAt).ToLocalTime().ToString("dd/MM/yyyy HH:mm"))
+                                                </td>
+                                                <td class="p-4 text-right">@attempt.ListeningScore</td>
+                                                <td class="p-4 text-right">@attempt.ReadingScore</td>
+                                                <td class="p-4 text-right font-bold text-primary">@attempt.TotalScore</td>
+                                                <td class="p-4 text-right">
+                                                    <a href="/Exams/Review?attemptId=@attempt.AttemptId" class="inline-flex items-center gap-1 font-bold text-primary hover:underline">
+                                                        Review <span class="material-symbols-outlined text-[14px]">arrow_forward</span>
+                                                    </a>
+                                                </td>
+                                            </tr>
+                                        }
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    }
                 </div>
             }
             else if (Model.ActiveTab == "edit")

@@ -1,0 +1,121 @@
+@page
+@model AcadPrep.WebUI.Pages.Performance.IncorrectAnswersModel
+@{
+    ViewData["Title"] = "Incorrect Answers";
+}
+
+<div class="max-w-4xl mx-auto py-2xl px-margin-mobile md:px-margin-desktop">
+    <div class="mb-xl">
+        <h2 class="font-headline-md text-headline-md text-on-surface mb-sm">Incorrect answers</h2>
+        <p class="font-body-md text-body-md text-on-surface-variant">Questions you got wrong across your exam history, grouped by part for focused review.</p>
+    </div>
+
+    <div class="flex flex-wrap items-center justify-between gap-sm mb-lg">
+        <p class="text-label-md text-on-surface-variant">
+            <span class="font-bold text-error">@Model.Data.TotalIncorrect</span> unique incorrect question@(Model.Data.TotalIncorrect == 1 ? "" : "s")
+        </p>
+        <a href="/Performance/StudyHistory" class="inline-flex items-center gap-xs px-md py-xs rounded-lg border border-outline-variant text-label-md font-medium hover:bg-surface-container">
+            <span class="material-symbols-outlined text-[16px]">history</span> Study history
+        </a>
+    </div>
+
+    @if (!Model.Data.Groups.Any())
+    {
+        <div class="bg-secondary-container/30 border border-secondary-container rounded-xl p-xl text-center">
+            <span class="material-symbols-outlined text-[48px] text-secondary mb-md">sentiment_satisfied</span>
+            <h3 class="font-headline-sm text-headline-sm text-on-surface mb-sm">No incorrect answers yet</h3>
+            <p class="font-body-md text-body-md text-on-surface-variant mb-lg">Keep practicing — wrong answers will appear here for review.</p>
+            <a href="/Exams" class="inline-flex items-center gap-sm bg-primary text-on-primary px-lg py-sm rounded-lg font-label-md hover:bg-primary/90">
+                <span class="material-symbols-outlined text-[18px]">quiz</span> Practice now
+            </a>
+        </div>
+    }
+    else
+    {
+        <div class="space-y-xl">
+            @foreach (var group in Model.Data.Groups)
+            {
+                <section>
+                    <div class="flex items-center justify-between mb-md">
+                        <h3 class="font-headline-sm text-on-surface font-bold">@group.GroupLabel</h3>
+                        <span class="inline-flex items-center px-sm py-xs rounded-full bg-error-container text-on-error-container font-label-sm text-[12px]">
+                            @group.Items.Count question@(group.Items.Count == 1 ? "" : "s")
+                        </span>
+                    </div>
+
+                    <div class="space-y-md">
+                        @foreach (var item in group.Items)
+                        {
+                            <article class="bg-surface-container-lowest border border-error/30 rounded-2xl overflow-hidden shadow-sm">
+                                <div class="flex flex-wrap items-center justify-between gap-sm px-lg py-md bg-error-container/20 border-b border-error/20">
+                                    <div class="flex items-center gap-sm flex-wrap">
+                                        <span class="inline-flex items-center justify-center w-8 h-8 rounded-lg bg-surface-container-lowest text-label-md font-bold">Q@item.QuestionNumber</span>
+                                        <span class="text-label-sm text-on-surface-variant">@item.ExamTitle</span>
+                                        @if (!string.IsNullOrEmpty(item.TopicTag))
+                                        {
+                                            <span class="text-[11px] px-2 py-0.5 rounded-full bg-surface-container-high text-on-surface-variant">@item.TopicTag</span>
+                                        }
+                                    </div>
+                                    <a href="/Exams/Review?attemptId=@item.AttemptId&filter=incorrect" class="text-primary text-label-md font-bold hover:underline">
+                                        Review in exam view
+                                    </a>
+                                </div>
+
+                                <div class="p-lg space-y-md">
+                                    @if (!string.IsNullOrEmpty(item.QuestionText))
+                                    {
+                                        <p class="font-body-md text-on-surface font-medium">@item.QuestionText</p>
+                                    }
+
+                                    <div class="space-y-sm">
+                                        @foreach (var opt in item.Options)
+                                        {
+                                            var isSelected = item.SelectedOption == opt.Letter;
+                                            var isCorrect = item.CorrectOption == opt.Letter;
+                                            var optClass = "border-outline-variant/40";
+                                            if (isCorrect) { optClass = "border-tertiary bg-tertiary-container/25"; }
+                                            else if (isSelected) { optClass = "border-error bg-error-container/25"; }
+
+                                            <div class="flex items-start gap-sm p-md rounded-xl border @optClass">
+                                                <span class="w-7 h-7 rounded-full border flex items-center justify-center text-label-sm font-bold shrink-0">@opt.Letter</span>
+                                                <div class="flex-1">
+                                                    <p class="font-body-sm">@opt.Text</p>
+                                                    <div class="flex gap-sm mt-xs">
+                                                        @if (isSelected)
+                                                        {
+                                                            <span class="text-[11px] font-bold text-error">Your answer</span>
+                                                        }
+                                                        @if (isCorrect)
+                                                        {
+                                                            <span class="text-[11px] font-bold text-tertiary">Correct answer</span>
+                                                        }
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        }
+                                    </div>
+
+                                    @if (!string.IsNullOrWhiteSpace(item.Explanation))
+                                    {
+                                        <div class="bg-primary/5 border border-primary/20 rounded-xl p-md">
+                                            <p class="text-label-sm font-bold text-primary mb-xs flex items-center gap-xs">
+                                                <span class="material-symbols-outlined text-[16px]">lightbulb</span>
+                                                Explanation
+                                            </p>
+                                            <p class="font-body-sm text-on-surface whitespace-pre-wrap">@item.Explanation</p>
+                                        </div>
+                                    }
+
+                                    @if (item.AttemptedAt.HasValue)
+                                    {
+                                        <p class="text-label-sm text-on-surface-variant">Last missed: @item.AttemptedAt.Value.ToLocalTime().ToString("dd/MM/yyyy HH:mm")</p>
+                                    }
+                                </div>
+                            </article>
+                        }
+                    </div>
+                </section>
+            }
+        </div>
+    }
+</div>

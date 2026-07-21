@@ -109,6 +109,18 @@
                         </div>
                     </div>
                 </section>
+
+                <!-- Section: Explanation -->
+                <section class="qc-section">
+                    <div class="qc-section__header">
+                        <span class="material-symbols-outlined">lightbulb</span>
+                        <div>
+                            <div class="qc-section__title">Explanation <span class="text-error">*</span></div>
+                            <div class="qc-section__hint">Optional solution shown after students submit (UC-10.1)</div>
+                        </div>
+                    </div>
+                    <textarea asp-for="Form.Explanation" rows="3" placeholder="Explain why the correct option is right..." class="qc-textarea resize-none" required></textarea>
+                </section>
             </div>
 
             <div class="qc-form-actions">

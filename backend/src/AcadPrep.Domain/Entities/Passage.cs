@@ -5,7 +5,9 @@ namespace Domain.Entities;
 public class Passage : BaseEntity<int>
 {
     public string? Content { get; set; } 
-    public string? ImageUrl { get; set; } 
+    public string? ImageUrl { get; set; }
+    /// <summary>Shared explanation for Part 6 passage (set of 4 questions).</summary>
+    public string? Explanation { get; set; }
     public int DisplayOrder { get; set; } = 1;
 
     public int ExamId { get; set; }

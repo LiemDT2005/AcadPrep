@@ -63,6 +63,9 @@ public static class DependencyInjection
         // Register AI generation service
         services.AddScoped<IAiGenerationService, MockAiGenerationService>();
 
+        // Register Translation service (Google Translate free API)
+        services.AddHttpClient<ITranslationService, GoogleTranslateService>();
+
         // Register Cloudinary storage service
         services.AddScoped<IFileStorageService, CloudinaryStorageService>();
 

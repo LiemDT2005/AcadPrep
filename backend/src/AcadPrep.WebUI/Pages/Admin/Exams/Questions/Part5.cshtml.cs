@@ -65,6 +65,7 @@ public class Part5Model(ISender mediator, IAppDbContext context) : PageModel
             Form.CorrectOption = question.CorrectOption.ToString();
             Form.QuestionType = question.QuestionType;
             Form.TopicTag = question.TopicTag;
+            Form.Explanation = question.Explanation ?? string.Empty;
 
             foreach (var opt in question.QuestionOptions.OrderBy(o => o.OptionLetter))
             {
@@ -143,6 +144,7 @@ public class Part5Model(ISender mediator, IAppDbContext context) : PageModel
             CorrectOption = Form.CorrectOption,
             QuestionType = Form.QuestionType,
             TopicTag = Form.TopicTag,
+            Explanation = Form.Explanation,
             Options = new List<Part5OptionDto>
             {
                 new() { Letter = "A", Text = Form.OptionA },
@@ -218,6 +220,8 @@ public class Part5FormModel
     public string CorrectOption { get; set; } = "A";
     public string? QuestionType { get; set; }
     public string? TopicTag { get; set; }
+    [System.ComponentModel.DataAnnotations.Required(ErrorMessage = "Explanation is required.")]
+    public string Explanation { get; set; } = string.Empty;
     public string OptionA { get; set; } = string.Empty;
     public string OptionB { get; set; } = string.Empty;
     public string OptionC { get; set; } = string.Empty;

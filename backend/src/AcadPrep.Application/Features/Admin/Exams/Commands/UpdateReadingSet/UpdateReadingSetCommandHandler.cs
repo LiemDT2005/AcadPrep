@@ -105,6 +105,7 @@ internal sealed class UpdateReadingSetCommandHandler(IAppDbContext context)
         }
 
         group.Name = dto.Name.Trim();
+        group.Explanation = string.IsNullOrWhiteSpace(dto.Explanation) ? null : dto.Explanation.Trim();
 
         foreach (var pDto in dto.Passages)
         {

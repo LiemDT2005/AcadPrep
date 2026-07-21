@@ -5,6 +5,7 @@ namespace AcadPrep.Application.Features.Admin.Exams.Commands.CreateReadingSet;
 public class CreateReadingSetDto
 {
     public required string Name { get; set; }
+    public string? Explanation { get; set; }
     public List<ReadingPassageDto> Passages { get; set; } = new();
     public List<ReadingQuestionDto> Questions { get; set; } = new();
 }

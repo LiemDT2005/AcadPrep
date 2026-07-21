@@ -9,6 +9,7 @@ public class Part5QuestionDto
     public required string CorrectOption { get; set; }
     public string? QuestionType { get; set; }
     public string? TopicTag { get; set; }
+    public string? Explanation { get; set; }
     public List<Part5OptionDto> Options { get; set; } = new();
 }
 

@@ -16,6 +16,7 @@ public class Question : BaseEntity<int>
     public string? ImageUrl { get; set; } 
     
     public OptionLetter CorrectOption { get; set; }
+    public string? Explanation { get; set; }
     public int ExamId { get; set; }
     public int? PassageId { get; set; }
     public string? QuestionType { get; set; }

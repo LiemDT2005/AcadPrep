@@ -20,6 +20,9 @@ public class CreateListeningQuestionCommandValidator : AbstractValidator<CreateL
             RuleFor(x => x.Question.QuestionNumber)
                 .GreaterThan(0).WithMessage("Question number must be greater than 0.");
 
+            RuleFor(x => x.Question.Explanation)
+                .NotEmpty().WithMessage("Explanation is required.");
+
             // Part 2 only has 3 options (A, B, C); Part 1 has 4 (A, B, C, D)
             When(x => x.Part == 2, () =>
             {
