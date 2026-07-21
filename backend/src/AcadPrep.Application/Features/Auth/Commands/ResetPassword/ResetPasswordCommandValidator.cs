@@ -18,25 +18,25 @@ public sealed class ResetPasswordCommandValidator : AbstractValidator<ResetPassw
     {
         // ── Email ────────────────────────────────────────────────────────────
         RuleFor(x => x.Email)
-            .NotEmpty().WithMessage("Vui lòng nhập địa chỉ email.")
-            .EmailAddress().WithMessage("Địa chỉ email không hợp lệ.");
+            .NotEmpty().WithMessage("Please enter your email address.")
+            .EmailAddress().WithMessage("Invalid email format.");
 
         // ── OtpCode: đúng 6 chữ số ──────────────────────────────────────────
         RuleFor(x => x.OtpCode)
-            .NotEmpty().WithMessage("Vui lòng nhập mã OTP.")
-            .Matches(@"^\d{6}$").WithMessage("Mã OTP phải là 6 chữ số.");
+            .NotEmpty().WithMessage("Please enter the OTP code.")
+            .Matches(@"^\d{6}$").WithMessage("The OTP code must be 6 digits.");
 
         // ── NewPassword (BR-24) ──────────────────────────────────────────────
         RuleFor(x => x.NewPassword)
-            .NotEmpty().WithMessage("Vui lòng nhập mật khẩu mới.")
-            .MinimumLength(8).WithMessage("Mật khẩu phải có ít nhất 8 ký tự.")
+            .NotEmpty().WithMessage("Please enter a new password.")
+            .MinimumLength(8).WithMessage("Password must be at least 8 characters.")
             .Must(p => PasswordRegex.IsMatch(p ?? string.Empty))
-                .WithMessage("Mật khẩu phải chứa ít nhất một chữ hoa, một chữ thường, một chữ số và một ký tự đặc biệt.");
+                .WithMessage("Password must contain at least one uppercase letter, one lowercase letter, one number, and one special character.");
 
         // ── ConfirmPassword ──────────────────────────────────────────────────
         RuleFor(x => x.ConfirmPassword)
-            .NotEmpty().WithMessage("Vui lòng xác nhận mật khẩu mới.")
+            .NotEmpty().WithMessage("Please confirm your new password.")
             .Equal(x => x.NewPassword)
-                .WithMessage("Mật khẩu xác nhận không khớp. Vui lòng nhập lại.");
+                .WithMessage("Passwords do not match. Please try again.");
     }
 }

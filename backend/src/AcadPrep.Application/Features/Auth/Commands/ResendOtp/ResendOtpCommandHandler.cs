@@ -27,7 +27,7 @@ internal sealed class ResendOtpCommandHandler(
         if (isLocked)
         {
             return Result<ResendOtpResultDto>.Failure(
-                "Bạn đã nhập sai OTP quá số lần cho phép. Vui lòng thử lại sau 15 phút.");
+                "You have entered the wrong OTP too many times. Please try again after 15 minutes.");
         }
 
         // ── Bước 2: Lấy OtpCacheEntry hiện tại ──────────────────────────────
@@ -37,7 +37,7 @@ internal sealed class ResendOtpCommandHandler(
         if (entry is null)
         {
             return Result<ResendOtpResultDto>.Failure(
-                "Phiên xác thực đã hết hạn. Vui lòng thực hiện lại từ đầu.");
+                "The authentication session has expired. Please start over.");
         }
 
         // ── Bước 3: Gọi IOtpIssuer — tái sử dụng Batch A ────────────────────
@@ -51,7 +51,7 @@ internal sealed class ResendOtpCommandHandler(
         if (!issued)
         {
             return Result<ResendOtpResultDto>.Failure(
-                "Bạn đã nhập sai OTP quá số lần cho phép. Vui lòng thử lại sau 15 phút.");
+                "You have entered the wrong OTP too many times. Please try again after 15 minutes.");
         }
 
         // ── Bước 4: Gửi lại thành công ───────────────────────────────────────

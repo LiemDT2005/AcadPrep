@@ -37,6 +37,10 @@ public class AssignRoleCommandHandler : IRequestHandler<AssignRoleCommand, Resul
         if (user.Id == masterAdminId)
             return Result.Failure("Cannot change the role of the Master Admin account.");
 
+        // Prevent admin from changing their own role
+        if (user.Id == request.CurrentAdminId)
+            return Result.Failure("You cannot change your own role.");
+
         // Validate role exists
         var newRole = await _context.Roles
             .FirstOrDefaultAsync(r => r.RoleId == request.NewRoleId, cancellationToken);
@@ -50,16 +54,16 @@ public class AssignRoleCommandHandler : IRequestHandler<AssignRoleCommand, Resul
         // Thông báo cho chủ tài khoản được đổi quyền (UC-15)
         await _notificationService.CreateAsync(
             userId: user.Id,
-            title: "Quyền tài khoản đã thay đổi",
-            message: $"Tài khoản của bạn hiện được cấp quyền {newRole.RoleName}. Một số chức năng có thể thay đổi theo quyền mới.",
+            title: "Account role updated",
+            message: $"Your account has been granted the '{newRole.RoleName}' role. Some features may change based on the new role.",
             type: NotificationType.AccountRoleChanged,
             cancellationToken: cancellationToken);
 
         // Audit cho Admin: ghi nhận thay đổi phân quyền trong hệ thống (UC-15)
         await _notificationService.CreateForRoleAsync(
             roleName: nameof(UserRole.Admin),
-            title: "Phân quyền tài khoản đã thay đổi",
-            message: $"Tài khoản '{user.FullName}' ({user.Email}) đã được đổi sang quyền {newRole.RoleName}.",
+            title: "Account role updated",
+            message: $"Account '{user.FullName}' ({user.Email}) has been changed to the '{newRole.RoleName}' role.",
             type: NotificationType.AdminAccountRoleChanged,
             linkUrl: "/Admin/Accounts",
             cancellationToken: cancellationToken);

@@ -37,7 +37,7 @@ internal sealed class VerifyOtpCommandHandler(
         if (entry is null)
         {
             return Result<VerifyOtpResultDto>.Failure(
-                "Mã OTP đã hết hạn. Vui lòng bấm 'Gửi lại' để nhận mã mới.");
+                "The OTP code has expired. Please click 'Resend' to get a new code.");
         }
 
         // ── Bước 2b: Kiểm tra hết hạn TRƯỚC khi so sánh OtpCode ─────────────
@@ -46,7 +46,7 @@ internal sealed class VerifyOtpCommandHandler(
         {
             await cache.RemoveAsync(otpKey, cancellationToken);
             return Result<VerifyOtpResultDto>.Failure(
-                "Mã OTP đã hết hạn. Vui lòng bấm 'Gửi lại' để nhận mã mới.");
+                "The OTP code has expired. Please click 'Resend' to get a new code.");
         }
 
         // ── Bước 3: OTP sai ──────────────────────────────────────────────────
@@ -61,7 +61,7 @@ internal sealed class VerifyOtpCommandHandler(
                 await cache.SetAsync(lockKey, true, TimeSpan.FromMinutes(15), cancellationToken);
 
                 return Result<VerifyOtpResultDto>.Failure(
-                    "Mã OTP không chính xác. Bạn đã nhập sai quá 3 lần, vui lòng thử lại sau 15 phút.");
+                    "The OTP code is incorrect. You have entered incorrectly more than 3 times, please try again after 15 minutes.");
             }
 
             // Tính remaining TTL — không reset về 5 phút (hết hạn đã bị chặn ở bước 2b)
@@ -69,7 +69,7 @@ internal sealed class VerifyOtpCommandHandler(
             await cache.SetAsync(otpKey, entry, remaining, cancellationToken);
 
             return Result<VerifyOtpResultDto>.Failure(
-                "Mã OTP không chính xác. Vui lòng kiểm tra lại email.");
+                "The OTP code is incorrect. Please check your email again.");
         }
 
         // ── Bước 4a/4b: Tạo hoặc kích hoạt User ─────────────────────────────
@@ -102,7 +102,7 @@ internal sealed class VerifyOtpCommandHandler(
             else
             {
                 return Result<VerifyOtpResultDto>.Failure(
-                    "Không tìm thấy tài khoản tương ứng. Vui lòng thử đăng ký lại.");
+                    "Account not found. Please try registering again.");
             }
         }
 
@@ -116,10 +116,10 @@ internal sealed class VerifyOtpCommandHandler(
         var isReactivation = entry.IsReactivation;
         await notificationService.CreateAsync(
             userId: activatedUser.Id,
-            title: isReactivation ? "Chào mừng bạn quay lại!" : "Chào mừng đến với AcadPrep!",
+            title: isReactivation ? "Welcome back!" : "Welcome to AcadPrep!",
             message: isReactivation
-                ? "Tài khoản của bạn đã được kích hoạt lại. Tiếp tục hành trình chinh phục TOEIC ngay hôm nay."
-                : "Tài khoản của bạn đã được kích hoạt thành công. Bắt đầu hành trình chinh phục TOEIC ngay hôm nay.",
+                ? "Your account has been reactivated. Continue your journey to conquer TOEIC today."
+                : "Your account has been successfully activated. Start your journey to conquer TOEIC today.",
             type: NotificationType.AccountWelcome,
             linkUrl: "/Account/Profile",
             cancellationToken: cancellationToken);
@@ -129,8 +129,8 @@ internal sealed class VerifyOtpCommandHandler(
         {
             await notificationService.CreateForRoleAsync(
                 roleName: nameof(UserRole.Admin),
-                title: "Người dùng mới đăng ký",
-                message: $"Tài khoản mới '{activatedUser.FullName}' ({activatedUser.Email}) vừa kích hoạt thành công.",
+                title: "New User Registered",
+                message: $"New account '{activatedUser.FullName}' ({activatedUser.Email}) has just been successfully activated.",
                 type: NotificationType.AdminNewUserRegistered,
                 linkUrl: "/Admin/Accounts",
                 cancellationToken: cancellationToken);

@@ -32,7 +32,7 @@ internal sealed class GoogleCallbackCommandHandler(
             // Bước 3: Tìm thấy nhưng tài khoản bị khóa → từ chối, không ghi gì
             if (user.Status == UserStatus.Suspended)
             {
-                return Result<LoginResultDto>.Failure("Tài khoản của bạn đã bị khóa. Vui lòng liên hệ hỗ trợ.");
+                return Result<LoginResultDto>.Failure("Your account has been suspended. Please contact support.");
             }
 
             // Bước 4: Status != Suspended (Active hoặc Inactive) — gộp chung vì Google đã verify email

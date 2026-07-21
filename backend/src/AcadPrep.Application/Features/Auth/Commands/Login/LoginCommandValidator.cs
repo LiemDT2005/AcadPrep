@@ -11,10 +11,10 @@ public sealed class LoginCommandValidator : AbstractValidator<LoginCommand>
     public LoginCommandValidator()
     {
         RuleFor(x => x.Email)
-            .NotEmpty().WithMessage("Vui lòng nhập email.")
-            .EmailAddress().WithMessage("Email không hợp lệ.");
+            .NotEmpty().WithMessage("Please enter your email.")
+            .EmailAddress().WithMessage("Invalid email format.");
 
         RuleFor(x => x.Password)
-            .NotEmpty().WithMessage("Vui lòng nhập mật khẩu.");
+            .NotEmpty().WithMessage("Please enter your password.");
     }
 }

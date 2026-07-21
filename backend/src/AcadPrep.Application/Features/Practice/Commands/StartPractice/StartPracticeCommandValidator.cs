@@ -7,13 +7,13 @@ public class StartPracticeCommandValidator : AbstractValidator<StartPracticeComm
     public StartPracticeCommandValidator()
     {
         RuleFor(v => v.ExamId)
-            .GreaterThan(0).WithMessage("ExamId không hợp lệ.");
+            .GreaterThan(0).WithMessage("Invalid ExamId.");
 
         RuleFor(v => v.SelectedPartNumbers)
-            .NotEmpty().WithMessage("Vui lòng chọn ít nhất một Part để luyện tập.");
+            .NotEmpty().WithMessage("Please select at least one Part to practice.");
 
         RuleFor(v => v.TimeLimitMinutes)
             .GreaterThan(0).When(v => v.TimeLimitMinutes.HasValue)
-            .WithMessage("Giới hạn thời gian luyện tập phải là số phút dương.");
+            .WithMessage("Practice time limit must be a positive number in minutes.");
     }
 }

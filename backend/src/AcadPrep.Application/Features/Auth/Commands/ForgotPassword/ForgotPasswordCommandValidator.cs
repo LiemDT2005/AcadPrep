@@ -12,7 +12,7 @@ public sealed class ForgotPasswordCommandValidator : AbstractValidator<ForgotPas
     {
         // ── Email ────────────────────────────────────────────────────────────
         RuleFor(x => x.Email)
-            .NotEmpty().WithMessage("Vui lòng nhập địa chỉ email.")
-            .EmailAddress().WithMessage("Địa chỉ email không hợp lệ.");
+            .NotEmpty().WithMessage("Please enter your email address.")
+            .EmailAddress().WithMessage("Invalid email format.");
     }
 }
