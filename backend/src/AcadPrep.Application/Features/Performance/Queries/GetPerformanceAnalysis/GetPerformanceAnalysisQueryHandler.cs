@@ -1,4 +1,4 @@
-﻿using AcadPrep.Application.Common.Models;
+using AcadPrep.Application.Common.Models;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -47,7 +47,7 @@ public class GetPerformanceAnalysisQueryHandler : IRequestHandler<GetPerformance
 
         var userAnswers = await _context.AttemptAnswers
             .Include(a => a.Question)
-            .Where(a => a.ExamAttempt.UserId == request.UserId)
+            .Where(a => a.ExamAttempt.UserId == request.UserId && a.ExamAttempt.IsSubmitted)
             .AsNoTracking()
             .ToListAsync(cancellationToken);
 
