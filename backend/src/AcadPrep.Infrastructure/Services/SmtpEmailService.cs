@@ -29,7 +29,9 @@ public sealed class SmtpEmailService(
         {
             // ── Xây dựng MimeMessage ─────────────────────────────────────────
             var message = new MimeMessage();
-            message.From.Add(new MailboxAddress(_smtp.FromName, _smtp.FromEmail));
+            var fromName = string.IsNullOrWhiteSpace(_smtp.FromName) || _smtp.FromName.StartsWith("${") ? "AcadPrep" : _smtp.FromName;
+            var fromEmail = string.IsNullOrWhiteSpace(_smtp.FromEmail) || _smtp.FromEmail.StartsWith("${") ? _smtp.Username : _smtp.FromEmail;
+            message.From.Add(new MailboxAddress(fromName, fromEmail));
             message.To.Add(MailboxAddress.Parse(toEmail));
             message.Subject = "AcadPrep - Mã xác thực OTP của bạn";
 

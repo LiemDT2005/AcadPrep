@@ -3,12 +3,18 @@ using Infrastructure;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication.Google;
 using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.DataProtection;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using WebUI.Middlewares;
 using Domain.Enums;
 
 var builder = WebApplication.CreateBuilder(args);
+
+// Add Data Protection to persist keys to disk (prevents cookie invalidation on dev restarts)
+builder.Services.AddDataProtection()
+    .PersistKeysToFileSystem(new System.IO.DirectoryInfo(
+        Path.Combine(builder.Environment.ContentRootPath, ".dp-keys")));
 
 // 1. Register Clean Architecture Layer Services
 builder.Services.AddApplicationServices();
@@ -27,13 +33,14 @@ var authBuilder = builder.Services
         options.DefaultScheme          = CookieAuthenticationDefaults.AuthenticationScheme;
         options.DefaultChallengeScheme = CookieAuthenticationDefaults.AuthenticationScheme;
     })
-    .AddCookie(options =>
+    .AddCookie(CookieAuthenticationDefaults.AuthenticationScheme, options =>
     {
-        options.LoginPath        = "/Account/Login";
-        options.AccessDeniedPath = "/Account/AccessDenied";
-        options.ExpireTimeSpan   = TimeSpan.FromDays(14);
+        options.LoginPath         = "/Account/Login";
+        options.AccessDeniedPath  = "/Account/AccessDenied";
+        options.ExpireTimeSpan    = TimeSpan.FromDays(14);
         options.SlidingExpiration = true;
-    });
+    })
+    .AddCookie("GoogleTempCookie");
 
 if (isGoogleAuthConfigured)
 {
@@ -41,7 +48,8 @@ if (isGoogleAuthConfigured)
     {
         options.ClientId     = googleClientId!;
         options.ClientSecret = googleClientSecret!;
-        options.CallbackPath = "/Account/GoogleCallback";
+        options.SaveTokens   = true;
+        options.SignInScheme = "GoogleTempCookie";
     });
 }
 

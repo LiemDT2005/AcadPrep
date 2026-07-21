@@ -6,6 +6,7 @@ using MediatR;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication.Google;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using System.Security.Claims;
@@ -21,8 +22,7 @@ public class GoogleCallbackModel(ISender mediator) : PageModel
 {
     public async Task<IActionResult> OnGetAsync(string? returnUrl = null)
     {
-        // Lấy kết quả xác thực từ Google OAuth middleware
-        var authenticateResult = await HttpContext.AuthenticateAsync(GoogleDefaults.AuthenticationScheme);
+        var authenticateResult = await HttpContext.AuthenticateAsync("GoogleTempCookie");
 
         if (!authenticateResult.Succeeded)
         {
@@ -55,8 +55,8 @@ public class GoogleCallbackModel(ISender mediator) : PageModel
 
         var dto = result.Data!;
 
-        // Phát cookie xác thực — concern của Presentation layer
         await SignInUserAsync(dto);
+        await HttpContext.SignOutAsync("GoogleTempCookie");
 
         return LocalRedirect(GetPostLoginDestination(returnUrl, dto.Role));
     }
