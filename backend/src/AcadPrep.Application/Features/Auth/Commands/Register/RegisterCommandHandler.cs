@@ -28,7 +28,7 @@ internal sealed class RegisterCommandHandler(
         if (emailExists)
         {
             return Result<RegisterResultDto>.Failure(
-                "Email này đã được đăng ký. Vui lòng dùng email khác hoặc chọn Quên mật khẩu.");
+                "This email is already registered. Please use a different email or select Forgot Password.");
         }
 
         // ── Bước 2: Hash password ─────────────────────────────────────────────
@@ -46,7 +46,7 @@ internal sealed class RegisterCommandHandler(
         if (!issued)
         {
             return Result<RegisterResultDto>.Failure(
-                "Bạn đã nhập sai OTP quá số lần cho phép. Vui lòng thử lại sau 15 phút.");
+                "You have entered the wrong OTP too many times. Please try again after 15 minutes.");
         }
 
         // ── Bước 4: Trả kết quả — KHÔNG ghi SQL (BR-26) ──────────────────────

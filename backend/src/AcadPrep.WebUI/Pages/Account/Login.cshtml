@@ -1,7 +1,7 @@
 @page
 @model AcadPrep.WebUI.Pages.Account.LoginModel
 @{
-    ViewData["Title"] = "Đăng nhập";
+    ViewData["Title"] = "Login";
     Layout = null; // Trang login dùng layout riêng — không có navbar
     var returnUrl = ViewData["ReturnUrl"] as string ?? "/";
     var externalError = Request.Query["error"].ToString();
@@ -11,8 +11,8 @@
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Đăng nhập — AcadPrep</title>
-    <meta name="description" content="Đăng nhập vào AcadPrep để luyện thi TOEIC, theo dõi tiến độ và chinh phục mục tiêu của bạn." />
+    <title>Login — AcadPrep</title>
+    <meta name="description" content="Login to AcadPrep to prepare for TOEIC, track your progress and achieve your goals." />
     <script src="https://cdn.tailwindcss.com?plugins=forms"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet"/>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet"/>
@@ -132,13 +132,13 @@
             <i class="fa-solid fa-graduation-cap text-3xl text-white"></i>
         </div>
         <h1 class="text-3xl font-bold text-white tracking-tight">AcadPrep</h1>
-        <p class="text-white/70 text-sm mt-1">Luyện thi TOEIC thông minh</p>
+        <p class="text-white/70 text-sm mt-1">Smart TOEIC Preparation</p>
     </div>
 
     <!-- Card -->
     <div class="glass-card bg-white rounded-3xl shadow-card p-8 fade-up delay-2">
-        <h2 class="text-2xl font-bold text-gray-900 mb-1">Chào mừng trở lại!</h2>
-        <p class="text-muted text-sm mb-6">Đăng nhập để tiếp tục hành trình của bạn.</p>
+        <h2 class="text-2xl font-bold text-gray-900 mb-1">Welcome back!</h2>
+        <p class="text-muted text-sm mb-6">Login to continue your journey.</p>
 
         <!-- ═══ Alert: Lỗi từ Google callback hoặc external ═══ -->
         @if (!string.IsNullOrEmpty(externalError))
@@ -167,14 +167,14 @@
 
             <!-- Email -->
             <div class="space-y-1">
-                <label for="email-input" class="block text-sm font-medium text-gray-700">Email</label>
+                <label for="email-input" class="block text-sm font-medium text-gray-700">Email Address</label>
                 <div class="input-wrap">
                     <span class="input-icon"><i class="fa-regular fa-envelope text-sm"></i></span>
                     <input id="email-input"
                            type="email"
                            name="Email"
                            value="@Model.Email"
-                           placeholder="ban@@example.com"
+                           placeholder="you@example.com"
                            autocomplete="email"
                            class="input-field w-full rounded-xl border border-border bg-surface px-4 py-3 text-sm text-gray-900 placeholder:text-gray-400 focus:border-primary transition" />
                 </div>
@@ -183,8 +183,8 @@
             <!-- Password -->
             <div class="space-y-1">
                 <div class="flex items-center justify-between">
-                    <label for="password-input" class="block text-sm font-medium text-gray-700">Mật khẩu</label>
-                    <a href="/Account/ForgotPassword" class="text-xs text-primary font-medium hover:underline">Quên mật khẩu?</a>
+                    <label for="password-input" class="block text-sm font-medium text-gray-700">Password</label>
+                    <a href="/Account/ForgotPassword" class="text-xs text-primary font-medium hover:underline">Forgot password?</a>
                 </div>
                 <div class="input-wrap">
                     <span class="input-icon"><i class="fa-solid fa-lock text-sm"></i></span>
@@ -197,7 +197,7 @@
                     <!-- Toggle show/hide password -->
                     <button type="button" id="toggle-password"
                             class="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 transition"
-                            aria-label="Hiện / Ẩn mật khẩu">
+                            aria-label="Show / Hide password">
                         <i id="toggle-icon" class="fa-regular fa-eye text-sm"></i>
                     </button>
                 </div>
@@ -206,13 +206,13 @@
             <!-- Submit -->
             <button type="submit" id="btn-login"
                     class="btn-primary w-full rounded-xl bg-primary py-3 text-sm font-semibold text-white shadow-md mt-2">
-                Đăng nhập
+                Login
             </button>
         </form>
 
         <!-- ═══ Divider ═══ -->
         <div class="flex items-center justify-center my-6 fade-up delay-3">
-            <span class="divider-text text-xs text-muted px-2">hoặc tiếp tục với</span>
+            <span class="divider-text text-xs text-muted px-2">or continue with</span>
         </div>
 
         <!-- ═══ Google Login ═══ -->
@@ -227,20 +227,20 @@
                     <path fill="#FBBC05" d="M10.5 28.2A14.6 14.6 0 0 1 9.5 24c0-1.5.2-2.9.5-4.2l-6.9-5.4A22.6 22.6 0 0 0 1.5 24c0 3.6.9 7.1 2.5 10.2l6.5-6z"/>
                     <path fill="#34A853" d="M24 46.5c5.4 0 9.9-1.8 13.2-4.8l-7.5-5.8c-1.8 1.2-4.1 2-5.7 2-6.4 0-11.8-4.3-13.8-10.2l-6.5 6C7.2 41.5 15 46.5 24 46.5z"/>
                 </svg>
-                <span>Đăng nhập bằng Google</span>
+                <span>Login with Google</span>
             </a>
         </div>
 
         <!-- ═══ Register link ═══ -->
         <p class="mt-6 text-center text-sm text-muted fade-up delay-4">
-            Chưa có tài khoản?
-            <a href="/Account/Register" class="text-primary font-semibold hover:underline">Đăng ký ngay</a>
+            Don't have an account?
+            <a href="/Account/Register" class="text-primary font-semibold hover:underline">Register now</a>
         </p>
     </div>
 
     <!-- Footer -->
     <p class="mt-6 text-center text-xs text-white/50 fade-up delay-4">
-        © @DateTime.UtcNow.Year AcadPrep · Mọi quyền được bảo lưu
+        © @DateTime.UtcNow.Year AcadPrep · All rights reserved
     </p>
 </div>
 
@@ -267,7 +267,7 @@
     if (form && btnLogin) {
         form.addEventListener('submit', () => {
             btnLogin.disabled = true;
-            btnLogin.innerHTML = '<i class="fa-solid fa-spinner fa-spin mr-2"></i>Đang đăng nhập...';
+            btnLogin.innerHTML = '<i class="fa-solid fa-spinner fa-spin mr-2"></i>Logging in...';
         });
     }
 </script>

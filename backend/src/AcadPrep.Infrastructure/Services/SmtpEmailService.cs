@@ -33,7 +33,7 @@ public sealed class SmtpEmailService(
             var fromEmail = string.IsNullOrWhiteSpace(_smtp.FromEmail) || _smtp.FromEmail.StartsWith("${") ? _smtp.Username : _smtp.FromEmail;
             message.From.Add(new MailboxAddress(fromName, fromEmail));
             message.To.Add(MailboxAddress.Parse(toEmail));
-            message.Subject = "AcadPrep - Mã xác thực OTP của bạn";
+            message.Subject = "AcadPrep - Your OTP Verification Code";
 
             message.Body = new TextPart(MimeKit.Text.TextFormat.Html)
             {
@@ -67,7 +67,7 @@ public sealed class SmtpEmailService(
     // ── HTML email body ──────────────────────────────────────────────────────
     private static string BuildHtmlBody(string otpCode) => $"""
         <!DOCTYPE html>
-        <html lang="vi">
+        <html lang="en">
         <head>
             <meta charset="utf-8" />
             <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -87,7 +87,7 @@ public sealed class SmtpEmailService(
                                     <h1 style="margin:0;color:#ffffff;font-size:24px;font-weight:700;
                                                letter-spacing:0.5px;">AcadPrep</h1>
                                     <p style="margin:6px 0 0;color:rgba(255,255,255,0.75);font-size:13px;">
-                                        Luyện thi TOEIC thông minh
+                                        Smart TOEIC Preparation
                                     </p>
                                 </td>
                             </tr>
@@ -96,11 +96,10 @@ public sealed class SmtpEmailService(
                             <tr>
                                 <td style="padding:36px 40px;">
                                     <p style="margin:0 0 8px;color:#1a1a2e;font-size:16px;font-weight:600;">
-                                        Xin chào!
+                                        Hello!
                                     </p>
                                     <p style="margin:0 0 24px;color:#464555;font-size:14px;line-height:1.6;">
-                                        Chúng tôi nhận được yêu cầu của bạn. Vui lòng dùng mã OTP dưới đây
-                                        để tiếp tục. Mã có hiệu lực trong <strong>5 phút</strong>.
+                                        We have received your request. Please use the OTP code below to continue. The code is valid for <strong>5 minutes</strong>.
                                     </p>
 
                                     <!-- OTP Box -->
@@ -109,7 +108,7 @@ public sealed class SmtpEmailService(
                                                 margin-bottom:24px;">
                                         <p style="margin:0 0 6px;color:#464555;font-size:12px;
                                                    letter-spacing:1px;text-transform:uppercase;">
-                                            Mã xác thực OTP
+                                            OTP VERIFICATION CODE
                                         </p>
                                         <p style="margin:0;color:#1e00a9;font-size:38px;font-weight:800;
                                                    letter-spacing:8px;font-family:'Courier New',monospace;">
@@ -118,8 +117,8 @@ public sealed class SmtpEmailService(
                                     </div>
 
                                     <p style="margin:0;color:#787680;font-size:13px;line-height:1.5;">
-                                        ⚠️ <strong>Không chia sẻ mã này</strong> với bất kỳ ai, kể cả nhân viên AcadPrep.<br/>
-                                        Nếu bạn không thực hiện yêu cầu này, hãy bỏ qua email này.
+                                        ⚠️ <strong>Do not share this code</strong> with anyone, including AcadPrep staff.<br/>
+                                        If you did not make this request, please ignore this email.
                                     </p>
                                 </td>
                             </tr>
@@ -129,7 +128,7 @@ public sealed class SmtpEmailService(
                                 <td style="background:#f8f7fc;padding:20px 40px;text-align:center;
                                            border-top:1px solid #e8e6f0;">
                                     <p style="margin:0;color:#9490a8;font-size:12px;">
-                                        © {DateTime.UtcNow.Year} AcadPrep · Mọi quyền được bảo lưu
+                                        © {DateTime.UtcNow.Year} AcadPrep · All rights reserved
                                     </p>
                                 </td>
                             </tr>

@@ -72,6 +72,23 @@ public class User : BaseEntity<int>, IAuditable
     }
 
     /// <summary>
+    /// Thay đổi trạng thái tài khoản.
+    /// Có kèm logic nghiệp vụ: Nếu đang Suspended mà được mở khóa, chỉ cho phép về Inactive,
+    /// không được lên thẳng Active.
+    /// </summary>
+    public void ChangeStatus(UserStatus newStatus)
+    {
+        if (Status == UserStatus.Suspended && newStatus == UserStatus.Active)
+        {
+            Status = UserStatus.Inactive;
+        }
+        else
+        {
+            Status = newStatus;
+        }
+    }
+
+    /// <summary>
     /// Gán GoogleId cho tài khoản nếu chưa được liên kết. Idempotent nếu đã có.
     /// </summary>
     public void LinkGoogleIdentity(string googleId)

@@ -152,7 +152,7 @@ public class ForgotPasswordModel(ISender mediator) : PageModel
         }
 
         // Đặt lại mật khẩu thành công → về trang Login
-        TempData["Login_SuccessMessage"] = "Mật khẩu đã được đặt lại thành công. Vui lòng đăng nhập với mật khẩu mới.";
+        TempData["Login_SuccessMessage"] = "Password reset successfully. Please log in with your new password.";
         return RedirectToPage("/Account/Login");
     }
 

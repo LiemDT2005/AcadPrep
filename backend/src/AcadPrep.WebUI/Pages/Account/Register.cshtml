@@ -1,7 +1,7 @@
 @page
 @model AcadPrep.WebUI.Pages.Account.RegisterModel
 @{
-    ViewData["Title"] = "Đăng ký";
+    ViewData["Title"] = "Register";
     Layout = null; // Trang register dùng layout riêng — không có navbar
 }
 <!DOCTYPE html>
@@ -9,8 +9,8 @@
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Đăng ký — AcadPrep</title>
-    <meta name="description" content="Tạo tài khoản AcadPrep miễn phí để bắt đầu luyện thi TOEIC, theo dõi tiến độ và chinh phục mục tiêu của bạn." />
+    <title>Register — AcadPrep</title>
+    <meta name="description" content="Create a free AcadPrep account to start preparing for TOEIC, tracking your progress, and achieving your goals." />
     <script src="https://cdn.tailwindcss.com?plugins=forms"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet"/>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet"/>
@@ -112,13 +112,13 @@
             <i class="fa-solid fa-graduation-cap text-3xl text-white"></i>
         </div>
         <h1 class="text-3xl font-bold text-white tracking-tight">AcadPrep</h1>
-        <p class="text-white/70 text-sm mt-1">Luyện thi TOEIC thông minh</p>
+        <p class="text-white/70 text-sm mt-1">Smart TOEIC Preparation</p>
     </div>
 
     <!-- Card -->
     <div class="glass-card bg-white rounded-3xl shadow-card p-8 fade-up delay-2">
-        <h2 class="text-2xl font-bold text-gray-900 mb-1">Tạo tài khoản</h2>
-        <p class="text-muted text-sm mb-6">Đăng ký miễn phí và bắt đầu hành trình TOEIC của bạn.</p>
+        <h2 class="text-2xl font-bold text-gray-900 mb-1">Create an account</h2>
+        <p class="text-muted text-sm mb-6">Register for free and start your TOEIC journey.</p>
 
         <!-- ═══ Alert: Lỗi từ Handler / Validator ═══ -->
         @if (!string.IsNullOrEmpty(Model.ErrorMessage))
@@ -137,14 +137,14 @@
 
             <!-- FullName -->
             <div class="space-y-1">
-                <label for="fullname-input" class="block text-sm font-medium text-gray-700">Họ và tên</label>
+                <label for="fullname-input" class="block text-sm font-medium text-gray-700">Full Name</label>
                 <div class="input-wrap">
                     <span class="input-icon"><i class="fa-regular fa-user text-sm"></i></span>
                     <input id="fullname-input"
                            type="text"
                            name="FullName"
                            value="@Model.FullName"
-                           placeholder="Nguyễn Văn A"
+                           placeholder="John Doe"
                            autocomplete="name"
                            class="input-field w-full rounded-xl border border-border bg-surface px-4 py-3 text-sm text-gray-900 placeholder:text-gray-400 focus:border-primary transition" />
                 </div>
@@ -152,14 +152,14 @@
 
             <!-- Email -->
             <div class="space-y-1">
-                <label for="email-input" class="block text-sm font-medium text-gray-700">Email</label>
+                <label for="email-input" class="block text-sm font-medium text-gray-700">Email Address</label>
                 <div class="input-wrap">
                     <span class="input-icon"><i class="fa-regular fa-envelope text-sm"></i></span>
                     <input id="email-input"
                            type="email"
                            name="Email"
                            value="@Model.Email"
-                           placeholder="ban@@example.com"
+                           placeholder="you@example.com"
                            autocomplete="email"
                            class="input-field w-full rounded-xl border border-border bg-surface px-4 py-3 text-sm text-gray-900 placeholder:text-gray-400 focus:border-primary transition" />
                 </div>
@@ -167,18 +167,18 @@
 
             <!-- Password -->
             <div class="space-y-1">
-                <label for="password-input" class="block text-sm font-medium text-gray-700">Mật khẩu</label>
+                <label for="password-input" class="block text-sm font-medium text-gray-700">Password</label>
                 <div class="input-wrap">
                     <span class="input-icon"><i class="fa-solid fa-lock text-sm"></i></span>
                     <input id="password-input"
                            type="password"
                            name="Password"
-                           placeholder="Tối thiểu 8 ký tự"
+                           placeholder="Minimum 8 characters"
                            autocomplete="new-password"
                            class="input-field w-full rounded-xl border border-border bg-surface px-4 py-3 text-sm text-gray-900 placeholder:text-gray-400 focus:border-primary transition" />
                     <button type="button" id="toggle-password"
                             class="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 transition"
-                            aria-label="Hiện / Ẩn mật khẩu">
+                            aria-label="Show / Hide password">
                         <i id="toggle-icon-pw" class="fa-regular fa-eye text-sm"></i>
                     </button>
                 </div>
@@ -189,48 +189,48 @@
                     <div class="strength-dot" id="dot-3"></div>
                     <div class="strength-dot" id="dot-4"></div>
                 </div>
-                <p class="text-xs text-muted mt-1">Phải có chữ hoa, chữ thường, số và ký tự đặc biệt.</p>
+                <p class="text-xs text-muted mt-1">Must contain uppercase, lowercase, number, and special character.</p>
             </div>
 
             <!-- ConfirmPassword -->
             <div class="space-y-1">
-                <label for="confirm-password-input" class="block text-sm font-medium text-gray-700">Xác nhận mật khẩu</label>
+                <label for="confirm-password-input" class="block text-sm font-medium text-gray-700">Confirm Password</label>
                 <div class="input-wrap">
                     <span class="input-icon"><i class="fa-solid fa-lock text-sm"></i></span>
                     <input id="confirm-password-input"
                            type="password"
                            name="ConfirmPassword"
-                           placeholder="Nhập lại mật khẩu"
+                           placeholder="Re-enter your password"
                            autocomplete="new-password"
                            class="input-field w-full rounded-xl border border-border bg-surface px-4 py-3 text-sm text-gray-900 placeholder:text-gray-400 focus:border-primary transition" />
                     <button type="button" id="toggle-confirm"
                             class="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 transition"
-                            aria-label="Hiện / Ẩn mật khẩu xác nhận">
+                            aria-label="Show / Hide confirm password">
                         <i id="toggle-icon-confirm" class="fa-regular fa-eye text-sm"></i>
                     </button>
                 </div>
                 <p id="confirm-mismatch" class="text-xs text-error hidden mt-1">
-                    <i class="fa-solid fa-circle-exclamation mr-1"></i>Mật khẩu không khớp.
+                    <i class="fa-solid fa-circle-exclamation mr-1"></i>Passwords do not match.
                 </p>
             </div>
 
             <!-- Submit -->
             <button type="submit" id="btn-register"
                     class="btn-primary w-full rounded-xl bg-primary py-3 text-sm font-semibold text-white shadow-md mt-2">
-                Đăng ký
+                Create Account
             </button>
         </form>
 
         <!-- Register link -->
         <p class="mt-6 text-center text-sm text-muted fade-up delay-4">
-            Đã có tài khoản?
-            <a href="/Account/Login" class="text-primary font-semibold hover:underline">Đăng nhập</a>
+            Already have an account?
+            <a href="/Account/Login" class="text-primary font-semibold hover:underline">Login</a>
         </p>
     </div>
 
     <!-- Footer -->
     <p class="mt-6 text-center text-xs text-white/50 fade-up delay-4">
-        © @DateTime.UtcNow.Year AcadPrep · Mọi quyền được bảo lưu
+        © @DateTime.UtcNow.Year AcadPrep · All rights reserved
     </p>
 </div>
 
@@ -305,7 +305,7 @@
     if (form && btnReg) {
         form.addEventListener('submit', () => {
             btnReg.disabled = true;
-            btnReg.innerHTML = '<i class="fa-solid fa-spinner fa-spin mr-2"></i>Đang xử lý...';
+            btnReg.innerHTML = '<i class="fa-solid fa-spinner fa-spin mr-2"></i>Processing...';
         });
     }
 </script>

@@ -40,25 +40,19 @@ public class UpdateAccountStatusCommandHandler : IRequestHandler<UpdateAccountSt
         if (!Enum.TryParse<UserStatus>(request.NewStatus, true, out var newStatus))
             return Result.Failure($"Invalid status: {request.NewStatus}");
 
-        if (newStatus == UserStatus.Active)
-            user.Activate();
-        else
-        {
-            // Use reflection to set Status since it's private set
-            var statusProp = typeof(Domain.Entities.User).GetProperty("Status");
-            statusProp?.SetValue(user, newStatus);
-        }
+        // Áp dụng trạng thái mới thông qua hàm ChangeStatus (đã chứa rule: Suspended -> Inactive)
+        user.ChangeStatus(newStatus);
 
         await _context.SaveChangesAsync(cancellationToken);
 
         // Thông báo cho chủ tài khoản bị thay đổi trạng thái (UC-15)
-        var isActivated = newStatus == UserStatus.Active;
+        var isActivatedOrInactive = user.Status == UserStatus.Active || user.Status == UserStatus.Inactive;
         await _notificationService.CreateAsync(
             userId: user.Id,
-            title: isActivated ? "Tài khoản đã được mở khóa" : "Tài khoản đã bị tạm khóa",
-            message: isActivated
-                ? "Tài khoản của bạn đã được kích hoạt lại. Bạn có thể tiếp tục sử dụng hệ thống bình thường."
-                : "Tài khoản của bạn đã bị tạm khóa bởi quản trị viên. Vui lòng liên hệ hỗ trợ nếu cần trợ giúp.",
+            title: isActivatedOrInactive ? "Account unlocked" : "Account suspended",
+            message: isActivatedOrInactive
+                ? "Your account has been unlocked by an administrator. Please log in to continue."
+                : "Your account has been temporarily suspended by an administrator. Please contact support if you need help.",
             type: NotificationType.AccountStatusChanged,
             cancellationToken: cancellationToken);
 

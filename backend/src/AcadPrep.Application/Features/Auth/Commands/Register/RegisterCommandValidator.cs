@@ -17,25 +17,25 @@ public sealed class RegisterCommandValidator : AbstractValidator<RegisterCommand
     {
         // ── Email ────────────────────────────────────────────────────────────
         RuleFor(x => x.Email)
-            .NotEmpty().WithMessage("Vui lòng nhập email.")
-            .EmailAddress().WithMessage("Địa chỉ email không hợp lệ.");
+            .NotEmpty().WithMessage("Please enter your email.")
+            .EmailAddress().WithMessage("Invalid email format.");
 
         // ── Password (BR-24) ─────────────────────────────────────────────────
         RuleFor(x => x.Password)
-            .NotEmpty().WithMessage("Vui lòng nhập mật khẩu.")
-            .MinimumLength(8).WithMessage("Mật khẩu phải có ít nhất 8 ký tự.")
+            .NotEmpty().WithMessage("Please enter your password.")
+            .MinimumLength(8).WithMessage("Password must be at least 8 characters.")
             .Must(p => PasswordRegex.IsMatch(p ?? string.Empty))
-                .WithMessage("Mật khẩu phải chứa ít nhất một chữ hoa, một chữ thường, một chữ số và một ký tự đặc biệt.");
+                .WithMessage("Password must contain at least one uppercase letter, one lowercase letter, one number, and one special character.");
 
         // ── ConfirmPassword ──────────────────────────────────────────────────
         RuleFor(x => x.ConfirmPassword)
-            .NotEmpty().WithMessage("Vui lòng xác nhận mật khẩu.")
+            .NotEmpty().WithMessage("Please confirm your password.")
             .Equal(x => x.Password)
-                .WithMessage("Mật khẩu xác nhận không khớp. Vui lòng nhập lại.");
+                .WithMessage("Passwords do not match. Please try again.");
 
         // ── FullName ─────────────────────────────────────────────────────────
         RuleFor(x => x.FullName)
-            .NotEmpty().WithMessage("Vui lòng nhập họ tên.")
-            .MaximumLength(100).WithMessage("Họ tên không được vượt quá 100 ký tự.");
+            .NotEmpty().WithMessage("Please enter your full name.")
+            .MaximumLength(100).WithMessage("Full name cannot exceed 100 characters.");
     }
 }

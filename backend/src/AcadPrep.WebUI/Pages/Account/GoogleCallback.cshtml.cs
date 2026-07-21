@@ -28,7 +28,7 @@ public class GoogleCallbackModel(ISender mediator) : PageModel
         {
             // Xác thực Google thất bại hoặc user hủy → redirect về trang Login kèm thông báo
             return RedirectToPage("/Account/Login",
-                new { error = "Đăng nhập bằng Google thất bại. Vui lòng thử lại." });
+                new { error = "Google login failed. Please try again." });
         }
 
         var principal = authenticateResult.Principal;
@@ -41,7 +41,7 @@ public class GoogleCallbackModel(ISender mediator) : PageModel
         if (string.IsNullOrWhiteSpace(email) || string.IsNullOrWhiteSpace(googleId))
         {
             return RedirectToPage("/Account/Login",
-                new { error = "Không thể lấy thông tin từ tài khoản Google." });
+                new { error = "Could not retrieve information from Google account." });
         }
 
         var command = new GoogleCallbackCommand(email, googleId, fullName);
