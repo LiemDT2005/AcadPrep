@@ -1,4 +1,4 @@
-@page "/performance/analysis"
+@page
 @model AcadPrep.WebUI.Pages.Performance.PerformanceAnalysisModel
 @{
     ViewData["Title"] = "Performance Analysis";
@@ -124,8 +124,8 @@
                             legend: { display: false },
                             tooltip: {
                                 backgroundColor: '#1C1B1F',
-                                titleFont: { family: 'Inter', size: 12 },
-                                bodyFont:  { family: 'Inter', size: 14, weight: 'bold' },
+                                titleFont: { family: "'Inter', sans-serif", size: 12 },
+                                bodyFont:  { family: "'Inter', sans-serif", size: 14, weight: 'bold' },
                                 padding: 12,
                                 cornerRadius: 8,
                                 callbacks: {
@@ -139,9 +139,9 @@
                             r: {
                                 min: 0,
                                 max: 100,
-                                ticks: { stepSize: 20, font: { family: 'Inter', size: 10 }, backdropColor: 'transparent', color: '#79747E' },
+                                ticks: { stepSize: 20, font: { family: "'Inter', sans-serif", size: 10 }, backdropColor: 'transparent', color: '#79747E' },
                                 grid:  { color: 'rgba(0,0,0,0.06)' },
-                                pointLabels: { font: { family: 'Inter', size: 13, weight: '500' }, color: '#1C1B1F' },
+                                pointLabels: { font: { family: "'Inter', sans-serif", size: 13, weight: '500' }, color: '#1C1B1F' },
                                 angleLines: { color: 'rgba(0,0,0,0.06)' }
                             }
                         }
