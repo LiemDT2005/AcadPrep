@@ -1,0 +1,64 @@
+@page
+@model AcadPrep.WebUI.Pages.Admin.ReportModel
+@{
+    ViewData["Title"] = "Learning Progress Report";
+}
+
+<div class="max-w-[1400px] mx-auto flex flex-col gap-xl">
+    <div class="bg-surface-container-lowest rounded-lg p-md shadow-sm border border-outline-variant">
+        <form method="get" class="flex flex-wrap items-end gap-md">
+            <div class="flex flex-col gap-xs">
+                <label for="startDate" class="text-[14px] font-medium text-on-surface">Start Date</label>
+                <input type="date" id="startDate" name="StartDate" class="px-sm py-xs border border-outline-variant rounded-md text-[14px]" value="@Model.StartDate.ToString("yyyy-MM-dd")" />
+            </div>
+            <div class="flex flex-col gap-xs">
+                <label for="endDate" class="text-[14px] font-medium text-on-surface">End Date</label>
+                <input type="date" id="endDate" name="EndDate" class="px-sm py-xs border border-outline-variant rounded-md text-[14px]" value="@Model.EndDate.ToString("yyyy-MM-dd")" />
+            </div>
+            <div class="flex items-center gap-sm">
+                <button type="submit" class="px-md py-sm bg-primary text-white rounded-lg text-[14px] font-medium hover:opacity-90 transition-all shadow-sm">Generate Report</button>
+                <button type="button" class="px-md py-sm border border-outline-variant text-on-surface rounded-lg text-[14px] font-medium hover:bg-surface-container-low transition-colors" onclick="window.print()">Download (Print)</button>
+            </div>
+        </form>
+    </div>
+
+    <div class="bg-surface-container-lowest rounded-lg p-md shadow-sm border border-outline-variant min-h-[300px] flex flex-col">
+        <h3 class="text-[20px] font-semibold text-on-surface mb-md">Completed Exams Over Time</h3>
+        <div class="flex-1 w-full overflow-hidden">
+            <canvas id="progressChart" width="400" height="150"></canvas>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+        var ctx = document.getElementById('progressChart').getContext('2d');
+        var labels = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.Report.DataPoints.Select(p => p.Date.ToString("yyyy-MM-dd"))));
+        var dataCounts = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.Report.DataPoints.Select(p => p.CompletedExamsCount)));
+
+        var myChart = new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: labels,
+                datasets: [{
+                    label: 'Completed Exams',
+                    data: dataCounts,
+                    backgroundColor: 'rgba(53, 37, 205, 0.2)', // primary-container
+                    borderColor: 'rgba(30, 0, 169, 1)', // primary
+                    borderWidth: 2,
+                    fill: true,
+                    tension: 0.3
+                }]
+            },
+            options: {
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        ticks: { stepSize: 1 }
+                    }
+                }
+            }
+        });
+    </script>
+}

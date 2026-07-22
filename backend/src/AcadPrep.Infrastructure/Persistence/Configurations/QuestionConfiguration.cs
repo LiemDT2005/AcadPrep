@@ -34,16 +34,40 @@ public class QuestionConfiguration : IEntityTypeConfiguration<Question>
             .IsUnicode(false)
             .IsRequired(false);
 
+        builder.Property(x => x.AudioStartSecond)
+            .IsRequired(false);
+
+        builder.Property(x => x.AudioEndSecond)
+            .IsRequired(false);
+
+        builder.Property(x => x.ImageUrl)
+            .HasMaxLength(500)
+            .IsUnicode(false)
+            .IsRequired(false);
         builder.Property(x => x.CorrectOption)
             .HasMaxLength(1)
             .IsUnicode(false)
             .HasConversion<string>()
             .IsRequired();
 
+        builder.Property(x => x.Explanation)
+            .IsRequired(false);
+
         builder.Property(x => x.ExamId)
             .IsRequired();
 
         builder.Property(x => x.PassageId)
+            .IsRequired(false);
+
+        builder.Property(x => x.QuestionType)
+            .HasMaxLength(100)
+            .IsRequired(false);
+
+        builder.Property(x => x.TopicTag)
+            .HasMaxLength(150)
+            .IsRequired(false);
+
+        builder.Property(x => x.QuestionGroupId)
             .IsRequired(false);
 
         // Relationships
@@ -55,6 +79,11 @@ public class QuestionConfiguration : IEntityTypeConfiguration<Question>
         builder.HasOne(x => x.Passage)
             .WithMany(p => p.Questions)
             .HasForeignKey(x => x.PassageId)
+            .OnDelete(DeleteBehavior.Restrict);
+
+        builder.HasOne(x => x.QuestionGroup)
+            .WithMany(g => g.Questions)
+            .HasForeignKey(x => x.QuestionGroupId)
             .OnDelete(DeleteBehavior.Restrict);
     }
 }

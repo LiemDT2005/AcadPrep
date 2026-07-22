@@ -11,7 +11,7 @@ public class UserConfiguration : IEntityTypeConfiguration<User>
     {
         builder.ToTable("USERS", t =>
         {
-            t.HasCheckConstraint("CHK_UserStatus", "[Status] IN ('Active', 'Inactive')");
+            t.HasCheckConstraint("CHK_UserStatus", "[Status] IN ('Active', 'Inactive', 'Suspended')");
         });
 
         builder.HasKey(x => x.Id);
@@ -31,11 +31,16 @@ public class UserConfiguration : IEntityTypeConfiguration<User>
         builder.Property(x => x.PasswordHash)
             .HasMaxLength(255)
             .IsUnicode(false)
-            .IsRequired();
+            .IsRequired(false);
 
         builder.Property(x => x.FullName)
             .HasMaxLength(150)
             .IsRequired();
+
+        builder.Property(x => x.AvatarUrl)
+            .HasMaxLength(500)
+            .IsUnicode(false)
+            .IsRequired(false);
 
         builder.Property(x => x.Status)
             .HasMaxLength(50)

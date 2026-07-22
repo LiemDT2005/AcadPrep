@@ -1,0 +1,32 @@
+@model AcadPrep.WebUI.ViewComponents.ProfileAvatarViewModel
+@{
+    var fallbackAvatar = $"https://api.dicebear.com/9.x/initials/svg?seed={Uri.EscapeDataString(Model.FullName)}";
+    var avatarUrl = string.IsNullOrWhiteSpace(Model.AvatarUrl) ? fallbackAvatar : Model.AvatarUrl;
+}
+
+@if (Model.Variant == "learner")
+{
+    <a href="/Account/Profile" class="flex items-center gap-2 transition-opacity hover:opacity-90" title="Open profile" style="text-decoration:none;">
+        <div class="hidden text-right sm:block">
+            <p class="m-0 text-[12px] font-semibold leading-tight text-white">@Model.FullName</p>
+            <p class="m-0 text-[10px] text-white/70">@Model.Role</p>
+        </div>
+        <img class="h-10 w-10 rounded-full border-2 border-white object-cover" src="@avatarUrl" alt="@Model.FullName profile picture" />
+    </a>
+}
+else if (Model.Variant == "moderator")
+{
+    <a href="/Account/Profile" class="flex items-center gap-2 rounded-lg transition-opacity hover:opacity-80" title="Open profile">
+        <img class="h-10 w-10 rounded-full object-cover" src="@avatarUrl" alt="@Model.FullName profile picture" />
+        <div>
+            <div class="text-sm font-medium text-on-surface">@Model.FullName</div>
+            <div class="text-xs text-on-surface-variant">@Model.Role</div>
+        </div>
+    </a>
+}
+else
+{
+    <a href="/Account/Profile" class="flex h-10 w-10 items-center justify-center rounded-full transition-opacity hover:opacity-80" title="Open profile">
+        <img class="h-10 w-10 rounded-full border-2 border-primary object-cover" src="@avatarUrl" alt="@Model.FullName profile picture" />
+    </a>
+}

@@ -1,0 +1,94 @@
+@model ExamStructureViewModel
+    <!-- Structural Progress Indicator -->
+    <section class="qc-form-card">
+        <div class="qc-section__header" style="margin-bottom:0.75rem;padding-bottom:0.75rem">
+            <span class="material-symbols-outlined">analytics</span>
+            <div>
+                <div class="qc-section__title">Exam Structure Progress</div>
+                <div class="qc-section__hint">Track completion across all 7 TOEIC parts</div>
+            </div>
+            <span class="qc-part-badge qc-part-badge--primary ml-auto">
+                @Model.TotalQuestions total
+            </span>
+        </div>
+
+        <div class="grid grid-cols-2 md:grid-cols-7 gap-md">
+            <!-- Part 1 -->
+            <div class="qc-progress-card @(Model.Part1Count > 0 ? "qc-progress-card--active" : "") @(Model.Part1Count >= ExamStructureViewModel.TargetP1 ? "qc-progress-card--complete" : "")">
+                <div class="flex justify-between items-center font-label-sm text-label-sm font-semibold">
+                    <span class="text-on-surface">Part 1</span>
+                    <span class="text-on-surface-variant">@Model.Part1Count/@ExamStructureViewModel.TargetP1</span>
+                </div>
+                <div class="w-full bg-surface-container rounded-full h-1.5 overflow-hidden">
+                    <div class="h-full rounded-full transition-all duration-300 @(Model.Part1Count >= ExamStructureViewModel.TargetP1 ? "bg-tertiary" : Model.Part1Count > 0 ? "bg-primary" : "bg-outline-variant/40")" style="width: @(Math.Min(100, (Model.Part1Count * 100) / ExamStructureViewModel.TargetP1))%"></div>
+                </div>
+            </div>
+
+            <!-- Part 2 -->
+            <div class="qc-progress-card @(Model.Part2Count > 0 ? "qc-progress-card--active" : "") @(Model.Part2Count >= ExamStructureViewModel.TargetP2 ? "qc-progress-card--complete" : "")">
+                <div class="flex justify-between items-center font-label-sm text-label-sm font-semibold">
+                    <span class="text-on-surface">Part 2</span>
+                    <span class="text-on-surface-variant">@Model.Part2Count/@ExamStructureViewModel.TargetP2</span>
+                </div>
+                <div class="w-full bg-surface-container rounded-full h-1.5 overflow-hidden">
+                    <div class="h-full rounded-full transition-all duration-300 @(Model.Part2Count >= ExamStructureViewModel.TargetP2 ? "bg-tertiary" : Model.Part2Count > 0 ? "bg-primary" : "bg-outline-variant/40")" style="width: @(Math.Min(100, (Model.Part2Count * 100) / ExamStructureViewModel.TargetP2))%"></div>
+                </div>
+            </div>
+
+            <!-- Part 3 -->
+            <div class="qc-progress-card @(Model.Part3Count > 0 ? "qc-progress-card--active" : "") @(Model.Part3Count >= ExamStructureViewModel.TargetP3 ? "qc-progress-card--complete" : "")">
+                <div class="flex justify-between items-center font-label-sm text-label-sm font-semibold">
+                    <span class="text-on-surface">Part 3</span>
+                    <span class="text-on-surface-variant">@Model.Part3Count/@ExamStructureViewModel.TargetP3</span>
+                </div>
+                <div class="w-full bg-surface-container rounded-full h-1.5 overflow-hidden">
+                    <div class="h-full rounded-full transition-all duration-300 @(Model.Part3Count >= ExamStructureViewModel.TargetP3 ? "bg-tertiary" : Model.Part3Count > 0 ? "bg-primary" : "bg-outline-variant/40")" style="width: @(Math.Min(100, (Model.Part3Count * 100) / ExamStructureViewModel.TargetP3))%"></div>
+                </div>
+            </div>
+
+            <!-- Part 4 -->
+            <div class="qc-progress-card @(Model.Part4Count > 0 ? "qc-progress-card--active" : "") @(Model.Part4Count >= ExamStructureViewModel.TargetP4 ? "qc-progress-card--complete" : "")">
+                <div class="flex justify-between items-center font-label-sm text-label-sm font-semibold">
+                    <span class="text-on-surface">Part 4</span>
+                    <span class="text-on-surface-variant">@Model.Part4Count/@ExamStructureViewModel.TargetP4</span>
+                </div>
+                <div class="w-full bg-surface-container rounded-full h-1.5 overflow-hidden">
+                    <div class="h-full rounded-full transition-all duration-300 @(Model.Part4Count >= ExamStructureViewModel.TargetP4 ? "bg-tertiary" : Model.Part4Count > 0 ? "bg-primary" : "bg-outline-variant/40")" style="width: @(Math.Min(100, (Model.Part4Count * 100) / ExamStructureViewModel.TargetP4))%"></div>
+                </div>
+            </div>
+
+            <!-- Part 5 -->
+            <div class="qc-progress-card @(Model.Part5Count > 0 ? "qc-progress-card--active" : "") @(Model.Part5Count >= ExamStructureViewModel.TargetP5 ? "qc-progress-card--complete" : "")">
+                <div class="flex justify-between items-center font-label-sm text-label-sm font-semibold">
+                    <span class="text-on-surface">Part 5</span>
+                    <span class="text-on-surface-variant">@Model.Part5Count/@ExamStructureViewModel.TargetP5</span>
+                </div>
+                <div class="w-full bg-surface-container rounded-full h-1.5 overflow-hidden">
+                    <div class="h-full rounded-full transition-all duration-300 @(Model.Part5Count >= ExamStructureViewModel.TargetP5 ? "bg-tertiary" : Model.Part5Count > 0 ? "bg-primary" : "bg-outline-variant/40")" style="width: @(Math.Min(100, (Model.Part5Count * 100) / ExamStructureViewModel.TargetP5))%"></div>
+                </div>
+            </div>
+
+            <!-- Part 6 -->
+            <div class="qc-progress-card @(Model.Part6Count > 0 ? "qc-progress-card--active" : "") @(Model.Part6Count >= ExamStructureViewModel.TargetP6 ? "qc-progress-card--complete" : "")">
+                <div class="flex justify-between items-center font-label-sm text-label-sm font-semibold">
+                    <span class="text-on-surface">Part 6</span>
+                    <span class="text-on-surface-variant">@Model.Part6Count/@ExamStructureViewModel.TargetP6</span>
+                </div>
+                <div class="w-full bg-surface-container rounded-full h-1.5 overflow-hidden">
+                    <div class="h-full rounded-full transition-all duration-300 @(Model.Part6Count >= ExamStructureViewModel.TargetP6 ? "bg-tertiary" : Model.Part6Count > 0 ? "bg-primary" : "bg-outline-variant/40")" style="width: @(Math.Min(100, (Model.Part6Count * 100) / ExamStructureViewModel.TargetP6))%"></div>
+                </div>
+            </div>
+
+            <!-- Part 7 -->
+            <div class="qc-progress-card @(Model.Part7Count > 0 ? "qc-progress-card--active" : "") @(Model.Part7Count >= ExamStructureViewModel.TargetP7 ? "qc-progress-card--complete" : "")">
+                <div class="flex justify-between items-center font-label-sm text-label-sm font-semibold">
+                    <span class="text-on-surface">Part 7</span>
+                    <span class="text-on-surface-variant">@Model.Part7Count/@ExamStructureViewModel.TargetP7</span>
+                </div>
+                <div class="w-full bg-surface-container rounded-full h-1.5 overflow-hidden">
+                    <div class="h-full rounded-full transition-all duration-300 @(Model.Part7Count >= ExamStructureViewModel.TargetP7 ? "bg-tertiary" : Model.Part7Count > 0 ? "bg-primary" : "bg-outline-variant/40")" style="width: @(Math.Min(100, (Model.Part7Count * 100) / ExamStructureViewModel.TargetP7))%"></div>
+                </div>
+            </div>
+        </div>
+    </section>
+

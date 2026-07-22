@@ -1,0 +1,33 @@
+@page
+@model AcadPrep.WebUI.Pages.Admin.Exams.EditModel
+@{
+    Layout = "_ModeratorLayout";
+    ViewData["Title"] = "Edit Exam - " + Model.Exam.Title;
+
+    var structure = ExamStructureViewModel.From(
+        Model.Exam,
+        isReadOnly: false,
+        successMessage: Model.SuccessMessage,
+        errorMessage: Model.ErrorMessage);
+
+    var hero = new ExamPageHeroViewModel
+    {
+        Exam = Model.Exam,
+        TotalQuestions = structure.TotalQuestions,
+        IsReadOnly = false,
+        BreadcrumbCurrent = "Edit Exam",
+        HeroIcon = "edit_note"
+    };
+}
+
+<link rel="stylesheet" href="~/css/admin-question-create.css" />
+
+<div class="w-full flex flex-col gap-lg pb-12">
+    <partial name="_ExamPageHero" model="hero" />
+    <partial name="_ExamAlerts" model="structure" />
+    <partial name="_ExamMetadataForm" model="Model" />
+    <partial name="_ExamStructureProgress" model="structure" />
+    <partial name="_ExamQuestionTree" model="structure" />
+</div>
+
+<partial name="_ExamEditModals" model="structure" />

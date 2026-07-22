@@ -1,0 +1,129 @@
+@page
+@model AcadPrep.WebUI.Pages.Performance.LeaderboardModel
+@{
+    ViewData["Title"] = "Bảng Xếp Hạng";
+    var isScoreActive = string.Equals(Model.SortBy, "Score", StringComparison.OrdinalIgnoreCase);
+    var isStreakActive = string.Equals(Model.SortBy, "Streak", StringComparison.OrdinalIgnoreCase);
+}
+
+<!-- Hero Section -->
+<section class="bg-surface-container py-xl px-margin-mobile md:px-margin-desktop border-b border-outline-variant">
+    <div class="max-w-4xl mx-auto flex flex-col gap-md">
+        <!-- Nút quay lại Dashboard -->
+        <div>
+            <a href="/Performance/Dashboard" class="inline-flex items-center gap-xs text-primary font-label-md text-label-md hover:underline">
+                <span class="material-symbols-outlined text-[18px]">arrow_back</span> Quay lại Dashboard
+            </a>
+        </div>
+        <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-md">
+            <div>
+                <h1 class="font-display-lg text-display-lg text-on-surface">Bảng Xếp Hạng AcadPrep</h1>
+                <p class="font-body-md text-body-md text-on-surface-variant">Thi đua học tập cùng các học viên khác để nâng cao trình độ TOEIC!</p>
+            </div>
+            <div class="flex items-center gap-xs bg-surface-container-lowest border border-outline-variant p-xs rounded-lg shadow-sm">
+                <a href="?SortBy=Score" class="px-md py-xs rounded-md font-label-sm text-label-sm transition-colors @(isScoreActive ? "bg-primary text-on-primary font-semibold" : "text-on-surface-variant hover:bg-surface-variant/20")">
+                    Điểm số
+                </a>
+                <a href="?SortBy=Streak" class="px-md py-xs rounded-md font-label-sm text-label-sm transition-colors @(isStreakActive ? "bg-primary text-on-primary font-semibold" : "text-on-surface-variant hover:bg-surface-variant/20")">
+                    Chuỗi ngày học
+                </a>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Nội dung chi tiết Bảng xếp hạng -->
+<section class="py-xl px-margin-mobile md:px-margin-desktop max-w-4xl mx-auto">
+    <!-- Thẻ tóm tắt thứ hạng của User hiện tại -->
+    @if (Model.LeaderboardData.CurrentUserEntry != null && Model.LeaderboardData.CurrentUserEntry.Rank > 0)
+    {
+        var cu = Model.LeaderboardData.CurrentUserEntry;
+        <div class="bg-primary-container/10 border border-primary/20 rounded-xl p-md flex flex-col sm:flex-row justify-between items-start sm:items-center gap-md mb-xl shadow-sm">
+            <div class="flex items-center gap-md">
+                <div class="w-12 h-12 rounded-full bg-primary text-on-primary flex items-center justify-center font-bold text-lg shadow-sm">
+                    #@cu.Rank
+                </div>
+                <div>
+                    <h3 class="font-title-md text-title-md text-on-surface">Vị trí hiện tại của bạn</h3>
+                    <p class="font-body-sm text-body-sm text-on-surface-variant">Bạn đang xếp thứ <strong>#@cu.Rank</strong> trên hệ thống.</p>
+                </div>
+            </div>
+            <div class="flex gap-lg">
+                <div class="text-center sm:text-right">
+                    <span class="block font-label-sm text-label-sm text-on-surface-variant">Tổng điểm thi</span>
+                    <span class="font-headline-sm text-headline-sm text-primary font-bold">@cu.TotalScore.ToString("N0")</span>
+                </div>
+                <div class="text-center sm:text-right border-l border-outline-variant/30 pl-lg">
+                    <span class="block font-label-sm text-label-sm text-on-surface-variant">Chuỗi ngày</span>
+                    <span class="font-headline-sm text-headline-sm text-secondary font-bold flex items-center justify-center sm:justify-end gap-xs">
+                        <span class="material-symbols-outlined text-[20px] fill-1 text-secondary">local_fire_department</span> @(cu.StreakDays)d
+                    </span>
+                </div>
+            </div>
+        </div>
+    }
+
+    <!-- Bảng danh sách xếp hạng -->
+    <div class="bg-surface-container-lowest rounded-xl shadow-md border border-outline-variant overflow-hidden">
+        <table class="w-full text-left border-collapse">
+            <thead class="bg-surface-container-high border-b border-outline-variant text-on-surface-variant font-label-sm text-label-sm uppercase tracking-wider">
+                <tr>
+                    <th class="p-md font-semibold w-20 text-center">Hạng</th>
+                    <th class="p-md font-semibold">Học viên</th>
+                    <th class="p-md font-semibold text-right">Tổng điểm thi</th>
+                    <th class="p-md font-semibold text-right hidden sm:table-cell">Đề đã làm</th>
+                    <th class="p-md font-semibold text-right hidden md:table-cell w-36">Chuỗi ngày học</th>
+                </tr>
+            </thead>
+            <tbody class="divide-y divide-outline-variant/30 font-body-sm text-body-sm">
+                @if (Model.LeaderboardData.Entries != null && Model.LeaderboardData.Entries.Any())
+                {
+                    foreach (var user in Model.LeaderboardData.Entries)
+                    {
+                        var rankColor = user.Rank == 1 ? "text-yellow-500" : (user.Rank == 2 ? "text-gray-400" : (user.Rank == 3 ? "text-amber-700" : "text-on-surface-variant"));
+                        var rankIcon = user.Rank <= 3 ? "military_tech" : "";
+                        var initial = user.Name.Length > 0 ? user.Name.Substring(0, 1).ToUpper() : "U";
+                        var isCurrent = user.IsCurrentUser;
+
+                        <tr class="hover:bg-surface-container/20 transition-colors @(isCurrent ? "bg-primary-container/10 font-medium border-l-4 border-l-primary" : "")">
+                            <!-- Hạng -->
+                            <td class="p-md text-center font-bold">
+                                @if (user.Rank <= 3)
+                                {
+                                    <span class="material-symbols-outlined text-[28px] fill-1 @rankColor" title="Top @user.Rank">@rankIcon</span>
+                                }
+                                else
+                                {
+                                    <span class="text-on-surface-variant">@user.Rank</span>
+                                }
+                            </td>
+                            <!-- Tên học viên -->
+                            <td class="p-md text-on-surface flex items-center gap-sm">
+                                <div class="w-8 h-8 rounded-full bg-surface-variant/40 border border-outline-variant/30 flex items-center justify-center text-on-surface font-bold text-xs uppercase">@initial</div>
+                                <span class="truncate @(isCurrent ? "font-bold text-primary" : "")">
+                                    @user.Name @(isCurrent ? " (Bạn)" : "")
+                                </span>
+                            </td>
+                            <!-- Tổng điểm -->
+                            <td class="p-md text-right font-bold text-primary">@user.TotalScore.ToString("N0")</td>
+                            <!-- Đề đã làm -->
+                            <td class="p-md text-right hidden sm:table-cell text-on-surface-variant">@user.ExamsDone đề</td>
+                            <!-- Chuỗi ngày học -->
+                            <td class="p-md text-right hidden md:table-cell">
+                                <span class="inline-flex items-center gap-xs font-semibold text-secondary-container bg-secondary-container/10 px-sm py-2xs rounded-full">
+                                    <span class="material-symbols-outlined text-[16px] fill-1 text-secondary">local_fire_department</span> @(user.StreakDays) ngày
+                                </span>
+                            </td>
+                        </tr>
+                    }
+                }
+                else
+                {
+                    <tr>
+                        <td colspan="5" class="p-xl text-center text-on-surface-variant font-medium">Chưa có dữ liệu bảng xếp hạng.</td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</section>

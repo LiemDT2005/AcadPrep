@@ -1,0 +1,71 @@
+@page
+@model AcadPrep.WebUI.Pages.Performance.StudyHistoryModel
+@{
+    ViewData["Title"] = "Study History";
+}
+
+<div class="max-w-5xl mx-auto py-2xl px-margin-mobile md:px-margin-desktop">
+    <div class="mb-xl">
+        <h2 class="font-headline-md text-headline-md text-on-surface mb-sm">Study history</h2>
+        <p class="font-body-md text-body-md text-on-surface-variant">Timeline of your learning activity across exams, practice, and vocabulary.</p>
+    </div>
+
+    <div class="flex flex-wrap gap-sm mb-lg">
+        <a href="/Performance/ExamAttempts" class="inline-flex items-center gap-xs px-md py-xs rounded-lg border border-outline-variant text-label-md font-medium hover:bg-surface-container">
+            <span class="material-symbols-outlined text-[16px]">list_alt</span> Exam attempts
+        </a>
+        <a href="/Performance/IncorrectAnswers" class="inline-flex items-center gap-xs px-md py-xs rounded-lg border border-outline-variant text-label-md font-medium hover:bg-surface-container">
+            <span class="material-symbols-outlined text-[16px]">error</span> Incorrect answers
+        </a>
+    </div>
+
+    @if (!Model.History.Items.Any())
+    {
+        <div class="bg-secondary-container/30 border border-secondary-container rounded-xl p-xl text-center">
+            <span class="material-symbols-outlined text-[48px] text-secondary mb-md">history</span>
+            <h3 class="font-headline-sm text-headline-sm text-on-surface mb-sm">No activity yet</h3>
+            <p class="font-body-md text-body-md text-on-surface-variant mb-lg">Complete a test or save vocabulary to build your timeline.</p>
+            <a href="/Exams" class="inline-flex items-center gap-sm bg-primary text-on-primary px-lg py-sm rounded-lg font-label-md hover:bg-primary/90">
+                <span class="material-symbols-outlined text-[18px]">quiz</span> Browse exams
+            </a>
+        </div>
+    }
+    else
+    {
+        <div class="relative space-y-md before:absolute before:left-[19px] before:top-2 before:bottom-2 before:w-px before:bg-outline-variant/60">
+            @foreach (var item in Model.History.Items)
+            {
+                var iconBg = item.ColorType switch
+                {
+                    "secondary" => "bg-secondary-container text-on-secondary-container",
+                    "tertiary" => "bg-tertiary-container text-on-tertiary-container",
+                    _ => "bg-primary-container text-on-primary-container"
+                };
+
+                <div class="relative pl-12">
+                    <div class="absolute left-0 top-1 w-10 h-10 rounded-full @iconBg flex items-center justify-center shadow-sm">
+                        <span class="material-symbols-outlined text-[20px]">@item.Icon</span>
+                    </div>
+                    <div class="bg-surface-container-lowest border border-surface-variant rounded-xl p-md shadow-sm">
+                        <div class="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-sm">
+                            <div>
+                                <p class="text-[11px] uppercase tracking-wide text-on-surface-variant font-semibold mb-xs">@item.ActivityType</p>
+                                <h3 class="font-headline-sm text-on-surface font-bold mb-xs">@item.Title</h3>
+                                <p class="font-body-sm text-on-surface-variant">@item.Description</p>
+                            </div>
+                            <div class="text-left sm:text-right shrink-0">
+                                <p class="text-label-sm text-on-surface-variant">@item.OccurredAt.ToLocalTime().ToString("dd/MM/yyyy HH:mm")</p>
+                                @if (!string.IsNullOrEmpty(item.LinkUrl))
+                                {
+                                    <a href="@item.LinkUrl" class="inline-flex items-center gap-xs text-primary text-label-md font-bold mt-xs hover:underline">
+                                        View <span class="material-symbols-outlined text-[14px]">arrow_forward</span>
+                                    </a>
+                                }
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+    }
+</div>

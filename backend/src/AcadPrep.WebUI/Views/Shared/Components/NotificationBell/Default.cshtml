@@ -1,0 +1,171 @@
+@model AcadPrep.WebUI.ViewComponents.NotificationBellViewModel
+@{
+    var isLight = Model.Variant != "dark";
+    var buttonClasses = isLight
+        ? "text-white hover:bg-white/10"
+        : "text-on-surface-variant hover:bg-surface-container-low hover:text-primary";
+    var badgeBorder = isLight ? "border-primary" : "border-surface-container-lowest";
+
+    (string icon, string accent) TypeVisual(string? type)
+    {
+        var t = type ?? string.Empty;
+        if (t.StartsWith("exam."))
+            return ("quiz", "text-primary bg-primary/10");
+        if (t.StartsWith("gamification.") || t.StartsWith("vocab."))
+            return ("military_tech", "text-emerald-600 bg-emerald-500/10");
+        if (t.StartsWith("content."))
+            return ("campaign", "text-orange-600 bg-orange-500/10");
+        if (t.StartsWith("security."))
+            return ("shield", "text-rose-600 bg-rose-500/10");
+        return ("account_circle", "text-secondary bg-secondary-container");
+    }
+
+    string RelativeTime(DateTime createdUtc)
+    {
+        var span = DateTime.UtcNow - createdUtc;
+        if (span.TotalSeconds < 60) return "just now";
+        if (span.TotalMinutes < 60) return $"{(int)span.TotalMinutes} minutes ago";
+        if (span.TotalHours < 24) return $"{(int)span.TotalHours} hours ago";
+        if (span.TotalDays < 7) return $"{(int)span.TotalDays} days ago";
+        return createdUtc.ToLocalTime().ToString("dd/MM/yyyy");
+    }
+}
+
+<div class="relative" id="notif-bell-root">
+    @Html.AntiForgeryToken()
+    <button type="button" onclick="toggleNotifBell(event)" title="Notifications"
+            class="w-10 h-10 rounded-full transition-colors relative bg-transparent border-0 flex items-center justify-center cursor-pointer @buttonClasses">
+        <span class="material-symbols-outlined">notifications</span>
+        <span id="notif-bell-badge"
+              class="absolute top-0.5 right-0.5 inline-flex items-center justify-center min-w-[18px] h-[18px] rounded-full bg-[#ffc107] px-1 text-[10px] font-bold text-[#1b1b24] border-2 @badgeBorder @(Model.UnreadCount > 0 ? "" : "hidden")">
+            @(Model.UnreadCount > 99 ? "99+" : Model.UnreadCount.ToString())
+        </span>
+    </button>
+
+    <!-- Dropdown popup -->
+    <div id="notif-bell-panel"
+         class="hidden absolute right-0 mt-2 w-[360px] max-w-[calc(100vw-32px)] rounded-2xl border border-outline-variant bg-surface-container-lowest shadow-2xl z-[60] overflow-hidden text-on-surface">
+        <!-- Header -->
+        <div class="flex items-center justify-between px-md py-sm border-b border-outline-variant">
+            <p class="text-[14px] font-bold text-on-surface">Notifications</p>
+            <span id="notif-panel-count"
+                  class="inline-flex items-center justify-center min-w-[20px] h-[20px] rounded-full bg-primary/10 px-1.5 text-[11px] font-bold text-primary @(Model.UnreadCount > 0 ? "" : "hidden")">@Model.UnreadCount</span>
+        </div>
+
+        <!-- List -->
+        <div class="max-h-[360px] overflow-y-auto">
+            @if (Model.RecentItems.Count == 0)
+            {
+                <div class="flex flex-col items-center justify-center gap-xs px-md py-lg text-center">
+                    <span class="material-symbols-outlined text-[32px] text-outline">notifications_off</span>
+                    <p class="text-[13px] text-on-surface-variant">No notifications yet</p>
+                </div>
+            }
+            else
+            {
+                @foreach (var n in Model.RecentItems)
+                {
+                    var (icon, accent) = TypeVisual(n.Type);
+                    var unreadClass = n.IsRead ? "" : "notif-item-unread bg-primary/[0.04]";
+                    <a href="@(string.IsNullOrWhiteSpace(n.LinkUrl) ? "/Notifications" : n.LinkUrl)"
+                       class="notif-item flex items-start gap-sm px-md py-sm border-b border-outline-variant/50 hover:bg-surface-container-low transition-colors @unreadClass" style="text-decoration:none;">
+                        <span class="material-symbols-outlined shrink-0 text-[18px] p-1.5 rounded-lg @accent" style="font-variation-settings: 'FILL' 1;">@icon</span>
+                        <div class="flex-1 min-w-0">
+                            <div class="flex items-center gap-xs">
+                                <p class="notif-title text-[13px] text-on-surface truncate @(n.IsRead ? "font-medium" : "font-bold")">@n.Title</p>
+                                @if (!n.IsRead)
+                                {
+                                    <span class="notif-unread-dot shrink-0 inline-block w-1.5 h-1.5 rounded-full bg-primary"></span>
+                                }
+                            </div>
+                            <p class="text-[12px] text-on-surface-variant line-clamp-2">@n.Message</p>
+                            <p class="mt-0.5 text-[11px] text-outline">@RelativeTime(n.CreatedAt)</p>
+                        </div>
+                    </a>
+                }
+            }
+        </div>
+
+        <!-- Footer -->
+        <a href="/Notifications"
+           class="flex items-center justify-center gap-xs px-md py-sm text-[13px] font-semibold text-primary hover:bg-surface-container-low transition-colors border-t border-outline-variant" style="text-decoration:none;">
+            <span class="material-symbols-outlined text-[16px]">list</span>
+            View all
+        </a>
+    </div>
+</div>
+
+<script>
+    function toggleNotifBell(event) {
+        event.stopPropagation();
+        var panel = document.getElementById('notif-bell-panel');
+        if (!panel) return;
+        var opening = panel.classList.contains('hidden');
+        panel.classList.toggle('hidden');
+        if (opening) {
+            markNotifPreviewRead();
+        }
+    }
+
+    function markNotifPreviewRead() {
+        var badge = document.getElementById('notif-bell-badge');
+        // Không có gì chưa đọc thì bỏ qua request.
+        if (!badge || badge.classList.contains('hidden')) return;
+
+        var root = document.getElementById('notif-bell-root');
+        var tokenEl = root ? root.querySelector('input[name="__RequestVerificationToken"]') : null;
+        var token = tokenEl ? tokenEl.value : '';
+
+        fetch('/Notifications?handler=MarkPreviewRead&count=5', {
+            method: 'POST',
+            headers: { 'RequestVerificationToken': token }
+        })
+            .then(function (r) { return r.ok ? r.json() : null; })
+            .then(function (data) {
+                var remaining = (data && typeof data.remaining === 'number') ? data.remaining : 0;
+                updateNotifBellUi(remaining);
+            })
+            .catch(function () { /* im lặng nếu lỗi mạng */ });
+    }
+
+    function updateNotifBellUi(remaining) {
+        var badge = document.getElementById('notif-bell-badge');
+        var panelCount = document.getElementById('notif-panel-count');
+
+        if (remaining > 0) {
+            var text = remaining > 99 ? '99+' : String(remaining);
+            if (badge) { badge.textContent = text; badge.classList.remove('hidden'); }
+            if (panelCount) { panelCount.textContent = remaining; panelCount.classList.remove('hidden'); }
+        } else {
+            if (badge) badge.classList.add('hidden');
+            if (panelCount) panelCount.classList.add('hidden');
+        }
+
+        // Làm mờ các item vừa được đánh dấu đã đọc trong popup.
+        document.querySelectorAll('#notif-bell-panel .notif-unread-dot').forEach(function (el) { el.remove(); });
+        document.querySelectorAll('#notif-bell-panel .notif-item-unread').forEach(function (el) {
+            el.classList.remove('notif-item-unread', 'bg-primary/[0.04]');
+        });
+        document.querySelectorAll('#notif-bell-panel .notif-title').forEach(function (el) {
+            el.classList.remove('font-bold');
+            el.classList.add('font-medium');
+        });
+    }
+
+    if (!window.__notifBellBound) {
+        window.__notifBellBound = true;
+        document.addEventListener('click', function (e) {
+            var root = document.getElementById('notif-bell-root');
+            var panel = document.getElementById('notif-bell-panel');
+            if (root && panel && !root.contains(e.target)) {
+                panel.classList.add('hidden');
+            }
+        });
+        document.addEventListener('keydown', function (e) {
+            if (e.key === 'Escape') {
+                var panel = document.getElementById('notif-bell-panel');
+                if (panel) panel.classList.add('hidden');
+            }
+        });
+    }
+</script>

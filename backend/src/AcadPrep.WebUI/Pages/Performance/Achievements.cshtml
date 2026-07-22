@@ -1,0 +1,47 @@
+@page
+@model AcadPrep.WebUI.Pages.Performance.AchievementsModel
+@{
+    ViewData["Title"] = "Achievements";
+}
+
+<div class="max-w-7xl mx-auto py-2xl px-margin-mobile md:px-margin-desktop">
+    <div class="mb-xl">
+        <h2 class="font-headline-md text-headline-md text-on-surface mb-sm">Achievements & Badges</h2>
+        <p class="font-body-md text-body-md text-on-surface-variant">Track your progress and unlock rewards as you master TOEIC skills.</p>
+    </div>
+
+    <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-lg">
+        @foreach (var achievement in Model.Achievements)
+        {
+            var isUnlocked = achievement.IsUnlocked;
+            var cardStyle = isUnlocked ? "bg-surface-container-lowest border-primary shadow-sm hover:-translate-y-1" : "bg-surface-container-low border-outline-variant opacity-75";
+            var textStyle = isUnlocked ? "text-on-surface" : "text-on-surface-variant";
+            var iconOpacity = isUnlocked ? "" : "grayscale";
+            var badgeBg = isUnlocked ? "bg-tertiary-container text-on-tertiary-container" : "bg-surface-variant text-on-surface-variant";
+
+            <div class="rounded-xl border @cardStyle p-lg text-center flex flex-col transition-all duration-300">
+                <div class="w-20 h-20 mx-auto rounded-full bg-surface-container flex items-center justify-center mb-md @iconOpacity">
+                    <!-- Fallback icon -->
+                    @(string.IsNullOrEmpty(achievement.IconUrl) ? Html.Raw("<span class='text-[40px]'>🏆</span>") : Html.Raw($"<img src='{achievement.IconUrl}' alt='{achievement.Name}' class='w-12 h-12 object-contain' />"))
+                </div>
+                <h3 class="font-headline-sm text-[18px] font-bold @textStyle mb-xs">@achievement.Name</h3>
+                <p class="font-body-sm text-body-sm text-on-surface-variant mb-md flex-1">@achievement.Description</p>
+                
+                <div class="mt-auto pt-md border-t border-surface-variant">
+                    <span class="inline-flex items-center px-sm py-[2px] rounded-full font-label-sm text-[12px] @badgeBg">
+                        @if (isUnlocked)
+                        {
+                            <span class="material-symbols-outlined text-[14px] mr-[4px]">check_circle</span>
+                            @:Unlocked: @achievement.UnlockedAt?.ToString("MMM dd, yyyy")
+                        }
+                        else
+                        {
+                            <span class="material-symbols-outlined text-[14px] mr-[4px]">lock</span>
+                            @:Locked
+                        }
+                    </span>
+                </div>
+            </div>
+        }
+    </div>
+</div>

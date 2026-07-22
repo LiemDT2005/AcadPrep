@@ -1,0 +1,335 @@
+@page
+@if (User.Identity?.IsAuthenticated == true)
+{
+    if (User.IsInRole("Admin"))
+    {
+        Response.Redirect("/Admin/Dashboard");
+    }
+    else if (User.IsInRole("Moderator"))
+    {
+        Response.Redirect("/Admin/Exams");
+    }
+    else
+    {
+        Response.Redirect("/Performance/Dashboard");
+    }
+}
+@{
+    ViewData["Title"] = "Home page";
+}
+
+<!-- Section 1: Hero -->
+<section class="bg-surface-container py-2xl px-margin-mobile md:px-margin-desktop overflow-hidden">
+<div class="max-w-7xl mx-auto flex flex-col md:flex-row items-center gap-xl md:gap-3xl relative">
+<!-- Decorative blurred background elements -->
+<div class="absolute -top-[100px] -left-[100px] w-[300px] h-[300px] bg-primary/10 rounded-full blur-3xl pointer-events-none"></div>
+<div class="md:w-[60%] flex flex-col items-start gap-md z-10">
+<span class="inline-flex items-center px-md py-xs rounded-full bg-white text-primary-container font-label-sm text-label-sm border border-primary-container/20 shadow-sm">
+                        TOEIC Preparation Platform
+                    </span>
+<h1 class="font-display-lg text-display-lg text-on-surface">Ace Your TOEIC Exam with Confidence</h1>
+<p class="font-body-lg text-body-lg text-on-surface-variant max-w-[600px]">Full simulation tests, smart flashcards, and real-time progress tracking — all in one place.</p>
+<div class="flex flex-wrap gap-md mt-sm">
+<button class="bg-primary text-on-primary px-lg py-sm rounded-lg font-label-md text-label-md hover:bg-primary/90 transition-colors shadow-sm flex items-center gap-sm">
+                            Start for Free <span class="material-symbols-outlined text-[18px]">arrow_forward</span>
+</button>
+<button class="border border-outline bg-transparent text-primary px-lg py-sm rounded-lg font-label-md text-label-md hover:bg-surface-container-high transition-colors">
+                            Browse Exams
+                        </button>
+</div>
+</div>
+<div class="md:w-[40%] w-full flex justify-center z-10 mt-xl md:mt-0 relative group perspective-1000">
+<div class="w-full max-w-[400px] bg-surface-container-lowest rounded-xl shadow-[0_8px_30px_rgb(0,0,0,0.08)] border border-surface-container-highest p-lg transform transition-all duration-500 hover:-translate-y-2 hover:shadow-[0_20px_40px_rgb(0,0,0,0.12)]">
+<div class="flex justify-between items-center mb-md pb-sm border-b border-surface-variant">
+<span class="font-label-md text-label-md text-on-surface-variant">Estimated Score</span>
+<span class="material-symbols-outlined text-primary">analytics</span>
+</div>
+<div class="flex items-baseline gap-sm mb-lg">
+<span class="font-display-lg text-display-lg text-primary leading-none">785</span>
+<span class="font-body-sm text-body-sm text-on-surface-variant pb-1">/ 990</span>
+</div>
+<div class="space-y-md">
+<div>
+<div class="flex justify-between font-label-sm text-label-sm mb-xs">
+<span class="text-on-surface-variant">Listening</span>
+<span class="text-on-surface font-semibold">415</span>
+</div>
+<div class="w-full bg-surface-variant rounded-full h-2 overflow-hidden">
+<div class="bg-tertiary-container h-2 rounded-full w-[83%] relative group-hover:bg-primary transition-colors duration-500"></div>
+</div>
+</div>
+<div>
+<div class="flex justify-between font-label-sm text-label-sm mb-xs">
+<span class="text-on-surface-variant">Reading</span>
+<span class="text-on-surface font-semibold">370</span>
+</div>
+<div class="w-full bg-surface-variant rounded-full h-2 overflow-hidden">
+<div class="bg-secondary-container h-2 rounded-full w-[74%] relative group-hover:bg-primary-container transition-colors duration-500"></div>
+</div>
+</div>
+</div>
+</div>
+<!-- Decorative floating element -->
+<div class="absolute -bottom-xl -right-xl bg-white p-sm rounded-lg shadow-lg border border-surface-variant flex items-center gap-sm animate-bounce" style="animation-duration: 3s;">
+<span class="material-symbols-outlined text-tertiary-container fill-1">check_circle</span>
+<span class="font-label-sm text-label-sm">Goal Reached</span>
+</div>
+</div>
+</div>
+</section>
+<!-- Section 3: Stats Bar -->
+<section class="border-y border-outline-variant bg-surface-container-lowest">
+<div class="max-w-7xl mx-auto grid grid-cols-2 md:grid-cols-4 gap-lg p-xl divide-x divide-outline-variant/30 text-center">
+<div class="flex flex-col items-center justify-center p-sm">
+<span class="font-headline-lg text-headline-lg text-primary-container mb-xs">500+</span>
+<span class="font-body-sm text-body-sm text-on-surface-variant">Practice Questions</span>
+</div>
+<div class="flex flex-col items-center justify-center p-sm">
+<span class="font-headline-lg text-headline-lg text-primary-container mb-xs">50+</span>
+<span class="font-body-sm text-body-sm text-on-surface-variant">TOEIC Exams</span>
+</div>
+<div class="flex flex-col items-center justify-center p-sm">
+<span class="font-headline-lg text-headline-lg text-primary-container mb-xs">10k+</span>
+<span class="font-body-sm text-body-sm text-on-surface-variant">Learners</span>
+</div>
+<div class="flex flex-col items-center justify-center p-sm">
+<span class="font-headline-lg text-headline-lg text-primary-container mb-xs">SRS</span>
+<span class="font-body-sm text-body-sm text-on-surface-variant">Flashcard System</span>
+</div>
+</div>
+</section>
+<!-- Section 2: Popular Exams -->
+<section class="py-2xl px-margin-mobile md:px-margin-desktop max-w-7xl mx-auto">
+<div class="text-center mb-xl">
+<h2 class="font-headline-md text-headline-md text-on-surface mb-sm">Experience Real Success</h2>
+<p class="font-body-lg text-body-lg text-on-surface-variant max-w-3xl mx-auto">Achieve your target score with the most realistic TOEIC simulation platform available today.</p>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-2 gap-xl items-center">
+<!-- Left Column: Successful Student -->
+<div class="relative group">
+<div class="overflow-hidden rounded-xl border border-surface-variant shadow-lg">
+<img alt="Successful student with TOEIC certificate" class="w-full h-80 object-cover transition-transform duration-500 group-hover:scale-105" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAoQDWIe5DPIepn8v_DR4a6Q_2hjGRMX6KvuwiZEpiTAF2vgIgY2zxP6K7BJSkok0oqpFf-WMI1qt32O_Fr1WbSO1S2xaM937bUcrmeUNak1BXlfjLdk9jEhEhxtk9wZz-BOGjAv0YffW35AKqqOCUjkXF4ws7qo2SixraaLtuVpHNuzDZGx76FQ2UvdaK7jKDwHvZVFp7GXExzgP9ulm1OC3hgzpoEvOibKjtUL_pUwvV4hrpH4zeUh_C287f9rpr9tlIRGoRAV6DK"/>
+</div>
+<div class="mt-md">
+<span class="inline-flex items-center gap-sm text-primary font-label-md">
+<span class="material-symbols-outlined text-[20px]">verified</span>
+          Join thousands of high-achievers
+        </span>
+</div>
+</div>
+<!-- Right Column: Exam Interface -->
+<div class="relative group">
+<div class="overflow-hidden rounded-xl border border-surface-variant shadow-lg bg-surface-container-low p-sm">
+<img alt="Realistic TOEIC exam interface" class="w-full h-80 object-cover rounded-lg transition-transform duration-500 group-hover:scale-105" src="https://lh3.googleusercontent.com/aida-public/AB6AXuB7PTNUKwp-F0aN85BgFZBZqn65P7AbHZsuNzAhYJk6GFRpED8-dIUHpWchXVjemysAABrKW8mYF5AX5KkRQhUv_1EQcw2FE4-yK0MGOaqz0xu_1umTjJLnPWGpJqQEPJWg5ABanSlFz-sgkj0O9dkPQL_pyAJhX3hEMqhU7a2ZIq5hdhT_h7ndY66nlotBK2WHsS5fENNY4ur-VtH6hk9U4kx1lhjbWEKOytMFzOGgKWCzmn8hIHpDSJDxk_M9meqC7203JmTEWxn-"/>
+</div>
+<div class="mt-md">
+<span class="inline-flex items-center gap-sm text-primary font-label-md">
+<span class="material-symbols-outlined text-[20px]">laptop_mac</span>
+          Realistic Exam Interface
+        </span>
+</div>
+</div>
+</div>
+</section><section class="py-2xl px-margin-mobile md:px-margin-desktop max-w-7xl mx-auto">
+<h2 class="font-headline-md text-headline-md text-on-surface mb-lg">Popular Exams</h2>
+<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-lg">
+<!-- Exam Card 1 -->
+<div class="bg-surface-container-lowest rounded-lg p-lg border border-surface-variant shadow-sm hover:shadow-md transition-shadow group flex flex-col h-full relative overflow-hidden">
+<div class="absolute top-0 left-0 w-1 h-full bg-tertiary-container group-hover:w-2 transition-all duration-300"></div>
+<div class="flex justify-between items-start mb-md pl-sm">
+<span class="inline-flex items-center px-sm py-[2px] rounded-full bg-tertiary-container/10 text-tertiary-container font-label-sm text-label-sm border border-tertiary-container/20">Most Popular</span>
+<span class="px-sm py-[2px] rounded bg-surface-container font-label-sm text-label-sm text-on-surface-variant">2025</span>
+</div>
+<h3 class="font-body-lg text-body-lg font-semibold text-on-surface mb-sm pl-sm group-hover:text-primary transition-colors">ETS TOEIC 2025 Test 1</h3>
+<div class="flex gap-md mb-lg pl-sm font-label-sm text-label-sm text-on-surface-variant border-b border-surface-variant pb-md">
+<div class="flex items-center gap-[4px]"><span class="material-symbols-outlined text-[16px]">format_list_numbered</span> 200 Qs</div>
+<div class="flex items-center gap-[4px]"><span class="material-symbols-outlined text-[16px]">timer</span> 120m</div>
+<div class="flex items-center gap-[4px]"><span class="material-symbols-outlined text-[16px]">group</span> 1.2k</div>
+</div>
+<div class="flex gap-sm mt-auto pl-sm">
+<a href="/Exams/Detail/1" class="flex-1 text-center border border-outline bg-transparent text-on-surface px-sm py-sm rounded-lg font-label-md text-label-md hover:bg-surface-container-high transition-colors flex items-center justify-center">View Details</a>
+<a href="/Exams/Detail/1" class="flex-1 bg-primary text-on-primary px-sm py-sm rounded-lg font-label-md text-label-md hover:bg-primary/90 transition-colors flex items-center justify-center gap-[4px]">Start Exam <span class="material-symbols-outlined text-[16px]">arrow_forward</span></a>
+</div>
+</div>
+<!-- Exam Card 2 -->
+<div class="bg-surface-container-lowest rounded-lg p-lg border border-surface-variant shadow-sm hover:shadow-md transition-shadow group flex flex-col h-full relative overflow-hidden">
+<div class="absolute top-0 left-0 w-1 h-full bg-primary-container group-hover:w-2 transition-all duration-300"></div>
+<div class="flex justify-between items-start mb-md pl-sm">
+<span class="inline-flex items-center px-sm py-[2px] rounded-full bg-primary-container/10 text-primary-container font-label-sm text-label-sm border border-primary-container/20">Trending</span>
+<span class="px-sm py-[2px] rounded bg-surface-container font-label-sm text-label-sm text-on-surface-variant">2024</span>
+</div>
+<h3 class="font-body-lg text-body-lg font-semibold text-on-surface mb-sm pl-sm group-hover:text-primary transition-colors">Economy TOEIC Vol 5</h3>
+<div class="flex gap-md mb-lg pl-sm font-label-sm text-label-sm text-on-surface-variant border-b border-surface-variant pb-md">
+<div class="flex items-center gap-[4px]"><span class="material-symbols-outlined text-[16px]">format_list_numbered</span> 200 Qs</div>
+<div class="flex items-center gap-[4px]"><span class="material-symbols-outlined text-[16px]">timer</span> 120m</div>
+<div class="flex items-center gap-[4px]"><span class="material-symbols-outlined text-[16px]">group</span> 3.4k</div>
+</div>
+<div class="flex gap-sm mt-auto pl-sm">
+<a href="/Exams/Detail/9" class="flex-1 text-center border border-outline bg-transparent text-on-surface px-sm py-sm rounded-lg font-label-md text-label-md hover:bg-surface-container-high transition-colors flex items-center justify-center">View Details</a>
+<a href="/Exams/Detail/9" class="flex-1 bg-primary text-on-primary px-sm py-sm rounded-lg font-label-md text-label-md hover:bg-primary/90 transition-colors flex items-center justify-center gap-[4px]">Start Exam <span class="material-symbols-outlined text-[16px]">arrow_forward</span></a>
+</div>
+</div>
+<!-- Exam Card 3 -->
+<div class="bg-surface-container-lowest rounded-lg p-lg border border-surface-variant shadow-sm hover:shadow-md transition-shadow group flex flex-col h-full relative overflow-hidden">
+<div class="absolute top-0 left-0 w-1 h-full bg-secondary-container group-hover:w-2 transition-all duration-300"></div>
+<div class="flex justify-between items-start mb-md pl-sm">
+<span class="inline-flex items-center px-sm py-[2px] rounded-full bg-secondary-container/10 text-secondary-container font-label-sm text-label-sm border border-secondary-container/20">Trending</span>
+<span class="px-sm py-[2px] rounded bg-surface-container font-label-sm text-label-sm text-on-surface-variant">2023</span>
+</div>
+<h3 class="font-body-lg text-body-lg font-semibold text-on-surface mb-sm pl-sm group-hover:text-primary transition-colors">Hacker TOEIC Practice</h3>
+<div class="flex gap-md mb-lg pl-sm font-label-sm text-label-sm text-on-surface-variant border-b border-surface-variant pb-md">
+<div class="flex items-center gap-[4px]"><span class="material-symbols-outlined text-[16px]">format_list_numbered</span> 200 Qs</div>
+<div class="flex items-center gap-[4px]"><span class="material-symbols-outlined text-[16px]">timer</span> 120m</div>
+<div class="flex items-center gap-[4px]"><span class="material-symbols-outlined text-[16px]">group</span> 800</div>
+</div>
+<div class="flex gap-sm mt-auto pl-sm">
+<a href="/Exams/Detail/6" class="flex-1 text-center border border-outline bg-transparent text-on-surface px-sm py-sm rounded-lg font-label-md text-label-md hover:bg-surface-container-high transition-colors flex items-center justify-center">View Details</a>
+<a href="/Exams/Detail/6" class="flex-1 bg-primary text-on-primary px-sm py-sm rounded-lg font-label-md text-label-md hover:bg-primary/90 transition-colors flex items-center justify-center gap-[4px]">Start Exam <span class="material-symbols-outlined text-[16px]">arrow_forward</span></a>
+</div>
+</div>
+</div>
+<div class="mt-lg text-center">
+<a href="/Exams" class="text-primary font-label-md text-label-md hover:underline flex items-center justify-center mx-auto gap-sm">View All Exams <span class="material-symbols-outlined text-[16px]">expand_more</span></a>
+</div>
+</section>
+<!-- Section 4: Platform Features -->
+<section class="bg-surface-container-low py-2xl px-margin-mobile md:px-margin-desktop">
+<div class="max-w-7xl mx-auto">
+<h2 class="font-headline-md text-headline-md text-on-surface mb-xl text-center">Master the TOEIC with AcadPrep</h2>
+<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-lg">
+<div class="bg-surface-container-lowest p-lg rounded-xl shadow-sm border border-surface-variant hover:-translate-y-1 transition-transform duration-300">
+<div class="w-12 h-12 rounded-lg bg-primary/10 flex items-center justify-center mb-md">
+<span class="material-symbols-outlined text-primary text-[28px]">description</span>
+</div>
+<h3 class="font-headline-sm text-headline-sm text-on-surface mb-sm">Full Exam Simulation</h3>
+<p class="font-body-sm text-body-sm text-on-surface-variant">Experience the exact UI and timing of the real TOEIC test to build stamina and familiarity.</p>
+</div>
+<div class="bg-surface-container-lowest p-lg rounded-xl shadow-sm border border-surface-variant hover:-translate-y-1 transition-transform duration-300">
+<div class="w-12 h-12 rounded-lg bg-secondary-container/10 flex items-center justify-center mb-md">
+<span class="material-symbols-outlined text-secondary-container text-[28px]">rule</span>
+</div>
+<h3 class="font-headline-sm text-headline-sm text-on-surface mb-sm">Practice by Part</h3>
+<p class="font-body-sm text-body-sm text-on-surface-variant">Focus your study sessions on specific parts (1-7) to tackle your weaknesses efficiently.</p>
+</div>
+<div class="bg-surface-container-lowest p-lg rounded-xl shadow-sm border border-surface-variant hover:-translate-y-1 transition-transform duration-300">
+<div class="w-12 h-12 rounded-lg bg-tertiary-container/10 flex items-center justify-center mb-md">
+<span class="material-symbols-outlined text-tertiary-container text-[28px]">style</span>
+</div>
+<h3 class="font-headline-sm text-headline-sm text-on-surface mb-sm">Smart Flashcards</h3>
+<p class="font-body-sm text-body-sm text-on-surface-variant">Learn essential vocabulary using our Spaced Repetition System optimized for memory retention.</p>
+</div>
+<div class="bg-surface-container-lowest p-lg rounded-xl shadow-sm border border-surface-variant hover:-translate-y-1 transition-transform duration-300">
+<div class="w-12 h-12 rounded-lg bg-primary-container/10 flex items-center justify-center mb-md">
+<span class="material-symbols-outlined text-primary-container text-[28px]">menu_book</span>
+</div>
+<h3 class="font-headline-sm text-headline-sm text-on-surface mb-sm">Smart Reading</h3>
+<p class="font-body-sm text-body-sm text-on-surface-variant">Interactive reading passages with integrated translation and vocabulary highlights.</p>
+</div>
+<div class="bg-surface-container-lowest p-lg rounded-xl shadow-sm border border-surface-variant hover:-translate-y-1 transition-transform duration-300">
+<div class="w-12 h-12 rounded-lg bg-inverse-primary/30 flex items-center justify-center mb-md">
+<span class="material-symbols-outlined text-primary text-[28px]">insights</span>
+</div>
+<h3 class="font-headline-sm text-headline-sm text-on-surface mb-sm">Progress Analytics</h3>
+<p class="font-body-sm text-body-sm text-on-surface-variant">Detailed charts and insights showing your score trajectory and part-by-part performance.</p>
+</div>
+<div class="bg-surface-container-lowest p-lg rounded-xl shadow-sm border border-surface-variant hover:-translate-y-1 transition-transform duration-300">
+<div class="w-12 h-12 rounded-lg bg-secondary-fixed-dim/30 flex items-center justify-center mb-md">
+<span class="material-symbols-outlined text-secondary text-[28px]">social_leaderboard</span>
+</div>
+<h3 class="font-headline-sm text-headline-sm text-on-surface mb-sm">Leaderboard</h3>
+<p class="font-body-sm text-body-sm text-on-surface-variant">Compete with thousands of other learners to stay motivated and reach top ranks.</p>
+</div>
+</div>
+</div>
+</section>
+<!-- Section 5: Leaderboard Preview -->
+<section class="py-2xl px-margin-mobile md:px-margin-desktop max-w-4xl mx-auto">
+<div class="flex justify-between items-end mb-lg">
+<h2 class="font-headline-md text-headline-md text-on-surface">See Where You Stand</h2>
+<span class="text-on-surface-variant font-body-sm text-body-sm">Updated hourly</span>
+</div>
+<div class="bg-surface-container-lowest rounded-xl shadow-sm border border-surface-variant overflow-hidden mb-lg">
+<table class="w-full text-left border-collapse">
+<thead class="bg-surface-container-high border-b border-surface-variant text-on-surface-variant font-label-sm text-label-sm">
+<tr>
+<th class="p-md font-semibold w-16 text-center">Rank</th>
+<th class="p-md font-semibold">Learner</th>
+<th class="p-md font-semibold text-right">Score</th>
+<th class="p-md font-semibold text-right hidden sm:table-cell">Exams Done</th>
+<th class="p-md font-semibold text-right hidden md:table-cell">Streak</th>
+</tr>
+</thead>
+<tbody class="divide-y divide-surface-variant font-body-sm text-body-sm">
+<tr class="hover:bg-surface-container-lowest transition-colors group">
+<td class="p-md text-center"><span class="material-symbols-outlined text-[24px] text-yellow-500 fill-1">military_tech</span></td>
+<td class="p-md font-medium text-on-surface flex items-center gap-sm">
+<div class="w-8 h-8 rounded-full bg-surface-variant flex items-center justify-center text-on-surface-variant font-bold">A</div>
+<span class="blur-[4px] select-none group-hover:blur-sm transition-all duration-300">Alex Student</span>
+</td>
+<td class="p-md text-right font-bold text-primary">990</td>
+<td class="p-md text-right hidden sm:table-cell text-on-surface-variant">42</td>
+<td class="p-md text-right hidden md:table-cell text-secondary-container font-medium flex items-center justify-end gap-1"><span class="material-symbols-outlined text-[16px] fill-1 text-secondary-container">local_fire_department</span> 15d</td>
+</tr>
+<tr class="hover:bg-surface-container-lowest transition-colors group">
+<td class="p-md text-center"><span class="material-symbols-outlined text-[24px] text-gray-400 fill-1">military_tech</span></td>
+<td class="p-md font-medium text-on-surface flex items-center gap-sm">
+<div class="w-8 h-8 rounded-full bg-surface-variant flex items-center justify-center text-on-surface-variant font-bold">M</div>
+<span class="blur-[4px] select-none group-hover:blur-sm transition-all duration-300">Minh Nguyen</span>
+</td>
+<td class="p-md text-right font-bold text-primary">975</td>
+<td class="p-md text-right hidden sm:table-cell text-on-surface-variant">38</td>
+<td class="p-md text-right hidden md:table-cell text-secondary-container font-medium flex items-center justify-end gap-1"><span class="material-symbols-outlined text-[16px] fill-1 text-secondary-container">local_fire_department</span> 12d</td>
+</tr>
+<tr class="hover:bg-surface-container-lowest transition-colors group bg-surface-container-low/30">
+<td class="p-md text-center"><span class="material-symbols-outlined text-[24px] text-amber-700 fill-1">military_tech</span></td>
+<td class="p-md font-medium text-on-surface flex items-center gap-sm">
+<div class="w-8 h-8 rounded-full bg-surface-variant flex items-center justify-center text-on-surface-variant font-bold">S</div>
+<span class="blur-[4px] select-none group-hover:blur-sm transition-all duration-300">Sarah K</span>
+</td>
+<td class="p-md text-right font-bold text-primary">960</td>
+<td class="p-md text-right hidden sm:table-cell text-on-surface-variant">45</td>
+<td class="p-md text-right hidden md:table-cell text-secondary-container font-medium flex items-center justify-end gap-1"><span class="material-symbols-outlined text-[16px] fill-1 text-secondary-container">local_fire_department</span> 21d</td>
+</tr>
+<tr class="hover:bg-surface-container-lowest transition-colors group">
+<td class="p-md text-center font-bold text-on-surface-variant">4</td>
+<td class="p-md font-medium text-on-surface flex items-center gap-sm">
+<div class="w-8 h-8 rounded-full bg-surface-variant flex items-center justify-center text-on-surface-variant font-bold">T</div>
+<span class="blur-[4px] select-none group-hover:blur-sm transition-all duration-300">Tom Learns</span>
+</td>
+<td class="p-md text-right font-bold text-on-surface">945</td>
+<td class="p-md text-right hidden sm:table-cell text-on-surface-variant">29</td>
+<td class="p-md text-right hidden md:table-cell text-secondary-container font-medium flex items-center justify-end gap-1"><span class="material-symbols-outlined text-[16px] fill-1 text-secondary-container">local_fire_department</span> 8d</td>
+</tr>
+<tr class="hover:bg-surface-container-lowest transition-colors group">
+<td class="p-md text-center font-bold text-on-surface-variant">5</td>
+<td class="p-md font-medium text-on-surface flex items-center gap-sm">
+<div class="w-8 h-8 rounded-full bg-surface-variant flex items-center justify-center text-on-surface-variant font-bold">H</div>
+<span class="blur-[4px] select-none group-hover:blur-sm transition-all duration-300">Hieu Pham</span>
+</td>
+<td class="p-md text-right font-bold text-on-surface">935</td>
+<td class="p-md text-right hidden sm:table-cell text-on-surface-variant">31</td>
+<td class="p-md text-right hidden md:table-cell text-secondary-container font-medium flex items-center justify-end gap-1"><span class="material-symbols-outlined text-[16px] fill-1 text-secondary-container">local_fire_department</span> 5d</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="text-center">
+<button class="bg-primary text-on-primary px-lg py-sm rounded-lg font-label-md text-label-md hover:bg-primary/90 transition-colors shadow-sm inline-flex items-center gap-sm">
+                    View Full Leaderboard <span class="material-symbols-outlined text-[18px]">arrow_forward</span>
+</button>
+</div>
+</section>
+<!-- Section 6: CTA -->
+<section class="bg-[#4F46E5] py-3xl px-margin-mobile md:px-margin-desktop text-center relative overflow-hidden">
+<!-- Decorative circles -->
+<div class="absolute top-0 right-0 -mr-20 -mt-20 w-64 h-64 rounded-full bg-white/10 blur-2xl"></div>
+<div class="absolute bottom-0 left-0 -ml-20 -mb-20 w-80 h-80 rounded-full bg-black/10 blur-2xl"></div>
+<div class="max-w-3xl mx-auto relative z-10 flex flex-col items-center">
+<h2 class="font-headline-md text-headline-md text-white mb-sm">Ready to boost your TOEIC score?</h2>
+<p class="font-body-md text-body-md text-white/80 mb-xl">Join 10,000+ learners preparing smarter with AcadPrep.</p>
+<button class="bg-white text-[#4F46E5] px-xl py-md rounded-lg font-label-md text-label-md hover:bg-surface-container-lowest transition-colors shadow-lg flex items-center gap-sm font-bold transform hover:scale-105 duration-200">
+                    Create Free Account <span class="material-symbols-outlined text-[18px]">arrow_forward</span>
+</button>
+</div>
+</section>
+

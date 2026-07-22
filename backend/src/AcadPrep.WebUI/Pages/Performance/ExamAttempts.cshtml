@@ -1,0 +1,73 @@
+@page
+@model AcadPrep.WebUI.Pages.Performance.ExamAttemptsModel
+@{
+    ViewData["Title"] = "Exam Attempts";
+}
+
+<div class="max-w-5xl mx-auto py-2xl px-margin-mobile md:px-margin-desktop">
+    <div class="mb-xl">
+        <h2 class="font-headline-md text-headline-md text-on-surface mb-sm">Exam attempts</h2>
+        <p class="font-body-md text-body-md text-on-surface-variant">All submitted full-test attempts with listening, reading, and total scores.</p>
+    </div>
+
+    <div class="flex flex-wrap gap-sm mb-lg">
+        <a href="/Performance/StudyHistory" class="inline-flex items-center gap-xs px-md py-xs rounded-lg border border-outline-variant text-label-md font-medium hover:bg-surface-container">
+            <span class="material-symbols-outlined text-[16px]">history</span> Study history
+        </a>
+        <a href="/performance/score-progress" class="inline-flex items-center gap-xs px-md py-xs rounded-lg border border-outline-variant text-label-md font-medium hover:bg-surface-container">
+            <span class="material-symbols-outlined text-[16px]">show_chart</span> Score progress
+        </a>
+    </div>
+
+    @if (!Model.Data.Attempts.Any())
+    {
+        <div class="bg-secondary-container/30 border border-secondary-container rounded-xl p-xl text-center">
+            <span class="material-symbols-outlined text-[48px] text-secondary mb-md">assignment</span>
+            <h3 class="font-headline-sm text-headline-sm text-on-surface mb-sm">No attempts yet</h3>
+            <p class="font-body-md text-body-md text-on-surface-variant mb-lg">Submit a full test to see your attempt history here.</p>
+            <a href="/Exams" class="inline-flex items-center gap-sm bg-primary text-on-primary px-lg py-sm rounded-lg font-label-md hover:bg-primary/90">
+                <span class="material-symbols-outlined text-[18px]">quiz</span> Take a test
+            </a>
+        </div>
+    }
+    else
+    {
+        <div class="bg-surface-container-lowest border border-surface-variant rounded-xl shadow-sm overflow-hidden">
+            <div class="overflow-x-auto">
+                <table class="w-full text-left border-collapse">
+                    <thead class="bg-surface-container-high border-b border-surface-variant text-on-surface-variant font-label-sm text-label-sm">
+                        <tr>
+                            <th class="p-md font-semibold">Exam</th>
+                            <th class="p-md font-semibold">Date</th>
+                            <th class="p-md font-semibold text-right">Listening</th>
+                            <th class="p-md font-semibold text-right">Reading</th>
+                            <th class="p-md font-semibold text-right">Total</th>
+                            <th class="p-md font-semibold text-right">Action</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-surface-variant font-body-sm text-body-sm">
+                        @foreach (var attempt in Model.Data.Attempts)
+                        {
+                            <tr class="hover:bg-surface-container-low transition-colors">
+                                <td class="p-md">
+                                    <a href="/Exams/Detail/@attempt.ExamId" class="font-semibold text-on-surface hover:text-primary">@attempt.ExamTitle</a>
+                                </td>
+                                <td class="p-md text-on-surface-variant">
+                                    @((attempt.CompletedAt ?? attempt.StartedAt).ToLocalTime().ToString("dd/MM/yyyy HH:mm"))
+                                </td>
+                                <td class="p-md text-right">@attempt.ListeningScore</td>
+                                <td class="p-md text-right">@attempt.ReadingScore</td>
+                                <td class="p-md text-right font-bold text-primary">@attempt.TotalScore</td>
+                                <td class="p-md text-right">
+                                    <a href="/Exams/Review?attemptId=@attempt.AttemptId" class="inline-flex items-center gap-xs text-primary font-bold hover:underline">
+                                        Review <span class="material-symbols-outlined text-[14px]">arrow_forward</span>
+                                    </a>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    }
+</div>

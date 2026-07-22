@@ -1,0 +1,109 @@
+@model AcadPrep.WebUI.Pages.Admin.Exams.IndexModel
+
+<div id="create-exam-modal" class="@(Model.ShowCreateModal ? "" : "hidden") fixed inset-0 z-50 flex items-center justify-center p-md bg-on-surface/60 backdrop-blur-sm @(Model.ShowCreateModal ? "opacity-100" : "opacity-0 pointer-events-none") transition-opacity duration-300">
+    <div id="create-exam-modal-content" class="bg-surface-container-lowest w-full max-w-xl rounded-xl shadow-2xl overflow-hidden transform @(Model.ShowCreateModal ? "scale-100 opacity-100" : "scale-95 opacity-0") transition-all duration-300">
+        <div class="flex justify-between items-center px-lg py-md border-b border-outline-variant">
+            <h2 class="font-headline-sm text-headline-sm text-on-surface font-bold">Create New Exam</h2>
+            <button type="button" onclick="closeCreateExamModal()" class="p-xs hover:bg-surface-variant rounded-full transition-colors text-on-surface-variant cursor-pointer active:scale-95">
+                <span class="material-symbols-outlined text-[24px]">close</span>
+            </button>
+        </div>
+
+        @if (Model.CreateExamErrors.Any())
+        {
+            <div class="mx-lg mt-md bg-error-container text-on-error-container p-md rounded-xl border border-error/20 flex flex-col gap-xs">
+                <div class="flex items-center gap-xs font-semibold">
+                    <span class="material-symbols-outlined text-error">error</span>
+                        <ul class="list-disc pl-lg font-body-sm text-body-sm">
+                            @foreach (var error in Model.CreateExamErrors)
+                            {
+                                <li>@error</li>
+                            }
+                        </ul>
+                </div>
+            </div>
+        }
+
+        <form method="post" asp-page-handler="Create" enctype="multipart/form-data" id="create-exam-form" class="p-lg space-y-lg">
+            <div class="space-y-xs">
+                <label class="flex items-center gap-xs font-label-md text-label-md text-on-surface-variant" asp-for="CreateExamForm.Title">
+                    Exam Title
+                    <span class="text-error font-bold">*</span>
+                </label>
+                <input asp-for="CreateExamForm.Title" class="w-full bg-surface-container-lowest border border-outline-variant rounded-lg px-md py-sm font-body-md text-body-md focus:outline-none focus:ring-2 focus:ring-primary-container focus:border-primary transition-all placeholder:text-outline" placeholder="e.g., ETS TOEIC 2024 Test 1" />
+            </div>
+
+            <div class="space-y-xs">
+                <label class="font-label-md text-label-md text-on-surface-variant" asp-for="CreateExamForm.Description">
+                    Description (Optional)
+                </label>
+                <textarea asp-for="CreateExamForm.Description" class="w-full bg-surface-container-lowest border border-outline-variant rounded-lg px-md py-sm font-body-md text-body-md focus:outline-none focus:ring-2 focus:ring-primary-container focus:border-primary transition-all placeholder:text-outline resize-none" placeholder="Brief description of this exam..." rows="3"></textarea>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-lg">
+                <div class="space-y-xs">
+                    <label class="flex items-center gap-xs font-label-md text-label-md text-on-surface-variant" asp-for="CreateExamForm.Duration">
+                        Duration (minutes)
+                        <span class="text-error font-bold">*</span>
+                    </label>
+                    <div class="relative">
+                        <input asp-for="CreateExamForm.Duration" class="w-full bg-surface-container-lowest border border-outline-variant rounded-lg pl-md pr-16 py-sm font-body-md text-body-md focus:outline-none focus:ring-2 focus:ring-primary-container focus:border-primary transition-all" type="number" min="1" />
+                        <div class="absolute inset-y-0 right-0 flex items-center pr-md pointer-events-none">
+                            <span class="font-label-md text-label-md text-outline">minutes</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="space-y-xs">
+                    <label class="flex items-center gap-xs font-label-md text-label-md text-on-surface-variant" asp-for="CreateExamForm.ExamSeriesId">
+                        Exam Series
+                        <span class="text-error font-bold">*</span>
+                    </label>
+                    <div class="relative">
+                        <select asp-for="CreateExamForm.ExamSeriesId" required class="w-full appearance-none bg-surface-container-lowest border border-outline-variant rounded-lg px-md py-sm font-body-md text-body-md focus:outline-none focus:ring-2 focus:ring-primary-container focus:border-primary transition-all cursor-pointer">
+                            <option value="">-- Select Exam Series --</option>
+                            @foreach (var series in Model.ExamSeries)
+                            {
+                                <option value="@series.Id">@series.Name (@series.Year)</option>
+                            }
+                        </select>
+                        <div class="absolute inset-y-0 right-0 flex items-center pr-sm pointer-events-none">
+                            <span class="material-symbols-outlined text-on-surface-variant">expand_more</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="space-y-xs">
+                <label class="font-label-md text-label-md text-on-surface-variant" asp-for="CreateExamForm.AudioFile">
+                    Full Exam Audio (Optional)
+                </label>
+                <div class="border-2 border-dashed border-outline-variant rounded-xl p-md text-center flex flex-col items-center justify-center bg-surface/10 hover:bg-surface/20 transition-all cursor-pointer relative">
+                    <input asp-for="CreateExamForm.AudioFile" type="file" accept="audio/*" id="createExamAudioInput" class="absolute inset-0 opacity-0 cursor-pointer" onchange="previewCreateExamAudio(this)" />
+                    <span class="material-symbols-outlined text-headline-lg text-outline-variant mb-xs" id="create-exam-audio-icon">audiotrack</span>
+                    <p class="font-body-sm text-body-sm text-on-surface" id="create-exam-audio-name">Upload one full listening audio file (.mp3)</p>
+                </div>
+                <div id="createExamAudioRemoveRow" class="qc-media-toolbar hidden">
+                    <button type="button" id="removeCreateExamAudioBtn" class="qc-btn-remove-media" onclick="removeCreateExamAudio()">
+                        <span class="material-symbols-outlined">delete</span>
+                        Remove audio
+                    </button>
+                </div>
+                <p class="font-body-xs text-body-xs text-on-surface-variant">
+                    If provided, listening questions will use time segments from this file instead of uploading separate audio per question — lighter and faster to set up. Max file size: 100 MB.
+                </p>
+                <p id="create-exam-audio-error" class="hidden font-body-xs text-body-xs text-error"></p>
+            </div>
+
+            <div class="px-0 py-0 bg-transparent flex items-center justify-between border-t border-outline-variant/30 pt-lg">
+                <button type="button" onclick="closeCreateExamModal()" class="px-lg py-md border border-outline rounded-lg font-label-md text-label-md text-on-surface-variant hover:bg-surface-container-high transition-all active:scale-95 cursor-pointer">
+                    Cancel
+                </button>
+                <button type="submit" class="flex items-center gap-sm px-lg py-md bg-primary-container text-on-primary rounded-lg font-label-md text-label-md hover:opacity-90 shadow-lg shadow-primary-container/20 transition-all active:scale-95 cursor-pointer">
+                    Create &amp; Add Questions
+                    <span class="material-symbols-outlined text-[18px]">arrow_forward</span>
+                </button>
+            </div>
+        </form>
+    </div>
+</div>

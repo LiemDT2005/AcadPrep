@@ -1,4 +1,5 @@
 using Domain.Entities;
+using Domain.Enums;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
@@ -24,6 +25,17 @@ public class ExamConfiguration : IEntityTypeConfiguration<Exam>
             .IsRequired(false);
 
         builder.Property(x => x.Duration)
+            .IsRequired();
+
+        builder.Property(x => x.AudioUrl)
+            .HasMaxLength(500)
+            .IsUnicode(false)
+            .IsRequired(false);
+
+        builder.Property(x => x.Status)
+            .HasConversion<string>()
+            .HasMaxLength(20)
+            .HasDefaultValue(ExamStatus.Draft)
             .IsRequired();
 
         builder.Property(x => x.IsDeleted)

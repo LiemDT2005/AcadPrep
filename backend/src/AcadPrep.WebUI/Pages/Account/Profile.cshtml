@@ -1,0 +1,409 @@
+@page
+@model AcadPrep.WebUI.Pages.Account.ProfileModel
+@using Domain.Enums
+@{
+    ViewData["Title"] = "Profile & Security";
+    Layout = User.IsInRole(nameof(UserRole.Admin))
+        ? "_AdminLayout"
+        : User.IsInRole(nameof(UserRole.Moderator))
+            ? "_ModeratorLayout"
+            : "_Layout";
+
+    var fallbackAvatar = $"https://api.dicebear.com/9.x/initials/svg?seed={Uri.EscapeDataString(Model.Profile.FullName)}";
+    var avatarUrl = string.IsNullOrWhiteSpace(Model.Profile.AvatarUrl) ? fallbackAvatar : Model.Profile.AvatarUrl;
+}
+
+<div class="w-full space-y-6">
+    <div class="flex flex-col gap-2">
+        <p class="text-sm font-semibold uppercase tracking-[0.14em] text-primary">Account settings</p>
+        <h1 class="text-3xl font-bold tracking-tight text-on-surface">Profile &amp; Security</h1>
+        <p class="text-sm text-on-surface-variant">Review your account overview, update your display information, or change your password.</p>
+    </div>
+
+    @if (TempData["ProfileSuccess"] is string successMessage)
+    {
+        <div class="flex items-center gap-3 rounded-xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm font-medium text-emerald-800" role="status">
+            <span class="material-symbols-outlined text-[20px]">check_circle</span>
+            <span>@successMessage</span>
+        </div>
+    }
+
+    <div asp-validation-summary="ModelOnly" class="rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-800 empty:hidden" role="alert"></div>
+
+    <div class="grid grid-cols-1 gap-6 xl:grid-cols-[300px_minmax(0,1fr)]">
+        <aside class="h-fit rounded-xl border border-outline-variant bg-surface-container-lowest p-6 shadow-sm">
+            <div class="flex flex-col items-center text-center">
+                <div class="relative">
+                    <img src="@avatarUrl"
+                         alt="@Model.Profile.FullName profile picture"
+                         class="h-28 w-28 rounded-full border-4 border-primary-fixed object-cover shadow-sm" />
+                    <a href="?tab=edit"
+                       aria-label="Change profile picture"
+                       class="absolute bottom-0 right-0 flex h-9 w-9 items-center justify-center rounded-full border-2 border-white bg-primary text-white shadow-md transition hover:opacity-90">
+                        <span class="material-symbols-outlined text-[18px]">photo_camera</span>
+                    </a>
+                </div>
+                <h2 class="mt-4 text-xl font-bold text-on-surface">@Model.Profile.FullName</h2>
+                <p class="mt-1 break-all text-sm text-on-surface-variant">@Model.Profile.Email</p>
+                <span class="mt-3 inline-flex items-center rounded-full bg-primary-fixed px-3 py-1 text-xs font-semibold text-on-primary-fixed-variant">
+                    @Model.Profile.Role
+                </span>
+            </div>
+
+            <dl class="mt-6 space-y-3 border-t border-outline-variant pt-5 text-sm">
+                <div class="flex items-center justify-between gap-3">
+                    <dt class="text-on-surface-variant">Account status</dt>
+                    <dd class="inline-flex items-center gap-1.5 font-semibold text-emerald-700">
+                        <span class="h-2 w-2 rounded-full bg-emerald-500"></span>
+                        @Model.Profile.Status
+                    </dd>
+                </div>
+                <div class="flex items-center justify-between gap-3">
+                    <dt class="text-on-surface-variant">Member since</dt>
+                    <dd class="font-medium text-on-surface">@Model.Profile.CreatedAt.ToString("MMM yyyy")</dd>
+                </div>
+                <div class="flex items-center justify-between gap-3">
+                    <dt class="text-on-surface-variant">Sign-in method</dt>
+                    <dd class="font-medium text-on-surface">@(Model.CanChangePassword ? "Email & password" : "Google")</dd>
+                </div>
+            </dl>
+
+            <form method="post" asp-page="/Account/Logout" class="mt-6 border-t border-outline-variant pt-5">
+                @Html.AntiForgeryToken()
+                <button type="submit"
+                        class="flex w-full items-center justify-center gap-2 rounded-lg border border-error px-4 py-2.5 text-sm font-semibold text-error transition hover:bg-error-container">
+                    <span class="material-symbols-outlined text-[18px]">logout</span>
+                    Log out
+                </button>
+            </form>
+        </aside>
+
+        <section class="min-w-0">
+            <nav class="mb-6 flex overflow-x-auto border-b border-outline-variant" aria-label="Profile sections">
+                <a href="?tab=overview"
+                   class="whitespace-nowrap border-b-2 px-5 py-3 text-sm font-semibold transition @(Model.ActiveTab == "overview" ? "border-primary text-primary" : "border-transparent text-on-surface-variant hover:text-primary")">
+                    Overview
+                </a>
+                <a href="?tab=attempts"
+                   class="whitespace-nowrap border-b-2 px-5 py-3 text-sm font-semibold transition @(Model.ActiveTab == "attempts" ? "border-primary text-primary" : "border-transparent text-on-surface-variant hover:text-primary")">
+                    Exam Attempts
+                </a>
+                <a href="?tab=edit"
+                   class="whitespace-nowrap border-b-2 px-5 py-3 text-sm font-semibold transition @(Model.ActiveTab == "edit" ? "border-primary text-primary" : "border-transparent text-on-surface-variant hover:text-primary")">
+                    Edit profile
+                </a>
+                <a href="?tab=password"
+                   class="whitespace-nowrap border-b-2 px-5 py-3 text-sm font-semibold transition @(Model.ActiveTab == "password" ? "border-primary text-primary" : "border-transparent text-on-surface-variant hover:text-primary")">
+                    Change password
+                </a>
+            </nav>
+
+            @if (Model.ActiveTab == "overview")
+            {
+                <div class="space-y-6">
+                    <div class="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
+                        @foreach (var metric in Model.Profile.Metrics)
+                        {
+                            <article class="rounded-xl border border-outline-variant bg-surface-container-lowest p-5 shadow-sm">
+                                <div class="flex items-start justify-between gap-3">
+                                    <div>
+                                        <p class="text-xs font-semibold uppercase tracking-wider text-on-surface-variant">@metric.Label</p>
+                                        <p class="mt-2 text-2xl font-bold text-on-surface">
+                                            @metric.Value.ToString("N0")
+                                            @if (!string.IsNullOrWhiteSpace(metric.Suffix))
+                                            {
+                                                <span class="text-sm font-medium text-on-surface-variant">@metric.Suffix</span>
+                                            }
+                                        </p>
+                                    </div>
+                                    <span class="material-symbols-outlined rounded-lg bg-primary-fixed p-2 text-primary">@metric.Icon</span>
+                                </div>
+                            </article>
+                        }
+                    </div>
+
+                    <div class="grid grid-cols-1 gap-5 lg:grid-cols-2">
+                        <article class="rounded-xl border border-outline-variant bg-surface-container-lowest p-6 shadow-sm">
+                            <div class="flex items-center gap-3">
+                                <span class="material-symbols-outlined text-primary">badge</span>
+                                <h3 class="text-lg font-bold text-on-surface">Personal information</h3>
+                            </div>
+                            <dl class="mt-5 space-y-4 text-sm">
+                                <div>
+                                    <dt class="text-on-surface-variant">Display name</dt>
+                                    <dd class="mt-1 font-semibold text-on-surface">@Model.Profile.FullName</dd>
+                                </div>
+                                <div>
+                                    <dt class="text-on-surface-variant">Email address</dt>
+                                    <dd class="mt-1 font-semibold text-on-surface">@Model.Profile.Email</dd>
+                                </div>
+                                <div>
+                                    <dt class="text-on-surface-variant">Role</dt>
+                                    <dd class="mt-1 font-semibold text-on-surface">@Model.Profile.Role</dd>
+                                </div>
+                            </dl>
+                            <a href="?tab=edit" class="mt-6 inline-flex items-center gap-2 rounded-lg bg-primary px-4 py-2.5 text-sm font-semibold text-white transition hover:opacity-90">
+                                <span class="material-symbols-outlined text-[18px]">edit</span>
+                                Edit profile
+                            </a>
+                        </article>
+
+                        <article class="rounded-xl border border-outline-variant bg-surface-container-lowest p-6 shadow-sm">
+                            <div class="flex items-center justify-between gap-3">
+                                <div class="flex items-center gap-3">
+                                    <span class="material-symbols-outlined text-primary">assignment</span>
+                                    <h3 class="text-lg font-bold text-on-surface">Exam attempts</h3>
+                                </div>
+                                <a href="?tab=attempts" class="text-sm font-semibold text-primary hover:underline">View all</a>
+                            </div>
+                            @if (!Model.ExamAttempts.Attempts.Any())
+                            {
+                                <p class="mt-4 text-sm leading-6 text-on-surface-variant">
+                                    No submitted full tests yet. Complete an exam to see your scores here.
+                                </p>
+                                <a href="/Exams" class="mt-6 inline-flex items-center gap-2 rounded-lg border border-primary px-4 py-2.5 text-sm font-semibold text-primary transition hover:bg-primary-fixed">
+                                    <span class="material-symbols-outlined text-[18px]">quiz</span>
+                                    Browse exams
+                                </a>
+                            }
+                            else
+                            {
+                                <ul class="mt-4 space-y-3">
+                                    @foreach (var attempt in Model.ExamAttempts.Attempts.Take(3))
+                                    {
+                                        <li class="flex items-center justify-between gap-3 rounded-lg border border-outline-variant/60 px-3 py-2.5">
+                                            <div class="min-w-0">
+                                                <p class="truncate text-sm font-semibold text-on-surface">@attempt.ExamTitle</p>
+                                                <p class="text-xs text-on-surface-variant">@((attempt.CompletedAt ?? attempt.StartedAt).ToLocalTime().ToString("dd/MM/yyyy HH:mm"))</p>
+                                            </div>
+                                            <div class="shrink-0 text-right">
+                                                <p class="text-sm font-bold text-primary">@attempt.TotalScore</p>
+                                                <a href="/Exams/Review?attemptId=@attempt.AttemptId" class="text-xs font-semibold text-primary hover:underline">Review</a>
+                                            </div>
+                                        </li>
+                                    }
+                                </ul>
+                            }
+                        </article>
+                    </div>
+                </div>
+            }
+            else if (Model.ActiveTab == "attempts")
+            {
+                <div class="space-y-5">
+                    <div class="flex flex-wrap items-end justify-between gap-3">
+                        <div>
+                            <h2 class="text-xl font-bold text-on-surface">Exam attempts</h2>
+                            <p class="mt-1 text-sm text-on-surface-variant">Submitted full-test attempts with listening, reading, and total scores.</p>
+                        </div>
+                        <a href="/Performance/ExamAttempts" class="text-sm font-semibold text-primary hover:underline">Open full page</a>
+                    </div>
+
+                    @if (!Model.ExamAttempts.Attempts.Any())
+                    {
+                        <div class="rounded-xl border border-outline-variant bg-surface-container-lowest p-10 text-center shadow-sm">
+                            <span class="material-symbols-outlined text-[48px] text-on-surface-variant mb-3">assignment</span>
+                            <h3 class="text-lg font-bold text-on-surface mb-2">No attempts yet</h3>
+                            <p class="text-sm text-on-surface-variant mb-5">Submit a full test to see your attempt history here.</p>
+                            <a href="/Exams" class="inline-flex items-center gap-2 rounded-lg bg-primary px-4 py-2.5 text-sm font-semibold text-white transition hover:opacity-90">
+                                <span class="material-symbols-outlined text-[18px]">quiz</span>
+                                Take a test
+                            </a>
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="rounded-xl border border-outline-variant bg-surface-container-lowest shadow-sm overflow-hidden">
+                            <div class="overflow-x-auto">
+                                <table class="w-full text-left border-collapse">
+                                    <thead class="bg-surface-container-high border-b border-outline-variant text-on-surface-variant text-xs font-semibold uppercase tracking-wide">
+                                        <tr>
+                                            <th class="p-4">Exam</th>
+                                            <th class="p-4">Date</th>
+                                            <th class="p-4 text-right">Listening</th>
+                                            <th class="p-4 text-right">Reading</th>
+                                            <th class="p-4 text-right">Total</th>
+                                            <th class="p-4 text-right">Action</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody class="divide-y divide-outline-variant text-sm">
+                                        @foreach (var attempt in Model.ExamAttempts.Attempts)
+                                        {
+                                            <tr class="hover:bg-surface-container-low transition-colors">
+                                                <td class="p-4">
+                                                    <a href="/Exams/Detail/@attempt.ExamId" class="font-semibold text-on-surface hover:text-primary">@attempt.ExamTitle</a>
+                                                </td>
+                                                <td class="p-4 text-on-surface-variant">
+                                                    @((attempt.CompletedAt ?? attempt.StartedAt).ToLocalTime().ToString("dd/MM/yyyy HH:mm"))
+                                                </td>
+                                                <td class="p-4 text-right">@attempt.ListeningScore</td>
+                                                <td class="p-4 text-right">@attempt.ReadingScore</td>
+                                                <td class="p-4 text-right font-bold text-primary">@attempt.TotalScore</td>
+                                                <td class="p-4 text-right">
+                                                    <a href="/Exams/Review?attemptId=@attempt.AttemptId" class="inline-flex items-center gap-1 font-bold text-primary hover:underline">
+                                                        Review <span class="material-symbols-outlined text-[14px]">arrow_forward</span>
+                                                    </a>
+                                                </td>
+                                            </tr>
+                                        }
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    }
+                </div>
+            }
+            else if (Model.ActiveTab == "edit")
+            {
+                <div class="max-w-3xl rounded-xl border border-outline-variant bg-surface-container-lowest p-6 shadow-sm md:p-8">
+                    <div class="mb-6">
+                        <h2 class="text-xl font-bold text-on-surface">Edit profile</h2>
+                        <p class="mt-1 text-sm text-on-surface-variant">You can update your display name and profile picture. Email and role are managed by the system.</p>
+                    </div>
+
+                    <form method="post" enctype="multipart/form-data" asp-page-handler="UpdateProfile" class="space-y-6">
+                        <div class="flex flex-col gap-5 rounded-xl bg-surface-container-low p-5 sm:flex-row sm:items-center">
+                            <img id="avatar-preview" src="@avatarUrl" alt="Profile picture preview" class="h-20 w-20 rounded-full border-2 border-white object-cover shadow-sm" />
+                            <div>
+                                <label for="avatar-file" class="inline-flex cursor-pointer items-center gap-2 rounded-lg border border-primary px-4 py-2 text-sm font-semibold text-primary transition hover:bg-primary-fixed">
+                                    <span class="material-symbols-outlined text-[18px]">upload</span>
+                                    Choose picture
+                                </label>
+                                <input id="avatar-file" asp-for="AvatarFile" type="file" accept="image/jpeg,image/png,image/webp" class="sr-only" />
+                                <p class="mt-2 text-xs text-on-surface-variant">JPG, PNG, or WebP. Maximum size: 2 MB.</p>
+                                <span asp-validation-for="AvatarFile" class="mt-1 block text-xs font-medium text-error"></span>
+                            </div>
+                        </div>
+
+                        <div>
+                            <label asp-for="ProfileInput.FullName" class="mb-2 block text-sm font-semibold text-on-surface"></label>
+                            <input asp-for="ProfileInput.FullName" maxlength="150"
+                                   class="h-11 w-full rounded-lg border border-outline-variant bg-white px-4 text-sm text-on-surface outline-none transition focus:border-primary focus:ring-2 focus:ring-primary/15" />
+                            <span asp-validation-for="ProfileInput.FullName" class="mt-1 block text-xs font-medium text-error"></span>
+                        </div>
+
+                        <div>
+                            <label class="mb-2 block text-sm font-semibold text-on-surface">Email address</label>
+                            <input value="@Model.Profile.Email" disabled
+                                   class="h-11 w-full cursor-not-allowed rounded-lg border border-outline-variant bg-surface-container px-4 text-sm text-on-surface-variant" />
+                            <p class="mt-1 text-xs text-on-surface-variant">Your email address cannot be changed here.</p>
+                        </div>
+
+                        <div>
+                            <label class="mb-2 block text-sm font-semibold text-on-surface">Role</label>
+                            <input value="@Model.Profile.Role" disabled
+                                   class="h-11 w-full cursor-not-allowed rounded-lg border border-outline-variant bg-surface-container px-4 text-sm text-on-surface-variant" />
+                        </div>
+
+                        <div class="flex flex-wrap justify-end gap-3 border-t border-outline-variant pt-5">
+                            <a href="?tab=overview" class="rounded-lg border border-outline-variant px-5 py-2.5 text-sm font-semibold text-on-surface-variant transition hover:bg-surface-container">
+                                Cancel
+                            </a>
+                            <button type="submit" class="inline-flex items-center gap-2 rounded-lg bg-primary px-5 py-2.5 text-sm font-semibold text-white transition hover:opacity-90">
+                                <span class="material-symbols-outlined text-[18px]">save</span>
+                                Save changes
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            }
+            else
+            {
+                <div class="max-w-3xl rounded-xl border border-outline-variant bg-surface-container-lowest p-6 shadow-sm md:p-8">
+                    <div class="mb-6">
+                        <h2 class="text-xl font-bold text-on-surface">Change password</h2>
+                        <p class="mt-1 text-sm text-on-surface-variant">Enter your current password before choosing a new one.</p>
+                    </div>
+
+                    @if (Model.CanChangePassword)
+                    {
+                        <form method="post" asp-page-handler="ChangePassword" class="space-y-5">
+                            <div>
+                                <label asp-for="PasswordInput.CurrentPassword" class="mb-2 block text-sm font-semibold text-on-surface">Current password</label>
+                                <div class="relative">
+                                    <input asp-for="PasswordInput.CurrentPassword" class="password-field h-11 w-full rounded-lg border border-outline-variant bg-white px-4 pr-12 text-sm outline-none transition focus:border-primary focus:ring-2 focus:ring-primary/15" />
+                                    <button type="button" class="password-toggle absolute inset-y-0 right-0 flex w-11 items-center justify-center text-on-surface-variant" aria-label="Show password">
+                                        <span class="material-symbols-outlined text-[20px]">visibility</span>
+                                    </button>
+                                </div>
+                                <span asp-validation-for="PasswordInput.CurrentPassword" class="mt-1 block text-xs font-medium text-error"></span>
+                            </div>
+
+                            <div>
+                                <label asp-for="PasswordInput.NewPassword" class="mb-2 block text-sm font-semibold text-on-surface">New password</label>
+                                <div class="relative">
+                                    <input asp-for="PasswordInput.NewPassword" class="password-field h-11 w-full rounded-lg border border-outline-variant bg-white px-4 pr-12 text-sm outline-none transition focus:border-primary focus:ring-2 focus:ring-primary/15" />
+                                    <button type="button" class="password-toggle absolute inset-y-0 right-0 flex w-11 items-center justify-center text-on-surface-variant" aria-label="Show password">
+                                        <span class="material-symbols-outlined text-[20px]">visibility</span>
+                                    </button>
+                                </div>
+                                <span asp-validation-for="PasswordInput.NewPassword" class="mt-1 block text-xs font-medium text-error"></span>
+                            </div>
+
+                            <div>
+                                <label asp-for="PasswordInput.ConfirmPassword" class="mb-2 block text-sm font-semibold text-on-surface">Confirm new password</label>
+                                <div class="relative">
+                                    <input asp-for="PasswordInput.ConfirmPassword" class="password-field h-11 w-full rounded-lg border border-outline-variant bg-white px-4 pr-12 text-sm outline-none transition focus:border-primary focus:ring-2 focus:ring-primary/15" />
+                                    <button type="button" class="password-toggle absolute inset-y-0 right-0 flex w-11 items-center justify-center text-on-surface-variant" aria-label="Show password">
+                                        <span class="material-symbols-outlined text-[20px]">visibility</span>
+                                    </button>
+                                </div>
+                                <span asp-validation-for="PasswordInput.ConfirmPassword" class="mt-1 block text-xs font-medium text-error"></span>
+                            </div>
+
+                            <div class="rounded-lg bg-surface-container-low p-4 text-sm text-on-surface-variant">
+                                <p class="font-semibold text-on-surface">Password requirements</p>
+                                <ul class="mt-2 grid gap-1 sm:grid-cols-2">
+                                    <li>• At least 8 characters</li>
+                                    <li>• One uppercase letter</li>
+                                    <li>• One lowercase letter</li>
+                                    <li>• One number and special character</li>
+                                </ul>
+                            </div>
+
+                            <div class="flex flex-wrap justify-end gap-3 border-t border-outline-variant pt-5">
+                                <a href="?tab=overview" class="rounded-lg border border-outline-variant px-5 py-2.5 text-sm font-semibold text-on-surface-variant transition hover:bg-surface-container">
+                                    Cancel
+                                </a>
+                                <button type="submit" class="inline-flex items-center gap-2 rounded-lg bg-primary px-5 py-2.5 text-sm font-semibold text-white transition hover:opacity-90">
+                                    <span class="material-symbols-outlined text-[18px]">lock_reset</span>
+                                    Update password
+                                </button>
+                            </div>
+                        </form>
+                    }
+                    else
+                    {
+                        <div class="flex gap-3 rounded-xl border border-outline-variant bg-surface-container-low p-5 text-sm text-on-surface-variant">
+                            <span class="material-symbols-outlined text-primary">info</span>
+                            <p>This account uses Google sign-in and does not have a password to change.</p>
+                        </div>
+                    }
+                </div>
+            }
+        </section>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        document.getElementById('avatar-file')?.addEventListener('change', function () {
+            const file = this.files?.[0];
+            const preview = document.getElementById('avatar-preview');
+            if (file && preview) {
+                preview.src = URL.createObjectURL(file);
+            }
+        });
+
+        document.querySelectorAll('.password-toggle').forEach(button => {
+            button.addEventListener('click', () => {
+                const input = button.parentElement.querySelector('.password-field');
+                const icon = button.querySelector('.material-symbols-outlined');
+                const shouldShow = input.type === 'password';
+                input.type = shouldShow ? 'text' : 'password';
+                icon.textContent = shouldShow ? 'visibility_off' : 'visibility';
+                button.setAttribute('aria-label', shouldShow ? 'Hide password' : 'Show password');
+            });
+        });
+    </script>
+}

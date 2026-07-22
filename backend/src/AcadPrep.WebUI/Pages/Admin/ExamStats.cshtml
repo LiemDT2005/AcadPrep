@@ -1,0 +1,52 @@
+@page
+@model AcadPrep.WebUI.Pages.Admin.ExamStatsModel
+@{
+    ViewData["Title"] = "Exam Statistics";
+}
+
+<div class="max-w-[1400px] mx-auto flex flex-col gap-xl">
+    <div class="bg-surface-container-lowest rounded-lg shadow-sm border border-outline-variant flex flex-col overflow-hidden">
+        <div class="p-md border-b border-outline-variant bg-surface-container-low flex justify-between items-center">
+            <h2 class="text-[20px] font-semibold text-on-surface">Exam Performance Details</h2>
+            <a href="/Admin/Dashboard" class="text-primary hover:text-primary-container text-[14px] font-medium flex items-center gap-xs">
+                Back to Dashboard <span class="material-symbols-outlined text-[16px]">arrow_back</span>
+            </a>
+        </div>
+        <div class="overflow-x-auto">
+            <table class="w-full text-left border-collapse">
+                <thead>
+                    <tr class="bg-surface border-b border-outline-variant">
+                        <th class="p-sm text-[14px] text-on-surface-variant font-medium">Exam ID</th>
+                        <th class="p-sm text-[14px] text-on-surface-variant font-medium">Exam Name</th>
+                        <th class="p-sm text-[14px] text-on-surface-variant font-medium">Total Attempts</th>
+                        <th class="p-sm text-[14px] text-on-surface-variant font-medium">Average Score</th>
+                        <th class="p-sm text-[14px] text-on-surface-variant font-medium">Highest Score</th>
+                        <th class="p-sm text-[14px] text-on-surface-variant font-medium">Lowest Score</th>
+                    </tr>
+                </thead>
+                <tbody class="text-[14px] text-on-surface">
+                    @if (Model.Stats.Any())
+                    {
+                        foreach (var stat in Model.Stats)
+                        {
+                            <tr class="border-b border-outline-variant hover:bg-surface-container-lowest transition-colors">
+                                <td class="p-sm font-medium">@stat.ExamId</td>
+                                <td class="p-sm">@stat.ExamName</td>
+                                <td class="p-sm">@stat.TotalAttempts</td>
+                                <td class="p-sm">@stat.AverageScore.ToString("F2")</td>
+                                <td class="p-sm">@stat.HighestScore</td>
+                                <td class="p-sm">@stat.LowestScore</td>
+                            </tr>
+                        }
+                    }
+                    else
+                    {
+                        <tr>
+                            <td colspan="6" class="p-sm text-center text-on-surface-variant">No exam data available.</td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>

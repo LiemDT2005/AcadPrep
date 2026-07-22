@@ -1,0 +1,270 @@
+@model ExamStructureViewModel
+@{
+    var exam = Model.Exam;
+}
+<!-- ============================================== -->
+<!-- S1: Add Content Part Picker Modal -->
+<!-- ============================================== -->
+<div id="partPickerModal" class="qc-modal hidden">
+    <div class="qc-modal__backdrop" onclick="closePartPicker()"></div>
+    <div class="qc-modal__panel qc-modal__panel--lg animate-scale-up">
+        <div class="flex justify-between items-center border-b border-outline-variant/30 pb-xs">
+            <div>
+                <h3 class="font-headline-sm text-headline-sm text-on-surface font-bold">Add Content to Exam</h3>
+                <p class="font-body-sm text-body-sm text-on-surface-variant mt-2xs">Select which Part you want to add new content to</p>
+            </div>
+            <button type="button" onclick="closePartPicker()" class="hover:bg-surface-container-high p-2 rounded-full transition-colors flex items-center justify-center">
+                <span class="material-symbols-outlined text-on-surface-variant">close</span>
+            </button>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-sm py-xs">
+            <!-- Part 1 -->
+            @if (Model.CanAddP1)
+            {
+                <a href="/Admin/Exams/@exam.Id/Questions/Create/ListeningQuestion?part=1" class="qc-part-picker-card group">
+                    <div class="qc-part-picker-icon">
+                        <span class="material-symbols-outlined">image</span>
+                    </div>
+                    <div>
+                        <h5 class="font-title-sm text-title-sm font-bold text-on-surface">Part 1: Photographs</h5>
+                        <p class="font-body-xs text-body-xs text-on-surface-variant mt-3xs">1 image + picture description question (@Model.Part1Count/@ExamStructureViewModel.TargetP1)</p>
+                    </div>
+                </a>
+            }
+            else
+            {
+                <div class="qc-part-picker-card qc-part-picker-card--disabled">
+                    <div class="qc-part-picker-icon" style="background:#f0ecf9;color:#464555">
+                        <span class="material-symbols-outlined">image</span>
+                    </div>
+                    <div>
+                        <h5 class="font-title-sm text-title-sm font-bold text-on-surface">Part 1: Photographs</h5>
+                        <p class="font-body-xs text-body-xs text-on-surface-variant mt-3xs">Complete (@Model.Part1Count/@ExamStructureViewModel.TargetP1)</p>
+                    </div>
+                </div>
+            }
+
+            <!-- Part 2 -->
+            @if (Model.CanAddP2)
+            {
+                <a href="/Admin/Exams/@exam.Id/Questions/Create/ListeningQuestion?part=2" class="qc-part-picker-card group">
+                    <div class="qc-part-picker-icon">
+                        <span class="material-symbols-outlined">hearing</span>
+                    </div>
+                    <div>
+                        <h5 class="font-title-sm text-title-sm font-bold text-on-surface">Part 2: Question-Response</h5>
+                        <p class="font-body-xs text-body-xs text-on-surface-variant mt-3xs">1 audio question & response (@Model.Part2Count/@ExamStructureViewModel.TargetP2)</p>
+                    </div>
+                </a>
+            }
+            else
+            {
+                <div class="qc-part-picker-card qc-part-picker-card--disabled">
+                    <div class="qc-part-picker-icon" style="background:#f0ecf9;color:#464555">
+                        <span class="material-symbols-outlined">hearing</span>
+                    </div>
+                    <div>
+                        <h5 class="font-title-sm text-title-sm font-bold text-on-surface">Part 2: Question-Response</h5>
+                        <p class="font-body-xs text-body-xs text-on-surface-variant mt-3xs">Complete (@Model.Part2Count/@ExamStructureViewModel.TargetP2)</p>
+                    </div>
+                </div>
+            }
+
+            <!-- Part 3 -->
+            @if (Model.CanAddP3)
+            {
+                <a href="/Admin/Exams/@exam.Id/Questions/Create/Listening?part=3" class="qc-part-picker-card group">
+                    <div class="qc-part-picker-icon">
+                        <span class="material-symbols-outlined">forum</span>
+                    </div>
+                    <div>
+                        <h5 class="font-title-sm text-title-sm font-bold text-on-surface">Part 3: Conversations</h5>
+                        <p class="font-body-xs text-body-xs text-on-surface-variant mt-3xs">Short conversation, 3 questions per set (@Model.Part3Count/@ExamStructureViewModel.TargetP3)</p>
+                    </div>
+                </a>
+            }
+            else
+            {
+                <div class="qc-part-picker-card qc-part-picker-card--disabled">
+                    <div class="qc-part-picker-icon" style="background:#f0ecf9;color:#464555">
+                        <span class="material-symbols-outlined">forum</span>
+                    </div>
+                    <div>
+                        <h5 class="font-title-sm text-title-sm font-bold text-on-surface">Part 3: Conversations</h5>
+                        <p class="font-body-xs text-body-xs text-on-surface-variant mt-3xs">Complete (@Model.Part3Count/@ExamStructureViewModel.TargetP3)</p>
+                    </div>
+                </div>
+            }
+
+            <!-- Part 4 -->
+            @if (Model.CanAddP4)
+            {
+                <a href="/Admin/Exams/@exam.Id/Questions/Create/Listening?part=4" class="qc-part-picker-card group">
+                    <div class="qc-part-picker-icon">
+                        <span class="material-symbols-outlined">record_voice_over</span>
+                    </div>
+                    <div>
+                        <h5 class="font-title-sm text-title-sm font-bold text-on-surface">Part 4: Talks</h5>
+                        <p class="font-body-xs text-body-xs text-on-surface-variant mt-3xs">Short talk, 3 questions per set (@Model.Part4Count/@ExamStructureViewModel.TargetP4)</p>
+                    </div>
+                </a>
+            }
+            else
+            {
+                <div class="qc-part-picker-card qc-part-picker-card--disabled">
+                    <div class="qc-part-picker-icon" style="background:#f0ecf9;color:#464555">
+                        <span class="material-symbols-outlined">record_voice_over</span>
+                    </div>
+                    <div>
+                        <h5 class="font-title-sm text-title-sm font-bold text-on-surface">Part 4: Talks</h5>
+                        <p class="font-body-xs text-body-xs text-on-surface-variant mt-3xs">Complete (@Model.Part4Count/@ExamStructureViewModel.TargetP4)</p>
+                    </div>
+                </div>
+            }
+
+            <!-- Part 5 -->
+            @if (Model.CanAddP5)
+            {
+                <a href="/Admin/Exams/@exam.Id/Questions/Create/Part5" class="qc-part-picker-card group">
+                    <div class="qc-part-picker-icon">
+                        <span class="material-symbols-outlined">format_align_left</span>
+                    </div>
+                    <div>
+                        <h5 class="font-title-sm text-title-sm font-bold text-on-surface">Part 5: Incomplete Sentences</h5>
+                        <p class="font-body-xs text-body-xs text-on-surface-variant mt-3xs">Standalone sentence completion (@Model.Part5Count/@ExamStructureViewModel.TargetP5)</p>
+                    </div>
+                </a>
+            }
+            else
+            {
+                <div class="qc-part-picker-card qc-part-picker-card--disabled">
+                    <div class="qc-part-picker-icon" style="background:#f0ecf9;color:#464555">
+                        <span class="material-symbols-outlined">format_align_left</span>
+                    </div>
+                    <div>
+                        <h5 class="font-title-sm text-title-sm font-bold text-on-surface">Part 5: Incomplete Sentences</h5>
+                        <p class="font-body-xs text-body-xs text-on-surface-variant mt-3xs">Complete (@Model.Part5Count/@ExamStructureViewModel.TargetP5)</p>
+                    </div>
+                </div>
+            }
+
+            <!-- Part 6 -->
+            @if (Model.CanAddP6)
+            {
+                <a href="/Admin/Exams/@exam.Id/Questions/Create/Part6" class="qc-part-picker-card group">
+                    <div class="qc-part-picker-icon">
+                        <span class="material-symbols-outlined">article</span>
+                    </div>
+                    <div>
+                        <h5 class="font-title-sm text-title-sm font-bold text-on-surface">Part 6: Text Completion</h5>
+                        <p class="font-body-xs text-body-xs text-on-surface-variant mt-3xs">1 passage with 4 blanks (@Model.Part6Count/@ExamStructureViewModel.TargetP6)</p>
+                    </div>
+                </a>
+            }
+            else
+            {
+                <div class="qc-part-picker-card qc-part-picker-card--disabled">
+                    <div class="qc-part-picker-icon" style="background:#f0ecf9;color:#464555">
+                        <span class="material-symbols-outlined">article</span>
+                    </div>
+                    <div>
+                        <h5 class="font-title-sm text-title-sm font-bold text-on-surface">Part 6: Text Completion</h5>
+                        <p class="font-body-xs text-body-xs text-on-surface-variant mt-3xs">Complete (@Model.Part6Count/@ExamStructureViewModel.TargetP6)</p>
+                    </div>
+                </div>
+            }
+
+            <!-- Part 7 -->
+            @if (Model.CanAddP7)
+            {
+                <a href="/Admin/Exams/@exam.Id/Questions/Create/Part7" class="qc-part-picker-card group md:col-span-2">
+                    <div class="qc-part-picker-icon">
+                        <span class="material-symbols-outlined">menu_book</span>
+                    </div>
+                    <div>
+                        <h5 class="font-title-sm text-title-sm font-bold text-on-surface">Part 7: Reading Comprehension</h5>
+                        <p class="font-body-xs text-body-xs text-on-surface-variant mt-3xs">1-3 passages + 2-5 questions per set (@Model.Part7Count/@ExamStructureViewModel.TargetP7)</p>
+                    </div>
+                </a>
+            }
+            else
+            {
+                <div class="qc-part-picker-card qc-part-picker-card--disabled md:col-span-2">
+                    <div class="qc-part-picker-icon" style="background:#f0ecf9;color:#464555">
+                        <span class="material-symbols-outlined">menu_book</span>
+                    </div>
+                    <div>
+                        <h5 class="font-title-sm text-title-sm font-bold text-on-surface">Part 7: Reading Comprehension</h5>
+                        <p class="font-body-xs text-body-xs text-on-surface-variant mt-3xs">Complete (@Model.Part7Count/@ExamStructureViewModel.TargetP7)</p>
+                    </div>
+                </div>
+            }
+        </div>
+        
+        <div class="flex justify-end mt-sm">
+            <button type="button" onclick="closePartPicker()" class="qc-btn-ghost">Cancel</button>
+        </div>
+    </div>
+</div>
+
+<!-- ============================================== -->
+<!-- S11: Delete Confirmation Modal -->
+<!-- ============================================== -->
+<div id="deleteConfirmModal" class="qc-modal hidden">
+    <div class="qc-modal__backdrop" onclick="closeDeleteConfirm()"></div>
+    <div class="qc-modal__panel qc-modal__panel--md animate-scale-up text-center">
+        <div class="w-16 h-16 bg-error-container text-error rounded-full flex items-center justify-center mx-auto mb-xs">
+            <span class="material-symbols-outlined text-display-xs">warning</span>
+        </div>
+        
+        <div>
+            <h3 class="font-headline-sm text-headline-sm text-on-surface font-bold">Confirm Delete Content</h3>
+            <p id="deleteModalMessage" class="font-body-sm text-body-sm text-on-surface-variant mt-sm">
+                Are you sure you want to delete this content from the exam?
+            </p>
+            <p class="font-body-xs text-body-xs text-error font-medium mt-xs bg-error-container/10 p-2 rounded-lg">
+                Warning: This action will delete all related questions and options and cannot be undone!
+            </p>
+        </div>
+        
+        <form method="post" asp-page-handler="Delete" asp-route-id="@exam.Id" class="flex gap-sm justify-center mt-sm">
+            <input type="hidden" name="id" value="@exam.Id" />
+            <input type="hidden" id="deleteContentType" name="contentType" value="" />
+            <input type="hidden" id="deleteTargetId" name="targetId" value="" />
+            
+            <button type="button" onclick="closeDeleteConfirm()" class="qc-btn-ghost flex-1">Cancel</button>
+            <button type="submit" class="qc-btn-primary flex-1" style="background:#ba1a1a">
+                <span class="material-symbols-outlined text-sm">delete</span>
+                Confirm Delete
+            </button>
+        </form>
+    </div>
+</div>
+
+<script>
+    function openPartPicker() {
+        document.getElementById('partPickerModal').classList.remove('hidden');
+        document.body.style.overflow = 'hidden';
+    }
+
+    function closePartPicker() {
+        document.getElementById('partPickerModal').classList.add('hidden');
+        document.body.style.overflow = '';
+    }
+
+    function confirmDelete(contentType, targetId, displayName) {
+        document.getElementById('deleteContentType').value = contentType;
+        document.getElementById('deleteTargetId').value = targetId;
+        document.getElementById('deleteModalMessage').innerHTML = 'Are you sure you want to delete <strong>' + displayName + '</strong> from the exam?';
+        
+        document.getElementById('deleteConfirmModal').classList.remove('hidden');
+        document.body.style.overflow = 'hidden';
+    }
+
+    function closeDeleteConfirm() {
+        document.getElementById('deleteConfirmModal').classList.add('hidden');
+        document.body.style.overflow = '';
+    }
+</script>
+

@@ -21,4 +21,15 @@ public interface ICacheService
     /// Xóa một entry khỏi cache.
     /// </summary>
     Task RemoveAsync(string key, CancellationToken cancellationToken = default);
+
+    /// <summary>
+    /// Lấy giá trị "version" hiện tại của một nhóm cache (trả về 0 nếu chưa có).
+    /// Dùng để nhúng vào cache key nhằm vô hiệu hóa hàng loạt entry mà không cần quét prefix.
+    /// </summary>
+    Task<long> GetVersionAsync(string versionKey, CancellationToken cancellationToken = default);
+
+    /// <summary>
+    /// Tăng "version" của một nhóm cache, khiến toàn bộ key cũ (chứa version trước đó) bị bỏ qua.
+    /// </summary>
+    Task BumpVersionAsync(string versionKey, CancellationToken cancellationToken = default);
 }

@@ -18,7 +18,7 @@ public class ExceptionHandlingMiddleware(RequestDelegate next, ILogger<Exception
         }
         catch (Exception ex)
         {
-            logger.LogError(ex, "Đã xảy ra lỗi bất ngờ khi xử lý request: {Message}", ex.Message);
+            logger.LogError(ex, "An unexpected error occurred while handling the request: {Message}", ex.Message);
             await HandleExceptionAsync(context, ex);
         }
     }
@@ -36,7 +36,7 @@ public class ExceptionHandlingMiddleware(RequestDelegate next, ILogger<Exception
             responseBody = new
             {
                 IsSuccess = false,
-                Error = "Dữ liệu đầu vào không hợp lệ.",
+                Error = "Invalid input data.",
                 Code = StatusCodes.Status400BadRequest,
                 ValidationErrors = validationEx.Errors
                     .Select(e => new { Field = e.PropertyName, Message = e.ErrorMessage })
@@ -49,7 +49,7 @@ public class ExceptionHandlingMiddleware(RequestDelegate next, ILogger<Exception
             responseBody = new
             {
                 IsSuccess = false,
-                Error = "Đã xảy ra lỗi hệ thống nghiêm trọng. Vui lòng liên hệ quản trị viên.",
+                Error = "A critical system error occurred. Please contact the administrator.",
                 Code = StatusCodes.Status500InternalServerError,
                 ValidationErrors = (object?)null
             };

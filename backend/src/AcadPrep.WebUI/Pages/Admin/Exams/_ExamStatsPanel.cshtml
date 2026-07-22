@@ -1,0 +1,38 @@
+@model ExamStructureViewModel
+@{
+    var exam = Model.Exam;
+}
+
+<section class="qc-form-card">
+    <div class="qc-section__header" style="margin-bottom:0.75rem;padding-bottom:0.75rem">
+        <span class="material-symbols-outlined">bar_chart</span>
+        <div>
+            <div class="qc-section__title">Exam Statistics</div>
+            <div class="qc-section__hint">Overview metrics for this exam</div>
+        </div>
+    </div>
+    <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-md">
+        <div class="bg-surface-container/30 p-md rounded-xl border border-outline-variant/20">
+            <span class="font-label-sm text-label-sm text-on-surface-variant block">Duration</span>
+            <span class="font-headline-sm text-headline-sm text-primary font-bold">@exam.Duration mins</span>
+        </div>
+        <div class="bg-surface-container/30 p-md rounded-xl border border-outline-variant/20">
+            <span class="font-label-sm text-label-sm text-on-surface-variant block">Total Questions</span>
+            <span class="font-headline-sm text-headline-sm text-primary font-bold">@Model.TotalQuestions qs</span>
+        </div>
+        <div class="bg-surface-container/30 p-md rounded-xl border border-outline-variant/20">
+            <span class="font-label-sm text-label-sm text-on-surface-variant block">Attempts</span>
+            <span class="font-headline-sm text-headline-sm text-primary font-bold">@exam.AttemptCount</span>
+        </div>
+        <div class="bg-surface-container/30 p-md rounded-xl border border-outline-variant/20">
+            <span class="font-label-sm text-label-sm text-on-surface-variant block">Created Date</span>
+            <span class="font-headline-sm text-headline-sm text-primary font-bold">@exam.CreatedAt.ToString("dd/MM/yyyy")</span>
+        </div>
+        <div class="bg-surface-container/30 p-md rounded-xl border border-outline-variant/20">
+            <span class="font-label-sm text-label-sm text-on-surface-variant block">Last Modified</span>
+            <span class="font-headline-sm text-headline-sm text-primary font-bold">
+                @(exam.LastModifiedAt?.ToString("dd/MM/yyyy") ?? "—")
+            </span>
+        </div>
+    </div>
+</section>

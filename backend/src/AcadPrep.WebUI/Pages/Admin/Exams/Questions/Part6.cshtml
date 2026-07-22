@@ -1,0 +1,385 @@
+@page "/Admin/Exams/{examId:int}/Questions/Create/Part6"
+@model AcadPrep.WebUI.Pages.Admin.Exams.Questions.Part6Model
+@{
+    Layout = "_ModeratorLayout";
+    var actionVerb = Model.IsEditMode ? "Edit" : "Create";
+    ViewData["Title"] = $"{actionVerb} Part 6 Passage";
+    var pageHeader = new QuestionPageHeaderViewModel {
+        ExamId = Model.ExamId,
+        ExamTitle = Model.ExamTitle,
+        Title = $"{actionVerb} Part 6 Passage",
+        Subtitle = "Text Completion — enter a passage with 4 blanks and configure answer options for each.",
+        PartBadge = "Part 6 · Reading",
+        PartIcon = "article",
+        PartBadgeVariant = "tertiary",
+        BreadcrumbCurrent = $"{actionVerb} Part 6"
+    };
+}
+
+<link rel="stylesheet" href="~/css/admin-question-create.css" />
+
+<div class="w-full flex flex-col gap-lg pb-12">
+    <partial name="_QuestionPageHeader" model="pageHeader" />
+
+    <partial name="_ValidationAlerts" model="new ValidationAlertsViewModel { ErrorMessage = Model.ErrorMessage, ValidationErrors = Model.ValidationErrors }" />
+
+    <div class="qc-stepper">
+        <div class="qc-stepper__track">
+            <div class="qc-stepper__step qc-stepper__step--active" id="stepIndicator1">
+                <span class="qc-stepper__icon" id="stepIcon1">1</span>
+                <span class="qc-stepper__label" id="stepText1">Passage</span>
+            </div>
+            <div class="qc-stepper__connector" id="stepConnector1"></div>
+            <div class="qc-stepper__step opacity-50" id="stepIndicator2">
+                <span class="qc-stepper__icon" id="stepIcon2">2</span>
+                <span class="qc-stepper__label" id="stepText2">Completion Questions</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- main Form -->
+    <form method="post" enctype="multipart/form-data" class="grid grid-cols-1 lg:grid-cols-12 gap-lg items-start" novalidate>
+        <input type="hidden" asp-for="Form.PassageId" />
+        
+        <!-- Left: Wizard Step Form -->
+        <div class="lg:col-span-7 qc-form-card min-h-[400px]">
+            
+            <!-- STEP 1: Passage Setup -->
+            <div id="step1" class="flex flex-col gap-md">
+                <div>
+                    <h3 class="font-headline-sm text-headline-sm font-bold text-on-surface">Step 1: Passage Configuration</h3>
+                    <p class="font-body-sm text-body-sm text-on-surface-variant mt-2xs">Enter the complete text and insert blank completion tags.</p>
+                </div>
+
+                <!-- Passage input mode -->
+                <div class="flex flex-col gap-2xs">
+                    <span class="font-label-md text-label-md text-on-surface font-semibold">Passage Type <span class="text-error">*</span></span>
+                    <div class="flex flex-wrap gap-md">
+                        <label class="flex items-center gap-xs text-body-sm cursor-pointer">
+                            <input type="radio" asp-for="Form.PassageInputMode" value="text" class="w-4 h-4 text-primary" onchange="togglePassageInputMode()" />
+                            Text passage
+                        </label>
+                        <label class="flex items-center gap-xs text-body-sm cursor-pointer">
+                            <input type="radio" asp-for="Form.PassageInputMode" value="image" class="w-4 h-4 text-primary" onchange="togglePassageInputMode()" />
+                            Image passage
+                        </label>
+                    </div>
+                    <p class="font-body-xs text-body-xs text-on-surface-variant">Choose either a text passage or an image passage — not both.</p>
+                </div>
+
+                <!-- Textarea for Passage Content -->
+                <div class="flex flex-col gap-2xs" id="textPassageSection">
+                    <div class="flex justify-between items-center flex-wrap gap-xs">
+                        <label asp-for="Form.PassageContent" class="font-label-md text-label-md text-on-surface font-semibold">Passage Content <span class="text-error">*</span></label>
+                        <div class="flex gap-2xs">
+                            <button type="button" onclick="insertBlankTag(131)" class="qc-chip-btn">Insert (131)</button>
+                            <button type="button" onclick="insertBlankTag(132)" class="qc-chip-btn">Insert (132)</button>
+                            <button type="button" onclick="insertBlankTag(133)" class="qc-chip-btn">Insert (133)</button>
+                            <button type="button" onclick="insertBlankTag(134)" class="qc-chip-btn">Insert (134)</button>
+                        </div>
+                    </div>
+                    <textarea asp-for="Form.PassageContent" id="passageInput" rows="10" placeholder="Example: The annual conference will be held on (131) at our main hall. All regional representatives are scheduled to (132) on Tuesday morning." class="qc-textarea resize-none"></textarea>
+                </div>
+
+                <!-- Image passage -->
+                <div class="flex flex-col gap-2xs hidden" id="imagePassageSection">
+                    <label class="font-label-md text-label-md text-on-surface font-semibold">Passage Image <span class="text-error">*</span></label>
+                    <div class="border border-outline-variant rounded-xl p-sm bg-surface">
+                        <input asp-for="Form.ImageFile" type="file" accept="image/*" id="passageImageInput" class="font-body-sm" onchange="previewPassageImage(this)" />
+                    </div>
+                    <div id="passageImagePreview" class="@(string.IsNullOrWhiteSpace(Model.Form.ImageUrl) ? "hidden" : "")">
+                        <div class="qc-media-preview">
+                            <img id="passageImagePreviewImg" src="@(Model.Form.ImageUrl ?? "")" alt="Passage preview" />
+                            <button type="button" class="qc-btn-remove-media qc-btn-remove-media--chip" onclick="removePassageImage()" title="Remove image" aria-label="Remove image">
+                                <span class="material-symbols-outlined">close</span>
+                            </button>
+                        </div>
+                        <div class="qc-media-actions">
+                            <button type="button" id="removePassageImageBtn" class="qc-btn-remove-media" onclick="removePassageImage()">
+                                <span class="material-symbols-outlined">delete</span>
+                                Remove image
+                            </button>
+                        </div>
+                    </div>
+                    <input asp-for="Form.ImageUrl" type="hidden" id="passageImageUrlField" />
+                </div>
+
+                <div class="flex flex-col gap-2xs">
+                    <label asp-for="Form.Explanation" class="font-label-md text-label-md text-on-surface font-semibold">Passage Explanation <span class="text-error">*</span></label>
+                    <textarea asp-for="Form.Explanation" rows="3" placeholder="Shared explanation for all 4 questions in this passage..." class="qc-textarea resize-none" required></textarea>
+                    <p class="font-body-xs text-on-surface-variant">Shown for the whole Part 6 set after students submit.</p>
+                </div>
+
+                <!-- Nav -->
+                <div class="qc-form-actions justify-between">
+                    <a href="/Admin/Exams/Edit?id=@Model.ExamId" class="qc-btn-ghost">Cancel</a>
+                    <button type="button" onclick="goToStep(2)" class="qc-btn-primary">
+                        Continue
+                        <span class="material-symbols-outlined text-sm">arrow_forward</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- STEP 2: Questions Setup (Auto-generated 4 cards) -->
+            <div id="step2" class="flex flex-col gap-md hidden">
+                <div>
+                    <h3 class="font-headline-sm text-headline-sm font-bold text-on-surface">Step 2: Configure 4 Questions</h3>
+                    <p class="font-body-sm text-body-sm text-on-surface-variant mt-2xs">Set options and correct answers corresponding to the 4 blanks in the passage.</p>
+                </div>
+
+                <div class="flex flex-col gap-md">
+                    @for (int i = 0; i < 4; i++)
+                    {
+                        <div class="qc-question-block">
+                            <input type="hidden" asp-for="Form.Questions[i].Id" />
+                            <div class="flex justify-between items-center qc-question-block__title">
+                                <span>Options for Blank @(i + 1)</span>
+                                <div class="flex items-center gap-xs">
+                                    <label class="font-label-sm text-label-sm font-semibold text-on-surface">Q. Number: <span class="text-error">*</span></label>
+                                    <input asp-for="Form.Questions[i].QuestionNumber" type="number" class="qc-input w-20 text-center py-1" required />
+                                </div>
+                            </div>
+
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-sm">
+                                <div class="qc-option-row">
+                                    <span class="qc-option-badge">A</span>
+                                    <input asp-for="Form.Questions[i].OptionA" type="text" placeholder="Option A" class="opt-input-a" required />
+                                    <input type="radio" name="Form.Questions[@i].CorrectOption" value="A" class="opt-radio-a" @(Model.Form.Questions[i].CorrectOption == "A" ? "checked" : null) />
+                                </div>
+                                <div class="qc-option-row">
+                                    <span class="qc-option-badge">B</span>
+                                    <input asp-for="Form.Questions[i].OptionB" type="text" placeholder="Option B" class="opt-input-b" required />
+                                    <input type="radio" name="Form.Questions[@i].CorrectOption" value="B" class="opt-radio-b" @(Model.Form.Questions[i].CorrectOption == "B" ? "checked" : null) />
+                                </div>
+                                <div class="qc-option-row">
+                                    <span class="qc-option-badge">C</span>
+                                    <input asp-for="Form.Questions[i].OptionC" type="text" placeholder="Option C" class="opt-input-c" required />
+                                    <input type="radio" name="Form.Questions[@i].CorrectOption" value="C" class="opt-radio-c" @(Model.Form.Questions[i].CorrectOption == "C" ? "checked" : null) />
+                                </div>
+                                <div class="qc-option-row">
+                                    <span class="qc-option-badge">D</span>
+                                    <input asp-for="Form.Questions[i].OptionD" type="text" placeholder="Option D" class="opt-input-d" required />
+                                    <input type="radio" name="Form.Questions[@i].CorrectOption" value="D" class="opt-radio-d" @(Model.Form.Questions[i].CorrectOption == "D" ? "checked" : null) />
+                                </div>
+                            </div>
+                            <input type="hidden" asp-for="Form.Questions[i].CorrectOption" id="correctHidden_@(i)" />
+                        </div>
+                    }
+                </div>
+
+                <!-- Nav -->
+                <div class="qc-form-actions justify-between">
+                    <button type="button" onclick="goToStep(1)" class="qc-btn-ghost">
+                        <span class="material-symbols-outlined text-sm">arrow_back</span>
+                        Back
+                    </button>
+                    <button type="submit" class="qc-btn-primary" style="background:#005338">
+                        <span class="material-symbols-outlined text-sm">check_circle</span>
+                        @(Model.IsEditMode ? "Save Changes" : "Save Passage")
+                    </button>
+                </div>
+            </div>
+
+        </div>
+
+        <!-- Right: Live Preview Panel -->
+        <div class="lg:col-span-5 qc-preview-panel">
+            <div class="qc-preview-panel__label">
+                <span class="material-symbols-outlined">visibility</span>
+                Learner Reading Live Preview
+            </div>
+            <div class="qc-preview-shell max-h-[80vh] overflow-y-auto">
+                <div class="qc-preview-inner">
+                <div class="qc-preview-meta">
+                    <span class="qc-preview-qnum">Directions: Read the text. Choose the best word or phrase.</span>
+                </div>
+
+                <!-- Live rendering passage content -->
+                <div class="font-body-md text-body-md text-on-surface leading-relaxed whitespace-pre-wrap" id="previewPassage">
+                    Passage content will appear here...
+                </div>
+
+                <div class="flex flex-col gap-md border-t border-outline-variant/20 pt-md mt-sm" id="questionsPreviewList"></div>
+                </div>
+            </div>
+        </div>
+
+    </form>
+</div>
+
+<script src="~/js/admin-form-validation.js"></script>
+<script src="~/js/admin-question-create.js"></script>
+<script>
+    let currentStep = 1;
+
+    function goToStep(step) {
+        if (step > currentStep) {
+            const stepElement = document.getElementById('step' + currentStep);
+            if (!AcadPrepFormValidation.validateContainer(stepElement)) {
+                return;
+            }
+        }
+
+        document.getElementById('step' + currentStep).classList.add('hidden');
+        currentStep = step;
+        document.getElementById('step' + currentStep).classList.remove('hidden');
+        AcadPrepQuestionUI.setStepperActive(step, 2);
+    }
+
+    function insertBlankTag(qNum) {
+        const textarea = document.getElementById('passageInput');
+        const start = textarea.selectionStart;
+        const end = textarea.selectionEnd;
+        const text = textarea.value;
+        const before = text.substring(0, start);
+        const after = text.substring(end, text.length);
+        textarea.value = before + ' (' + qNum + ') ' + after;
+        textarea.focus();
+        textarea.selectionStart = textarea.selectionEnd = start + 7;
+        updatePreview();
+    }
+
+    function updatePreview() {
+        const mode = document.querySelector('input[name="Form.PassageInputMode"]:checked')?.value || 'text';
+        const previewPassage = document.getElementById('previewPassage');
+
+        if (mode === 'image') {
+            const previewImg = document.getElementById('passageImagePreviewImg');
+            if (previewImg?.src) {
+                previewPassage.innerHTML = `<img src="${previewImg.src}" alt="Passage image preview" class="max-h-64 rounded-lg border border-outline-variant/30 shadow-sm object-contain mx-auto" />`;
+            } else {
+                previewPassage.textContent = 'Select a passage image to preview it here.';
+            }
+        } else {
+            const rawContent = document.getElementById('passageInput').value;
+            let formatted = rawContent || 'Enter text and insert completion tags like (131), (132)...';
+            formatted = formatted.replace(/\((\d+)\)/g, '<span class="inline-flex items-center justify-center w-8 h-6 bg-primary text-white font-bold rounded-md mx-1 text-xs">[$1]</span>');
+            previewPassage.innerHTML = formatted;
+        }
+
+        // Render questions preview on the right
+        const previewList = document.getElementById('questionsPreviewList');
+        previewList.innerHTML = '';
+
+        for (let i = 0; i < 4; i++) {
+            const qNumEl = document.querySelector(`input[name="Form.Questions[${i}].QuestionNumber"]`);
+            const qNum = qNumEl ? qNumEl.value : (131 + i);
+            
+            const optA = document.querySelector(`input[name="Form.Questions[${i}].OptionA"]`).value || 'Option A';
+            const optB = document.querySelector(`input[name="Form.Questions[${i}].OptionB"]`).value || 'Option B';
+            const optC = document.querySelector(`input[name="Form.Questions[${i}].OptionC"]`).value || 'Option C';
+            const optD = document.querySelector(`input[name="Form.Questions[${i}].OptionD"]`).value || 'Option D';
+
+            const correctRadio = document.querySelector(`input[name="Form.Questions[${i}].CorrectOption"]:checked`);
+            const correctVal = correctRadio ? correctRadio.value : 'A';
+
+            const qDiv = document.createElement('div');
+            qDiv.className = 'qc-question-block p-sm flex flex-col gap-2xs';
+            
+            qDiv.innerHTML = `
+                <div class="flex justify-between items-center font-label-sm text-label-sm font-bold text-primary">
+                    <span>Question ${qNum}</span>
+                    <span class="text-tertiary">Correct Option: ${correctVal}</span>
+                </div>
+                <div class="grid grid-cols-2 gap-xs text-xs font-body-sm mt-xs">
+                    <span class="${correctVal === 'A' ? 'font-bold text-tertiary' : 'text-on-surface-variant'}">A. ${optA}</span>
+                    <span class="${correctVal === 'B' ? 'font-bold text-tertiary' : 'text-on-surface-variant'}">B. ${optB}</span>
+                    <span class="${correctVal === 'C' ? 'font-bold text-tertiary' : 'text-on-surface-variant'}">C. ${optC}</span>
+                    <span class="${correctVal === 'D' ? 'font-bold text-tertiary' : 'text-on-surface-variant'}">D. ${optD}</span>
+                </div>
+            `;
+            previewList.appendChild(qDiv);
+        }
+    }
+
+    // Attach listeners
+    document.getElementById('passageInput').addEventListener('input', updatePreview);
+    
+    for (let i = 0; i < 4; i++) {
+        document.querySelector(`input[name="Form.Questions[${i}].QuestionNumber"]`).addEventListener('input', updatePreview);
+        document.querySelector(`input[name="Form.Questions[${i}].OptionA"]`).addEventListener('input', updatePreview);
+        document.querySelector(`input[name="Form.Questions[${i}].OptionB"]`).addEventListener('input', updatePreview);
+        document.querySelector(`input[name="Form.Questions[${i}].OptionC"]`).addEventListener('input', updatePreview);
+        document.querySelector(`input[name="Form.Questions[${i}].OptionD"]`).addEventListener('input', updatePreview);
+        
+        document.querySelectorAll(`input[name="Form.Questions[${i}].CorrectOption"]`).forEach(radio => {
+            radio.addEventListener('change', function() {
+                document.getElementById(`correctHidden_${i}`).value = radio.value;
+                updatePreview();
+            });
+        });
+    }
+
+    function togglePassageInputMode() {
+        const mode = document.querySelector('input[name="Form.PassageInputMode"]:checked')?.value || 'text';
+        const textSection = document.getElementById('textPassageSection');
+        const imageSection = document.getElementById('imagePassageSection');
+        const passageInput = document.getElementById('passageInput');
+        const imageInput = document.getElementById('passageImageInput');
+
+        if (mode === 'text') {
+            textSection.classList.remove('hidden');
+            imageSection.classList.add('hidden');
+            if (passageInput) {
+                passageInput.required = true;
+            }
+            if (imageInput) {
+                imageInput.required = false;
+                imageInput.value = '';
+            }
+            document.getElementById('passageImagePreview')?.classList.add('hidden');
+        } else {
+            textSection.classList.add('hidden');
+            imageSection.classList.remove('hidden');
+            if (passageInput) {
+                passageInput.required = false;
+                passageInput.value = '';
+            }
+            if (imageInput) {
+                imageInput.required = true;
+            }
+        }
+
+        updatePreview();
+    }
+
+    function previewPassageImage(input) {
+        const previewContainer = document.getElementById('passageImagePreview');
+        const previewImg = document.getElementById('passageImagePreviewImg');
+        if (!input.files || !input.files[0] || !previewImg || !previewContainer) {
+            return;
+        }
+
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            previewImg.src = e.target.result;
+            previewContainer.classList.remove('hidden');
+            updatePreview();
+        };
+        reader.readAsDataURL(input.files[0]);
+    }
+
+    function removePassageImage() {
+        AcadPrepQuestionUI.clearMedia({
+            fileInput: 'passageImageInput',
+            previewContainer: 'passageImagePreview',
+            previewImg: 'passageImagePreviewImg',
+            hiddenUrl: 'passageImageUrlField',
+            onCleared: () => {
+                const imageInput = document.getElementById('passageImageInput');
+                if (imageInput) imageInput.required = true;
+                updatePreview();
+            }
+        });
+    }
+
+    window.addEventListener('DOMContentLoaded', () => {
+        const form = document.querySelector('form');
+        if (form) {
+            AcadPrepFormValidation.bindForm(form);
+        }
+        togglePassageInputMode();
+        AcadPrepQuestionUI.setStepperActive(1, 2);
+        updatePreview();
+    });
+</script>

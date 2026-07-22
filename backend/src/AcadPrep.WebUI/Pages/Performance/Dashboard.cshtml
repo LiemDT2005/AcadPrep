@@ -1,0 +1,548 @@
+@page
+@model AcadPrep.WebUI.Pages.Performance.DashboardModel
+@{
+    ViewData["Title"] = "Dashboard";
+}
+
+<style>
+    .purple-gradient { background: linear-gradient(135deg, #1e00a9 0%, #3525cd 100%); }
+    .glass-card { background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(8px); }
+    .bento-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px; }
+    
+    @@media (max-width: 1024px) {
+        .bento-grid { grid-template-columns: 1fr; }
+    }
+</style>
+
+<div class="flex flex-col gap-xl">
+
+    <!-- 1. TOP HERO SECTION -->
+    <section class="flex flex-col lg:flex-row gap-xl items-stretch">
+        <!-- Greeting Block -->
+        <div class="flex-grow purple-gradient text-white p-2xl rounded-2xl flex flex-col justify-between shadow-lg relative overflow-hidden">
+            <!-- decorative glowing blob -->
+            <div class="absolute -right-16 -top-16 w-48 h-48 rounded-full bg-secondary-container/20 blur-2xl"></div>
+            <div>
+                <div class="inline-flex items-center gap-xs bg-secondary-container text-on-surface px-3 py-1 rounded-full text-label-sm mb-md font-semibold">
+                    <span class="material-symbols-outlined text-[16px] text-secondary">local_fire_department</span>
+                    @Model.StreakData.CurrentStreak-day streak
+                </div>
+                <h1 class="text-headline-lg font-headline-lg mb-sm font-bold text-white">Hello, @(Model.DashboardData.Leaderboard.CurrentUser?.Name ?? User.Identity?.Name ?? "Learner")!</h1>
+                <p class="text-body-lg font-body-lg opacity-90 mb-xl">Ready to crush your goal today?</p>
+            </div>
+            
+            @if (Model.DashboardData.ActiveExams.Any())
+            {
+                var latestActive = Model.DashboardData.ActiveExams.First();
+                <div class="flex flex-col sm:flex-row gap-md items-start sm:items-center justify-between bg-white/10 p-md rounded-xl backdrop-blur-sm border border-white/10 w-full">
+                    <div>
+                        <p class="text-label-sm text-white/70 uppercase font-semibold">In-progress exam</p>
+                        <p class="text-body-md font-bold text-white">@latestActive.ExamTitle</p>
+                        <p class="text-label-sm text-white/80">@latestActive.StatusText</p>
+                    </div>
+                    <a href="/Exams/Take?attemptId=@latestActive.Id" class="inline-flex items-center gap-sm bg-white text-primary font-bold px-lg py-sm rounded-lg hover:bg-white/90 active:scale-95 transition-all text-label-md shrink-0 shadow-sm" style="text-decoration:none;">
+                        Continue exam <span class="material-symbols-outlined text-[18px]">arrow_forward</span>
+                    </a>
+                </div>
+            }
+            else
+            {
+                <div class="flex flex-col sm:flex-row gap-md items-start sm:items-center justify-between bg-white/10 p-md rounded-xl backdrop-blur-sm border border-white/10 w-full">
+                    <div>
+                        <p class="text-body-md font-bold text-white">Start studying today</p>
+                        <p class="text-label-sm text-white/80">Practice with the latest TOEIC-format exams.</p>
+                    </div>
+                    <a href="/Exams" class="inline-flex items-center gap-sm bg-white text-primary font-bold px-lg py-sm rounded-lg hover:bg-white/90 active:scale-95 transition-all text-label-md shrink-0 shadow-sm" style="text-decoration:none;">
+                        Practice now <span class="material-symbols-outlined text-[18px]">arrow_forward</span>
+                    </a>
+                </div>
+            }
+        </div>
+
+        <!-- Target Progress Card -->
+        <div class="bg-surface-container-lowest border border-outline-variant p-lg rounded-xl shadow-sm flex flex-col justify-between w-full lg:w-[380px] shrink-0">
+            <div>
+                <h3 class="text-label-md font-label-md text-outline mb-xs uppercase tracking-wider">Goal progress</h3>
+                <p class="text-headline-sm font-headline-sm text-primary mb-md font-bold">TOEIC 800 target</p>
+                <div class="w-full bg-surface-variant h-3 rounded-full mb-xs overflow-hidden">
+                    <div class="bg-primary h-full rounded-full" style="width: 65%;"></div>
+                </div>
+                <div class="flex justify-between text-label-sm text-outline mb-lg">
+                    <span>65% complete</span>
+                    <span>Test date: Sep 15, 2026</span>
+                </div>
+            </div>
+            
+            <div class="bg-surface-container-low p-md rounded-xl flex items-center justify-between border border-outline-variant/50">
+                <div>
+                    <p class="text-label-sm text-outline">Countdown</p>
+                    <p class="text-headline-sm font-headline-sm text-secondary font-bold">61 days left</p>
+                </div>
+                <span class="material-symbols-outlined text-[36px] text-secondary-container">alarm</span>
+            </div>
+        </div>
+    </section>
+
+    <!-- 2. MIDDLE DASHBOARD (Bento Grid) -->
+    <section class="bento-grid">
+        <!-- Card 1: My courses -->
+        <div class="bg-surface-container-lowest p-lg rounded-xl border border-outline-variant shadow-sm flex flex-col justify-between">
+            <div class="space-y-md">
+                <div class="flex justify-between items-center">
+                    <h3 class="text-headline-sm font-headline-sm font-bold text-on-surface">My courses</h3>
+                    <span class="material-symbols-outlined text-primary text-[28px]">auto_stories</span>
+                </div>
+                <div class="space-y-md">
+                    <div>
+                        <div class="flex justify-between text-label-md mb-xs">
+                            <span class="text-on-surface font-medium">TOEIC Listening Mastery</span>
+                            <span class="font-bold text-primary">75%</span>
+                        </div>
+                        <div class="w-full bg-surface-variant h-2 rounded-full overflow-hidden">
+                            <div class="bg-tertiary-container h-full w-[75%] rounded-full"></div>
+                        </div>
+                    </div>
+                    <div>
+                        <div class="flex justify-between text-label-md mb-xs">
+                            <span class="text-on-surface font-medium">Grammar for Experts</span>
+                            <span class="font-bold text-primary">42%</span>
+                        </div>
+                        <div class="w-full bg-surface-variant h-2 rounded-full overflow-hidden">
+                            <div class="bg-primary-container h-full w-[42%] rounded-full"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <a href="/Exams" class="w-full py-sm border border-primary text-primary font-bold rounded-lg hover:bg-primary/5 transition-colors mt-lg block text-center text-label-md" style="text-decoration:none;">
+                Continue learning
+            </a>
+        </div>
+
+        <!-- Card 2: Recent results -->
+        <div class="bg-surface-container-lowest p-lg rounded-xl border border-outline-variant shadow-sm flex flex-col justify-between">
+            <div class="space-y-md w-full">
+                <div class="flex justify-between items-center mb-xs">
+                    <h3 class="text-headline-sm font-headline-sm font-bold text-on-surface">Recent results</h3>
+                    <span class="material-symbols-outlined text-secondary text-[28px]">history</span>
+                </div>
+                <div class="space-y-sm">
+                    @if (Model.DashboardData.RecentActivities.Any())
+                    {
+                        @foreach (var activity in Model.DashboardData.RecentActivities.Take(3))
+                        {
+                            <div class="flex items-center justify-between p-sm hover:bg-surface-container-low rounded-lg transition-colors border-b border-outline-variant last:border-0">
+                                <div class="max-w-[70%]">
+                                    <p class="text-label-md font-bold text-on-surface line-clamp-1">@activity.Description</p>
+                                    <p class="text-[11px] text-outline">@activity.TimeAgo</p>
+                                </div>
+                                <div class="flex items-center gap-xs">
+                                    <span class="w-2.5 h-2.5 rounded-full bg-@activity.ColorType shrink-0"></span>
+                                </div>
+                            </div>
+                        }
+                    }
+                    else
+                    {
+                        <div class="py-lg text-center text-outline text-body-sm">No recent activity</div>
+                    }
+                </div>
+            </div>
+            <a href="/Performance/StudyHistory" class="w-full py-sm border border-primary text-primary font-bold rounded-lg hover:bg-primary/5 transition-colors mt-lg block text-center text-label-md" style="text-decoration:none;">
+                View study history
+            </a>
+        </div>
+
+        <!-- Card 3: Study stats -->
+        <div class="bg-surface-container-lowest p-lg rounded-xl border border-outline-variant shadow-sm flex flex-col justify-between">
+            <div class="space-y-md w-full">
+                <div class="flex justify-between items-center mb-xs">
+                    <h3 class="text-headline-sm font-headline-sm font-bold text-on-surface">Study stats</h3>
+                    <span class="material-symbols-outlined text-primary text-[28px]">trending_up</span>
+                </div>
+                <div class="w-full h-32 bg-surface-variant/20 rounded-lg flex items-end relative overflow-hidden px-xs pb-xs">
+                    <div class="absolute inset-0 p-1">
+                        <canvas id="dashboardScoreChart" class="w-full h-full"></canvas>
+                    </div>
+                </div>
+            </div>
+            <a href="/Performance/PerformanceAnalysis" class="w-full py-sm border border-primary text-primary font-bold rounded-lg hover:bg-primary/5 transition-colors mt-lg block text-center text-label-md" style="text-decoration:none;">
+                View details
+            </a>
+        </div>
+    </section>
+
+    <!-- 3. PRACTICE CENTER -->
+    <section class="space-y-lg">
+        <div class="flex items-center justify-between">
+            <h2 class="text-headline-md font-headline-md border-l-4 border-secondary pl-md font-bold text-on-surface">Practice center</h2>
+            <div class="flex gap-sm items-center">
+                <span class="text-label-sm text-outline">Mode: </span>
+                <span class="text-label-sm font-bold text-tertiary">Zenlish practice</span>
+            </div>
+        </div>
+        <div class="grid grid-cols-1 lg:grid-cols-4 gap-lg bg-surface-container-lowest rounded-xl p-lg border border-outline-variant shadow-md">
+            <!-- Main Sheet -->
+            <div class="lg:col-span-3 space-y-xl">
+                <div class="pb-md border-b border-outline-variant flex justify-between items-center">
+                    <h3 class="text-headline-sm font-headline-sm font-bold text-on-surface">Part 1: Photographs</h3>
+                    <span class="text-label-md bg-surface-container p-2 rounded-lg font-semibold">Time: 00:12:45</span>
+                </div>
+                <div class="flex flex-col md:flex-row gap-xl">
+                    <div class="flex-grow md:w-1/2">
+                        <img class="w-full aspect-[4/3] rounded-lg object-cover shadow-sm border border-outline-variant" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDFig3z7klRVT6LeN4ABkoU6dPdx7B2aNJnICYo3iQUdyRekprzaPItRSwkmQRD7-LOkEAhyeXgsflh_-25BEBdz_Nqkplt8oB1P8INhNgObqZ1ixIgTdyt2b_yJMi3wLL-DCCS2UVPx8PxjeWax8xU4qOTcUOG1wVaZxKVDEtjE7rBOEtwio7pa-8K78EypLFjmwrXU2gG9UUXolNw8vlQwkBJWAqDzfA2CdomC-vagnfuir3YbMMpqD0ShBkEsYqsVZHMnW3wn0Y9" alt="Office meeting"/>
+                    </div>
+                    <div class="flex-grow md:w-1/2 space-y-md flex flex-col justify-between">
+                        <div class="space-y-sm">
+                            <p class="text-body-md italic text-outline mb-md">Listen and choose the statement that best describes the picture:</p>
+                            <label class="flex items-center gap-md p-md border border-outline-variant rounded-xl cursor-pointer hover:bg-surface-container transition-all group">
+                                <input class="w-5 h-5 text-secondary focus:ring-secondary" name="toeic_q1" type="radio"/>
+                                <span class="text-body-md group-hover:text-primary transition-colors font-medium">(A) They are having a discussion in a room.</span>
+                            </label>
+                            <label class="flex items-center gap-md p-md border border-outline-variant rounded-xl cursor-pointer hover:bg-surface-container transition-all group">
+                                <input class="w-5 h-5 text-secondary focus:ring-secondary" name="toeic_q1" type="radio"/>
+                                <span class="text-body-md group-hover:text-primary transition-colors font-medium">(B) The laptops are being closed by the staff.</span>
+                            </label>
+                            <label class="flex items-center gap-md p-md border border-outline-variant rounded-xl cursor-pointer hover:bg-surface-container transition-all group">
+                                <input class="w-5 h-5 text-secondary focus:ring-secondary" name="toeic_q1" type="radio"/>
+                                <span class="text-body-md group-hover:text-primary transition-colors font-medium">(C) They are shaking hands after a meeting.</span>
+                            </label>
+                            <label class="flex items-center gap-md p-md border border-outline-variant rounded-xl cursor-pointer hover:bg-surface-container transition-all group">
+                                <input class="w-5 h-5 text-secondary focus:ring-secondary" name="toeic_q1" type="radio"/>
+                                <span class="text-body-md group-hover:text-primary transition-colors font-medium">(D) The woman is writing on the glass wall.</span>
+                            </label>
+                        </div>
+                        <a href="/Exams" class="w-full bg-secondary text-white text-center py-md rounded-xl font-bold mt-lg hover:brightness-110 shadow-lg shadow-secondary/20 transition-all block text-headline-sm" style="text-decoration:none;">
+                            Start practice
+                        </a>
+                    </div>
+                </div>
+            </div>
+            <!-- Right Sidebar -->
+            <div class="bg-surface-container p-lg rounded-xl flex flex-col justify-between">
+                <div>
+                    <h4 class="text-label-md font-bold mb-md uppercase tracking-wide text-on-surface">Question list</h4>
+                    <div class="grid grid-cols-5 gap-sm">
+                        <div class="w-full aspect-square flex items-center justify-center rounded-full bg-primary text-white font-bold text-label-md cursor-pointer">1</div>
+                        <div class="w-full aspect-square flex items-center justify-center rounded-full bg-tertiary text-white font-bold text-label-md cursor-pointer">2</div>
+                        <div class="w-full aspect-square flex items-center justify-center rounded-full bg-tertiary text-white font-bold text-label-md cursor-pointer">3</div>
+                        @for (int i = 4; i <= 20; i++)
+                        {
+                            <div class="w-full aspect-square flex items-center justify-center rounded-full bg-surface-variant text-on-surface-variant font-bold text-label-md cursor-pointer hover:bg-outline-variant">@i</div>
+                        }
+                    </div>
+                </div>
+                <div class="mt-xl pt-md border-t border-outline-variant text-label-sm space-y-sm">
+                    <div class="flex items-center gap-xs"><span class="w-3 h-3 rounded-full bg-primary"></span> In progress</div>
+                    <div class="flex items-center gap-xs"><span class="w-3 h-3 rounded-full bg-tertiary"></span> Completed</div>
+                    <div class="flex items-center gap-xs"><span class="w-3 h-3 rounded-full bg-surface-variant"></span> Not started</div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 4. SKILL MASTERYS -->
+    <section class="space-y-lg">
+        <h2 class="text-headline-md font-headline-md border-l-4 border-primary pl-md font-bold text-on-surface">Skill mastery</h2>
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-lg">
+            @{
+                var partsInfo = new Dictionary<int, string>
+                {
+                    {1, "Photographs"}, {2, "Question-Response"}, {3, "Conversations"},
+                    {4, "Talks"}, {5, "Incomplete Sentences"}, {6, "Text Completion"}, {7, "Reading Comprehension"}
+                };
+            }
+            @for (int p = 1; p <= 7; p++)
+            {
+                int pct = Model.DashboardData.SkillAnalytics.PartMastery.GetValueOrDefault(p, 0);
+                bool needsImprovement = pct < 50;
+                
+                <div class="bg-surface-container-lowest p-md rounded-xl border border-outline-variant shadow-sm flex flex-col justify-between">
+                    <div>
+                        <div class="flex justify-between font-label-md text-label-md mb-xs">
+                            @if (needsImprovement && pct > 0)
+                            {
+                                <span class="text-error font-semibold">Part @p: @partsInfo[p] (Needs improvement)</span>
+                                <span class="text-error font-bold">@pct%</span>
+                            }
+                            else
+                            {
+                                <span class="text-on-surface-variant font-medium">Part @p: @partsInfo[p]</span>
+                                <span class="text-on-surface font-bold">@(pct > 0 ? $"{pct}%" : "N/A")</span>
+                            }
+                        </div>
+                        <div class="w-full @(needsImprovement && pct > 0 ? "bg-error-container" : "bg-surface-variant") rounded-full h-2 overflow-hidden">
+                            <div class="@(needsImprovement && pct > 0 ? "bg-error" : "bg-primary") h-2 rounded-full" style="width: @pct%"></div>
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+    </section>
+
+    <!-- 5. LEADERBOARD PREVIEW -->
+    <section class="space-y-lg">
+        <div class="flex justify-between items-end">
+            <h2 class="text-headline-md font-headline-md border-l-4 border-secondary pl-md font-bold text-on-surface">See where you stand</h2>
+            <span class="text-outline text-label-sm font-medium">Updated hourly</span>
+        </div>
+        <div class="bg-surface-container-lowest rounded-xl shadow-sm border border-outline-variant overflow-hidden">
+            <div class="overflow-x-auto">
+                <table class="w-full text-left border-collapse min-w-[600px]">
+                    <thead class="bg-surface-container-low border-b border-outline-variant text-on-surface font-bold text-label-sm uppercase tracking-wider">
+                        <tr>
+                            <th class="p-md text-center w-20">Rank</th>
+                            <th class="p-md">Learner</th>
+                            <th class="p-md text-right">Score</th>
+                            <th class="p-md text-right">Exams done</th>
+                            <th class="p-md text-right">Streak</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-outline-variant/50 text-body-sm">
+                        @foreach (var user in Model.DashboardData.Leaderboard.TopUsers)
+                        {
+                            var rankColor = user.Rank == 1 ? "text-yellow-500" : (user.Rank == 2 ? "text-gray-400" : (user.Rank == 3 ? "text-amber-700" : "text-on-surface-variant"));
+                            var rankIcon = user.Rank <= 3 ? "military_tech" : "";
+                            var initial = user.Name.Length > 0 ? user.Name.Substring(0, 1).ToUpper() : "U";
+                            
+                            <tr class="hover:bg-surface-container-low/50 transition-colors @(user.IsCurrentUser ? "bg-primary/5 border-l-4 border-l-primary" : "")">
+                                <td class="p-md text-center font-bold @rankColor">
+                                    @if (user.Rank <= 3)
+                                    {
+                                        <span class="material-symbols-outlined text-[24px] fill-1 @rankColor">@rankIcon</span>
+                                    }
+                                    else
+                                    {
+                                        @user.Rank
+                                    }
+                                </td>
+                                <td class="p-md font-medium text-on-surface flex items-center gap-sm">
+                                    <div class="w-8 h-8 rounded-full bg-primary/10 text-primary flex items-center justify-center font-bold">@initial</div>
+                                    <span>@user.Name @(user.IsCurrentUser ? "(You)" : "")</span>
+                                </td>
+                                <td class="p-md text-right font-bold text-primary">@user.TotalScore.ToString("N0")</td>
+                                <td class="p-md text-right text-on-surface-variant">@user.ExamsDone</td>
+                                <td class="p-md text-right text-secondary font-medium">
+                                    <span class="inline-flex items-center gap-[2px]">
+                                        <span class="material-symbols-outlined text-[16px] text-secondary">local_fire_department</span> @(user.StreakDays)d
+                                    </span>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+            @if (Model.DashboardData.Leaderboard.CurrentUser != null)
+            {
+                var cu = Model.DashboardData.Leaderboard.CurrentUser;
+                <div class="bg-primary text-white text-center py-md font-bold text-label-md">
+                    @if (cu.Rank > 1)
+                    {
+                        <text>Keep going! You are currently ranked #@cu.Rank.</text>
+                    }
+                    else
+                    {
+                        <text>You are leading the leaderboard! Keep up the momentum.</text>
+                    }
+                </div>
+            }
+        </div>
+        <div class="text-center">
+            <a href="/Performance/Leaderboard" class="bg-primary text-white px-lg py-sm rounded-lg font-bold hover:bg-primary/95 transition-colors shadow-md inline-flex items-center gap-sm text-label-md" style="text-decoration:none;">
+                View full leaderboard <span class="material-symbols-outlined text-[18px]">arrow_forward</span>
+            </a>
+        </div>
+    </section>
+
+    <!-- 6. RECOMMENDED EXAMS -->
+    <section class="space-y-lg pb-xl">
+        <h2 class="text-headline-md font-headline-md border-l-4 border-primary pl-md font-bold text-on-surface">Recommended exams</h2>
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-lg">
+            @if (Model.RecommendedExams.Any())
+            {
+                @foreach (var exam in Model.RecommendedExams)
+                {
+                    <div class="bg-surface-container-lowest rounded-xl overflow-hidden border border-outline-variant group hover:shadow-xl transition-all flex flex-col justify-between">
+                        <div>
+                            <div class="h-48 relative overflow-hidden bg-surface-container-low">
+                                @if (!string.IsNullOrEmpty(exam.CoverImageUrl))
+                                {
+                                    <img class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" src="@exam.CoverImageUrl" alt="@exam.Title"/>
+                                }
+                                else
+                                {
+                                    <div class="w-full h-full flex items-center justify-center text-outline bg-surface-container">
+                                        <span class="material-symbols-outlined text-[48px]">menu_book</span>
+                                    </div>
+                                }
+                                <div class="absolute top-2 right-2 bg-primary text-white text-[10px] px-2 py-1 rounded font-bold uppercase">Latest</div>
+                            </div>
+                            <div class="p-md space-y-sm">
+                                <h4 class="font-bold text-on-surface line-clamp-1">@exam.Title</h4>
+                                <p class="text-body-sm text-outline line-clamp-2">@exam.Description</p>
+                            </div>
+                        </div>
+                        <div class="p-md pt-0 space-y-sm">
+                            <div class="flex items-center justify-between text-label-sm text-outline">
+                                <span class="flex items-center gap-xs"><span class="material-symbols-outlined text-[16px]">schedule</span> @exam.Duration min</span>
+                                <span class="flex items-center gap-xs"><span class="material-symbols-outlined text-[16px]">person</span> @exam.AttemptCount attempts</span>
+                            </div>
+                            <a href="/Exams/Detail/@exam.Id" class="w-full py-sm bg-surface-container hover:bg-primary hover:text-white text-primary font-bold rounded-lg transition-colors block text-center text-label-md" style="text-decoration:none;">Try now</a>
+                        </div>
+                    </div>
+                }
+            }
+            else
+            {
+                <!-- Fallback premium style cards if no exams found -->
+                <!-- Exam Card 1 -->
+                <div class="bg-surface-container-lowest rounded-xl overflow-hidden border border-outline-variant group hover:shadow-xl transition-all flex flex-col justify-between">
+                    <div>
+                        <div class="h-48 relative overflow-hidden">
+                            <img class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDPvg5klGcIWQXe1vM4gToYYupWkURi0kR7Wwf8aoqHl-SGShy32nXZUQaqXINzrmTd-RRJX6Ncz27qGUivQ4cTm1ZDh3TVRU9ArM3YN9ghaDeunrPO6okojFZflBifGZJrscg1v--UxI2zoaGNGWbKQl0CnHTbquHJiI8IsO5nmgkVybnnG7gS_bfoUD7252qpd-Pk39UsOATc6785KLu0iNV8_YH1LZy5GY3n_4eRjDVoa7h_BawCVaS5iR18FQXdvxhZlUiYbdYY" alt="ETS 2024"/>
+                            <div class="absolute top-2 right-2 bg-primary text-white text-[10px] px-2 py-1 rounded font-bold uppercase">Latest</div>
+                        </div>
+                        <div class="p-md space-y-sm">
+                            <h4 class="font-bold text-on-surface line-clamp-1">ETS 2024 Practice Test</h4>
+                            <div class="flex items-center gap-xs text-label-sm text-outline">
+                                <span class="material-symbols-outlined text-[16px]">person</span> 12.4k attempts
+                            </div>
+                        </div>
+                    </div>
+                    <div class="p-md pt-0">
+                        <a href="/Exams" class="w-full py-sm bg-surface-container hover:bg-primary hover:text-white text-primary font-bold rounded-lg transition-colors block text-center text-label-md" style="text-decoration:none;">Try now</a>
+                    </div>
+                </div>
+                <!-- Exam Card 2 -->
+                <div class="bg-surface-container-lowest rounded-xl overflow-hidden border border-outline-variant group hover:shadow-xl transition-all flex flex-col justify-between">
+                    <div>
+                        <div class="h-48 relative overflow-hidden">
+                            <img class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBgin0UEJfzahkLD-O0d4oiVFCldxyCb_GwxnCqAFm8P8TVt80ur9E50hHEwDy2bnz5PKN0koARxKX7VFL6VzlFP-yfxprqSPUTrOuOKoOsuqHVuulKm9ZCezXGrnoaYal7zZeHRRVEmg2AzuaYO8lBRqKiF3jn6d8rxi1KRxWr3CHc2MRYDUzvAy7HA6mnfJ8mAbnxTazAxYGycK7w26jaEKa5vtwtNSRiKTUXPBt42FGz0jfyv_OtMYD1p6ZW7o3w7AXCWZEBz5UV" alt="Economy Vol 5"/>
+                        </div>
+                        <div class="p-md space-y-sm">
+                            <h4 class="font-bold text-on-surface line-clamp-1">Economy Vol 5 Full Test</h4>
+                            <div class="flex items-center gap-xs text-label-sm text-outline">
+                                <span class="material-symbols-outlined text-[16px]">person</span> 8.9k attempts
+                            </div>
+                        </div>
+                    </div>
+                    <div class="p-md pt-0">
+                        <a href="/Exams" class="w-full py-sm bg-surface-container hover:bg-primary hover:text-white text-primary font-bold rounded-lg transition-colors block text-center text-label-md" style="text-decoration:none;">Try now</a>
+                    </div>
+                </div>
+                <!-- Exam Card 3 -->
+                <div class="bg-surface-container-lowest rounded-xl overflow-hidden border border-outline-variant group hover:shadow-xl transition-all flex flex-col justify-between">
+                    <div>
+                        <div class="h-48 relative overflow-hidden">
+                            <img class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBYFnVhBh1gtZYSx1TK3BxK8LJSXBfLgGIinLAYLPq6i9Ld82QMIsIwi3ObYb7qp6E-50lctgFCg8NLyFBlPyt2A-8GXsDUYxR2TTM4YIXhDvjfdcYPelHcSeqDQIGFItY_reTFtof3u3cc0E9GiX5o2A82UyzkJEM_oxDmPJOpflQplDPBEpAWJUuoKOkVE8CMiZOkR8ANDtytgHsEkLXqZY60I9933ieEkRRiKmHc9IwO83ww4tpMwfk5Lk1S0vynxWNC4aj35ZnL" alt="Hacker TOEIC"/>
+                            <div class="absolute top-2 right-2 bg-secondary text-white text-[10px] px-2 py-1 rounded font-bold uppercase">HOT</div>
+                        </div>
+                        <div class="p-md space-y-sm">
+                            <h4 class="font-bold text-on-surface line-clamp-1">Hacker TOEIC 1000 Vol 3</h4>
+                            <div class="flex items-center gap-xs text-label-sm text-outline">
+                                <span class="material-symbols-outlined text-[16px]">person</span> 25.1k attempts
+                            </div>
+                        </div>
+                    </div>
+                    <div class="p-md pt-0">
+                        <a href="/Exams" class="w-full py-sm bg-surface-container hover:bg-primary hover:text-white text-primary font-bold rounded-lg transition-colors block text-center text-label-md" style="text-decoration:none;">Try now</a>
+                    </div>
+                </div>
+                <!-- Exam Card 4 -->
+                <div class="bg-surface-container-lowest rounded-xl overflow-hidden border border-outline-variant group hover:shadow-xl transition-all flex flex-col justify-between">
+                    <div>
+                        <div class="h-48 relative overflow-hidden">
+                            <img class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" src="https://lh3.googleusercontent.com/aida-public/AB6AXuADjAgF0nD82Zpu6qA98BqOBCs-JzgjbtKvt0d_FSfWkDQgwsTe_Icilb-63KUuYw-eBRbUAC6En7rLTKiFFlQQ78vpMmbyWM0MTTvIQ4IEcBVoz7ySGwoh4lWRDt_vQjpVafQVkch_oYWtOeeEXipDC4-yZKbpaHLQKzkZqJ93p28mhzOBiLHUPFREzBx2NY7_15gbNIo0nmbZAjDVJJusBh3dF7GglZCfj-hIsh1TyLwqJbL6Zqu373QGMDhdR_a18vO0TMPonawa" alt="New TOEIC"/>
+                        </div>
+                        <div class="p-md space-y-sm">
+                            <h4 class="font-bold text-on-surface line-clamp-1">New TOEIC Comprehensive</h4>
+                            <div class="flex items-center gap-xs text-label-sm text-outline">
+                                <span class="material-symbols-outlined text-[16px]">person</span> 5.2k attempts
+                            </div>
+                        </div>
+                    </div>
+                    <div class="p-md pt-0">
+                        <a href="/Exams" class="w-full py-sm bg-surface-container hover:bg-primary hover:text-white text-primary font-bold rounded-lg transition-colors block text-center text-label-md" style="text-decoration:none;">Try now</a>
+                    </div>
+                </div>
+            }
+        </div>
+    </section>
+
+</div>
+
+@section Scripts {
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4"></script>
+    <script>
+        var scoreData = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.ScoreProgressData.Scores.OrderBy(s => s.AttemptDate).Select(s => new {
+            label = s.AttemptDate.ToString("dd/MM"),
+            score = s.Score
+        })));
+        
+        var labels = scoreData.map(function(e) { return e.label; });
+        var data = scoreData.map(function(e) { return e.score; });
+
+        if(labels.length === 0) {
+            labels = ['M', 'T', 'W', 'T', 'F', 'S', 'S'];
+            data = [0, 0, 0, 0, 0, 0, 0];
+        }
+
+        var ctx = document.getElementById('dashboardScoreChart').getContext('2d');
+        new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: labels,
+                datasets: [{
+                    label: 'Total Score',
+                    data: data,
+                    borderColor: '#1e00a9',
+                    backgroundColor: 'rgba(30, 0, 169, 0.1)',
+                    borderWidth: 2,
+                    pointBackgroundColor: '#1e00a9',
+                    pointBorderColor: '#fff',
+                    pointBorderWidth: 1.5,
+                    pointRadius: 3,
+                    fill: true,
+                    tension: 0.4
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { display: false },
+                    tooltip: {
+                        backgroundColor: '#1C1B1F',
+                        titleFont: { family: 'Inter', size: 10 },
+                        bodyFont:  { family: 'Inter', size: 12, weight: 'bold' },
+                        padding: 8,
+                        cornerRadius: 6
+                    }
+                },
+                scales: {
+                    y: {
+                        min: 0,
+                        max: 990,
+                        ticks: { stepSize: 300, color: '#777587', font: { family: 'Inter', size: 8 } },
+                        grid:  { color: 'rgba(0,0,0,0.04)' },
+                        border: { display: false }
+                    },
+                    x: {
+                        ticks: { color: '#777587', font: { family: 'Inter', size: 8 } },
+                        grid: { display: false },
+                        border: { display: false }
+                    }
+                }
+            }
+        });
+
+        // Micro-interactions
+        document.querySelectorAll('button, a').forEach(btn => {
+            btn.addEventListener('mousedown', function() {
+                this.style.transform = 'scale(0.98)';
+            });
+            btn.addEventListener('mouseup', function() {
+                this.style.transform = 'scale(1)';
+            });
+        });
+    </script>
+}

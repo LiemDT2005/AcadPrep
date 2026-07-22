@@ -1,0 +1,59 @@
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet">
+<style>
+    .material-symbols-outlined {
+        font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        vertical-align: middle;
+    }
+    ::-webkit-scrollbar { width: 8px; height: 8px; }
+    ::-webkit-scrollbar-track { background: #f1f1f1; }
+    ::-webkit-scrollbar-thumb { background: #c7c4d8; border-radius: 10px; }
+    .exam-timer-warning { color: #ba1a1a !important; animation: pulse 1s ease-in-out infinite; }
+    @@keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.65; } }
+    .q-cell { min-width: 32px; width: 32px; height: 32px; font-size: 11px; }
+    #section-intro { position: absolute; inset: 0; }
+    main { position: relative; }
+    .exam-sidebar.is-open { transform: translateX(0) !important; }
+</style>
+<script id="tailwind-config">
+    tailwind.config = {
+        darkMode: "class",
+        theme: {
+            extend: {
+                colors: {
+                    "background": "#fcf8ff",
+                    "primary": "#1e00a9",
+                    "primary-container": "#3525cd",
+                    "on-primary": "#ffffff",
+                    "on-surface": "#1b1b24",
+                    "on-surface-variant": "#464555",
+                    "surface": "#f9f9ff",
+                    "surface-container-lowest": "#ffffff",
+                    "surface-container-low": "#f5f2ff",
+                    "surface-container": "#efe9f8",
+                    "surface-container-high": "#e9e4f0",
+                    "surface-variant": "#e5e1ec",
+                    "outline": "#787680",
+                    "outline-variant": "#c7c4d8",
+                    "secondary": "#5e5c71",
+                    "secondary-container": "#e4dffa",
+                    "on-secondary": "#ffffff",
+                    "on-secondary-container": "#1b1a2c",
+                    "tertiary": "#006c4c",
+                    "tertiary-container": "#89f8c7",
+                    "error": "#ba1a1a",
+                    "error-container": "#ffdad6"
+                },
+                borderRadius: { "2xl": "16px" },
+                fontFamily: {
+                    "headline-sm": ["Inter", "sans-serif"],
+                    "headline-md": ["Inter", "sans-serif"],
+                    "body-sm": ["Inter", "sans-serif"],
+                    "body-md": ["Inter", "sans-serif"],
+                    "label-sm": ["Inter", "sans-serif"]
+                }
+            }
+        }
+    };
+</script>

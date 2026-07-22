@@ -1,0 +1,122 @@
+@page
+@model AcadPrep.WebUI.Pages.Vocabulary.ReviewModel
+@{
+    ViewData["Title"] = "Review Flashcards";
+}
+
+<div class="max-w-2xl mx-auto py-2xl px-margin-mobile md:px-margin-desktop">
+    <div class="mb-xl text-center">
+        <h2 class="font-headline-md text-headline-md text-on-surface mb-sm">Review Flashcards</h2>
+        <p class="font-body-md text-body-md text-on-surface-variant">Test your memory with spaced repetition.</p>
+    </div>
+
+    @if (!Model.DueFlashcards.Any())
+    {
+        <div class="bg-tertiary-container/30 border border-tertiary-container rounded-xl p-xl text-center">
+            <span class="material-symbols-outlined text-[48px] text-tertiary mb-md">celebration</span>
+            <h3 class="font-headline-sm text-headline-sm text-on-surface mb-sm">All caught up for today!</h3>
+            <p class="font-body-md text-body-md text-on-surface-variant mb-lg">You have reviewed all your scheduled flashcards. Great job!</p>
+            <a href="/Vocabulary/Notebook" class="inline-flex items-center gap-sm bg-primary text-on-primary px-lg py-sm rounded-lg font-label-md text-label-md hover:bg-primary/90 transition-colors shadow-sm">
+                <span class="material-symbols-outlined text-[18px]">book</span> Back to Notebook
+            </a>
+        </div>
+    }
+    else
+    {
+        var firstCard = Model.DueFlashcards.First();
+        <div class="mb-md flex justify-between items-center">
+            <span class="font-label-sm text-label-sm text-on-surface-variant inline-flex items-center gap-xs">
+                <span class="material-symbols-outlined text-[16px]">style</span>
+                @Model.DueFlashcards.Count card(s) left to review
+            </span>
+            <div class="w-full max-w-[200px] h-[6px] bg-surface-container-high rounded-full overflow-hidden ml-md">
+                <div class="h-full bg-primary rounded-full transition-all" style="width: 50%"></div>
+            </div>
+        </div>
+
+        <!-- Flashcard -->
+        <div id="flashcard" class="bg-surface-container-lowest border border-surface-variant rounded-2xl shadow-md min-h-[350px] flex flex-col items-center justify-center p-xl cursor-pointer select-none transition-all duration-300 hover:shadow-lg" onclick="flipCard()">
+            
+            <!-- Front -->
+            <div id="card-front" class="flex flex-col items-center gap-md">
+                <span class="material-symbols-outlined text-[40px] text-primary/50">translate</span>
+                <h1 class="font-display-md text-display-md text-primary">@firstCard.Word</h1>
+                <p class="font-body-sm text-body-sm text-on-surface-variant mt-sm">
+                    <span class="material-symbols-outlined text-[14px] align-middle">touch_app</span> Click to reveal meaning
+                </p>
+            </div>
+
+            <!-- Back (Hidden) -->
+            <div id="card-back" class="hidden flex flex-col items-center gap-md w-full">
+                <h1 class="font-headline-lg text-headline-lg text-primary">@firstCard.Word</h1>
+                <p class="font-body-md text-body-md text-on-surface-variant italic">@firstCard.Phonetic</p>
+                <div class="w-16 h-[2px] bg-primary/30 rounded-full my-sm"></div>
+                <h3 class="font-headline-sm text-headline-sm text-on-surface">@firstCard.Meaning</h3>
+                @if (!string.IsNullOrEmpty(firstCard.Example))
+                {
+                    <div class="bg-surface-container rounded-lg p-md mt-sm w-full">
+                        <p class="font-body-sm text-body-sm text-on-surface-variant italic text-center">"@firstCard.Example"</p>
+                    </div>
+                }
+            </div>
+        </div>
+
+        <!-- Action Buttons (Hidden until flipped) -->
+        <div id="action-buttons" class="hidden mt-lg flex justify-center gap-lg">
+            <form method="post" asp-page-handler="Rate">
+                <input type="hidden" name="vocabularyId" value="@firstCard.VocabularyId" />
+                <input type="hidden" name="isRemembered" value="false" />
+                <button type="submit" class="flex flex-col items-center gap-xs px-xl py-md rounded-xl border-2 border-error/30 bg-error-container/20 hover:bg-error-container/50 transition-all duration-200 group">
+                    <span class="material-symbols-outlined text-[32px] text-error group-hover:scale-110 transition-transform">close</span>
+                    <span class="font-label-md text-label-md text-error">Forgot</span>
+                    <span class="font-body-sm text-[11px] text-on-surface-variant">Review again soon</span>
+                </button>
+            </form>
+            <form method="post" asp-page-handler="Rate">
+                <input type="hidden" name="vocabularyId" value="@firstCard.VocabularyId" />
+                <input type="hidden" name="isRemembered" value="true" />
+                <button type="submit" class="flex flex-col items-center gap-xs px-xl py-md rounded-xl border-2 border-tertiary/30 bg-tertiary-container/20 hover:bg-tertiary-container/50 transition-all duration-200 group">
+                    <span class="material-symbols-outlined text-[32px] text-tertiary group-hover:scale-110 transition-transform">check_circle</span>
+                    <span class="font-label-md text-label-md text-tertiary">Remembered</span>
+                    <span class="font-body-sm text-[11px] text-on-surface-variant">Interval x2</span>
+                </button>
+            </form>
+        </div>
+
+        <!-- Spaced Repetition Info -->
+        <div class="mt-xl bg-surface-container rounded-xl p-md">
+            <div class="flex items-center gap-sm mb-sm">
+                <span class="material-symbols-outlined text-[18px] text-primary">info</span>
+                <span class="font-label-md text-label-md text-on-surface">How Spaced Repetition Works</span>
+            </div>
+            <div class="grid grid-cols-2 gap-md text-center">
+                <div class="bg-error-container/20 rounded-lg p-sm">
+                    <span class="font-label-sm text-label-sm text-error">Forgot</span>
+                    <p class="font-body-sm text-[11px] text-on-surface-variant mt-xs">Interval resets to 1 day. You'll see this card again tomorrow.</p>
+                </div>
+                <div class="bg-tertiary-container/20 rounded-lg p-sm">
+                    <span class="font-label-sm text-label-sm text-tertiary">Remembered</span>
+                    <p class="font-body-sm text-[11px] text-on-surface-variant mt-xs">Interval doubles (1→2→4→8 days). Card appears less frequently.</p>
+                </div>
+            </div>
+        </div>
+    }
+</div>
+
+<script>
+    function flipCard() {
+        const front = document.getElementById('card-front');
+        const back = document.getElementById('card-back');
+        const buttons = document.getElementById('action-buttons');
+        const card = document.getElementById('flashcard');
+
+        if (front.classList.contains('hidden')) return; // Already flipped
+
+        front.classList.add('hidden');
+        back.classList.remove('hidden');
+        buttons.classList.remove('hidden');
+        card.classList.remove('cursor-pointer');
+        card.classList.add('border-primary/30');
+        card.onclick = null;
+    }
+</script>

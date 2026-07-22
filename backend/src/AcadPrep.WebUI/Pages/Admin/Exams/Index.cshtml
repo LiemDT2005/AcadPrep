@@ -1,0 +1,328 @@
+@page
+@model AcadPrep.WebUI.Pages.Admin.Exams.IndexModel
+@{
+    Layout = "_ModeratorLayout";
+    ViewData["Title"] = "Exam Management";
+    
+    var totalExams = Model.Exams.Count;
+    var activeExams = Model.Exams.Count(e => !e.IsDeleted);
+    var hiddenExams = Model.Exams.Count(e => e.IsDeleted);
+    var totalAttempts = Model.Exams.Sum(e => e.AttemptCount);
+}
+
+<link rel="stylesheet" href="~/css/admin-question-create.css" />
+
+<div class="w-full flex flex-col gap-xl">
+    
+    <!-- 1. STATS ROW (Bento Grid Style) -->
+    <section class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-md">
+        <div class="bg-surface-container-lowest rounded-xl p-md border border-outline-variant/30 shadow-sm relative overflow-hidden group">
+            <div class="absolute top-0 right-0 -mr-4 -mt-4 w-24 h-24 bg-primary-fixed rounded-full opacity-20 group-hover:scale-110 transition-transform duration-500"></div>
+            <div class="flex justify-between items-start mb-sm relative z-10">
+                <span class="font-label-md text-label-md text-on-surface-variant">Total Exams</span>
+                <span class="material-symbols-outlined text-primary">quiz</span>
+            </div>
+            <div class="flex items-end gap-sm relative z-10">
+                <span class="font-display-lg text-display-lg text-on-surface">@totalExams</span>
+                <span class="font-label-sm text-label-sm text-tertiary pb-2">Stored</span>
+            </div>
+        </div>
+        <div class="bg-surface-container-lowest rounded-xl p-md border border-outline-variant/30 shadow-sm relative overflow-hidden group">
+            <div class="absolute top-0 right-0 -mr-4 -mt-4 w-24 h-24 bg-primary-fixed rounded-full opacity-20 group-hover:scale-110 transition-transform duration-500"></div>
+            <div class="flex justify-between items-start mb-sm relative z-10">
+                <span class="font-label-md text-label-md text-on-surface-variant">Public Exams</span>
+                <span class="material-symbols-outlined text-tertiary-container">check_circle</span>
+            </div>
+            <div class="flex items-end gap-sm relative z-10">
+                <span class="font-display-lg text-display-lg text-on-surface">@activeExams</span>
+                <span class="font-body-sm text-body-sm text-on-surface-variant pb-2">Active / Published</span>
+            </div>
+        </div>
+        <div class="bg-surface-container-lowest rounded-xl p-md border border-outline-variant/30 shadow-sm relative overflow-hidden group">
+            <div class="absolute top-0 right-0 -mr-4 -mt-4 w-24 h-24 bg-primary-fixed rounded-full opacity-20 group-hover:scale-110 transition-transform duration-500"></div>
+            <div class="flex justify-between items-start mb-sm relative z-10">
+                <span class="font-label-md text-label-md text-on-surface-variant">Total Attempts</span>
+                <span class="material-symbols-outlined text-primary">trending_up</span>
+            </div>
+            <div class="flex items-end gap-sm relative z-10">
+                <span class="font-display-lg text-display-lg text-on-surface">@totalAttempts</span>
+                <span class="font-body-sm text-body-sm text-on-surface-variant pb-2">Attempts taken</span>
+            </div>
+        </div>
+        <div class="bg-secondary-fixed rounded-xl p-md border border-secondary-fixed-dim shadow-sm relative overflow-hidden group">
+            <div class="absolute top-0 right-0 -mr-4 -mt-4 w-24 h-24 bg-secondary-container rounded-full opacity-20 group-hover:scale-110 transition-transform duration-500"></div>
+            <div class="flex justify-between items-start mb-sm relative z-10">
+                <span class="font-label-md text-label-md text-on-secondary-fixed-variant">Hidden Exams</span>
+                <span class="material-symbols-outlined text-secondary">visibility_off</span>
+            </div>
+            <div class="flex items-end gap-sm relative z-10">
+                <span class="font-display-lg text-display-lg text-on-secondary-fixed">@hiddenExams</span>
+                <span class="font-label-sm text-label-sm text-secondary pb-2">Hidden / Deleted</span>
+            </div>
+        </div>
+    </section>
+
+    <!-- 2. QUICK ACTIONS -->
+    <section class="flex justify-between items-center gap-sm">
+        <div class="flex gap-sm">
+            <button type="button" onclick="openCreateExamModal()" class="bg-primary hover:bg-primary/90 text-on-primary font-label-md text-label-md py-2 px-4 rounded-lg flex items-center gap-xs transition-colors cursor-pointer">
+                <span class="material-symbols-outlined text-sm">add</span>
+                Create New Exam
+            </button>
+        </div>
+    </section>
+
+    <!-- 3. EXAMS TABLE -->
+    <section class="bg-surface-container-lowest rounded-xl shadow-sm overflow-hidden border border-outline-variant/30">
+        <div class="px-md py-sm border-b border-outline-variant/50 flex justify-between items-center bg-surface-container/30">
+            <h2 class="font-headline-md text-headline-md text-on-surface font-semibold">All Exams</h2>
+        </div>
+        <div class="overflow-x-auto">
+            <table class="w-full text-left border-collapse">
+                <thead>
+                    <tr class="bg-surface-container-lowest border-b border-outline-variant">
+                        <th class="px-md py-sm font-label-sm text-label-sm text-on-surface-variant font-semibold">Exam ID</th>
+                        <th class="px-md py-sm font-label-sm text-label-sm text-on-surface-variant font-semibold">Exam Name</th>
+                        <th class="px-md py-sm font-label-sm text-label-sm text-on-surface-variant font-semibold">Duration</th>
+                        <th class="px-md py-sm font-label-sm text-label-sm text-on-surface-variant font-semibold">Attempts</th>
+                        <th class="px-md py-sm font-label-sm text-label-sm text-on-surface-variant font-semibold">Status</th>
+                        <th class="px-md py-sm font-label-sm text-label-sm text-on-surface-variant font-semibold text-right">Actions</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-outline-variant/50">
+                    @if (Model.Exams.Any())
+                    {
+                        foreach (var exam in Model.Exams)
+                        {
+                            <tr class="hover:bg-surface-container-low transition-colors group">
+                                <td class="px-md py-sm font-body-sm text-body-sm text-on-surface-variant">#@exam.Id</td>
+                                <td class="px-md py-sm font-body-sm text-body-sm text-on-surface font-medium">
+                                    <a href="/Admin/Exams/Detail?id=@exam.Id" class="text-primary hover:underline font-semibold">
+                                        @exam.Title
+                                    </a>
+                                    @if (!string.IsNullOrEmpty(exam.Description))
+                                    {
+                                        <p class="text-xs text-on-surface-variant font-normal line-clamp-1 mt-0.5">@exam.Description</p>
+                                    }
+                                </td>
+                                <td class="px-md py-sm font-body-sm text-body-sm text-on-surface-variant">@exam.Duration mins</td>
+                                <td class="px-md py-sm font-body-sm text-body-sm text-on-surface-variant">@exam.AttemptCount attempts</td>
+                                <td class="px-md py-sm">
+                                    @if (exam.IsDeleted)
+                                    {
+                                        <span class="bg-error-container text-on-error-container px-2.5 py-1 rounded-full font-label-sm text-label-sm flex items-center gap-xs w-fit">
+                                            <span class="material-symbols-outlined text-sm">visibility_off</span>
+                                            Hidden
+                                        </span>
+                                    }
+                                    else if (exam.Status == ExamStatus.Published)
+                                    {
+                                        <span class="bg-tertiary-fixed text-on-tertiary-fixed-variant px-2.5 py-1 rounded-full font-label-sm text-label-sm flex items-center gap-xs w-fit">
+                                            <span class="material-symbols-outlined text-sm">visibility</span>
+                                            Published
+                                        </span>
+                                    }
+                                    else
+                                    {
+                                        <span class="bg-secondary-container text-on-secondary-container px-2.5 py-1 rounded-full font-label-sm text-label-sm flex items-center gap-xs w-fit">
+                                            <span class="material-symbols-outlined text-sm">edit_note</span>
+                                            Draft
+                                        </span>
+                                    }
+                                </td>
+                                <td class="px-md py-sm text-right">
+                                    <div class="flex items-center justify-end gap-sm">
+                                        <a href="/Admin/Exams/Detail?id=@exam.Id" class="text-on-surface-variant hover:text-primary p-1 rounded hover:bg-surface-container" title="View Details">
+                                            <span class="material-symbols-outlined text-sm block">info</span>
+                                        </a>
+                                        @if (!exam.IsDeleted)
+                                        {
+                                            <a href="/Admin/Exams/Edit?id=@exam.Id" class="text-on-surface-variant hover:text-primary p-1 rounded hover:bg-surface-container" title="Edit Exam">
+                                                <span class="material-symbols-outlined text-sm block">edit</span>
+                                            </a>
+                                            <button onclick="confirmSoftDelete(@exam.Id, '@exam.Title')" class="text-on-surface-variant hover:text-error p-1 rounded hover:bg-surface-container" title="Hide/Soft Delete">
+                                                <span class="material-symbols-outlined text-sm block">delete</span>
+                                            </button>
+                                        }
+                                        else
+                                        {
+                                            <button onclick="confirmRestore(@exam.Id, '@exam.Title')" class="text-on-surface-variant hover:text-tertiary-container p-1 rounded hover:bg-surface-container" title="Restore/Publish">
+                                                <span class="material-symbols-outlined text-sm block">publish</span>
+                                            </button>
+                                        }
+                                    </div>
+                                </td>
+                            </tr>
+                        }
+                    }
+                    else
+                    {
+                        <tr>
+                            <td colspan="6" class="text-center py-12 text-on-surface-variant">
+                                <span class="material-symbols-outlined text-display-lg text-outline-variant block mb-sm">inbox</span>
+                                <p class="font-headline-sm text-headline-sm mb-xs">No exams found</p>
+                                <p class="font-body-sm text-body-sm">Please click the button above to create a new exam.</p>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </section>
+</div>
+
+<partial name="_CreateExamModal" />
+
+@section Scripts {
+<script>
+    function openCreateExamModal() {
+        const modal = document.getElementById('create-exam-modal');
+        const content = document.getElementById('create-exam-modal-content');
+        if (!modal || !content) return;
+
+        modal.classList.remove('hidden', 'pointer-events-none', 'opacity-0');
+        modal.classList.add('opacity-100');
+        content.classList.remove('scale-95', 'opacity-0');
+        content.classList.add('scale-100', 'opacity-100');
+    }
+
+    function previewCreateExamAudio(input) {
+        const label = document.getElementById('create-exam-audio-name');
+        const errorEl = document.getElementById('create-exam-audio-error');
+        const icon = document.getElementById('create-exam-audio-icon');
+        const removeRow = document.getElementById('createExamAudioRemoveRow');
+        const maxBytes = 100 * 1024 * 1024;
+        if (!label) return;
+
+        if (input.files && input.files[0]) {
+            const file = input.files[0];
+            label.textContent = file.name;
+            if (icon) icon.textContent = 'check_circle';
+            if (removeRow) removeRow.classList.remove('hidden');
+            if (errorEl) {
+                if (file.size > maxBytes) {
+                    errorEl.textContent = 'File is too large (' + Math.round(file.size / (1024 * 1024)) + ' MB). Maximum is 100 MB.';
+                    errorEl.classList.remove('hidden');
+                } else {
+                    errorEl.textContent = '';
+                    errorEl.classList.add('hidden');
+                }
+            }
+        } else {
+            label.textContent = 'Upload one full listening audio file (.mp3)';
+            if (icon) icon.textContent = 'audiotrack';
+            if (removeRow) removeRow.classList.add('hidden');
+            if (errorEl) {
+                errorEl.textContent = '';
+                errorEl.classList.add('hidden');
+            }
+        }
+    }
+
+    function removeCreateExamAudio() {
+        const input = document.getElementById('createExamAudioInput');
+        if (input) input.value = '';
+        previewCreateExamAudio(input || { files: null });
+    }
+
+    document.getElementById('create-exam-form')?.addEventListener('submit', function (e) {
+        const audioInput = document.querySelector('#create-exam-form input[type="file"][accept="audio/*"]');
+        const maxBytes = 100 * 1024 * 1024;
+        if (audioInput?.files?.[0] && audioInput.files[0].size > maxBytes) {
+            e.preventDefault();
+            previewCreateExamAudio(audioInput);
+            showToast('Audio file exceeds the 100 MB limit.', 'error');
+        }
+    });
+
+    function closeCreateExamModal() {
+        const modal = document.getElementById('create-exam-modal');
+        const content = document.getElementById('create-exam-modal-content');
+        if (!modal || !content) return;
+
+        content.classList.remove('scale-100', 'opacity-100');
+        content.classList.add('scale-95', 'opacity-0');
+        modal.classList.remove('opacity-100');
+        modal.classList.add('opacity-0');
+
+        setTimeout(() => {
+            modal.classList.add('hidden', 'pointer-events-none');
+        }, 300);
+    }
+
+    document.getElementById('create-exam-modal')?.addEventListener('click', (e) => {
+        if (e.target.id === 'create-exam-modal') {
+            closeCreateExamModal();
+        }
+    });
+
+    document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape') {
+            closeCreateExamModal();
+        }
+    });
+
+    @if (Model.ShowCreateModal)
+    {
+        <text>document.addEventListener('DOMContentLoaded', openCreateExamModal);</text>
+    }
+
+    function confirmSoftDelete(id, title) {
+        showConfirm({
+            title: 'Hide Exam',
+            message: `Are you sure you want to hide the exam "${title}"? Students will no longer be able to take it, but their past attempt history will remain intact.`,
+            confirmText: 'Hide Exam',
+            isDestructive: true,
+            onConfirm: async () => {
+                try {
+                    const response = await fetch(`/api/Exams/${id}`, {
+                        method: 'DELETE'
+                    });
+                    
+                    if (response.ok) {
+                        showToast('Exam hidden successfully!', 'success');
+                        setTimeout(() => {
+                            window.location.reload();
+                        }, 1000);
+                    } else {
+                        const errorData = await response.json();
+                        showToast(errorData.error || 'Failed to hide the exam.', 'error');
+                    }
+                } catch (err) {
+                    console.error(err);
+                    showToast('Could not connect to the server.', 'error');
+                }
+            }
+        });
+    }
+
+    function confirmRestore(id, title) {
+        showConfirm({
+            title: 'Restore Exam',
+            message: `Are you sure you want to restore and republish the exam "${title}"?`,
+            confirmText: 'Restore Exam',
+            isDestructive: false,
+            onConfirm: async () => {
+                try {
+                    const response = await fetch(`/api/Exams/${id}/restore`, {
+                        method: 'POST'
+                    });
+                    
+                    if (response.ok) {
+                        showToast('Exam restored and published successfully!', 'success');
+                        setTimeout(() => {
+                            window.location.reload();
+                        }, 1000);
+                    } else {
+                        const errorData = await response.json();
+                        showToast(errorData.error || 'Failed to restore the exam.', 'error');
+                    }
+                } catch (err) {
+                    console.error(err);
+                    showToast('Could not connect to the server.', 'error');
+                }
+            }
+        });
+    }
+</script>
+}

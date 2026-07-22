@@ -1,26 +1,35 @@
+using System;
 using System.Threading.Tasks;
-using Application.Features.Exams.Commands.CreateExam;
-using Application.Features.Exams.Commands.SoftDeleteExam;
-using Application.Features.Exams.Commands.RestoreExam;
-using Application.Features.Exams.Queries.GetAdminExamList;
-using Application.Features.Exams.Queries.GetExamDetail;
-using Microsoft.AspNetCore.Mvc;
+using Application.Features.Exam.Queries.GetExamDetail;
+using Application.Features.Exam.Queries.GetExamList;
+using AcadPrep.Application.Features.Admin.Exams.Commands.ChangeExamStatus;
+using AcadPrep.Application.Features.Admin.Exams.Commands.CreateExam;
+using AcadPrep.Application.Features.Admin.Exams.Commands.RestoreExam;
+using AcadPrep.Application.Features.Admin.Exams.Commands.SoftDeleteExam;
+using AcadPrep.Application.Features.Admin.Exams.Queries.GetAdminExamList;
+using AdminGetExamDetailQuery = AcadPrep.Application.Features.Admin.Exams.Queries.GetExamDetail.GetExamDetailQuery;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
+
+using Microsoft.AspNetCore.Authorization;
+using Domain.Enums;
 
 namespace WebUI.Controllers;
 
+[Authorize(Roles = nameof(UserRole.Moderator))]
 public class ExamsController : ApiControllerBase
 {
     /// <summary>
-    /// Lấy danh sách tất cả đề thi quản trị (bao gồm cả đề đã ẩn)
+    /// Lấy danh sách đề thi (Có phân trang, tìm kiếm và lọc) - UC-3.1
     /// </summary>
     [HttpGet]
+    [AllowAnonymous]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
-    public async Task<IActionResult> GetList()
+    public async Task<IActionResult> GetList([FromQuery] GetExamListQuery query)
     {
-        var result = await Mediator.Send(new GetAdminExamListQuery());
-        
+        var result = await Mediator.Send(query);
+
         if (!result.IsSuccess)
         {
             return BadRequest(result);
@@ -30,15 +39,35 @@ public class ExamsController : ApiControllerBase
     }
 
     /// <summary>
-    /// Lấy chi tiết cấu trúc đề thi, danh sách câu hỏi và lượt thi
+    /// Lấy danh sách tất cả đề thi quản trị (bao gồm cả đề đã ẩn)
+    /// </summary>
+    [HttpGet("admin")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    public async Task<IActionResult> GetAdminList()
+    {
+        var result = await Mediator.Send(new GetAdminExamListQuery());
+
+        if (!result.IsSuccess)
+        {
+            return BadRequest(result);
+        }
+
+        return Ok(result);
+    }
+
+    /// <summary>
+    /// Lấy thông tin chi tiết một đề thi kèm lịch sử làm bài - UC-3.2
     /// </summary>
     [HttpGet("{id:int}")]
+    [AllowAnonymous]
     [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
-    public async Task<IActionResult> GetDetail(int id)
+    public async Task<IActionResult> GetDetail([FromRoute] int id, [FromQuery] int? userId)
     {
-        var result = await Mediator.Send(new GetExamDetailQuery { Id = id });
-        
+        var result = await Mediator.Send(new GetExamDetailQuery(id, userId));
+
         if (!result.IsSuccess)
         {
             return NotFound(result);
@@ -48,7 +77,26 @@ public class ExamsController : ApiControllerBase
     }
 
     /// <summary>
-    /// Tạo một đề thi mới kèm theo danh sách các câu hỏi
+    /// Lấy chi tiết cấu trúc đề thi, danh sách câu hỏi và lượt thi (quản trị)
+    /// </summary>
+    [HttpGet("admin/{id:int}")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public async Task<IActionResult> GetAdminDetail(int id)
+    {
+        var result = await Mediator.Send(new AdminGetExamDetailQuery { Id = id });
+
+        if (!result.IsSuccess)
+        {
+            return NotFound(result);
+        }
+
+        return Ok(result);
+    }
+
+    /// <summary>
+    /// Tạo một đề thi trống (metadata only). Thêm/sửa câu hỏi thực hiện ở trang Edit.
+    /// Endpoint này dùng để test qua Swagger; UI Razor Pages gọi trực tiếp CreateExamCommand qua code-behind.
     /// </summary>
     [HttpPost]
     [ProducesResponseType(StatusCodes.Status201Created)]
@@ -56,13 +104,13 @@ public class ExamsController : ApiControllerBase
     public async Task<IActionResult> Create([FromBody] CreateExamDto dto)
     {
         var result = await Mediator.Send(new CreateExamCommand { CreateExamDto = dto });
-        
+
         if (!result.IsSuccess)
         {
             return BadRequest(result);
         }
 
-        return CreatedAtAction(nameof(GetDetail), new { id = result.Data }, result);
+        return CreatedAtAction(nameof(GetAdminDetail), new { id = result.Data }, result);
     }
 
     /// <summary>
@@ -74,7 +122,30 @@ public class ExamsController : ApiControllerBase
     public async Task<IActionResult> SoftDelete(int id)
     {
         var result = await Mediator.Send(new SoftDeleteExamCommand { Id = id });
-        
+
+        if (!result.IsSuccess)
+        {
+            return BadRequest(result);
+        }
+
+        return Ok(result);
+    }
+
+    /// <summary>
+    /// Đổi trạng thái đề thi (Draft / Published)
+    /// </summary>
+    [HttpPost("{id:int}/status")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    public async Task<IActionResult> ChangeStatus(int id, [FromBody] ChangeExamStatusRequest request)
+    {
+        if (!Enum.TryParse<ExamStatus>(request.Status, ignoreCase: true, out var status))
+        {
+            return BadRequest(new { error = "Invalid exam status." });
+        }
+
+        var result = await Mediator.Send(new ChangeExamStatusCommand { Id = id, Status = status });
+
         if (!result.IsSuccess)
         {
             return BadRequest(result);
@@ -92,7 +163,7 @@ public class ExamsController : ApiControllerBase
     public async Task<IActionResult> Restore(int id)
     {
         var result = await Mediator.Send(new RestoreExamCommand { Id = id });
-        
+
         if (!result.IsSuccess)
         {
             return BadRequest(result);
@@ -100,4 +171,9 @@ public class ExamsController : ApiControllerBase
 
         return Ok(result);
     }
+}
+
+public class ChangeExamStatusRequest
+{
+    public string Status { get; set; } = string.Empty;
 }

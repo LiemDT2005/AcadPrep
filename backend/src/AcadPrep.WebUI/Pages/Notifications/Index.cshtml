@@ -1,0 +1,174 @@
+@page
+@using AcadPrep.Application.Features.Notifications.DTOs
+@model AcadPrep.WebUI.Pages.Notifications.IndexModel
+@{
+    ViewData["Title"] = "Notifications";
+
+    // Giữ đúng layout theo vai trò: Admin/Moderator dùng shell riêng, không nhảy sang giao diện Learner.
+    Layout = User.IsInRole("Admin")
+        ? "_AdminLayout"
+        : User.IsInRole("Moderator")
+            ? "_ModeratorLayout"
+            : "_Layout";
+
+    (string icon, string accent) TypeVisual(string? type)
+    {
+        var t = type ?? string.Empty;
+        if (t.StartsWith("exam."))
+            return ("quiz", "text-primary bg-primary/10");
+        if (t.StartsWith("gamification.") || t.StartsWith("vocab."))
+            return ("military_tech", "text-emerald-600 bg-emerald-500/10");
+        if (t.StartsWith("content."))
+            return ("campaign", "text-orange-600 bg-orange-500/10");
+        if (t.StartsWith("security."))
+            return ("shield", "text-rose-600 bg-rose-500/10");
+        // account.* và mặc định
+        return ("account_circle", "text-secondary bg-secondary-container");
+    }
+
+    string RelativeTime(DateTime createdUtc)
+    {
+        var span = DateTime.UtcNow - createdUtc;
+        if (span.TotalSeconds < 60) return "just now";
+        if (span.TotalMinutes < 60) return $"{(int)span.TotalMinutes} minutes ago";
+        if (span.TotalHours < 24) return $"{(int)span.TotalHours} hours ago";
+        if (span.TotalDays < 7) return $"{(int)span.TotalDays} days ago";
+        return createdUtc.ToLocalTime().ToString("dd/MM/yyyy");
+    }
+}
+
+<div class="max-w-[860px] mx-auto flex flex-col gap-lg">
+    <!-- Header -->
+    <header class="flex flex-col gap-md border-b border-outline-variant pb-md md:flex-row md:items-end md:justify-between">
+        <div>
+            <p class="mb-xs text-[12px] font-semibold uppercase tracking-[0.12em] text-primary">Inbox</p>
+            <h2 class="text-[32px] font-bold leading-10 text-on-surface">Notifications</h2>
+            <p class="mt-sm text-[16px] text-on-surface-variant">
+                Updates on your exam results, study reminders, and account activities.
+                @if (Model.UnreadCount > 0)
+                {
+                    <span class="ml-sm text-[14px] font-semibold text-primary">@Model.UnreadCount unread</span>
+                }
+            </p>
+        </div>
+        @if (Model.UnreadCount > 0)
+        {
+            <form method="post" asp-page-handler="MarkAllRead" class="m-0">
+                <input type="hidden" name="pageNumber" value="@Model.PageNumber" />
+                <input type="hidden" name="unreadOnly" value="@Model.UnreadOnly.ToString().ToLower()" />
+                <button type="submit"
+                        class="inline-flex items-center gap-xs rounded-lg border border-outline-variant px-md py-sm text-[14px] font-medium text-on-surface-variant transition-colors hover:bg-surface-container-low cursor-pointer">
+                    <span class="material-symbols-outlined text-[18px]">done_all</span>
+                    Mark all as read
+                </button>
+            </form>
+        }
+    </header>
+
+    <!-- Tabs -->
+    <div class="flex items-center gap-xs">
+        <a href="/Notifications?unreadOnly=false"
+           class="inline-flex items-center rounded-full px-md py-sm text-[14px] font-medium transition-colors @(Model.UnreadOnly ? "text-on-surface-variant hover:bg-surface-container-low" : "bg-primary text-on-primary")">
+            All
+        </a>
+        <a href="/Notifications?unreadOnly=true"
+           class="inline-flex items-center gap-xs rounded-full px-md py-sm text-[14px] font-medium transition-colors @(Model.UnreadOnly ? "bg-primary text-on-primary" : "text-on-surface-variant hover:bg-surface-container-low")">
+            Unread
+            @if (Model.UnreadCount > 0)
+            {
+                <span class="inline-flex items-center justify-center min-w-[18px] h-[18px] rounded-full px-1 text-[11px] font-bold @(Model.UnreadOnly ? "bg-on-primary/20 text-on-primary" : "bg-primary/10 text-primary")">@Model.UnreadCount</span>
+            }
+        </a>
+    </div>
+
+    <!-- List -->
+    <div class="flex flex-col gap-sm">
+        @if (Model.Notifications == null || Model.Notifications.TotalCount == 0)
+        {
+            <div class="flex flex-col items-center justify-center gap-sm rounded-xl border border-dashed border-outline-variant bg-surface-container-lowest py-2xl text-center">
+                <span class="material-symbols-outlined text-[48px] text-outline">notifications_off</span>
+                <p class="text-[16px] font-semibold text-on-surface">No notifications yet</p>
+                <p class="text-[14px] text-on-surface-variant">
+                    @(Model.UnreadOnly ? "You've read all notifications." : "New notifications will appear here.")
+                </p>
+            </div>
+        }
+        else
+        {
+            @foreach (var n in Model.Notifications.Items)
+            {
+                var (icon, accent) = TypeVisual(n.Type);
+                var unreadCard = n.IsRead ? "bg-surface-container-lowest" : "bg-primary/[0.04] border-l-4 border-l-primary";
+                <div class="group flex items-start gap-md rounded-xl border border-outline-variant @unreadCard px-md py-md shadow-sm transition-colors hover:bg-surface-container-low">
+                    <span class="material-symbols-outlined shrink-0 p-sm rounded-lg @accent" style="font-variation-settings: 'FILL' 1;">@icon</span>
+
+                    <!-- Nội dung: click để mở (mark read + redirect nếu có link) -->
+                    <form method="post" asp-page-handler="Open" class="m-0 flex-1 min-w-0">
+                        <input type="hidden" name="id" value="@n.Id" />
+                        <input type="hidden" name="pageNumber" value="@Model.PageNumber" />
+                        <input type="hidden" name="unreadOnly" value="@Model.UnreadOnly.ToString().ToLower()" />
+                        <button type="submit" class="w-full text-left bg-transparent border-0 p-0 cursor-pointer">
+                            <div class="flex items-center gap-sm">
+                                <p class="text-[15px] font-semibold text-on-surface truncate @(n.IsRead ? "" : "font-bold")">@n.Title</p>
+                                @if (!n.IsRead)
+                                {
+                                    <span class="shrink-0 inline-block w-2 h-2 rounded-full bg-primary"></span>
+                                }
+                            </div>
+                            <p class="mt-[2px] text-[14px] text-on-surface-variant line-clamp-2">@n.Message</p>
+                            <p class="mt-xs text-[12px] text-outline">@RelativeTime(n.CreatedAt)</p>
+                        </button>
+                    </form>
+
+                    <!-- Đánh dấu đã đọc tại chỗ -->
+                    @if (!n.IsRead)
+                    {
+                        <form method="post" asp-page-handler="MarkRead" class="m-0 shrink-0">
+                            <input type="hidden" name="id" value="@n.Id" />
+                            <input type="hidden" name="pageNumber" value="@Model.PageNumber" />
+                            <input type="hidden" name="unreadOnly" value="@Model.UnreadOnly.ToString().ToLower()" />
+                            <button type="submit" title="Mark as read"
+                                    class="inline-flex items-center justify-center w-8 h-8 rounded-lg text-on-surface-variant hover:bg-surface-container hover:text-primary transition-colors cursor-pointer border-0 bg-transparent">
+                                <span class="material-symbols-outlined text-[18px]">mark_email_read</span>
+                            </button>
+                        </form>
+                    }
+                </div>
+            }
+        }
+    </div>
+
+    <!-- Pagination -->
+    @if (Model.Notifications != null && Model.Notifications.TotalPage > 1)
+    {
+        <div class="flex items-center justify-between px-sm">
+            <p class="text-[13px] text-on-surface-variant">
+                Page @Model.Notifications.PageNumber / @Model.Notifications.TotalPage · @Model.Notifications.TotalCount notifications
+            </p>
+            <div class="flex items-center gap-xs">
+                @if (Model.Notifications.HasPreviousPage)
+                {
+                    <a href="/Notifications?pageNumber=@(Model.PageNumber - 1)&unreadOnly=@Model.UnreadOnly.ToString().ToLower()"
+                       class="inline-flex items-center justify-center w-8 h-8 rounded-lg border border-outline-variant hover:bg-surface-container-low text-on-surface-variant transition-colors">
+                        <span class="material-symbols-outlined text-[18px]">chevron_left</span>
+                    </a>
+                }
+                @for (int i = 1; i <= Model.Notifications.TotalPage; i++)
+                {
+                    var active = i == Model.PageNumber;
+                    <a href="/Notifications?pageNumber=@i&unreadOnly=@Model.UnreadOnly.ToString().ToLower()"
+                       class="inline-flex items-center justify-center w-8 h-8 rounded-lg text-[13px] font-medium transition-colors @(active ? "bg-primary text-on-primary" : "border border-outline-variant hover:bg-surface-container-low text-on-surface-variant")">
+                        @i
+                    </a>
+                }
+                @if (Model.Notifications.HasNextPage)
+                {
+                    <a href="/Notifications?pageNumber=@(Model.PageNumber + 1)&unreadOnly=@Model.UnreadOnly.ToString().ToLower()"
+                       class="inline-flex items-center justify-center w-8 h-8 rounded-lg border border-outline-variant hover:bg-surface-container-low text-on-surface-variant transition-colors">
+                        <span class="material-symbols-outlined text-[18px]">chevron_right</span>
+                    </a>
+                }
+            </div>
+        </div>
+    }
+</div>

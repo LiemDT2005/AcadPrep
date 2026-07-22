@@ -1,0 +1,224 @@
+@page "/Admin/Exams/{examId:int}/Questions/Create/Part5"
+@model AcadPrep.WebUI.Pages.Admin.Exams.Questions.Part5Model
+@{
+    Layout = "_ModeratorLayout";
+    var actionVerb = Model.IsEditMode ? "Edit" : "Create";
+    ViewData["Title"] = $"{actionVerb} Part 5 Question";
+    var pageHeader = new QuestionPageHeaderViewModel {
+        ExamId = Model.ExamId,
+        ExamTitle = Model.ExamTitle,
+        Title = $"{actionVerb} Part 5 Question",
+        Subtitle = "Incomplete Sentences — fill in the blank with the best word or phrase.",
+        PartBadge = "Part 5 · Reading",
+        PartIcon = "edit_note",
+        PartBadgeVariant = "tertiary",
+        BreadcrumbCurrent = $"{actionVerb} Part 5"
+    };
+}
+
+<link rel="stylesheet" href="~/css/admin-question-create.css" />
+
+<div class="w-full flex flex-col gap-lg pb-12">
+    <partial name="_QuestionPageHeader" model="pageHeader" />
+
+    <partial name="_ValidationAlerts" model="new ValidationAlertsViewModel { ErrorMessage = Model.ErrorMessage, ValidationErrors = Model.ValidationErrors }" />
+
+    <div class="grid grid-cols-1 lg:grid-cols-12 gap-lg items-start">
+
+        <!-- Left: Form -->
+        <form method="post" class="lg:col-span-7 qc-form-card" novalidate>
+            <input type="hidden" asp-for="Form.EditId" />
+
+            <!-- Section: Metadata -->
+            <section class="qc-section">
+                <div class="qc-section__header">
+                    <span class="material-symbols-outlined">tag</span>
+                    <div>
+                        <div class="qc-section__title">Question Details</div>
+                        <div class="qc-section__hint">Number, type, and topic classification</div>
+                    </div>
+                </div>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-md">
+                    <div>
+                        <label asp-for="Form.QuestionNumber" class="qc-label">Question Number <span class="text-error">*</span></label>
+                        <input asp-for="Form.QuestionNumber" type="number" id="inputQNumber" class="qc-input" required />
+                    </div>
+                    <div>
+                        <label asp-for="Form.QuestionType" class="qc-label">Question Type</label>
+                        <input asp-for="Form.QuestionType" type="text" id="inputQType" placeholder="Vocabulary, grammar..." class="qc-input" />
+                    </div>
+                    <div>
+                        <label asp-for="Form.TopicTag" class="qc-label">Topic Tag</label>
+                        <input asp-for="Form.TopicTag" type="text" placeholder="Verb tense, preposition..." class="qc-input" />
+                    </div>
+                </div>
+            </section>
+
+            <div class="qc-section-stack">
+                <!-- Section: Question Text -->
+                <section class="qc-section">
+                    <div class="qc-section__header">
+                        <span class="material-symbols-outlined">subject</span>
+                        <div>
+                            <div class="qc-section__title">Question Text</div>
+                            <div class="qc-section__hint">Use <code class="text-primary font-semibold">___</code> to mark the blank</div>
+                        </div>
+                    </div>
+                    <div class="flex justify-end mb-xs">
+                        <button type="button" onclick="insertBlank()" class="qc-chip-btn flex items-center gap-1">
+                            <span class="material-symbols-outlined text-[14px]">add</span>
+                            Insert Blank (___)
+                        </button>
+                    </div>
+                    <textarea asp-for="Form.QuestionText" id="inputQText" rows="3" placeholder="Example: The report ___ submitted before Friday." class="qc-textarea resize-none" required></textarea>
+                </section>
+
+                <!-- Section: Options -->
+                <section class="qc-section">
+                    <div class="qc-section__header">
+                        <span class="material-symbols-outlined">check_circle</span>
+                        <div>
+                            <div class="qc-section__title">Answer Options</div>
+                            <div class="qc-section__hint">Select the radio button to mark the correct answer</div>
+                        </div>
+                    </div>
+                    <div class="flex flex-col gap-sm">
+                        <div class="qc-option-row">
+                            <span class="qc-option-badge">A</span>
+                            <input asp-for="Form.OptionA" type="text" id="inputOptA" placeholder="Option A" required />
+                            <span class="qc-correct-label">Correct</span>
+                            <input type="radio" asp-for="Form.CorrectOption" value="A" id="radioCorrectA" checked />
+                        </div>
+                        <div class="qc-option-row">
+                            <span class="qc-option-badge">B</span>
+                            <input asp-for="Form.OptionB" type="text" id="inputOptB" placeholder="Option B" required />
+                            <span class="qc-correct-label">Correct</span>
+                            <input type="radio" asp-for="Form.CorrectOption" value="B" id="radioCorrectB" />
+                        </div>
+                        <div class="qc-option-row">
+                            <span class="qc-option-badge">C</span>
+                            <input asp-for="Form.OptionC" type="text" id="inputOptC" placeholder="Option C" required />
+                            <span class="qc-correct-label">Correct</span>
+                            <input type="radio" asp-for="Form.CorrectOption" value="C" id="radioCorrectC" />
+                        </div>
+                        <div class="qc-option-row">
+                            <span class="qc-option-badge">D</span>
+                            <input asp-for="Form.OptionD" type="text" id="inputOptD" placeholder="Option D" required />
+                            <span class="qc-correct-label">Correct</span>
+                            <input type="radio" asp-for="Form.CorrectOption" value="D" id="radioCorrectD" />
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Section: Explanation -->
+                <section class="qc-section">
+                    <div class="qc-section__header">
+                        <span class="material-symbols-outlined">lightbulb</span>
+                        <div>
+                            <div class="qc-section__title">Explanation <span class="text-error">*</span></div>
+                            <div class="qc-section__hint">Optional solution shown after students submit (UC-10.1)</div>
+                        </div>
+                    </div>
+                    <textarea asp-for="Form.Explanation" rows="3" placeholder="Explain why the correct option is right..." class="qc-textarea resize-none" required></textarea>
+                </section>
+            </div>
+
+            <div class="qc-form-actions">
+                <a href="/Admin/Exams/Edit?id=@Model.ExamId" class="qc-btn-ghost">Cancel</a>
+                @if (Model.CanAddAnother)
+                {
+                    <button type="submit" formaction="?handler=AddAnother" class="qc-btn-secondary">Save & Add Another</button>
+                }
+                <button type="submit" class="qc-btn-primary">
+                    <span class="material-symbols-outlined text-[18px]">save</span>
+                    @(Model.IsEditMode ? "Save Changes" : "Save Question")
+                </button>
+            </div>
+        </form>
+
+        <!-- Right: Live Preview -->
+        <div class="lg:col-span-5 qc-preview-panel">
+            <div class="qc-preview-panel__label">
+                <span class="material-symbols-outlined">visibility</span>
+                Learner Live Preview
+            </div>
+            <div class="qc-preview-shell">
+                <div class="qc-preview-inner">
+                    <div class="qc-preview-meta">
+                        <span class="qc-preview-qnum" id="previewQNumber">Question 101:</span>
+                        <span class="qc-preview-tag" id="previewQType">grammar</span>
+                    </div>
+                    <p class="font-body-md text-body-md text-on-surface leading-relaxed" id="previewQText">
+                        The report ___ submitted before Friday.
+                    </p>
+                    <div class="flex flex-col gap-sm">
+                        <div id="previewCardA" class="qc-preview-option">
+                            <span id="previewBadgeA" class="qc-preview-option-badge">A</span>
+                            <span id="previewTextA" class="font-body-md text-body-md text-on-surface">Option A</span>
+                        </div>
+                        <div id="previewCardB" class="qc-preview-option">
+                            <span id="previewBadgeB" class="qc-preview-option-badge">B</span>
+                            <span id="previewTextB" class="font-body-md text-body-md text-on-surface">Option B</span>
+                        </div>
+                        <div id="previewCardC" class="qc-preview-option">
+                            <span id="previewBadgeC" class="qc-preview-option-badge">C</span>
+                            <span id="previewTextC" class="font-body-md text-body-md text-on-surface">Option C</span>
+                        </div>
+                        <div id="previewCardD" class="qc-preview-option">
+                            <span id="previewBadgeD" class="qc-preview-option-badge">D</span>
+                            <span id="previewTextD" class="font-body-md text-body-md text-on-surface">Option D</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="~/js/admin-form-validation.js"></script>
+<script src="~/js/admin-question-create.js"></script>
+<script>
+    function insertBlank() {
+        const textarea = document.getElementById('inputQText');
+        const start = textarea.selectionStart;
+        const end = textarea.selectionEnd;
+        const text = textarea.value;
+        textarea.value = text.substring(0, start) + ' ___ ' + text.substring(end);
+        textarea.focus();
+        textarea.selectionStart = textarea.selectionEnd = start + 5;
+        updatePreview();
+    }
+
+    function updatePreview() {
+        const qNum = document.getElementById('inputQNumber').value;
+        document.getElementById('previewQNumber').textContent = 'Question ' + (qNum || '101') + ':';
+        document.getElementById('previewQType').textContent = document.getElementById('inputQType').value || 'grammar';
+        document.getElementById('previewQText').textContent = document.getElementById('inputQText').value || 'The report ___ submitted before Friday.';
+
+        ['A', 'B', 'C', 'D'].forEach(letter => {
+            document.getElementById('previewText' + letter).textContent =
+                document.getElementById('inputOpt' + letter).value || ('Option ' + letter);
+        });
+
+        const correctOpt = document.querySelector('input[name="Form.CorrectOption"]:checked').value;
+        ['A', 'B', 'C', 'D'].forEach(letter => {
+            AcadPrepQuestionUI.applyPreviewOption(
+                document.getElementById('previewCard' + letter),
+                document.getElementById('previewBadge' + letter),
+                letter === correctOpt
+            );
+        });
+    }
+
+    document.getElementById('inputQNumber').addEventListener('input', updatePreview);
+    document.getElementById('inputQType').addEventListener('input', updatePreview);
+    document.getElementById('inputQText').addEventListener('input', updatePreview);
+    ['A', 'B', 'C', 'D'].forEach(l => document.getElementById('inputOpt' + l).addEventListener('input', updatePreview));
+    document.querySelectorAll('input[name="Form.CorrectOption"]').forEach(r => r.addEventListener('change', updatePreview));
+
+    window.addEventListener('DOMContentLoaded', () => {
+        const form = document.querySelector('form');
+        if (form) AcadPrepFormValidation.bindForm(form);
+        updatePreview();
+    });
+</script>

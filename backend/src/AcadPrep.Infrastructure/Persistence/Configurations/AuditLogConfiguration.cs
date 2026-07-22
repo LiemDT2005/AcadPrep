@@ -31,7 +31,6 @@ public class AuditLogConfiguration : IEntityTypeConfiguration<AuditLog>
         builder.Property(x => x.Timestamp)
             .HasDefaultValueSql("GETDATE()");
 
-        // Relationships
         builder.HasOne(x => x.User)
             .WithMany(u => u.AuditLogs)
             .HasForeignKey(x => x.UserId)

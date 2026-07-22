@@ -1,0 +1,127 @@
+@page
+@model AcadPrep.WebUI.Pages.Admin.Exams.DetailModel
+@{
+    Layout = "_ModeratorLayout";
+    ViewData["Title"] = "Exam Details - " + Model.Exam.Title;
+
+    var structure = ExamStructureViewModel.From(Model.Exam, isReadOnly: true);
+
+    var hero = new ExamPageHeroViewModel
+    {
+        Exam = Model.Exam,
+        TotalQuestions = structure.TotalQuestions,
+        IsReadOnly = true,
+        BreadcrumbCurrent = "Exam Details",
+        HeroIcon = "info"
+    };
+}
+
+<link rel="stylesheet" href="~/css/admin-question-create.css" />
+
+<div class="w-full flex flex-col gap-lg pb-12">
+    <partial name="_ExamPageHero" model="hero" />
+    <partial name="_ExamStatsPanel" model="structure" />
+    <partial name="_ExamStructureProgress" model="structure" />
+    <partial name="_ExamQuestionTree" model="structure" />
+
+    @if (!Model.Exam.IsDeleted)
+    {
+        <div class="flex justify-end gap-sm">
+            @if (Model.Exam.Status == ExamStatus.Published)
+            {
+                <button type="button"
+                        data-exam-id="@Model.Exam.Id"
+                        data-exam-title="@Model.Exam.Title"
+                        onclick="confirmChangeStatus(this.dataset.examId, this.dataset.examTitle, 'Draft')"
+                        class="bg-secondary-container hover:bg-secondary-container/80 text-on-secondary-container font-label-md text-label-md py-2 px-4 rounded-lg flex items-center gap-xs transition-colors cursor-pointer">
+                    <span class="material-symbols-outlined text-sm">edit_note</span>
+                    Unpublish (to Draft)
+                </button>
+            }
+            else
+            {
+                <button type="button"
+                        data-exam-id="@Model.Exam.Id"
+                        data-exam-title="@Model.Exam.Title"
+                        onclick="confirmChangeStatus(this.dataset.examId, this.dataset.examTitle, 'Published')"
+                        class="bg-primary hover:bg-primary/90 text-on-primary font-label-md text-label-md py-2 px-4 rounded-lg flex items-center gap-xs transition-colors cursor-pointer">
+                    <span class="material-symbols-outlined text-sm">publish</span>
+                    Publish Exam
+                </button>
+            }
+            <button type="button"
+                    data-exam-id="@Model.Exam.Id"
+                    data-exam-title="@Model.Exam.Title"
+                    onclick="confirmSoftDelete(this.dataset.examId, this.dataset.examTitle)"
+                    class="bg-error-container hover:bg-error-container/80 text-on-error-container font-label-md text-label-md py-2 px-4 rounded-lg flex items-center gap-xs transition-colors cursor-pointer">
+                <span class="material-symbols-outlined text-sm">visibility_off</span>
+                Hide Exam
+            </button>
+        </div>
+    }
+</div>
+
+@section Scripts {
+<script>
+    function confirmChangeStatus(id, title, newStatus) {
+        const publishing = newStatus === 'Published';
+        showConfirm({
+            title: publishing ? 'Publish Exam' : 'Unpublish Exam',
+            message: publishing
+                ? `Publish the exam "${title}"? Students will be able to see and take it.`
+                : `Move the exam "${title}" back to Draft? Students will no longer see it in the list.`,
+            confirmText: publishing ? 'Publish' : 'Unpublish',
+            isDestructive: !publishing,
+            onConfirm: async () => {
+                try {
+                    const response = await fetch(`/api/Exams/${id}/status`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ status: newStatus })
+                    });
+
+                    if (response.ok) {
+                        showToast(publishing ? 'Exam published successfully!' : 'Exam moved to draft.', 'success');
+                        setTimeout(() => window.location.reload(), 1000);
+                    } else {
+                        const errorData = await response.json();
+                        showToast(errorData.error || 'Failed to change exam status.', 'error');
+                    }
+                } catch (err) {
+                    console.error(err);
+                    showToast('Could not connect to the server.', 'error');
+                }
+            }
+        });
+    }
+
+    function confirmSoftDelete(id, title) {
+        showConfirm({
+            title: 'Hide Exam',
+            message: `Are you sure you want to hide the exam "${title}"? Students will no longer be able to take it, but their past attempt history will remain intact.`,
+            confirmText: 'Hide Exam',
+            isDestructive: true,
+            onConfirm: async () => {
+                try {
+                    const response = await fetch(`/api/Exams/${id}`, {
+                        method: 'DELETE'
+                    });
+
+                    if (response.ok) {
+                        showToast('Exam hidden successfully!', 'success');
+                        setTimeout(() => {
+                            window.location.href = '/Admin/Exams';
+                        }, 1000);
+                    } else {
+                        const errorData = await response.json();
+                        showToast(errorData.error || 'Failed to hide the exam.', 'error');
+                    }
+                } catch (err) {
+                    console.error(err);
+                    showToast('Could not connect to the server.', 'error');
+                }
+            }
+        });
+    }
+</script>
+}

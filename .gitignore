@@ -7,6 +7,8 @@
 ##
 ## Get latest from https://github.com/github/gitignore/blob/main/Dotnet.gitignore
 
+# Data Protection keys (generated at runtime, must not be committed)
+.dp-keys/
 # Build results
 [Dd]ebug/
 [Dd]ebugPublic/
@@ -22,48 +24,47 @@ bld/
 [Oo]bj/
 [Ll]og/
 [Ll]ogs/
-
 # .NET Core
 project.lock.json
 project.fragment.lock.json
 artifacts/
-
 # ASP.NET Scaffolding
 ScaffoldingReadMe.txt
-
 # NuGet Packages
 *.nupkg
 # NuGet Symbol Packages
 *.snupkg
-
 # dotenv environment variables file
 .env
-
 # Others
 ~$*
 *~
 CodeCoverage/
-
 # MSBuild Binary and Structured Log
 *.binlog
-
 # MSTest test Results
 [Tt]est[Rr]esult*/
 [Bb]uild[Ll]og.*
-
 # NUnit
 *.VisualState.xml
 TestResult.xml
 nunit-*.xml
-
+# Ignore mockups
+docs/
 # Visual Studio
 .vs/
 *.user
 *.suo
-
 # Rider
 .idea/
-
 # VS Code
 .vscode/
-.cursor/mcp.json
+#Rider
+*.DotSettings.user
+docs/mockup/
+backend/src/AcadPrep.WebUI/server_log.txt
+.cursor/
+# Secrets - Development appsettings (contains real credentials).
+# Use appsettings.Development.json.example as a template; never commit real keys.
+**/appsettings.Development.json
+!**/appsettings.Development.json.example
