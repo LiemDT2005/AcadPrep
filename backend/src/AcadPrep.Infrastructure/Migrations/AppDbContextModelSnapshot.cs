@@ -661,12 +661,7 @@ namespace AcadPrep.Infrastructure.Migrations
                         .HasColumnType("int")
                         .HasDefaultValue(0);
 
-                    b.Property<int?>("UserId1")
-                        .HasColumnType("int");
-
                     b.HasKey("UserId");
-
-                    b.HasIndex("UserId1");
 
                     b.ToTable("STUDY_STREAKS", (string)null);
                 });
@@ -1004,10 +999,6 @@ namespace AcadPrep.Infrastructure.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("Domain.Entities.User", null)
-                        .WithMany("StudyStreaks")
-                        .HasForeignKey("UserId1");
-
                     b.Navigation("User");
                 });
 
@@ -1113,8 +1104,6 @@ namespace AcadPrep.Infrastructure.Migrations
                     b.Navigation("SavedVocabularies");
 
                     b.Navigation("StudyStreak");
-
-                    b.Navigation("StudyStreaks");
 
                     b.Navigation("UserAchievements");
                 });

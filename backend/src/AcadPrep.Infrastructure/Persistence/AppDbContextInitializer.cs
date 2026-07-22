@@ -361,6 +361,100 @@ public class AppDbContextInitializer
                 await _context.SaveChangesAsync();
             }
         }
+
+        // 7. Seed Vocabulary & Flashcards
+        _logger.LogInformation("Seeding Vocabularies...");
+        var allVocabularies = new List<Vocabulary>
+        {
+            new Vocabulary { Word = "Accommodate", Phonetic = "/əˈkɒm.ə.deɪt/", Meaning = "Cung cấp chỗ ở, đáp ứng", Example = "The hotel can accommodate up to 500 guests." },
+            new Vocabulary { Word = "Acknowledge", Phonetic = "/əkˈnɒl.ɪdʒ/", Meaning = "Công nhận, thừa nhận", Example = "She acknowledged that she had made a mistake." },
+            new Vocabulary { Word = "Alternative", Phonetic = "/ɒlˈtɜː.nə.tɪv/", Meaning = "Sự lựa chọn thay thế", Example = "We need to find an alternative to this problem." },
+            new Vocabulary { Word = "Anticipate", Phonetic = "/ænˈtɪs.ɪ.peɪt/", Meaning = "Dự đoán, lường trước", Example = "We don't anticipate any problems." },
+            new Vocabulary { Word = "Assess", Phonetic = "/əˈses/", Meaning = "Đánh giá", Example = "They assessed the cost of the flood damage at £2,500." },
+            new Vocabulary { Word = "Comprehensive", Phonetic = "/ˌkɒm.prɪˈhen.sɪv/", Meaning = "Toàn diện", Example = "We offer you a comprehensive training in all aspects of the business." },
+            new Vocabulary { Word = "Consecutive", Phonetic = "/kənˈsek.jə.tɪv/", Meaning = "Liên tiếp", Example = "This is the fifth consecutive weekend that I've spent working." },
+            new Vocabulary { Word = "Crucial", Phonetic = "/ˈkruː.ʃəl/", Meaning = "Quan trọng, cốt yếu", Example = "Her work has been crucial to the project's success." },
+            new Vocabulary { Word = "Determine", Phonetic = "/dɪˈtɜː.mɪn/", Meaning = "Xác định, quyết định", Example = "Your health is determined in part by what you eat." },
+            new Vocabulary { Word = "Implement", Phonetic = "/ˈɪm.plɪ.ment/", Meaning = "Thực hiện, áp dụng", Example = "The changes to the national health system will be implemented next year." },
+            new Vocabulary { Word = "Maintain", Phonetic = "/meɪnˈteɪn/", Meaning = "Duy trì", Example = "We have standards to maintain." },
+            new Vocabulary { Word = "Substantial", Phonetic = "/səbˈstæn.ʃəl/", Meaning = "Đáng kể", Example = "She inherited a substantial fortune from her grandmother." },
+            new Vocabulary { Word = "Viable", Phonetic = "/ˈvaɪ.ə.bəl/", Meaning = "Khả thi", Example = "I am afraid your plan is not commercially viable." },
+            new Vocabulary { Word = "Vital", Phonetic = "/ˈvaɪ.təl/", Meaning = "Quan trọng", Example = "A strong opposition is vital to a healthy democracy." },
+            new Vocabulary { Word = "Persuade", Phonetic = "/pəˈsweɪd/", Meaning = "Thuyết phục", Example = "If she doesn't want to go, nothing you can say will persuade her." },
+            new Vocabulary { Word = "Revenue", Phonetic = "/ˈrev.ən.juː/", Meaning = "Doanh thu", Example = "Taxes provide most of the government's revenue." },
+            new Vocabulary { Word = "Strategy", Phonetic = "/ˈstræt.ə.dʒi/", Meaning = "Chiến lược", Example = "Their marketing strategy for the product involves obtaining as much free publicity as possible." },
+            new Vocabulary { Word = "Negotiate", Phonetic = "/nəˈɡəʊ.ʃi.eɪt/", Meaning = "Đàm phán", Example = "I'm negotiating for a new contract." },
+            new Vocabulary { Word = "Colleague", Phonetic = "/ˈkɒl.iːɡ/", Meaning = "Đồng nghiệp", Example = "We're entertaining some colleagues of Carol's tonight." },
+            new Vocabulary { Word = "Allocate", Phonetic = "/ˈæl.ə.keɪt/", Meaning = "Phân bổ", Example = "The government is allocating £10 million for health education." }
+        };
+        
+        var existingWords = await _context.Set<Vocabulary>().Select(v => v.Word).ToListAsync();
+        var wordsToInsert = allVocabularies.Where(v => !existingWords.Contains(v.Word)).ToList();
+        
+        if (wordsToInsert.Any())
+        {
+            _logger.LogInformation($"Seeding {wordsToInsert.Count} more Vocabularies...");
+            _context.Set<Vocabulary>().AddRange(wordsToInsert);
+            await _context.SaveChangesAsync();
+        }
+
+        _logger.LogInformation("Checking Flashcards for test users...");
+        var vocabulariesToSeed = await _context.Set<Vocabulary>().Take(20).ToListAsync();
+        
+        if (vocabulariesToSeed.Count >= 20)
+        {
+            var learner = await _context.Users.FirstOrDefaultAsync(u => u.Email == "user@acadprep.com");
+            var hana = await _context.Users.FirstOrDefaultAsync(u => u.Email == "hana@acadprep.com");
+            
+            var usersToSeed = new List<User>();
+            if (learner != null) usersToSeed.Add(learner);
+            if (hana != null) usersToSeed.Add(hana);
+
+            bool needReseed = false;
+            foreach (var u in usersToSeed)
+            {
+                var count = await _context.Set<SavedVocabulary>().CountAsync(sv => sv.UserId == u.Id);
+                if (count < 20)
+                {
+                    needReseed = true;
+                    break;
+                }
+            }
+
+            if (needReseed)
+            {
+                _logger.LogInformation($"Re-seeding 20 Flashcards for {usersToSeed.Count} users...");
+                
+                // Clear existing flashcards for these users to ensure clean state
+                var existingFlashcards = await _context.Set<SavedVocabulary>()
+                    .Where(sv => usersToSeed.Select(u => u.Id).Contains(sv.UserId))
+                    .ToListAsync();
+                if (existingFlashcards.Any())
+                {
+                    _context.Set<SavedVocabulary>().RemoveRange(existingFlashcards);
+                    await _context.SaveChangesAsync();
+                }
+
+                foreach (var user in usersToSeed)
+                {
+                    var savedVocabs = new List<SavedVocabulary>();
+                    for (int i = 0; i < 20; i++)
+                    {
+                        // 10 overdue (AddDays(-1)), 10 future (AddDays(1))
+                        bool isOverdue = i < 10;
+                        savedVocabs.Add(new SavedVocabulary 
+                        { 
+                            UserId = user.Id, 
+                            VocabularyId = vocabulariesToSeed[i].Id, 
+                            Interval = isOverdue ? 2 : 1, 
+                            NextReviewDate = isOverdue ? DateTime.UtcNow.Date.AddDays(-1) : DateTime.UtcNow.Date.AddDays(1) 
+                        });
+                    }
+                    _context.Set<SavedVocabulary>().AddRange(savedVocabs);
+                }
+                await _context.SaveChangesAsync();
+            }
+        }
     }
 
     private static List<Question> BuildToeicQuestions(int examId)

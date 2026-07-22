@@ -1,4 +1,4 @@
-@page "/performance/score-progress"
+@page
 @model AcadPrep.WebUI.Pages.Performance.ScoreProgressModel
 @{
     ViewData["Title"] = "Score Progress";
@@ -153,8 +153,8 @@
                             legend: { display: false },
                             tooltip: {
                                 backgroundColor: '#1C1B1F',
-                                titleFont: { family: 'Inter', size: 12 },
-                                bodyFont:  { family: 'Inter', size: 14, weight: 'bold' },
+                                titleFont: { family: "'Inter', sans-serif", size: 12 },
+                                bodyFont:  { family: "'Inter', sans-serif", size: 14, weight: 'bold' },
                                 padding: 12,
                                 cornerRadius: 8,
                                 callbacks: {
@@ -168,11 +168,11 @@
                             y: {
                                 min: 0,
                                 max: 990,
-                                ticks: { stepSize: 100, font: { family: 'Inter', size: 11 }, color: '#79747E' },
+                                ticks: { stepSize: 100, font: { family: "'Inter', sans-serif", size: 11 }, color: '#79747E' },
                                 grid:  { color: 'rgba(0,0,0,0.05)' }
                             },
                             x: {
-                                ticks: { font: { family: 'Inter', size: 11 }, color: '#79747E' },
+                                ticks: { font: { family: "'Inter', sans-serif", size: 11 }, color: '#79747E' },
                                 grid:  { display: false }
                             }
                         }
