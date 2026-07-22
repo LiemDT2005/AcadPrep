@@ -16,14 +16,22 @@ namespace AcadPrep.Application.Features.Practice.Commands.StartPractice;
 public class StartPracticeCommandHandler : IRequestHandler<StartPracticeCommand, Result<int>>
 {
     private readonly IAppDbContext _context;
+    private readonly IBillingAccessService _billing;
 
-    public StartPracticeCommandHandler(IAppDbContext context)
+    public StartPracticeCommandHandler(IAppDbContext context, IBillingAccessService billing)
     {
         _context = context;
+        _billing = billing;
     }
 
     public async Task<Result<int>> Handle(StartPracticeCommand request, CancellationToken cancellationToken)
     {
+        var quota = await _billing.EnsureCanStartPracticeAsync(request.UserId, cancellationToken);
+        if (!quota.Allowed)
+        {
+            return Result<int>.Failure($"{quota.ErrorCode}|{quota.Message}");
+        }
+
         // 1. Kiểm tra đề thi tồn tại
         var examExists = await _context.Exams.AnyAsync(e => e.Id == request.ExamId && !e.IsDeleted && e.Status == ExamStatus.Published, cancellationToken);
         if (!examExists)

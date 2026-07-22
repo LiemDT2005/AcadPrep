@@ -1,4 +1,5 @@
 using Application.Common.Interfaces;
+using Application.Common.Options;
 using Infrastructure.Persistence;
 using Infrastructure.Services;
 using Microsoft.EntityFrameworkCore;
@@ -80,6 +81,13 @@ public static class DependencyInjection
 
         // Register Notification service (điểm chung tạo thông báo cho UC-15)
         services.AddScoped<INotificationService, NotificationService>();
+
+        // Billing / VNPay
+        services.Configure<VNPaySettings>(configuration.GetSection(VNPaySettings.SectionName));
+        services.Configure<FreemiumSettings>(configuration.GetSection(FreemiumSettings.SectionName));
+        services.AddScoped<IVNPayService, VNPayService>();
+        services.AddScoped<IBillingAccessService, BillingAccessService>();
+        services.AddScoped<ISubscriptionActivationService, SubscriptionActivationService>();
 
         return services;
     }

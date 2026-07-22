@@ -27,6 +27,10 @@ public interface IAppDbContext
     DbSet<UserAchievement> UserAchievements { get; }
     DbSet<QuestionGroup> QuestionGroups { get; }
     DbSet<PracticeSession> PracticeSessions { get; }
+    DbSet<Plan> Plans { get; }
+    DbSet<Order> Orders { get; }
+    DbSet<UserSubscription> UserSubscriptions { get; }
+    DbSet<PaymentWebhookLog> PaymentWebhookLogs { get; }
 
     Task<int> SaveChangesAsync(CancellationToken cancellationToken = default);
 }

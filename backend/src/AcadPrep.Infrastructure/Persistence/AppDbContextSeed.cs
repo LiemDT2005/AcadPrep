@@ -88,6 +88,58 @@ public static class AppDbContextSeed
             await context.SaveChangesAsync();
         }
 
+        // ── Billing plans ──
+        if (!context.Plans.Any())
+        {
+            var planNow = DateTime.UtcNow;
+            context.Plans.AddRange(
+                new Plan
+                {
+                    Code = "pro_monthly",
+                    Name = "Pro Monthly",
+                    Description = "Unlimited Full Tests & Practice for 30 days. Unlimited vocabulary saves.",
+                    PriceVnd = 79000,
+                    DurationDays = 30,
+                    IsActive = true,
+                    SortOrder = 1,
+                    CreatedAt = planNow
+                },
+                new Plan
+                {
+                    Code = "pro_quarterly",
+                    Name = "Pro Quarterly",
+                    Description = "Better value — unlimited Full Tests & Practice for 90 days.",
+                    PriceVnd = 199000,
+                    DurationDays = 90,
+                    IsActive = true,
+                    SortOrder = 2,
+                    CreatedAt = planNow
+                }
+            );
+            await context.SaveChangesAsync();
+        }
+        else
+        {
+            // Keep display names in English if an older Vietnamese seed exists.
+            var monthly = await context.Plans.FirstOrDefaultAsync(p => p.Code == "pro_monthly");
+            if (monthly is not null && monthly.Name != "Pro Monthly")
+            {
+                monthly.Name = "Pro Monthly";
+                monthly.Description = "Unlimited Full Tests & Practice for 30 days. Unlimited vocabulary saves.";
+                monthly.LastModifiedAt = DateTime.UtcNow;
+            }
+
+            var quarterly = await context.Plans.FirstOrDefaultAsync(p => p.Code == "pro_quarterly");
+            if (quarterly is not null && quarterly.Name != "Pro Quarterly")
+            {
+                quarterly.Name = "Pro Quarterly";
+                quarterly.Description = "Better value — unlimited Full Tests & Practice for 90 days.";
+                quarterly.LastModifiedAt = DateTime.UtcNow;
+            }
+
+            await context.SaveChangesAsync();
+        }
+
         // Sửa hash mật khẩu cũ (không phải BCrypt) để login không bị 500.
         var repairedHash = passwordHasher.Hash("Password123!");
         await context.Database.ExecuteSqlInterpolatedAsync(

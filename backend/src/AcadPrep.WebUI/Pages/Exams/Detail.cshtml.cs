@@ -1,3 +1,5 @@
+using AcadPrep.Application.Features.FullTest.Commands.StartFullTest;
+using AcadPrep.WebUI.Billing;
 using Application.Common.Interfaces;
 using Application.Features.Exam.Queries.GetExamDetail;
 using MediatR;
@@ -13,17 +15,24 @@ namespace AcadPrep.WebUI.Pages.Exams
         private readonly IMediator _mediator;
         private readonly ICurrentUserService _currentUserService;
         private readonly IAppDbContext _context;
+        private readonly IBillingAccessService _billing;
 
-        public DetailModel(IMediator mediator, ICurrentUserService currentUserService, IAppDbContext context)
+        public DetailModel(
+            IMediator mediator,
+            ICurrentUserService currentUserService,
+            IAppDbContext context,
+            IBillingAccessService billing)
         {
             _mediator = mediator;
             _currentUserService = currentUserService;
             _context = context;
+            _billing = billing;
         }
 
         public GetExamDetailDto? ExamDetail { get; set; }
         public string? ErrorMessage { get; set; }
         public bool IsLoggedIn { get; set; }
+        public bool IsPro { get; set; }
 
         public async Task<IActionResult> OnGetAsync(int id)
         {
@@ -32,6 +41,7 @@ namespace AcadPrep.WebUI.Pages.Exams
             if (int.TryParse(_currentUserService.UserId, out var userId))
             {
                 parsedUserId = userId;
+                IsPro = await _billing.IsProAsync(userId);
             }
 
             var query = new GetExamDetailQuery(id, parsedUserId);
@@ -50,7 +60,10 @@ namespace AcadPrep.WebUI.Pages.Exams
 
         public async Task<IActionResult> OnPostStartPracticeAsync([FromBody] StartPracticeRequestModel request)
         {
-            var userId = ResolveUserId();
+            if (!TryResolveUserId(out var userId))
+            {
+                return new JsonResult(new { success = false, error = "Please log in to start practice.", requiresLogin = true });
+            }
 
             var command = new AcadPrep.Application.Features.Practice.Commands.StartPractice.StartPracticeCommand(
                 request.ExamId,
@@ -66,12 +79,23 @@ namespace AcadPrep.WebUI.Pages.Exams
                 return new JsonResult(new { success = true, sessionId = result.Data });
             }
 
-            return new JsonResult(new { success = false, error = result.Error });
+            var (requiresPro, message, code) = PaywallError.Parse(result.Error);
+            return new JsonResult(new
+            {
+                success = false,
+                error = message,
+                requiresPro,
+                code,
+                upgradeUrl = "/Pricing"
+            });
         }
 
         public async Task<IActionResult> OnPostStartFullTestAsync([FromBody] StartFullTestRequestModel request)
         {
-            var userId = ResolveUserId();
+            if (!TryResolveUserId(out var userId))
+            {
+                return new JsonResult(new { success = false, error = "Please log in to start a full test.", requiresLogin = true });
+            }
 
             if (!request.StartNewAttempt)
             {
@@ -91,7 +115,7 @@ namespace AcadPrep.WebUI.Pages.Exams
                 }
             }
 
-            var command = new AcadPrep.Application.Features.FullTest.Commands.StartFullTest.StartFullTestCommand(
+            var command = new StartFullTestCommand(
                 request.ExamId,
                 userId,
                 request.StartNewAttempt);
@@ -108,17 +132,22 @@ namespace AcadPrep.WebUI.Pages.Exams
                 });
             }
 
-            return new JsonResult(new { success = false, error = result.Error });
+            var (requiresPro, message, code) = PaywallError.Parse(result.Error);
+            return new JsonResult(new
+            {
+                success = false,
+                error = message,
+                requiresPro,
+                code,
+                upgradeUrl = "/Pricing"
+            });
         }
 
-        private int ResolveUserId()
+        private bool TryResolveUserId(out int userId)
         {
-            if (!string.IsNullOrEmpty(_currentUserService.UserId) && int.TryParse(_currentUserService.UserId, out int parsedUserId))
-            {
-                return parsedUserId;
-            }
-
-            return 2;
+            userId = 0;
+            return !string.IsNullOrEmpty(_currentUserService.UserId)
+                   && int.TryParse(_currentUserService.UserId, out userId);
         }
     }
 

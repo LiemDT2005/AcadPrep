@@ -1,0 +1,160 @@
+@page
+@model AcadPrep.WebUI.Pages.PricingModel
+@{
+    ViewData["Title"] = "Pricing";
+    var data = Model.PageData;
+    var isPro = data?.Subscription?.IsPro == true;
+    var sub = data?.Subscription;
+}
+
+<div class="max-w-5xl mx-auto">
+    <div class="text-center mb-2xl">
+        <p class="text-label-md font-semibold uppercase tracking-widest text-primary mb-sm">AcadPrep Pro</p>
+        <h1 class="text-headline-lg font-bold text-on-surface mb-md">Unlimited TOEIC practice</h1>
+        <p class="text-body-lg text-on-surface-variant max-w-2xl mx-auto">
+            Free still works. Pro unlocks unlimited Full Tests, Practice sessions, and vocabulary saves for the period you choose.
+            Buying again while Pro is active <strong>extends your expiry</strong> — you keep remaining days.
+        </p>
+    </div>
+
+    @if (!string.IsNullOrEmpty(Model.ErrorMessage))
+    {
+        <div class="rounded-lg bg-error-container text-on-error-container px-md py-sm mb-lg">@Model.ErrorMessage</div>
+    }
+
+    @if (isPro && sub is not null)
+    {
+        <section class="mb-2xl rounded-xl border border-tertiary/30 bg-tertiary-container/40 p-lg">
+            <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-md">
+                <div>
+                    <p class="text-label-md font-semibold uppercase tracking-wide text-on-tertiary-container mb-xs">Current plan</p>
+                    <h2 class="text-headline-sm font-bold text-on-surface flex items-center gap-sm">
+                        <span class="material-symbols-outlined text-tertiary" style="font-variation-settings:'FILL' 1;">verified</span>
+                        Pro active — @sub.PlanName
+                    </h2>
+                    <p class="text-body-md text-on-surface-variant mt-sm">
+                        About <strong class="text-on-surface">@sub.RemainingDays days</strong> left
+                        · Expires <strong class="text-on-surface">@sub.ExpiresAt!.Value.ToLocalTime().ToString("dd/MM/yyyy HH:mm")</strong>
+                    </p>
+                    @if (sub.StartsAt is DateTime started)
+                    {
+                        <p class="text-body-sm text-on-surface-variant mt-xs">
+                            Current cycle started @started.ToLocalTime().ToString("dd/MM/yyyy")
+                            (each additional purchase adds more days to this expiry date).
+                        </p>
+                    }
+                </div>
+                <a href="/Exams" class="inline-flex justify-center rounded-lg bg-primary text-on-primary px-lg py-sm text-label-lg font-medium" style="text-decoration:none;">
+                    Take a Full Test
+                </a>
+            </div>
+        </section>
+    }
+
+    @if (data is not null)
+    {
+        <section class="grid grid-cols-1 md:grid-cols-3 gap-lg mb-2xl">
+            <article class="rounded-xl border border-outline-variant bg-surface-container-lowest p-lg">
+                <h2 class="text-headline-sm font-bold text-on-surface mb-sm">Free</h2>
+                <p class="text-display-sm font-bold text-on-surface mb-md">0 VND</p>
+                <ul class="space-y-sm text-body-md text-on-surface-variant mb-lg">
+                    <li>@data.FreeQuota.FullTestsPerMonth Full Test / month</li>
+                    <li>@data.FreeQuota.PracticeSessionsPerDay Practice sessions / day</li>
+                    <li>Up to @data.FreeQuota.SavedVocabularyMax saved words</li>
+                    <li>Browse exams, leaderboard, streaks</li>
+                </ul>
+                <span class="inline-flex w-full justify-center rounded-lg border border-outline-variant px-md py-sm text-label-lg text-on-surface-variant">
+                    @(isPro ? "You are on Pro" : "Default plan")
+                </span>
+            </article>
+
+            @foreach (var plan in data.Plans)
+            {
+                var highlight = plan.IsHighlighted;
+                <article class="rounded-xl border @(highlight ? "border-primary shadow-md" : "border-outline-variant") bg-surface-container-lowest p-lg relative">
+                    @if (highlight)
+                    {
+                        <span class="absolute -top-3 left-1/2 -translate-x-1/2 rounded-full bg-primary text-on-primary text-label-sm px-md py-xs">Popular</span>
+                    }
+                    <h2 class="text-headline-sm font-bold text-on-surface mb-sm">@plan.Name</h2>
+                    <p class="text-display-sm font-bold text-on-surface mb-xs">@plan.PriceVnd.ToString("N0") VND</p>
+                    <p class="text-body-sm text-on-surface-variant mb-md">+@plan.DurationDays Pro days · @plan.Description</p>
+                    <ul class="space-y-sm text-body-md text-on-surface-variant mb-lg">
+                        <li>Unlimited Full Tests</li>
+                        <li>Unlimited Practice</li>
+                        <li>Unlimited vocabulary notebook</li>
+                        <li>@(isPro ? $"Extend: new expiry ≈ {DateTime.Now.AddDays(sub!.RemainingDays + plan.DurationDays):dd/MM/yyyy}" : "Activates right after payment")</li>
+                    </ul>
+                    @if (User.Identity?.IsAuthenticated == true)
+                    {
+                        <form method="post" asp-page="/Payment/Checkout">
+                            @Html.AntiForgeryToken()
+                            <input type="hidden" name="planId" value="@plan.Id" />
+                            <button type="submit"
+                                    class="w-full rounded-lg @(highlight ? "bg-primary text-on-primary" : "bg-primary-container text-white") px-md py-sm text-label-lg font-medium hover:opacity-90 transition-opacity border-0">
+                                @(isPro ? $"Extend +{plan.DurationDays} days" : "Upgrade now")
+                            </button>
+                        </form>
+                    }
+                    else
+                    {
+                        <a href="/Account/Login?returnUrl=/Pricing"
+                           class="inline-flex w-full justify-center rounded-lg bg-primary text-on-primary px-md py-sm text-label-lg font-medium"
+                           style="text-decoration:none;">
+                            Log in to purchase
+                        </a>
+                    }
+                </article>
+            }
+        </section>
+
+        @if (User.Identity?.IsAuthenticated == true)
+        {
+            <section class="rounded-xl border border-outline-variant bg-surface-container-lowest overflow-hidden mb-2xl">
+                <div class="px-lg py-md border-b border-outline-variant">
+                    <h3 class="text-headline-sm font-bold text-on-surface">Your purchase history</h3>
+                    <p class="text-body-sm text-on-surface-variant">Each Paid row means those plan days were added to your Pro access.</p>
+                </div>
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left text-body-md">
+                        <thead class="bg-surface-container-low text-on-surface-variant text-label-md">
+                            <tr>
+                                <th class="px-md py-sm">Order</th>
+                                <th class="px-md py-sm">Plan</th>
+                                <th class="px-md py-sm">Days</th>
+                                <th class="px-md py-sm">Amount</th>
+                                <th class="px-md py-sm">Status</th>
+                                <th class="px-md py-sm">Paid at</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                        @if (data.RecentOrders.Count == 0)
+                        {
+                            <tr><td colspan="6" class="px-md py-lg text-on-surface-variant">No transactions yet.</td></tr>
+                        }
+                        else
+                        {
+                            foreach (var o in data.RecentOrders)
+                            {
+                                <tr class="border-t border-outline-variant">
+                                    <td class="px-md py-sm font-mono text-body-sm">@o.OrderCode</td>
+                                    <td class="px-md py-sm">@o.PlanName</td>
+                                    <td class="px-md py-sm">+@o.DurationDays days</td>
+                                    <td class="px-md py-sm">@o.AmountVnd.ToString("N0") VND</td>
+                                    <td class="px-md py-sm">@o.Status</td>
+                                    <td class="px-md py-sm text-body-sm">@(o.PaidAt?.ToLocalTime().ToString("dd/MM/yyyy HH:mm") ?? o.CreatedAt.ToLocalTime().ToString("dd/MM/yyyy HH:mm"))</td>
+                                </tr>
+                            }
+                        }
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+        }
+
+        <section class="rounded-xl bg-surface-container-low p-lg text-body-md text-on-surface-variant">
+            <h3 class="text-headline-sm font-bold text-on-surface mb-sm">Pay with VNPay</h3>
+            <p>Supports QR, domestic ATM cards, and international cards (depending on merchant setup). After a successful payment, Pro is activated or extended automatically.</p>
+        </section>
+    }
+</div>

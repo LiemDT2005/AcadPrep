@@ -27,6 +27,8 @@ public class User : BaseEntity<int>, IAuditable
     public virtual ICollection<UserAchievement> UserAchievements { get; set; } = new List<UserAchievement>();
     public virtual ICollection<AuditLog> AuditLogs { get; set; } = new List<AuditLog>();
     public virtual ICollection<Notification> Notifications { get; set; } = new List<Notification>();
+    public virtual ICollection<Order> Orders { get; set; } = new List<Order>();
+    public virtual ICollection<UserSubscription> Subscriptions { get; set; } = new List<UserSubscription>();
 
 
     /// <summary>
