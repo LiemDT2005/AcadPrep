@@ -10,4 +10,5 @@ public class AccountListItemDto
     public string Status { get; set; } = null!;
     public DateTime CreatedAt { get; set; }
     public bool IsMasterAdmin { get; set; }
+    public bool IsPro { get; set; }
 }

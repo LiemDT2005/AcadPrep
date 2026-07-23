@@ -8,7 +8,17 @@
 {
     <a href="/Account/Profile" class="flex items-center gap-2 transition-opacity hover:opacity-90" title="Open profile" style="text-decoration:none;">
         <div class="hidden text-right sm:block">
-            <p class="m-0 text-[12px] font-semibold leading-tight text-white">@Model.FullName</p>
+            <div class="flex items-center justify-end gap-1">
+                <p class="m-0 text-[12px] font-semibold leading-tight text-white">@Model.FullName</p>
+                @if (Model.IsPro)
+                {
+                    <span class="px-1 py-0.5 bg-yellow-400 text-yellow-900 text-[9px] font-bold rounded">PRO</span>
+                }
+                else
+                {
+                    <span class="px-1 py-0.5 bg-gray-200 text-gray-600 text-[9px] font-bold rounded">FREE</span>
+                }
+            </div>
             <p class="m-0 text-[10px] text-white/70">@Model.Role</p>
         </div>
         <img class="h-10 w-10 rounded-full border-2 border-white object-cover" src="@avatarUrl" alt="@Model.FullName profile picture" />

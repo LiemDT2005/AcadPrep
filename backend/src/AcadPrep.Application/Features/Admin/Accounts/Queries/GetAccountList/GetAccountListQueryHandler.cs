@@ -26,6 +26,18 @@ public class GetAccountListQueryHandler : IRequestHandler<GetAccountListQuery, R
             .Select(u => u.Id)
             .FirstOrDefaultAsync(cancellationToken);
 
+        var now = DateTime.UtcNow;
+
+        // Tập hợp userId đang có Pro subscription còn hiệu lực
+        var proUserIds = await _context.UserSubscriptions
+            .AsNoTracking()
+            .Where(s => s.Status == SubscriptionStatus.Active && s.ExpiresAt > now)
+            .Select(s => s.UserId)
+            .Distinct()
+            .ToListAsync(cancellationToken);
+
+        var proSet = proUserIds.ToHashSet();
+
         var query = _context.Users
             .Include(u => u.Role)
             .AsQueryable();
@@ -68,7 +80,8 @@ public class GetAccountListQueryHandler : IRequestHandler<GetAccountListQuery, R
             RoleName = u.Role.RoleName,
             Status = u.Status.ToString(),
             CreatedAt = u.CreatedAt,
-            IsMasterAdmin = u.Id == masterAdminId
+            IsMasterAdmin = u.Id == masterAdminId,
+            IsPro = proSet.Contains(u.Id)
         });
 
         var result = await PaginatedList<AccountListItemDto>.CreateAsync(

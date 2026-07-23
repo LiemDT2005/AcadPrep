@@ -86,13 +86,20 @@
                                     <img src="@(account.AvatarUrl ?? $"https://api.dicebear.com/9.x/initials/svg?seed={Uri.EscapeDataString(account.FullName)}")"
                                          alt="@account.FullName" class="w-9 h-9 rounded-full bg-surface-container-high object-cover" />
                                     <div>
-                                        <p class="text-[14px] font-semibold text-on-surface">
+                                        <p class="text-[14px] font-semibold text-on-surface flex items-center flex-wrap gap-xs">
                                             @account.FullName
                                             @if (account.IsMasterAdmin)
                                             {
-                                                <span class="ml-xs inline-flex items-center gap-[2px] rounded-full bg-amber-100 px-2 py-[1px] text-[10px] font-bold text-amber-700">
+                                                <span class="inline-flex items-center gap-[2px] rounded-full bg-amber-100 px-2 py-[1px] text-[10px] font-bold text-amber-700">
                                                     <span class="material-symbols-outlined text-[12px]" style="font-variation-settings: 'FILL' 1;">shield_person</span>
                                                     Master
+                                                </span>
+                                            }
+                                            @if (account.IsPro)
+                                            {
+                                                <span class="inline-flex items-center gap-[2px] rounded-full bg-yellow-400 px-2 py-[1px] text-[10px] font-bold text-yellow-900" title="Active Pro subscription">
+                                                    <span class="material-symbols-outlined text-[11px]" style="font-variation-settings: 'FILL' 1;">workspace_premium</span>
+                                                    PRO
                                                 </span>
                                             }
                                         </p>
@@ -140,10 +147,20 @@
                                            class="inline-flex items-center justify-center w-8 h-8 rounded-lg hover:bg-surface-container-low text-on-surface-variant hover:text-primary transition-colors">
                                             <span class="material-symbols-outlined text-[18px]">visibility</span>
                                         </a>
-                                        <button type="button" title="Change Role" onclick="openRoleModal(@account.Id, '@account.FullName', '@account.Email', '@account.RoleName')"
-                                                class="inline-flex items-center justify-center w-8 h-8 rounded-lg hover:bg-surface-container-low text-on-surface-variant hover:text-primary transition-colors cursor-pointer">
-                                            <span class="material-symbols-outlined text-[18px]">shield</span>
-                                        </button>
+                                        @if (account.IsPro)
+                                        {
+                                            <span title="Cannot change role: user has an active Pro subscription"
+                                                  class="inline-flex items-center justify-center w-8 h-8 rounded-lg text-outline/40 cursor-not-allowed">
+                                                <span class="material-symbols-outlined text-[18px]">shield</span>
+                                            </span>
+                                        }
+                                        else
+                                        {
+                                            <button type="button" title="Change Role" onclick="openRoleModal(@account.Id, '@account.FullName', '@account.Email', '@account.RoleName')"
+                                                    class="inline-flex items-center justify-center w-8 h-8 rounded-lg hover:bg-surface-container-low text-on-surface-variant hover:text-primary transition-colors cursor-pointer">
+                                                <span class="material-symbols-outlined text-[18px]">shield</span>
+                                            </button>
+                                        }
                                         @if (account.Status == "Active")
                                         {
                                             <button type="button" title="Suspend Account" onclick="openStatusModal(@account.Id, '@account.FullName', '@account.Email', 'Suspended')"
