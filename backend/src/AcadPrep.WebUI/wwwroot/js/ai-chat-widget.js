@@ -38,9 +38,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // --- UI Actions ---
     function toggleChat() {
-        if (chatWindow.classList.contains('hidden')) {
-            chatWindow.classList.remove('hidden');
-            // small delay to allow display:block to apply before animating opacity/scale
+        if (chatWindow.style.display === 'none' || chatWindow.style.display === '') {
+            chatWindow.style.display = 'flex';
+            // small delay to allow display:flex to apply before animating opacity/scale
             setTimeout(() => {
                 chatWindow.classList.remove('scale-95', 'opacity-0');
                 chatWindow.classList.add('scale-100', 'opacity-100');
@@ -51,7 +51,7 @@ document.addEventListener('DOMContentLoaded', () => {
             chatWindow.classList.remove('scale-100', 'opacity-100');
             chatWindow.classList.add('scale-95', 'opacity-0');
             setTimeout(() => {
-                chatWindow.classList.add('hidden');
+                chatWindow.style.display = 'none';
             }, 300); // match transition duration
         }
     }
