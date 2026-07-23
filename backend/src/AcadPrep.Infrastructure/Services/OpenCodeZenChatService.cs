@@ -4,6 +4,7 @@ using System.Linq;
 using System.Net.Http;
 using System.Net.Http.Json;
 using System.Text.Json;
+using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
 using AcadPrep.Application.Common.Models;
@@ -44,6 +45,14 @@ public sealed class OpenCodeZenChatService : IAiChatService
         {
             _httpClient.DefaultRequestHeaders.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", _settings.ApiKey);
         }
+    }
+
+    private static readonly Regex CjkRegex = new Regex(@"[\u4E00-\u9FFF\u3040-\u30FF\uAC00-\uD7AF]", RegexOptions.Compiled);
+
+    private bool HasCjkCharacters(string text)
+    {
+        if (string.IsNullOrEmpty(text)) return false;
+        return CjkRegex.IsMatch(text);
     }
 
     public async Task<Result<AiChatResponse>> AskAsync(
@@ -98,6 +107,13 @@ public sealed class OpenCodeZenChatService : IAiChatService
                 if (string.IsNullOrWhiteSpace(text))
                 {
                     _logger.LogWarning($"AI returned empty response for model {modelOption.Id}");
+                    continue; // Thử model tiếp theo
+                }
+
+                // Output Quality Guard: Check for unexpected CJK characters
+                if (HasCjkCharacters(text) && !HasCjkCharacters(newMessage))
+                {
+                    _logger.LogWarning($"AI model {modelOption.Id} returned unexpected CJK characters. Retrying...");
                     continue; // Thử model tiếp theo
                 }
 

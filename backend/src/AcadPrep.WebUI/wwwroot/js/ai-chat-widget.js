@@ -73,11 +73,24 @@ document.addEventListener('DOMContentLoaded', () => {
 
         const bubbleClasses = role === 'user' 
             ? 'bg-primary text-white rounded-2xl rounded-br-none px-3 py-2 shadow-sm'
-            : 'bg-surface-container-lowest text-on-surface border border-outline-variant rounded-2xl rounded-bl-none px-3 py-2 shadow-sm whitespace-pre-wrap';
+            : 'bg-surface-container-lowest text-on-surface border border-outline-variant rounded-2xl rounded-bl-none px-4 py-3 shadow-sm ai-message-bubble';
+
+        let innerContent = '';
+        if (role === 'user') {
+            innerContent = escapeHtml(content);
+        } else {
+            // Parse Markdown and Sanitize
+            if (typeof marked !== 'undefined' && typeof DOMPurify !== 'undefined') {
+                const rawHtml = marked.parse(content, { breaks: true });
+                innerContent = DOMPurify.sanitize(rawHtml);
+            } else {
+                innerContent = escapeHtml(content).replace(/\n/g, '<br>');
+            }
+        }
 
         div.innerHTML = `
             ${avatarHtml}
-            <div class="${bubbleClasses}">${escapeHtml(content)}</div>
+            <div class="${bubbleClasses}">${innerContent}</div>
         `;
         
         messagesContainer.appendChild(div);
