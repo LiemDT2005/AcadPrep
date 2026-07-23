@@ -61,6 +61,7 @@
                     <li>@data.FreeQuota.FullTestsPerMonth Full Test / month</li>
                     <li>@data.FreeQuota.PracticeSessionsPerDay Practice sessions / day</li>
                     <li>Up to @data.FreeQuota.SavedVocabularyMax saved words</li>
+                    <li>Free AI Q&amp;A &mdash; up to ~15 questions / day</li>
                     <li>Browse exams, leaderboard, streaks</li>
                 </ul>
                 <span class="inline-flex w-full justify-center rounded-lg border border-outline-variant px-md py-sm text-label-lg text-on-surface-variant">
@@ -83,6 +84,7 @@
                         <li>Unlimited Full Tests</li>
                         <li>Unlimited Practice</li>
                         <li>Unlimited vocabulary notebook</li>
+                        <li>Pro Unlimited AI Q&amp;A</li>
                         <li>@(isPro ? $"Extend: new expiry ≈ {DateTime.Now.AddDays(sub!.RemainingDays + plan.DurationDays):dd/MM/yyyy}" : "Activates right after payment")</li>
                     </ul>
                     @if (User.Identity?.IsAuthenticated == true)

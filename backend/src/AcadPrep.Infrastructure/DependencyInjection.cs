@@ -89,6 +89,12 @@ public static class DependencyInjection
         services.AddScoped<IBillingAccessService, BillingAccessService>();
         services.AddScoped<ISubscriptionActivationService, SubscriptionActivationService>();
 
+        // AI QnA feature
+        services.AddMemoryCache(); // Ensure IMemoryCache is registered for SemaphoreSlim locks
+        services.Configure<Infrastructure.Options.AiChatSettings>(configuration.GetSection(Infrastructure.Options.AiChatSettings.SectionName));
+        services.AddHttpClient<IAiChatService, OpenCodeZenChatService>();
+        services.AddScoped<IQuotaService, CacheQuotaService>();
+
         return services;
     }
 }

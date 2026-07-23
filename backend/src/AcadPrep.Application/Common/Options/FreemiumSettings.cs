@@ -10,4 +10,6 @@ public sealed class FreemiumSettings
     public int FullTestsPerMonth { get; set; } = FreemiumLimits.DefaultFullTestsPerMonth;
     public int PracticeSessionsPerDay { get; set; } = FreemiumLimits.DefaultPracticeSessionsPerDay;
     public int SavedVocabularyMax { get; set; } = FreemiumLimits.DefaultSavedVocabularyMax;
+    public int AiQnaTokensPerDayFree { get; set; } = 20000;
+    public int AiQnaTokensPerDayPro { get; set; } = 300000;
 }

@@ -1,0 +1,49 @@
+<div id="ai-chat-widget" class="fixed bottom-6 right-6 z-50 flex flex-col items-end">
+    <!-- Chat Window -->
+    <div id="ai-chat-window" class="hidden w-[360px] max-w-[calc(100vw-32px)] h-[500px] bg-surface-container-lowest rounded-2xl shadow-2xl border border-outline-variant flex-col overflow-hidden mb-4 transition-all duration-300 origin-bottom-right transform scale-95 opacity-0">
+        <!-- Header -->
+        <div class="bg-primary px-4 py-3 flex justify-between items-center text-on-primary">
+            <div class="flex items-center gap-2">
+                <img src="~/images/ai-logo.png" class="w-[24px] h-[24px] object-cover rounded-full" alt="AI Logo" />
+                <div>
+                    <h3 class="font-semibold text-[15px] leading-tight">AcadPrep AI Tutor</h3>
+                    <p class="text-[11px] opacity-90"><span id="ai-remaining-tokens">--</span> tokens remaining</p>
+                </div>
+            </div>
+            <div class="flex items-center gap-1">
+                <button id="ai-chat-clear" class="w-8 h-8 rounded-full flex items-center justify-center hover:bg-white/20 transition-colors" title="Clear Chat">
+                    <span class="material-symbols-outlined text-[18px]">delete</span>
+                </button>
+                <button id="ai-chat-close-btn" class="w-8 h-8 rounded-full flex items-center justify-center hover:bg-white/20 transition-colors" title="Close">
+                    <span class="material-symbols-outlined text-[20px]">close</span>
+                </button>
+            </div>
+        </div>
+
+        <!-- Message List -->
+        <div id="ai-chat-messages" class="flex-1 overflow-y-auto p-4 flex flex-col gap-3 bg-[#f8f9fa] text-[14px]">
+            <!-- Messages will be injected here via JS -->
+            <div class="flex items-end gap-2 self-start max-w-[85%]">
+                <div class="w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0 overflow-hidden bg-white border border-outline-variant/30">
+                    <img src="~/images/ai-logo.png" class="w-full h-full object-cover" alt="AI Logo" />
+                </div>
+                <div class="bg-surface-container-lowest border border-outline-variant px-3 py-2 rounded-2xl rounded-bl-none text-on-surface shadow-sm">
+                    Chào bạn! Mình là trợ lý AI của AcadPrep. Bạn có câu hỏi nào về từ vựng, ngữ pháp hay TOEIC không?
+                </div>
+            </div>
+        </div>
+
+        <!-- Input Area -->
+        <div class="p-3 bg-surface-container-lowest border-t border-outline-variant flex items-end gap-2">
+            <textarea id="ai-chat-input" rows="1" class="flex-1 resize-none bg-surface-container-low border border-outline-variant rounded-xl px-3 py-2 text-[14px] focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary max-h-[100px] overflow-y-auto transition-all" placeholder="Hỏi AI bất kỳ điều gì..."></textarea>
+            <button id="ai-chat-send" class="w-10 h-10 rounded-full bg-primary flex items-center justify-center text-white flex-shrink-0 hover:opacity-90 disabled:opacity-50 disabled:cursor-not-allowed transition-all">
+                <span class="material-symbols-outlined text-[20px] translate-x-[2px]">send</span>
+            </button>
+        </div>
+    </div>
+
+    <!-- Toggle Button -->
+    <button id="ai-chat-toggle" class="w-[56px] h-[56px] rounded-full bg-white shadow-lg flex items-center justify-center hover:-translate-y-1 hover:shadow-xl active:scale-95 transition-all duration-200 overflow-hidden border border-outline-variant">
+        <img src="~/images/ai-logo.png" class="w-full h-full object-cover transition-transform duration-300" alt="AI Logo" />
+    </button>
+</div>
