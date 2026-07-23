@@ -29,6 +29,10 @@ public class AppDbContext(DbContextOptions<AppDbContext> options)
     public DbSet<UserAchievement> UserAchievements => Set<UserAchievement>();
     public DbSet<QuestionGroup> QuestionGroups => Set<QuestionGroup>();
     public DbSet<PracticeSession> PracticeSessions => Set<PracticeSession>();
+    public DbSet<Plan> Plans => Set<Plan>();
+    public DbSet<Order> Orders => Set<Order>();
+    public DbSet<UserSubscription> UserSubscriptions => Set<UserSubscription>();
+    public DbSet<PaymentWebhookLog> PaymentWebhookLogs => Set<PaymentWebhookLog>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {

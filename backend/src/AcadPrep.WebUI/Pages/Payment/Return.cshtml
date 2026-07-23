@@ -1,0 +1,33 @@
+@page
+@model AcadPrep.WebUI.Pages.Payment.ReturnModel
+@{
+    ViewData["Title"] = "Payment result";
+}
+
+<div class="max-w-lg mx-auto text-center py-2xl">
+    @if (Model.Success)
+    {
+        <span class="material-symbols-outlined text-[64px] text-tertiary mb-md" style="font-variation-settings:'FILL' 1;">check_circle</span>
+        <h1 class="text-headline-md font-bold text-on-surface mb-sm">Payment successful</h1>
+        <p class="text-body-lg text-on-surface-variant mb-md">@Model.Message</p>
+        @if (Model.ExpiresAt is DateTime exp)
+        {
+            <p class="text-body-md text-on-surface mb-lg">Pro is active until <strong>@exp.ToLocalTime().ToString("dd/MM/yyyy HH:mm")</strong>.</p>
+        }
+        @if (!string.IsNullOrEmpty(Model.OrderCode))
+        {
+            <p class="text-body-sm text-on-surface-variant mb-lg">Order: @Model.OrderCode</p>
+        }
+        <div class="flex flex-col sm:flex-row gap-md justify-center">
+            <a href="/Exams" class="rounded-lg bg-primary text-on-primary px-lg py-sm text-label-lg font-medium" style="text-decoration:none;">Take a Full Test</a>
+            <a href="/Pricing" class="rounded-lg border border-outline-variant px-lg py-sm text-label-lg text-on-surface" style="text-decoration:none;">View your plan</a>
+        </div>
+    }
+    else
+    {
+        <span class="material-symbols-outlined text-[64px] text-error mb-md">cancel</span>
+        <h1 class="text-headline-md font-bold text-on-surface mb-sm">Payment not completed</h1>
+        <p class="text-body-lg text-on-surface-variant mb-lg">@Model.Message</p>
+        <a href="/Pricing" class="rounded-lg bg-primary text-on-primary px-lg py-sm text-label-lg font-medium" style="text-decoration:none;">Try again</a>
+    }
+</div>

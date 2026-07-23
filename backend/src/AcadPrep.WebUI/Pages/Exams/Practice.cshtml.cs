@@ -136,6 +136,19 @@ public class PracticeModel : PageModel
         {
             // Word exists — save to user's notebook
             var saveResult = await _mediator.Send(new SaveVocabularyCommand(userId, lookupResult.Data.VocabularyId));
+            if (!saveResult.IsSuccess)
+            {
+                var (requiresPro, message, code) = AcadPrep.WebUI.Billing.PaywallError.Parse(saveResult.Error);
+                return new JsonResult(new
+                {
+                    success = false,
+                    error = message,
+                    requiresPro,
+                    code,
+                    upgradeUrl = "/Pricing"
+                });
+            }
+
             return new JsonResult(new
             {
                 success = true,
@@ -160,7 +173,15 @@ public class PracticeModel : PageModel
 
         if (!createResult.IsSuccess)
         {
-            return new JsonResult(new { success = false, error = createResult.Error ?? "Unable to save this word." });
+            var (requiresPro, message, code) = AcadPrep.WebUI.Billing.PaywallError.Parse(createResult.Error);
+            return new JsonResult(new
+            {
+                success = false,
+                error = message,
+                requiresPro,
+                code,
+                upgradeUrl = "/Pricing"
+            });
         }
 
         return new JsonResult(new

@@ -1,0 +1,99 @@
+@page
+@model AcadPrep.WebUI.Pages.Admin.Billing.IndexModel
+@{
+    Layout = "_AdminLayout";
+    ViewData["Title"] = "Billing & Orders";
+}
+
+<div class="max-w-[1280px] mx-auto flex flex-col gap-lg">
+    <header class="flex flex-col gap-md border-b border-outline-variant pb-md md:flex-row md:items-end md:justify-between">
+        <div>
+            <p class="mb-xs text-[12px] font-semibold uppercase tracking-[0.12em] text-primary">Monetization</p>
+            <h2 class="text-[32px] font-bold leading-10 text-on-surface">Orders & Pro grants</h2>
+        </div>
+    </header>
+
+    @if (TempData["SuccessMessage"] is string ok)
+    {
+        <div class="rounded-lg bg-tertiary-container text-on-tertiary-container px-md py-sm">@ok</div>
+    }
+    @if (TempData["ErrorMessage"] is string err)
+    {
+        <div class="rounded-lg bg-error-container text-on-error-container px-md py-sm">@err</div>
+    }
+
+    <section class="rounded-xl border border-outline-variant bg-surface-container-lowest p-lg">
+        <h3 class="text-headline-sm font-bold mb-md">Grant Pro (manual)</h3>
+        <form method="post" asp-page-handler="Grant" class="grid grid-cols-1 md:grid-cols-4 gap-md items-end">
+            <div>
+                <label class="text-label-md text-on-surface-variant">User ID</label>
+                <input asp-for="GrantUserId" class="w-full rounded-lg border border-outline-variant px-md py-sm" />
+            </div>
+            <div>
+                <label class="text-label-md text-on-surface-variant">Plan</label>
+                <select asp-for="GrantPlanId" asp-items="Model.PlanOptions" class="w-full rounded-lg border border-outline-variant px-md py-sm"></select>
+            </div>
+            <div>
+                <label class="text-label-md text-on-surface-variant">Note</label>
+                <input asp-for="GrantNote" class="w-full rounded-lg border border-outline-variant px-md py-sm" placeholder="Optional" />
+            </div>
+            <button type="submit" class="rounded-lg bg-primary text-on-primary px-md py-sm text-label-lg border-0">Grant</button>
+        </form>
+    </section>
+
+    <section class="rounded-xl border border-outline-variant bg-surface-container-lowest overflow-hidden">
+        <form method="get" class="flex flex-wrap gap-md p-lg border-b border-outline-variant">
+            <input name="Search" value="@Model.Search" placeholder="Order code / email / txn" class="rounded-lg border border-outline-variant px-md py-sm flex-1 min-w-[200px]" />
+            <select name="Status" class="rounded-lg border border-outline-variant px-md py-sm">
+                <option value="">All statuses</option>
+                @foreach (var s in new[] { "Pending", "Paid", "Failed", "Expired", "Cancelled" })
+                {
+                    <option value="@s" selected="@(Model.Status == s)">@s</option>
+                }
+            </select>
+            <button type="submit" class="rounded-lg border border-outline-variant px-md py-sm bg-surface-container-low">Filter</button>
+        </form>
+
+        <div class="overflow-x-auto">
+            <table class="w-full text-left text-body-md">
+                <thead class="bg-surface-container-low text-on-surface-variant">
+                    <tr>
+                        <th class="px-md py-sm">Order</th>
+                        <th class="px-md py-sm">User</th>
+                        <th class="px-md py-sm">Plan</th>
+                        <th class="px-md py-sm">Amount</th>
+                        <th class="px-md py-sm">Status</th>
+                        <th class="px-md py-sm">Provider</th>
+                        <th class="px-md py-sm">Created</th>
+                        <th class="px-md py-sm">Paid</th>
+                    </tr>
+                </thead>
+                <tbody>
+                @if (Model.Orders is null || Model.Orders.Count == 0)
+                {
+                    <tr><td colspan="8" class="px-md py-lg text-on-surface-variant">No orders yet.</td></tr>
+                }
+                else
+                {
+                    foreach (var o in Model.Orders)
+                    {
+                        <tr class="border-t border-outline-variant">
+                            <td class="px-md py-sm font-mono text-body-sm">@o.OrderCode</td>
+                            <td class="px-md py-sm">
+                                <div>@o.UserFullName</div>
+                                <div class="text-body-sm text-on-surface-variant">@o.UserEmail (#@o.UserId)</div>
+                            </td>
+                            <td class="px-md py-sm">@o.PlanName</td>
+                            <td class="px-md py-sm">@o.AmountVnd.ToString("N0") VND</td>
+                            <td class="px-md py-sm">@o.Status</td>
+                            <td class="px-md py-sm">@o.PaymentProvider @o.ProviderTxnId</td>
+                            <td class="px-md py-sm text-body-sm">@o.CreatedAt.ToLocalTime().ToString("g")</td>
+                            <td class="px-md py-sm text-body-sm">@(o.PaidAt?.ToLocalTime().ToString("g") ?? "—")</td>
+                        </tr>
+                    }
+                }
+                </tbody>
+            </table>
+        </div>
+    </section>
+</div>

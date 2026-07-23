@@ -173,7 +173,15 @@ async function startPracticeSession() {
             // Chuyển hướng sang trang làm bài chi tiết với SessionId vừa nhận
             window.location.href = `/Exams/Practice?sessionId=${result.sessionId}`;
         } else {
-            alert("Error: " + result.error);
+            if (result.requiresPro && result.upgradeUrl) {
+                if (confirm((result.error || 'Free quota reached.') + '\n\nOpen Pricing to upgrade to Pro?')) {
+                    window.location.href = result.upgradeUrl;
+                }
+            } else if (result.requiresLogin) {
+                window.location.href = '/Account/Login?returnUrl=' + encodeURIComponent(window.location.pathname + window.location.search);
+            } else {
+                alert("Error: " + result.error);
+            }
             if (btn) {
                 btn.disabled = false;
                 btn.innerHTML = `START PRACTICE <span class="material-symbols-outlined">play_arrow</span>`;
@@ -244,6 +252,12 @@ async function startFullTestSession() {
         if (result.success) {
             clearAttemptLocalProgress(result.abandonedAttemptId || inProgressAttemptId);
             window.location.href = `/Exams/Take?attemptId=${result.attemptId}`;
+        } else if (result.requiresPro && result.upgradeUrl) {
+            if (confirm((result.error || 'Free quota reached.') + '\n\nOpen Pricing to upgrade to Pro?')) {
+                window.location.href = result.upgradeUrl;
+            }
+        } else if (result.requiresLogin) {
+            window.location.href = '/Account/Login?returnUrl=' + encodeURIComponent(window.location.pathname + window.location.search);
         } else {
             alert('Error: ' + (result.error || 'Could not start the test.'));
         }

@@ -7,6 +7,12 @@
     var jsonOptions = new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase };
     var questionsJson = JsonSerializer.Serialize(session.Questions, jsonOptions);
 }
+<style>
+    /* Dịch Widget AI lên cao hơn trên trang Practice để không đè lên Vocab Toast (bottom-4) */
+    #ai-chat-widget {
+        bottom: 80px !important;
+    }
+</style>
 <!DOCTYPE html>
 <html class="light" lang="en">
 <head>
@@ -165,5 +171,17 @@
         };
     </script>
     <script src="~/js/exam-session.js"></script>
+    
+    @if (User.Identity?.IsAuthenticated == true && User.IsInRole("Learner"))
+    {
+        @await Component.InvokeAsync("AiChatWidget")
+        <script src="~/js/ai-chat-widget.js"></script>
+        <style>
+            /* Dịch Widget AI lên cao hơn trên trang Practice để không đè lên Vocab Toast (bottom-4) */
+            #ai-chat-widget {
+                bottom: 80px !important;
+            }
+        </style>
+    }
 </body>
 </html>

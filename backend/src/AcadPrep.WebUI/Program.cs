@@ -4,12 +4,22 @@ using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication.Google;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.DataProtection;
+using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using WebUI.Middlewares;
 using Domain.Enums;
 
 var builder = WebApplication.CreateBuilder(args);
+
+// Reverse proxy (nginx/IIS): đúng scheme HTTPS + client IP cho VNPay
+builder.Services.Configure<ForwardedHeadersOptions>(options =>
+{
+    options.ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto;
+    // Clear known networks/proxies when behind cloud LB — tighten in production if needed.
+    options.KnownNetworks.Clear();
+    options.KnownProxies.Clear();
+});
 
 // Add Data Protection to persist keys to disk (prevents cookie invalidation on dev restarts)
 builder.Services.AddDataProtection()
@@ -145,6 +155,7 @@ if (app.Environment.IsDevelopment())
 }
 
 // 4. Configure HTTP request pipeline & Custom Exception Middleware
+app.UseForwardedHeaders();
 app.UseMiddleware<ExceptionHandlingMiddleware>();
 
 if (app.Environment.IsDevelopment())

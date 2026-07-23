@@ -28,6 +28,11 @@ public static class NotificationType
     public const string StreakReset = "gamification.streak_reset";
     public const string VocabReviewDue = "vocab.review_due";
 
+    // Billing
+    public const string PaymentSucceeded = "billing.payment_succeeded";
+    public const string SubscriptionExpiring = "billing.subscription_expiring";
+    public const string SubscriptionGranted = "billing.subscription_granted";
+
     // Admin / System alerts — broadcast tới các tài khoản Admin
     public const string AdminNewUserRegistered = "admin.new_user_registered";
     public const string AdminExamCreated = "admin.exam_created";

@@ -13,16 +13,28 @@ public class CreateVocabularyCommandHandler : IRequestHandler<CreateVocabularyCo
     private readonly IAppDbContext _context;
     private readonly IAiGenerationService _aiGenerationService;
     private readonly IMediator _mediator;
+    private readonly IBillingAccessService _billing;
 
-    public CreateVocabularyCommandHandler(IAppDbContext context, IAiGenerationService aiGenerationService, IMediator mediator)
+    public CreateVocabularyCommandHandler(
+        IAppDbContext context,
+        IAiGenerationService aiGenerationService,
+        IMediator mediator,
+        IBillingAccessService billing)
     {
         _context = context;
         _aiGenerationService = aiGenerationService;
         _mediator = mediator;
+        _billing = billing;
     }
 
     public async Task<Result<int>> Handle(CreateVocabularyCommand request, CancellationToken cancellationToken)
     {
+        var quota = await _billing.EnsureCanSaveVocabularyAsync(request.UserId, cancellationToken);
+        if (!quota.Allowed)
+        {
+            return Result<int>.Failure($"{quota.ErrorCode}|{quota.Message}");
+        }
+
         // 1. Create Vocabulary
         var vocabulary = new Domain.Entities.Vocabulary
         {

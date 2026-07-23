@@ -99,6 +99,7 @@
                         <a class="font-label-md text-label-md text-white opacity-80 hover:opacity-100 transition-opacity" href="/Vocabulary/Notebook" style="text-decoration:none;">Vocabulary</a>
                         <a class="font-label-md text-label-md text-white opacity-80 hover:opacity-100 transition-opacity" href="/Vocabulary/DictionarySearch" style="text-decoration:none;">Dictionary</a>
                         <a class="font-label-md text-label-md text-white opacity-80 hover:opacity-100 transition-opacity" href="/Performance/Leaderboard" style="text-decoration:none;">Leaderboard</a>
+                        <a class="font-label-md text-label-md text-white opacity-80 hover:opacity-100 transition-opacity" href="/Pricing" style="text-decoration:none;">Pricing</a>
                         @if (User.IsInRole("Admin"))
                         {
                             <a class="font-label-md text-label-md text-white opacity-80 hover:opacity-100 transition-opacity" href="/Admin/Dashboard" style="text-decoration:none;">Admin</a>
@@ -141,6 +142,7 @@
                     <a class="h-full flex items-center px-sm text-[16px] text-on-surface-variant font-medium hover:text-primary transition-colors" href="/Vocabulary/Notebook" style="text-decoration:none;">Vocabulary</a>
                     <a class="h-full flex items-center px-sm text-[16px] text-on-surface-variant font-medium hover:text-primary transition-colors" href="/Vocabulary/DictionarySearch" style="text-decoration:none;">Dictionary</a>
                     <a class="h-full flex items-center px-sm text-[16px] text-on-surface-variant font-medium hover:text-primary transition-colors" href="/Performance/Leaderboard" style="text-decoration:none;">Leaderboard</a>
+                    <a class="h-full flex items-center px-sm text-[16px] text-on-surface-variant font-medium hover:text-primary transition-colors" href="/Pricing" style="text-decoration:none;">Pricing</a>
                 </nav>
                 <!-- Trailing Actions -->
                 <div class="flex items-center gap-md">
@@ -195,8 +197,8 @@
             <div class="space-y-md">
                 <h4 class="text-label-md font-bold uppercase text-on-surface">Support</h4>
                 <nav class="flex flex-col gap-sm">
-                    <a class="text-body-sm text-on-surface-variant hover:text-primary transition-colors" href="#" style="text-decoration:none;">Help center</a>
-                    <a class="text-body-sm text-on-surface-variant hover:text-primary transition-colors" href="#" style="text-decoration:none;">Payment guide</a>
+                    <a class="text-body-sm text-on-surface-variant hover:text-primary transition-colors" href="/Pricing" style="text-decoration:none;">Pricing & plans</a>
+                    <a class="text-body-sm text-on-surface-variant hover:text-primary transition-colors" href="/Pricing" style="text-decoration:none;">Payment guide</a>
                     <a class="text-body-sm text-on-surface-variant hover:text-primary transition-colors" href="#" style="text-decoration:none;">Report an issue</a>
                 </nav>
             </div>
@@ -245,6 +247,11 @@
                 });
         });
     </script>
+    @if (User.Identity?.IsAuthenticated == true && User.IsInRole("Learner") && ViewData["HideAiWidget"] is not true)
+    {
+        @await Component.InvokeAsync("AiChatWidget")
+        <script src="~/js/ai-chat-widget.js"></script>
+    }
     @await RenderSectionAsync("Scripts", required: false)
 </body>
 </html>

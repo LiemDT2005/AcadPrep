@@ -63,6 +63,13 @@ public class DictionarySearchModel : PageModel
         }
 
         var result = await _mediator.Send(new SaveVocabularyCommand(userId, vocabularyId));
+        if (!result.IsSuccess)
+        {
+            var (_, message, _) = AcadPrep.WebUI.Billing.PaywallError.Parse(result.Error);
+            TempData["ErrorMessage"] = message;
+            return RedirectToPage(new { Keyword });
+        }
+
         TempData["SaveMessage"] = result.Data ? "saved" : "already_saved";
 
         return RedirectToPage(new { Keyword });
