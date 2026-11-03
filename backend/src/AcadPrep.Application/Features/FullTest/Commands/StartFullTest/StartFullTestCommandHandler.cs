@@ -11,13 +11,11 @@ public class StartFullTestCommandHandler : IRequestHandler<StartFullTestCommand,
 {
     private readonly IAppDbContext _context;
     private readonly ICacheService _cache;
-    private readonly IBillingAccessService _billing;
 
-    public StartFullTestCommandHandler(IAppDbContext context, ICacheService cache, IBillingAccessService billing)
+    public StartFullTestCommandHandler(IAppDbContext context, ICacheService cache)
     {
         _context = context;
         _cache = cache;
-        _billing = billing;
     }
 
     public async Task<Result<StartFullTestResultDto>> Handle(StartFullTestCommand request, CancellationToken cancellationToken)
@@ -38,22 +36,16 @@ public class StartFullTestCommandHandler : IRequestHandler<StartFullTestCommand,
                 a.UserId == request.UserId &&
                 !a.IsSubmitted, cancellationToken);
 
-        if (inProgress is not null && !request.StartNewAttempt)
-        {
-            return Result<StartFullTestResultDto>.Failure(
-                $"You have an unfinished test ({TimeSpan.FromSeconds(inProgress.RemainingTime):hh\\:mm\\:ss} remaining).");
-        }
-
-        // Gate freemium trước khi abandon / tạo attempt mới.
-        var quota = await _billing.EnsureCanStartFullTestAsync(request.UserId, cancellationToken);
-        if (!quota.Allowed)
-        {
-            return Result<StartFullTestResultDto>.Failure($"{quota.ErrorCode}|{quota.Message}");
-        }
-
         int? abandonedAttemptId = null;
+
         if (inProgress is not null)
         {
+            if (!request.StartNewAttempt)
+            {
+                return Result<StartFullTestResultDto>.Failure(
+                    $"You have an unfinished test ({TimeSpan.FromSeconds(inProgress.RemainingTime):hh\\:mm\\:ss} remaining).");
+            }
+
             abandonedAttemptId = inProgress.Id;
             _context.AttemptAnswers.RemoveRange(inProgress.AttemptAnswers);
             _context.ExamAttempts.Remove(inProgress);
@@ -82,6 +74,7 @@ public class StartFullTestCommandHandler : IRequestHandler<StartFullTestCommand,
         _context.ExamAttempts.Add(attempt);
         await _context.SaveChangesAsync(cancellationToken);
 
+        // Attempt history is cached on exam detail — refresh after create/abandon
         await _cache.RemoveAsync($"ExamDetail_{request.ExamId}_U_{request.UserId}", cancellationToken);
 
         return Result<StartFullTestResultDto>.Success(new StartFullTestResultDto

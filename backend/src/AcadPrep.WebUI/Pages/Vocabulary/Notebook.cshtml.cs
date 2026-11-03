@@ -130,8 +130,7 @@ public class NotebookModel : PageModel
 
         if (!result.IsSuccess)
         {
-            var (_, message, _) = AcadPrep.WebUI.Billing.PaywallError.Parse(result.Error);
-            ModelState.AddModelError("", message);
+            ModelState.AddModelError("", "Failed to create vocabulary.");
             SavedVocabularies = (await _mediator.Send(new GetSavedVocabulariesQuery(userId, PageNumber, 10, SearchTerm))).Data!;
             return Page();
         }

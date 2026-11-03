@@ -13,13 +13,11 @@ public class SaveVocabularyCommandHandler : IRequestHandler<SaveVocabularyComman
 {
     private readonly IAppDbContext _context;
     private readonly IMediator _mediator;
-    private readonly IBillingAccessService _billing;
 
-    public SaveVocabularyCommandHandler(IAppDbContext context, IMediator mediator, IBillingAccessService billing)
+    public SaveVocabularyCommandHandler(IAppDbContext context, IMediator mediator)
     {
         _context = context;
         _mediator = mediator;
-        _billing = billing;
     }
 
     public async Task<Result<bool>> Handle(SaveVocabularyCommand request, CancellationToken cancellationToken)
@@ -30,12 +28,6 @@ public class SaveVocabularyCommandHandler : IRequestHandler<SaveVocabularyComman
         if (exists)
         {
             return false; // Or throw an exception for duplicate
-        }
-
-        var quota = await _billing.EnsureCanSaveVocabularyAsync(request.UserId, cancellationToken);
-        if (!quota.Allowed)
-        {
-            return Result<bool>.Failure($"{quota.ErrorCode}|{quota.Message}");
         }
 
         var entity = new SavedVocabulary

@@ -8,12 +8,10 @@ namespace AcadPrep.WebUI.ViewComponents;
 public class ProfileAvatarViewComponent : ViewComponent
 {
     private readonly IAppDbContext _context;
-    private readonly IBillingAccessService _billingAccessService;
 
-    public ProfileAvatarViewComponent(IAppDbContext context, IBillingAccessService billingAccessService)
+    public ProfileAvatarViewComponent(IAppDbContext context)
     {
         _context = context;
-        _billingAccessService = billingAccessService;
     }
 
     public async Task<IViewComponentResult> InvokeAsync(string variant)
@@ -33,16 +31,13 @@ public class ProfileAvatarViewComponent : ViewComponent
         {
             return Content(string.Empty);
         }
-        
-        bool isPro = await _billingAccessService.IsProAsync(userId);
 
         return View(new ProfileAvatarViewModel
         {
             FullName = user.FullName,
             AvatarUrl = user.AvatarUrl,
             Role = user.Role.RoleName,
-            Variant = variant,
-            IsPro = isPro
+            Variant = variant
         });
     }
 }
@@ -53,5 +48,4 @@ public class ProfileAvatarViewModel
     public string? AvatarUrl { get; set; }
     public string Role { get; set; } = string.Empty;
     public string Variant { get; set; } = string.Empty;
-    public bool IsPro { get; set; }
 }
