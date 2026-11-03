@@ -1,0 +1,32 @@
+@startuml
+
+skinparam ActivityBackgroundColor white
+skinparam ActivityBorderColor black
+skinparam ActivityDiamondBackgroundColor white
+skinparam ActivityDiamondBorderColor black
+
+|User|
+start
+:1. Clicks Play Audio;
+
+|System|
+:2. Detects current test mode;
+
+if () then ([Full Test Mode])
+  :3. Plays audio automatically;
+  :4. Disables seek/pause controls;
+
+  |User|
+  :5. Listens to audio (no control allowed);
+
+else ([Practice Mode])
+  :3. Plays audio with full controls;
+  :4. Enables seek/pause/replay;
+
+  |User|
+  :5. Controls audio playback freely;
+endif
+
+stop
+
+@enduml

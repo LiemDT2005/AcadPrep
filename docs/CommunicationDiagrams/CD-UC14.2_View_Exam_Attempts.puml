@@ -1,0 +1,34 @@
+@startuml
+skinparam monochrome true
+skinparam shadowing false
+skinparam linetype ortho
+skinparam backgroundColor #FFFFFF
+skinparam defaultFontName "Inter"
+skinparam ObjectFontSize 14
+skinparam ArrowFontSize 13
+skinparam nodesep 130
+skinparam ranksep 200
+skinparam wrapWidth 150
+left to right direction
+
+object "Actor: Student" as student
+object ":Profile.cshtml (Attempts Tab)" as view
+object ":ProfileModel" as pageModel
+object ":GetExamAttemptsQuery" as query
+object ":GetExamAttemptsQueryHandler" as handler
+object ":IAppDbContext" as dbContext
+object "SQL Server" as db
+
+student -> view : 1: Click "Exam Attempts" (or GET /Account/Profile?tab=attempts)
+view -> pageModel : 2: Page Request (tab = 'attempts')
+pageModel -> query : 3: Create GetExamAttemptsQuery(userId)
+pageModel -> handler : 4: Send query via MediatR
+handler -> dbContext : 5: Query ExamAttempts (Join Exams on ExamId)
+dbContext -> db : 6: Execute SQL Select
+db --> dbContext : 7: Return attempt rows
+dbContext --> handler : 8: Return entity collection
+handler -> handler : 9: Map attempts to ExamAttemptDto list (calculate duration, format scores)
+handler --> pageModel : 10: Return list of ExamAttemptDto
+pageModel --> view : 11: Pass attempts list to View
+view --> student : 12: Render attempts list table (with scores, dates, and review buttons)
+@enduml

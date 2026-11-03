@@ -1,0 +1,104 @@
+@startuml
+
+hide footbox
+
+actor User
+participant "Exam Detail View" as View
+participant ":PracticeByPart.cshtml.cs" as PageModel
+participant ":ValidationBehavior" as Pipeline
+participant ":StartPartPracticeCommandHandler" as Handler
+entity "Question" as QuestionEntity <<Entity>>
+entity "ExamAttempt" as AttemptEntity <<Entity>>
+entity "PartPracticeDto" as DTO <<DTO>>
+participant ":IAppDbContext" as DbContext
+database "SQL Server" as DB
+
+User -> View : 1 Select Part and click Practice
+activate User
+activate View
+
+View -> PageModel : 2 Submit practice request
+activate PageModel
+
+PageModel -> Pipeline : 3 Send StartPartPracticeCommand
+activate Pipeline
+
+Pipeline -> Pipeline : 4 Validate examId, userId, partNumber
+activate Pipeline
+space
+deactivate Pipeline
+Pipeline -> Handler : 5 Forward to handler
+activate Handler
+
+Handler -> DbContext : 6 Query questions by examId and part
+activate DbContext
+
+DbContext -> DB : 7 Execute query
+activate DB
+
+DB --> DbContext : 8 Return question rows
+deactivate DB
+
+DbContext -> QuestionEntity : 9 Create Question entities
+activate QuestionEntity
+QuestionEntity --> DbContext : 10 Return Question entities
+deactivate QuestionEntity
+
+DbContext --> Handler : 11 Return Question entities
+deactivate DbContext
+
+alt No questions found
+
+    Handler --> Pipeline : 12 Throw NotFoundException
+    deactivate Handler
+
+    Pipeline --> PageModel : 13 Propagate exception
+    deactivate Pipeline
+
+    PageModel --> View : 14 Redirect with error
+    deactivate PageModel
+
+    View --> User : 15 Show error message
+    deactivate View
+    deactivate User
+
+else Questions found
+
+    Handler -> AttemptEntity : 16 Create practice ExamAttempt entity
+    activate AttemptEntity
+    AttemptEntity --> Handler : 17 Return ExamAttempt entity
+    deactivate AttemptEntity
+
+    Handler -> DbContext : 18 Save ExamAttempt to DB
+    activate DbContext
+
+    DbContext -> DB : 19 Insert practice attempt
+    activate DB
+
+    DB --> DbContext : 20 Confirm insert
+    deactivate DB
+
+    DbContext --> Handler : 21 Save successful
+    deactivate DbContext
+
+    Handler -> DTO : 22 Map to PartPracticeDto
+    activate DTO
+    DTO --> Handler : 23 Return PartPracticeDto
+    deactivate DTO
+
+    Handler --> Pipeline : 24 Return PartPracticeDto
+    deactivate Handler
+
+    Pipeline --> PageModel : 25 Return PartPracticeDto
+    deactivate Pipeline
+
+    PageModel --> View : 26 Pass PartPracticeDto to view
+    deactivate PageModel
+
+    View --> User : 27 Render part practice page
+    deactivate View
+    deactivate User
+
+end
+
+@enduml

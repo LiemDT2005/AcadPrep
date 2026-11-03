@@ -1,0 +1,115 @@
+@startuml
+
+hide footbox
+
+actor User
+participant "Leaderboard View" as View
+participant ":Leaderboard.cshtml.cs" as PageModel
+participant ":ValidationBehavior" as Pipeline
+participant ":GetLeaderboardQueryHandler" as Handler
+entity "ExamAttempt" as AttemptEntity <<Entity>>
+entity "LeaderboardEntryDto" as DTO <<DTO>>
+participant ":ICacheService" as CacheService
+participant "Redis" as Redis
+participant ":IAppDbContext" as DbContext
+database "SQL Server" as DB
+
+User -> View : 1 Access /Leaderboard
+activate User
+activate View
+
+View -> PageModel : 2 Request leaderboard data
+activate PageModel
+
+PageModel -> Pipeline : 3 Send GetLeaderboardQuery
+activate Pipeline
+
+Pipeline -> Pipeline : 4 Validate query
+activate Pipeline
+space
+deactivate Pipeline
+Pipeline -> Handler : 5 Forward to handler
+activate Handler
+
+Handler -> CacheService : 6 Check cache
+activate CacheService
+
+CacheService -> Redis : 7 Get leaderboard data
+activate Redis
+Redis --> CacheService : 8 Return data or null
+deactivate Redis
+
+CacheService --> Handler : 9 Return cache result
+deactivate CacheService
+
+alt Cache MISS
+
+    Handler -> DbContext : 10 Query top scores with user info
+    activate DbContext
+
+    DbContext -> DB : 11 Execute aggregate query
+    activate DB
+
+    DB --> DbContext : 12 Return ranked rows
+    deactivate DB
+
+    DbContext -> AttemptEntity : 13 Create ExamAttempt entities
+    activate AttemptEntity
+    AttemptEntity --> DbContext : 14 Return ExamAttempt entities
+    deactivate AttemptEntity
+
+    DbContext --> Handler : 15 Return ExamAttempt entities
+    deactivate DbContext
+
+    Handler -> DTO : 16 Map to LeaderboardEntryDto list
+    activate DTO
+    DTO --> Handler : 17 Return LeaderboardEntryDto list
+    deactivate DTO
+
+    Handler -> CacheService : 18 Cache leaderboard data
+    activate CacheService
+
+    CacheService -> Redis : 19 Write to cache
+    activate Redis
+
+    Redis --> CacheService : 20 Write confirmed
+    deactivate Redis
+
+    CacheService --> Handler : 21 Caching successful
+    deactivate CacheService
+
+    Handler --> Pipeline : 22 Return LeaderboardEntryDto list
+    deactivate Handler
+
+    Pipeline --> PageModel : 23 Return LeaderboardEntryDto list
+    deactivate Pipeline
+
+    PageModel --> View : 24 Pass DTO list to view
+    deactivate PageModel
+
+    View --> User : 25 Render leaderboard table
+    deactivate View
+    deactivate User
+
+else Cache HIT
+
+    Handler -> DTO : 26 Deserialize cached DTO list
+    activate DTO
+    DTO --> Handler : 27 Return LeaderboardEntryDto list
+    deactivate DTO
+
+    Handler --> Pipeline : 28 Return cached LeaderboardEntryDto list
+    deactivate Handler
+
+    Pipeline --> PageModel : 29 Return LeaderboardEntryDto list
+    deactivate Pipeline
+
+    PageModel --> View : 30 Pass DTO list to view
+    deactivate PageModel
+
+    View --> User : 31 Render leaderboard table
+    deactivate View
+    deactivate User
+end
+
+@enduml

@@ -1,0 +1,48 @@
+@startuml
+
+skinparam ActivityBackgroundColor white
+skinparam ActivityBorderColor black
+skinparam ActivityDiamondBackgroundColor white
+skinparam ActivityDiamondBorderColor black
+
+|Guest|
+start
+:1. Enters search keyword;
+
+|System|
+:2. Validates keyword length;
+
+if (Keyword >= 2 characters?) then ([Yes])
+  :3. Queries matching published exams;
+
+  if () then ([Found Exam])
+    :4. Displays matching exam cards;
+
+    |Guest|
+    :5. Views search results;
+
+    if () then ([Click exam card])
+      :View Detail;
+    elseif () then ([Modify search keyword])
+      :Search exam;
+    else ([Click filter button])
+      :Filter exam;
+    endif
+
+  else ([No Exam Found])
+    :6. Displays no results message;
+
+    |Guest|
+    :7. Views empty state;
+  endif
+
+else ([No])
+  :Displays minimum keyword warning;
+
+  |Guest|
+  :Views warning message;
+endif
+
+stop
+
+@enduml

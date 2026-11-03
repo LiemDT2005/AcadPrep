@@ -1,0 +1,42 @@
+@startuml
+skinparam monochrome true
+skinparam shadowing false
+skinparam linetype ortho
+skinparam backgroundColor #FFFFFF
+skinparam defaultFontName "Inter"
+skinparam ObjectFontSize 14
+skinparam ArrowFontSize 13
+skinparam nodesep 170
+skinparam ranksep 320
+skinparam wrapWidth 140
+left to right direction
+
+object "Actor: Student" as student
+object ":Take.cshtml / :Practice.cshtml" as view
+object "exam-session.js" as script
+object "audio : HTMLAudioElement" as audio
+object ":Take.cshtml.cs" as pageModel
+object ":IAppDbContext" as dbContext
+object "SQL Server" as db
+
+student -> view : 1: Access page / start test
+view -> pageModel : 2: Request page data
+pageModel -> dbContext : 3: Load attempt, questions, audio markers
+dbContext -> db : 4: Fetch data
+db --> dbContext : 5: Return rows
+dbContext --> pageModel : 6: Return entities
+pageModel --> view : 7: Render HTML & inject window.examSessionConfig
+view -> script : 8: Init (questions, audio config)
+script -> audio : 9: Set src, disable controls, auto-play()
+audio --> script : 10: Audio events ('timeupdate' / 'ended')
+script -> script : 11: Enforce segment bounds & auto-advance
+note right of script
+  Block seek/pause:
+  Listen to 'timeupdate',
+  'seeked', 'ended'
+end note
+student -> view : 12: Click Play/Pause/Seek (Practice)
+view -> script : 13: UI event handler
+script -> audio : 14: Setup player UI, play/pause/seek
+audio --> script : 15: Update progress/clock
+@enduml

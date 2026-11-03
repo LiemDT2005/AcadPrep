@@ -1,0 +1,101 @@
+@startuml AcadPrep_Package_Diagram
+title Clean Architecture - AcadPrep (Package Diagram)
+
+skinparam monochrome true
+skinparam packageStyle folder
+skinparam shadowing false
+skinparam defaultFontName Arial
+skinparam defaultFontSize 11
+top to bottom direction
+
+skinparam package {
+  BorderColor Black
+  BackgroundColor White
+  FontStyle Bold
+  FontSize 11
+}
+
+' ════════════════════════════════════════════════
+' ACTORS
+' ════════════════════════════════════════════════
+package "Users" as Users
+
+' ════════════════════════════════════════════════
+' Presentation Layer [AcadPrep.WebUI]
+' ════════════════════════════════════════════════
+package "Presentation Layer\n[AcadPrep.WebUI]" as PL {
+  package "Pages\n(.cshtml / .cshtml.cs)" as Pages
+  package "Middlewares" as Middlewares
+}
+
+' ════════════════════════════════════════════════
+' Infrastructure Layer [AcadPrep.Infrastructure]
+' ════════════════════════════════════════════════
+package "Infrastructure Layer\n[AcadPrep.Infrastructure]" as IL {
+  package "Persistence\n(AppDbContext, Configurations)" as Persistence
+  package "Services\n(CurrentUser, Cache, AI)" as Services
+  package "Migrations" as Migrations
+}
+
+' ════════════════════════════════════════════════
+' External Resources
+' ════════════════════════════════════════════════
+package "Data Sources\n(SQL Server / Redis)" as DS
+package "External Services\n(AI API)" as ES
+
+' ════════════════════════════════════════════════
+' Application Layer [AcadPrep.Application]
+' ════════════════════════════════════════════════
+package "Application Layer\n[AcadPrep.Application]" as AL {
+  package "Features\n(Exam, Admin, Performance,\nVocabulary)" as Features
+  package "Common" as Common {
+    package "Interfaces\n(IAppDbContext, ICacheService,\nIAiGenerationService)" as Interfaces
+    package "Models\n(Result, PaginatedList)" as Models
+    package "Behaviors\n(ValidationBehavior)" as Behaviors
+    package "Utils\n(ToeicScoreConverter)" as Utils
+  }
+}
+
+' ════════════════════════════════════════════════
+' Domain Layer [AcadPrep.Domain]
+' ════════════════════════════════════════════════
+package "Domain Layer\n[AcadPrep.Domain]" as DL {
+  package "Entities\n(Exam, Question, User,\nExamAttempt, Vocabulary...)" as Entities
+  package "Common\n(BaseEntity, IAuditable,\nISoftDeletable)" as DCommon
+  package "Enums\n(OptionLetter, UserStatus)" as Enums
+}
+
+' ════════════════════════════════════════════════
+' LAYOUT HINTS
+' ════════════════════════════════════════════════
+Users -[hidden]right-> PL
+PL -[hidden]right-> IL
+IL -[hidden]right-> DS
+DS -[hidden]right-> ES
+
+PL -[hidden]down-> AL
+IL -[hidden]down-> AL
+AL -[hidden]down-> DL
+
+' ════════════════════════════════════════════════
+' DEPENDENCY ARROWS
+' ════════════════════════════════════════════════
+
+' Users to Presentation
+Users -down..> PL 
+
+' Presentation -> Application
+PL -down..> AL 
+
+' Infrastructure -> Application & Domain
+IL -down..> AL 
+IL -down..> DL 
+
+' Application -> Domain
+AL -down..> DL 
+
+' Infrastructure -> External
+IL -down..> DS 
+IL -down..> ES 
+
+@enduml

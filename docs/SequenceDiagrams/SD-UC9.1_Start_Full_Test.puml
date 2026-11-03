@@ -1,0 +1,135 @@
+@startuml
+
+hide footbox
+
+actor User
+participant "Exam Detail View" as View
+participant ":StartTest.cshtml.cs" as PageModel
+participant ":ValidationBehavior" as Pipeline
+participant ":StartFullTestCommandHandler" as Handler
+entity "Exam" as ExamEntity <<Entity>>
+entity "ExamAttempt" as AttemptEntity <<Entity>>
+entity "FullTestDto" as DTO <<DTO>>
+participant ":IAppDbContext" as DbContext
+database "SQL Server" as DB
+
+User -> View : 1 Click Start Full Test
+activate User
+activate View
+
+View -> PageModel : 2 Submit start request
+activate PageModel
+
+PageModel -> Pipeline : 3 Send StartFullTestCommand
+activate Pipeline
+
+Pipeline -> Pipeline : 4 Validate examId and userId
+activate Pipeline
+space
+deactivate Pipeline
+Pipeline -> Handler : 5 Forward to handler
+activate Handler
+
+Handler -> DbContext : 6 Query exam by Id
+activate DbContext
+
+DbContext -> DB : 7 Execute query
+activate DB
+
+DB --> DbContext : 8 Return exam row
+deactivate DB
+
+DbContext -> ExamEntity : 9 Create Exam entity
+activate ExamEntity
+ExamEntity --> DbContext : 10 Return Exam entity
+deactivate ExamEntity
+
+DbContext --> Handler : 11 Return Exam entity
+deactivate DbContext
+
+alt Exam not found
+
+    Handler --> Pipeline : 12 Throw NotFoundException
+    deactivate Handler
+
+    Pipeline --> PageModel : 13 Propagate exception
+    deactivate Pipeline
+
+    PageModel --> View : 14 Redirect to /Exams with error
+    deactivate PageModel
+
+    View --> User : 15 Show error message
+    deactivate View
+    deactivate User
+
+else Exam found
+
+    Handler -> DbContext : 16 Check existing incomplete attempt
+    activate DbContext
+
+    DbContext -> DB : 17 Query unsubmitted attempt
+    activate DB
+
+    DB --> DbContext : 18 Return attempt or null
+    deactivate DB
+
+    DbContext --> Handler : 19 Return result
+    deactivate DbContext
+
+    alt Has incomplete attempt
+
+        Handler --> Pipeline : 20 Return existing attempt info
+        deactivate Handler
+
+        Pipeline --> PageModel : 21 Return existing attempt
+        deactivate Pipeline
+
+        PageModel --> View : 22 Redirect to resume test
+        deactivate PageModel
+
+        View --> User : 23 Show resume test page
+        deactivate View
+        deactivate User
+
+    else No incomplete attempt
+
+        Handler -> AttemptEntity : 24 Create ExamAttempt entity
+        activate AttemptEntity
+        AttemptEntity --> Handler : 25 Return ExamAttempt entity
+        deactivate AttemptEntity
+
+        Handler -> DbContext : 26 Save ExamAttempt to DB
+        activate DbContext
+
+        DbContext -> DB : 27 Insert exam attempt
+        activate DB
+
+        DB --> DbContext : 28 Confirm insert
+        deactivate DB
+
+        DbContext --> Handler : 29 Save successful
+        deactivate DbContext
+
+        Handler -> DTO : 30 Map to FullTestDto
+        activate DTO
+        DTO --> Handler : 31 Return FullTestDto
+        deactivate DTO
+
+        Handler --> Pipeline : 32 Return FullTestDto
+        deactivate Handler
+
+        Pipeline --> PageModel : 33 Return FullTestDto
+        deactivate Pipeline
+
+        PageModel --> View : 34 Pass FullTestDto to view
+        deactivate PageModel
+
+        View --> User : 35 Render full test with countdown timer
+        deactivate View
+        deactivate User
+
+    end
+
+end
+
+@enduml

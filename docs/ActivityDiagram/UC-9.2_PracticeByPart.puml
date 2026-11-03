@@ -1,0 +1,43 @@
+@startuml
+
+skinparam ActivityBackgroundColor white
+skinparam ActivityBorderColor black
+skinparam ActivityDiamondBackgroundColor white
+skinparam ActivityDiamondBorderColor black
+
+|User|
+start
+:1. Selects Part (Part 1 - Part 7);
+:2. Clicks Practice;
+
+|System|
+:3. Validates exam and part number;
+
+if (Valid?) then ([Yes])
+  :4. Queries questions for selected Part;
+
+  if () then ([Found Questions])
+    :5. Creates practice ExamAttempt entity;
+    :6. Saves attempt to database;
+    :7. Loads Part questions (no countdown timer);
+
+    |User|
+    :8. Views practice page;
+
+  else ([No Questions Found])
+    :5. Displays error message;
+
+    |User|
+    :6. Views error;
+  endif
+
+else ([No])
+  :4. Displays validation error;
+
+  |User|
+  :5. Views error;
+endif
+
+stop
+
+@enduml

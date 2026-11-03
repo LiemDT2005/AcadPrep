@@ -1,0 +1,42 @@
+@startuml
+
+skinparam ActivityBackgroundColor white
+skinparam ActivityBorderColor black
+skinparam ActivityDiamondBackgroundColor white
+skinparam ActivityDiamondBorderColor black
+
+|User|
+start
+:1. Clicks Start Full Test;
+
+|System|
+:2. Validates exam exists;
+
+if (Exam valid?) then ([Yes])
+  :3. Checks existing incomplete attempt;
+
+  if () then ([Has incomplete attempACt])
+    :4. Redirects to Resume Test;
+
+    |User|
+    :5. Views resume test page;
+
+  else ([No incomplete attempt])
+    :4. Creates ExamAttempt entity;
+    :5. Saves attempt to database;
+    :6. Loads all 7 Parts with countdown timer;
+
+    |User|
+    :7. Views full test page;
+  endif
+
+else ([No])
+  :3. Displays error message;
+
+  |User|
+  :4. Views error;
+endif
+
+stop
+
+@enduml

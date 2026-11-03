@@ -1,0 +1,73 @@
+@startuml
+
+hide footbox
+
+actor Guest
+participant "Exam View" as View
+participant ":Index.cshtml.cs" as PageModel
+participant ":ValidationBehavior" as Pipeline
+participant ":SearchExamsQueryHandler" as Handler
+entity "Exam" as ExamEntity <<Entity>>
+entity "ExamBriefDto" as DTO <<DTO>>
+participant ":IAppDbContext" as DbContext
+database "SQL Server" as DB
+
+Guest -> View : 1 Enter search keyword
+activate Guest
+activate View
+
+View -> PageModel : 2 Request search results
+activate PageModel
+
+PageModel -> Pipeline : 3 Send SearchExamsQuery
+activate Pipeline
+
+Pipeline -> Pipeline : 4 Validate search query
+activate Pipeline
+space
+deactivate Pipeline
+Pipeline -> Handler : 5 Forward to handler
+activate Handler
+
+Handler -> DbContext : 6 Query matching exams
+activate DbContext
+
+DbContext -> DB : 7 Execute search query
+activate DB
+
+DB --> DbContext : 8 Return matching rows
+deactivate DB
+
+DbContext -> ExamEntity : 9 Create Exam entities
+activate ExamEntity
+ExamEntity --> DbContext : 10 Return Exam entities
+deactivate ExamEntity
+
+DbContext --> Handler : 11 Return Exam entities list
+deactivate DbContext
+
+Handler -> DTO : 12 Map Exam entities to ExamBriefDto
+activate DTO
+DTO --> Handler : 13 Return ExamBriefDto list
+deactivate DTO
+
+Handler --> Pipeline : 14 Return ExamBriefDto list
+deactivate Handler
+
+Pipeline --> PageModel : 15 Return ExamBriefDto list
+deactivate Pipeline
+
+PageModel --> View : 16 Pass DTO list to view
+deactivate PageModel
+
+alt List is empty
+    View --> Guest : 17 Show no results message
+    deactivate View
+    deactivate Guest
+else List has items
+    View --> Guest : 18 Render matching exam cards
+    deactivate View
+    deactivate Guest
+end
+
+@enduml

@@ -1,0 +1,34 @@
+@startuml
+skinparam monochrome true
+skinparam shadowing false
+skinparam linetype ortho
+skinparam backgroundColor #FFFFFF
+skinparam defaultFontName "Inter"
+skinparam ObjectFontSize 14
+skinparam ArrowFontSize 13
+skinparam nodesep 130
+skinparam ranksep 200
+skinparam wrapWidth 150
+left to right direction
+
+object "Actor: Student" as student
+object ":IncorrectAnswers.cshtml" as view
+object ":IncorrectAnswersModel" as pageModel
+object ":GetIncorrectAnswersQuery" as query
+object ":GetIncorrectAnswersQueryHandler" as handler
+object ":IAppDbContext" as dbContext
+object "SQL Server" as db
+
+student -> view : 1: Click "Review Incorrect Answers" (or GET /Exams/IncorrectAnswers)
+view -> pageModel : 2: Page Request (partFilter, examFilter)
+pageModel -> query : 3: Create GetIncorrectAnswersQuery(userId, partFilter, examFilter)
+pageModel -> handler : 4: Send query via MediatR
+handler -> dbContext : 5: Query AttemptAnswers where SelectedOption != CorrectOption
+dbContext -> db : 6: Execute SQL query with Joins (Attempts, Questions, Options, Passages, Exams)
+db --> dbContext : 7: Return wrong answers and question metadata
+dbContext --> handler : 8: Return database models
+handler -> handler : 9: Group wrong answers (by TOEIC Part or Exam, format details)
+handler --> pageModel : 10: Return grouped IncorrectAnswersDto
+pageModel --> view : 11: Pass DTO to View
+view --> student : 12: Render grouped accordion review cards (showing question, wrong choice, explanation)
+@enduml

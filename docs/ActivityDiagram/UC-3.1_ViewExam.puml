@@ -1,0 +1,29 @@
+@startum@startuml
+
+skinparam ActivityBackgroundColor white
+skinparam ActivityBorderColor black
+skinparam ActivityDiamondBackgroundColor white
+skinparam ActivityDiamondBorderColor black
+
+|Guest|
+start
+:Accesses exam list page;
+|System|
+:Retrieves published exams;
+if () then ([Found Exam])
+  :Displays exam list;
+  |Guest|
+  :View exam list;
+  if () then ([Click exam card])
+    :View Detail;
+  elseif () then ([Click search button])
+    :Search exam;
+  else ([Click filter button])
+    :Filter exam;
+  endif
+else ([No Exam Found])
+endif
+stop
+@enduml
+
+

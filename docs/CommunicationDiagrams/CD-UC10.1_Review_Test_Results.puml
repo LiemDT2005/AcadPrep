@@ -1,0 +1,36 @@
+@startuml
+skinparam monochrome true
+skinparam shadowing false
+skinparam linetype ortho
+skinparam backgroundColor #FFFFFF
+skinparam defaultFontName "Inter"
+skinparam ObjectFontSize 14
+skinparam ArrowFontSize 13
+skinparam nodesep 130
+skinparam ranksep 200
+skinparam wrapWidth 150
+left to right direction
+
+object "Actor: Student" as student
+object ":Review.cshtml" as view
+object ":ReviewModel" as pageModel
+object ":GetExamReviewQuery" as query
+object ":GetExamReviewQueryHandler" as handler
+object ":IAppDbContext" as dbContext
+object "SQL Server" as db
+
+student -> view : 1: Click "Review answers" (or GET /Exams/Review?attemptId=...)
+view -> pageModel : 2: Page Request (attemptId)
+pageModel -> query : 3: Create GetExamReviewQuery(attemptId, userId)
+pageModel -> handler : 4: Send query via MediatR
+handler -> dbContext : 5: Get ExamAttempt (check UserId, IsSubmitted)
+dbContext -> db : 6: Query Attempt, AttemptAnswers, Questions, Explanations
+db --> dbContext : 7: Return entity data
+dbContext --> handler : 8: Return database models
+
+handler -> handler : 9: Construct Review DTOs (compare user answers, format correct/incorrect status, compile explanations)
+
+handler --> pageModel : 10: Return ExamReviewDto
+pageModel --> view : 11: Pass DTO to View
+view --> student : 12: Render review UI (color-coded correct/incorrect options, display answer explanation)
+@enduml

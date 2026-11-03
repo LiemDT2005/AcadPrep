@@ -1,0 +1,32 @@
+@startuml
+
+skinparam ActivityBackgroundColor white
+skinparam ActivityBorderColor black
+skinparam ActivityDiamondBackgroundColor white
+skinparam ActivityDiamondBorderColor black
+
+|User|
+start
+:1. Clicks Resume Test;
+
+|System|
+:2. Queries incomplete attempt from database;
+
+if (Attempt found?) then ([Yes])
+  :3. Loads saved answers;
+  :4. Restores remaining countdown time;
+  :5. Renders test page with previous state;
+
+  |User|
+  :6. Continues test from where left off;
+
+else ([No])
+  :3. Displays no incomplete attempt message;
+
+  |User|
+  :4. Views message;
+endif
+
+stop
+
+@enduml
